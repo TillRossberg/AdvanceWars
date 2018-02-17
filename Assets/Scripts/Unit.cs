@@ -7,13 +7,13 @@ public class Unit : MonoBehaviour
 	//General
 	public string unitName;
     public Sprite thumbNail;
-    public bool hasTurn = true;//The unit is ready for action.
-    public bool hasMoved = false;//States if the unit has already moved this turn.
-    public bool canFire = true;//Some units cant fire after thy moved.
+    public bool hasTurn = false;//The unit is ready for action.
+    public bool hasMoved = true;//States if the unit has already moved this turn.
+    public bool canFire = false;//Some units can't fire after they have moved.
     public bool directAttack = false;
     public bool rangeAttack = false;
-    public bool teamRed = false;
-    public bool teamBlue = false;
+    public Team myTeam;
+    public List<Team> enemyTeams = new List<Team>();
     public bool isSelected = false;
     public int xPos;
     public int yPos;
@@ -28,46 +28,57 @@ public class Unit : MonoBehaviour
     GameObject myLevelManager;
     private List<List<Transform>> myGraph = new List<List<Transform>>();
   
-    //Prefabs    
-	public Transform reachableTile;
-    public Transform attackableTile;
-	public Transform unReachableTile;
-	public Transform kantenGewichtTextMesh;
-
-    //Properties
-    public int baseDamage;
-    public int health = 100;
-	public int ammo;
-    public int fuel;
-	public int moveDist;
-	public int vision;
-	public int range;
-    public enum unitType { AntiAir, APC, Tank, Artillery, Rockets, Missiles, Neotank, Recon, Infantry, MdTank, Mech, TCopter, BCopter, Bomber, Fighter, Lander, Battleship, Cruiser, Sub, Pipe };
-    public unitType myUnitType; 
-    public enum moveType {Foot, Mech, Treads, Wheels, Lander, Ship, Air};
-    public moveType myMoveType;
-	public int cost;
+    //Tilestuff
+	public Transform reachableTilePrefab;
+    public Transform attackableTilePrefab;
     public List<Tile> attackableTiles = new List<Tile>();
     public List<Unit> attackableUnits = new List<Unit>();
-	
+    public List<Tile> reachableTiles = new List<Tile>();
 
-	// Use this for initialization
-	void Start () 
+    //Properties
+    public int health = 100;
+	public int ammo;
+    public int maxAmmo;
+    public int fuel;
+    public int maxFuel;
+	public int moveDist;
+	public int vision;
+    public int minRange;
+    public int maxRange;
+    public int cost;
+
+    public type myUnitType; 
+    public enum type { Flak, APC, Tank, Artillery, Rockets, Missiles, Titantank, Recon, Infantry, MdTank, Mech, TCopter, BCopter, Bomber, Fighter, Lander, Battleship, Cruiser, Sub, Pipe };
+    public moveType myMoveType;
+    public enum moveType {Foot, Mech, Treads, Wheels, Lander, Ship, Air};
+
+
+    // Use this for initialization
+    void Start () 
 	{
 		myLevelManager = GameObject.FindGameObjectWithTag ("LevelManager");
         myGraph = myLevelManager.GetComponent<Graph>().getGraph();
+        
     }
 	
     private void OnMouseDown()
     {
         //If normal mode is activated.
-        if (myLevelManager.GetComponent<MainFunctions>().normalMode)
+        if (myLevelManager.GetComponent<MainFunctions>().normalMode && !myLevelManager.GetComponent<Menu_BuyUnits>().isOpened && hasTurn)
         {               
             //Einheit als ausgewählt markieren.
             myLevelManager.GetComponent<MainFunctions>().selectUnit(this);
-            //Erreichbaren Bereich berechnen und zeichnen.
-            calcReachableArea(this.xPos, this.yPos, moveDist, myMoveType);
-            myLevelManager.GetComponent<Graph>().drawReachableTiles();
+            //Calculate reachable area and instantiate the graphics for the tiles.
+            counter = 0;
+            calcReachableArea(this.xPos, this.yPos, moveDist, myMoveType, null);
+            Debug.Log("Reachable iterations: " + counter);
+            myLevelManager.GetComponent<Graph>().createReachableTiles();
+            //Calculate attackable area, instantiate the graphics for the tiles and store the attackable units in a list.
+            findAttackableTiles();
+            myLevelManager.GetComponent<Graph>().createAttackableTiles();
+            myLevelManager.GetComponent<Graph>().showAttackableTiles(false);
+            findAttackableEnemies();
+
             myLevelManager.GetComponent<MainFunctions>().activateMoveMode();
         }
         else
@@ -75,18 +86,14 @@ public class Unit : MonoBehaviour
         if (myLevelManager.GetComponent<MainFunctions>().moveMode)
         {
             if (isSelected)
-            {
-                myLevelManager.GetComponent<MainFunctions>().selectedUnit.findAttackableTiles();//Try to find an unit to attack.
-                myLevelManager.GetComponent<Graph>().hideReachableTiles();
+            {                
                 //Decide if the menu with firebutton and wait button is opened OR if only the wait button is to display.
                 if (myLevelManager.GetComponent<MainFunctions>().selectedUnit.attackableUnits.Count > 0)
                 {
-                    //Open context menu at the position you want to go to.
                     myLevelManager.GetComponent<ContextMenu>().openContextMenu(xPos, yPos, 1);
                 }
                 else
                 {
-                    //Open context menu at the position you want to go to.
                     myLevelManager.GetComponent<ContextMenu>().openContextMenu(xPos, yPos, 0);
                 }               
             }
@@ -102,9 +109,11 @@ public class Unit : MonoBehaviour
                 Unit defender = this;
                 //Align the units to face each other.
                 alignUnit(attacker.xPos, attacker.yPos);
-                displayHealth();//Puts the health indicator in the right position.
                 attacker.alignUnit(this.xPos, this.yPos);
-                attacker.displayHealth();//Puts the health indicator in the right position.
+                //Puts the health indicator in the right position.
+                displayHealth();
+                attacker.displayHealth();
+
                 myLevelManager.GetComponent<BattleMode>().fight(attacker, defender);//Battle
                 myLevelManager.GetComponent<MainFunctions>().deselectObject();//Deselect the current unit                
             }
@@ -128,7 +137,7 @@ public class Unit : MonoBehaviour
         TextMesh myText = this.GetComponentInChildren<TextMesh>();
         myText.transform.SetPositionAndRotation(new Vector3(this.transform.position.x - 0.4f,this.transform.position.y, this.transform.position.z - 0.2f), Quaternion.Euler(90, 0, 0));
         //If the health goes below five the value will be rounded to 0, but we dont want that!
-        if(health > 5)
+        if(health > 10)
         {
             myText.text = "" + (int)(health / 10);
         }
@@ -145,11 +154,10 @@ public class Unit : MonoBehaviour
     //Destroys the unit
     public void killUnit()
     {
-        //Unblock the tile
-        myGraph[xPos][yPos].GetComponent<Tile>().isBlockedByBlue = false;
-        myGraph[xPos][yPos].GetComponent<Tile>().isBlockedByRed = false;
         //Set the unit standing on this tile as null.
-        myGraph[xPos][yPos].GetComponent<Tile>().setUnitHere(null);
+        myGraph[xPos][yPos].GetComponent<Tile>().clearUnitHere();
+        //Boom
+        myLevelManager.GetComponent<AnimController>().boom(xPos,yPos);
         //Finally delete the unit.
         Destroy(this.gameObject);
     }
@@ -157,40 +165,26 @@ public class Unit : MonoBehaviour
     //Move the unit to a field an align it so it faces away, from where it came.
     public void moveUnitTo(int newX, int newY)
     {
-        //Only if we drew at least one arrow Path, we should move.
+        //Only if we drew at least one arrow Path, we should be able move.
         if (myLevelManager.GetComponent<ArrowBuilder>().arrowPath.Count > 1)
         {
-            unBlockPositions(newX, newY, this.xPos, this.yPos);            
-
             //Rotate unit so it faces away from where it came, using the predecessor x and y of the arrow path.
-            int pathX = myLevelManager.GetComponent<ArrowBuilder>().arrowPath[myLevelManager.GetComponent<ArrowBuilder>().arrowPath.Count - 2].myTileProperties.xPos;
-            int pathY = myLevelManager.GetComponent<ArrowBuilder>().arrowPath[myLevelManager.GetComponent<ArrowBuilder>().arrowPath.Count - 2].myTileProperties.yPos;
+            int pathX = myLevelManager.GetComponent<ArrowBuilder>().arrowPath[myLevelManager.GetComponent<ArrowBuilder>().arrowPath.Count - 2].tile.xPos;
+            int pathY = myLevelManager.GetComponent<ArrowBuilder>().arrowPath[myLevelManager.GetComponent<ArrowBuilder>().arrowPath.Count - 2].tile.yPos;
             preRot = this.rotation;//Remember the previous rotation.
             //Face up
-            if (newX == pathX && newY > pathY)
-            {
-                rotateUnit(90);
-            }
+            if (newX == pathX && newY > pathY){rotateUnit(90);}
             //Face down
-            if (newX == pathX && newY < pathY)
-            {
-                rotateUnit(270);
-            }
+            if (newX == pathX && newY < pathY){rotateUnit(270);}
             //Face right
-            if (newY == pathY && newX > pathX)
-            {
-                rotateUnit(180);
-            }
+            if (newY == pathY && newX > pathX){rotateUnit(180);}
             //Face left
-            if (newY == pathY && newX < pathX)
-            {
-                rotateUnit(0);
-            }
+            if (newY == pathY && newX < pathX){rotateUnit(0);}
 
             //If a possible path was found, go to the desired position.
             this.transform.position = new Vector3(newX, 0, newY);
             //Reset the unitStandingHere property of the old tile to null
-            myGraph[xPos][yPos].GetComponent<Tile>().clearUnit();
+            myGraph[xPos][yPos].GetComponent<Tile>().clearUnitHere();
             //Remember the last position of the unit. (For resetting purposes.)
             prePosX = this.xPos;
             prePosY = this.yPos;            
@@ -207,10 +201,7 @@ public class Unit : MonoBehaviour
     //Resets the position and rotation of the unit to where it was before. (If we click the right mouse button or close the menu after we moved it somewhere.)
     public void resetPosition()
     {
-        //Block/Unblock the positions according to wich team we belong to.
-        unBlockPositions(prePosX, prePosY, this.xPos, this.yPos);
-
-        myGraph[xPos][yPos].GetComponent<Tile>().clearUnit();//Reset the unitStandingHere property of the tile, we went to, to null
+        myGraph[xPos][yPos].GetComponent<Tile>().clearUnitHere();//Reset the unitStandingHere property of the tile, we went to, to null
         //Set the position and rotation of the unit to where it was before
         this.transform.position = new Vector3(prePosX, 0, prePosY);
         this.xPos = prePosX;
@@ -223,33 +214,7 @@ public class Unit : MonoBehaviour
         hasMoved = false;
     }
 
-    //Blocks the new position according to the team we belong to and unblocks the old position the same way.
-    public void unBlockPositions(int newX, int newY, int oldX, int oldY)
-    {
-        //Unblock the old position
-        //Team Blue
-        if (teamBlue)
-        {
-            myLevelManager.GetComponent<Graph>().setIsBlockedByBlue(oldX, oldY, false);
-        }
-        //Team Red
-        if (teamRed)
-        {
-            myLevelManager.GetComponent<Graph>().setIsBlockedByRed(oldX, oldY, false);
-        }
-
-        //Block the new position
-        //Team Blue
-        if (teamBlue)
-        {
-            myLevelManager.GetComponent<Graph>().setIsBlockedByBlue(newX, newY, true);
-        }
-        //Team Red
-        if (teamRed)
-        {
-            myLevelManager.GetComponent<Graph>().setIsBlockedByRed(newX, newY, true);
-        }
-    }
+  
 
     //Aligns the unit so it faces the direction of the given coordinates. 
     public void alignUnit(int targetX, int targetY)
@@ -277,11 +242,33 @@ public class Unit : MonoBehaviour
             {            
                 rotateUnit(270);
             }
+
         }
         if(rangeAttack)
         {
             //How to decide, if the unit to face is e.g. more to the left than to the bottom ?
             //Compare distances
+            //For direct attack only!
+            //Face right
+            if (this.xPos < targetX && this.yPos == targetY)
+            {
+                rotateUnit(180);
+            }
+            //Face left
+            if (this.xPos > targetX && this.yPos == targetY)
+            {
+                rotateUnit(0);
+            }
+            //Face up
+            if (this.yPos < targetY && this.xPos == targetX)
+            {
+                rotateUnit(90);
+            }
+            //Face down
+            if (this.yPos > targetY && this.xPos == targetX)
+            {
+                rotateUnit(270);
+            }
         }
 
     }
@@ -290,224 +277,255 @@ public class Unit : MonoBehaviour
     {
         this.transform.rotation = Quaternion.Euler(0, angle, 0);
         this.rotation = angle;
+        displayHealth();
     }
 
     //Creates a list of tiles the unit can attack.
     public void findAttackableTiles()
     {
-        switch(myUnitType)
+        attackableTiles.Clear();
+        if(directAttack)
         {
-            case unitType.Tank:
-                //Try to mark the tiles, the unit can attack and add them to the list.
-                //Left
-                if(xPos > 0)
-                {
-                    myGraph[xPos - 1][yPos].GetComponent<Tile>().isAttackable = true;
-                    attackableTiles.Add(myGraph[xPos - 1][yPos].GetComponent<Tile>());
-                }
-                //Right
-                if(xPos < myGraph.Count - 1)
-                {
-                    myGraph[xPos + 1][yPos].GetComponent<Tile>().isAttackable = true;
-                    attackableTiles.Add(myGraph[xPos + 1][yPos].GetComponent<Tile>());
-                }
-                //Top
-                if(yPos > 0)
-                {
-                    myGraph[xPos][yPos - 1].GetComponent<Tile>().isAttackable = true;
-                    attackableTiles.Add(myGraph[xPos][yPos - 1].GetComponent<Tile>());
-                }
-                //Bottom
-                if (yPos < myGraph[0].Count - 1)
-                {
-                    myGraph[xPos][yPos + 1].GetComponent<Tile>().isAttackable = true;
-                    attackableTiles.Add(myGraph[xPos][yPos + 1].GetComponent<Tile>());
-                }
-
-                break;
-
-            case unitType.Rockets:
-                //Try to mark the tiles, the unit can attack and add them to the list.
-                //left
-                for (int i = 1; i < 4; i++)
-                {
-                    //Straight
-                    if(xPos - 2 - i > -1)
-                    {
-                        myGraph[xPos - 2 - i][yPos].GetComponent<Tile>().isAttackable = true;
-                        attackableTiles.Add(myGraph[xPos - 2 - i][yPos].GetComponent<Tile>());
-                    }
-                    //Down
-                    if (xPos - 1 - i > -1 && yPos - 1 > -1)
-                    {
-                        myGraph[xPos - 1 - i][yPos - 1].GetComponent<Tile>().isAttackable = true;
-                        attackableTiles.Add(myGraph[xPos - 1 - i][yPos - 1].GetComponent<Tile>());
-                    }
-                    //Up
-                    if (xPos - 1 - i > -1 && yPos + 1 < myGraph[0].Count)
-                    {
-                        myGraph[xPos - 1 - i][yPos + 1].GetComponent<Tile>().isAttackable = true;
-                        attackableTiles.Add(myGraph[xPos - 1 - i][yPos + 1].GetComponent<Tile>());
-                    }
-                }
-                //Right
-                for (int i = 1; i < 4; i++)
-                {
-                    //Straight
-                    if (xPos + 2 + i < myGraph.Count)
-                    {
-                        myGraph[xPos + 2 + i][yPos].GetComponent<Tile>().isAttackable = true;
-                        attackableTiles.Add(myGraph[xPos + 2 + i][yPos].GetComponent<Tile>());
-                    }
-                    //Down
-                    if (xPos + 1 + i < myGraph.Count && yPos - 1 > -1)
-                    {
-                        myGraph[xPos + 1 + i][yPos - 1].GetComponent<Tile>().isAttackable = true;
-                        attackableTiles.Add(myGraph[xPos + 1 + i][yPos - 1].GetComponent<Tile>());
-                    }
-                    //Up
-                    if (xPos + 1 + i < myGraph.Count && yPos + 1 < myGraph[0].Count)
-                    {
-                        myGraph[xPos + 1 + i][yPos + 1].GetComponent<Tile>().isAttackable = true;
-                        attackableTiles.Add(myGraph[xPos + 1 + i][yPos + 1].GetComponent<Tile>());
-                    }
-                }
-                //Top
-                for (int i = 1; i < 4; i++)
-                {
-                    //Straight
-                    if (yPos + 2 + i < myGraph[0].Count)
-                    {
-                        myGraph[xPos][yPos + 2 + i].GetComponent<Tile>().isAttackable = true;
-                        attackableTiles.Add(myGraph[xPos][yPos + 2 + i].GetComponent<Tile>());
-                    }
-                    //Left
-                    if (yPos + 1 + i < myGraph[0].Count && xPos - 1 > -1)
-                    {
-                        myGraph[xPos - 1][yPos + 1 + i].GetComponent<Tile>().isAttackable = true;
-                        attackableTiles.Add(myGraph[xPos - 1][yPos + 1 + i].GetComponent<Tile>());
-                    }
-                    //Right
-                    if (yPos + 1 + i < myGraph[0].Count && xPos + 1 < myGraph.Count)
-                    {
-                        myGraph[xPos + 1][yPos + 1 + i].GetComponent<Tile>().isAttackable = true;
-                        attackableTiles.Add(myGraph[xPos + 1][yPos + 1 + i].GetComponent<Tile>());
-                    }
-                }
-                //Bottom
-                for (int i = 1; i < 4; i++)
-                {
-                    //Straight
-                    if (yPos - 2 - i > - 1)
-                    {
-                        myGraph[xPos][yPos - 2 - i].GetComponent<Tile>().isAttackable = true;
-                        attackableTiles.Add(myGraph[xPos][yPos - 2 - i].GetComponent<Tile>());
-                    }
-                    //Left
-                    if (yPos - 1 - i > - 1 && xPos - 1 > 0)
-                    {
-                        myGraph[xPos - 1][yPos - 1 - i].GetComponent<Tile>().isAttackable = true;
-                        attackableTiles.Add(myGraph[xPos - 1][yPos - 1 - i].GetComponent<Tile>());
-                    }
-                    //Right
-                    if (yPos - 1 - i > - 1 && xPos + 1 < myGraph.Count)
-                    {
-                        myGraph[xPos + 1][yPos - 1 - i].GetComponent<Tile>().isAttackable = true;
-                        attackableTiles.Add(myGraph[xPos + 1][yPos - 1 - i].GetComponent<Tile>());
-                    }
-                }
-                
-                //Corners
-                //Lower left
-                if(xPos - 2 > -1 && yPos - 2 > -1)
-                {
-                    myGraph[xPos - 2][yPos -2].GetComponent<Tile>().isAttackable = true;
-                    attackableTiles.Add(myGraph[xPos - 2][yPos - 2].GetComponent<Tile>());
-                }
-                if (xPos - 3 > -1 && yPos - 2 > -1)
-                {
-                    myGraph[xPos - 3][yPos - 2].GetComponent<Tile>().isAttackable = true;
-                    attackableTiles.Add(myGraph[xPos - 3][yPos - 2].GetComponent<Tile>());
-                }
-                if (xPos - 2 > -1 && yPos - 3 > -1)
-                {
-                    myGraph[xPos - 2][yPos - 3].GetComponent<Tile>().isAttackable = true;
-                    attackableTiles.Add(myGraph[xPos - 2][yPos - 3].GetComponent<Tile>());
-                }
-
-                //Upper left
-                if (xPos - 2 > -1 && yPos + 2 < myGraph[0].Count)
-                {
-                    myGraph[xPos - 2][yPos + 2].GetComponent<Tile>().isAttackable = true;
-                    attackableTiles.Add(myGraph[xPos - 2][yPos + 2].GetComponent<Tile>());
-                }
-                if (xPos - 3 > -1 && yPos + 2 < myGraph[0].Count)
-                {
-                    myGraph[xPos - 3][yPos + 2].GetComponent<Tile>().isAttackable = true;
-                    attackableTiles.Add(myGraph[xPos - 3][yPos + 2].GetComponent<Tile>());
-                }
-                if (xPos - 2 > -1 && yPos + 3 < myGraph[0].Count)
-                {
-                    myGraph[xPos - 2][yPos + 3].GetComponent<Tile>().isAttackable = true;
-                    attackableTiles.Add(myGraph[xPos - 2][yPos + 3].GetComponent<Tile>());
-                }
-                //Upper right
-                if (xPos + 2 < myGraph.Count && yPos + 2 < myGraph[0].Count)
-                {
-                    myGraph[xPos + 2][yPos + 2].GetComponent<Tile>().isAttackable = true;
-                    attackableTiles.Add(myGraph[xPos + 2][yPos + 2].GetComponent<Tile>());
-                }
-                if (xPos + 3 < myGraph.Count && yPos + 2 < myGraph[0].Count)
-                {
-                    myGraph[xPos + 3][yPos + 2].GetComponent<Tile>().isAttackable = true;
-                    attackableTiles.Add(myGraph[xPos + 3][yPos + 2].GetComponent<Tile>());
-                }
-                if (xPos + 2 <  myGraph.Count && yPos + 3 < myGraph[0].Count)
-                {
-                    myGraph[xPos + 2][yPos + 3].GetComponent<Tile>().isAttackable = true;
-                    attackableTiles.Add(myGraph[xPos + 2][yPos + 3].GetComponent<Tile>());
-                }
-                //Lower right
-                if (xPos + 2 < myGraph.Count && yPos - 2 > -1)
-                {
-                    myGraph[xPos + 2][yPos - 2].GetComponent<Tile>().isAttackable = true;
-                    attackableTiles.Add(myGraph[xPos + 2][yPos - 2].GetComponent<Tile>());
-                }
-                if (xPos + 3 < myGraph.Count && yPos - 2 > -1)
-                {
-                    myGraph[xPos + 3][yPos - 2].GetComponent<Tile>().isAttackable = true;
-                    attackableTiles.Add(myGraph[xPos + 3][yPos - 2].GetComponent<Tile>());
-                }
-                if (xPos + 2 < myGraph.Count && yPos - 3 > -1)
-                {
-                    myGraph[xPos + 2][yPos - 3].GetComponent<Tile>().isAttackable = true;
-                    attackableTiles.Add(myGraph[xPos + 2][yPos - 3].GetComponent<Tile>());
-                }
-
-
-                break;
-
-            default:
-
-                Debug.Log("Invalid unit type for finding attackable tiles!");
-                break;           
+            findAttackableTileForDirectAttack();
         }
-        findEnemies();
+        //TODO: Try to find a cool mathematical solution, not just BRUTE FORCE!
+        if(rangeAttack)
+        {
+            //Try to mark the tiles, the unit can attack and add them to the list.
+            //left
+            for (int i = 1; i < 4; i++)
+            {
+                //Straight
+                if (xPos - 2 - i > -1)
+                {
+                    myGraph[xPos - 2 - i][yPos].GetComponent<Tile>().isAttackable = true;
+                    attackableTiles.Add(myGraph[xPos - 2 - i][yPos].GetComponent<Tile>());
+                }
+                //Down
+                if (xPos - 1 - i > -1 && yPos - 1 > -1)
+                {
+                    myGraph[xPos - 1 - i][yPos - 1].GetComponent<Tile>().isAttackable = true;
+                    attackableTiles.Add(myGraph[xPos - 1 - i][yPos - 1].GetComponent<Tile>());
+                }
+                //Up
+                if (xPos - 1 - i > -1 && yPos + 1 < myGraph[0].Count)
+                {
+                    myGraph[xPos - 1 - i][yPos + 1].GetComponent<Tile>().isAttackable = true;
+                    attackableTiles.Add(myGraph[xPos - 1 - i][yPos + 1].GetComponent<Tile>());
+                }
+            }
+            //Right
+            for (int i = 1; i < 4; i++)
+            {
+                //Straight
+                if (xPos + 2 + i < myGraph.Count)
+                {
+                    myGraph[xPos + 2 + i][yPos].GetComponent<Tile>().isAttackable = true;
+                    attackableTiles.Add(myGraph[xPos + 2 + i][yPos].GetComponent<Tile>());
+                }
+                //Down
+                if (xPos + 1 + i < myGraph.Count && yPos - 1 > -1)
+                {
+                    myGraph[xPos + 1 + i][yPos - 1].GetComponent<Tile>().isAttackable = true;
+                    attackableTiles.Add(myGraph[xPos + 1 + i][yPos - 1].GetComponent<Tile>());
+                }
+                //Up
+                if (xPos + 1 + i < myGraph.Count && yPos + 1 < myGraph[0].Count)
+                {
+                    myGraph[xPos + 1 + i][yPos + 1].GetComponent<Tile>().isAttackable = true;
+                    attackableTiles.Add(myGraph[xPos + 1 + i][yPos + 1].GetComponent<Tile>());
+                }
+            }
+            //Top
+            for (int i = 1; i < 4; i++)
+            {
+                //Straight
+                if (yPos + 2 + i < myGraph[0].Count)
+                {
+                    myGraph[xPos][yPos + 2 + i].GetComponent<Tile>().isAttackable = true;
+                    attackableTiles.Add(myGraph[xPos][yPos + 2 + i].GetComponent<Tile>());
+                }
+                //Left
+                if (yPos + 1 + i < myGraph[0].Count && xPos - 1 > -1)
+                {
+                    myGraph[xPos - 1][yPos + 1 + i].GetComponent<Tile>().isAttackable = true;
+                    attackableTiles.Add(myGraph[xPos - 1][yPos + 1 + i].GetComponent<Tile>());
+                }
+                //Right
+                if (yPos + 1 + i < myGraph[0].Count && xPos + 1 < myGraph.Count)
+                {
+                    myGraph[xPos + 1][yPos + 1 + i].GetComponent<Tile>().isAttackable = true;
+                    attackableTiles.Add(myGraph[xPos + 1][yPos + 1 + i].GetComponent<Tile>());
+                }
+            }
+            //Bottom
+            for (int i = 1; i < 4; i++)
+            {
+                //Straight
+                if (yPos - 2 - i > -1)
+                {
+                    myGraph[xPos][yPos - 2 - i].GetComponent<Tile>().isAttackable = true;
+                    attackableTiles.Add(myGraph[xPos][yPos - 2 - i].GetComponent<Tile>());
+                }
+                //Left
+                if (yPos - 1 - i > -1 && xPos - 1 > 0)
+                {
+                    myGraph[xPos - 1][yPos - 1 - i].GetComponent<Tile>().isAttackable = true;
+                    attackableTiles.Add(myGraph[xPos - 1][yPos - 1 - i].GetComponent<Tile>());
+                }
+                //Right
+                if (yPos - 1 - i > -1 && xPos + 1 < myGraph.Count)
+                {
+                    myGraph[xPos + 1][yPos - 1 - i].GetComponent<Tile>().isAttackable = true;
+                    attackableTiles.Add(myGraph[xPos + 1][yPos - 1 - i].GetComponent<Tile>());
+                }
+            }
+
+            //Corners
+            //Lower left
+            if (xPos - 2 > -1 && yPos - 2 > -1)
+            {
+                myGraph[xPos - 2][yPos - 2].GetComponent<Tile>().isAttackable = true;
+                attackableTiles.Add(myGraph[xPos - 2][yPos - 2].GetComponent<Tile>());
+            }
+            if (xPos - 3 > -1 && yPos - 2 > -1)
+            {
+                myGraph[xPos - 3][yPos - 2].GetComponent<Tile>().isAttackable = true;
+                attackableTiles.Add(myGraph[xPos - 3][yPos - 2].GetComponent<Tile>());
+            }
+            if (xPos - 2 > -1 && yPos - 3 > -1)
+            {
+                myGraph[xPos - 2][yPos - 3].GetComponent<Tile>().isAttackable = true;
+                attackableTiles.Add(myGraph[xPos - 2][yPos - 3].GetComponent<Tile>());
+            }
+
+            //Upper left
+            if (xPos - 2 > -1 && yPos + 2 < myGraph[0].Count)
+            {
+                myGraph[xPos - 2][yPos + 2].GetComponent<Tile>().isAttackable = true;
+                attackableTiles.Add(myGraph[xPos - 2][yPos + 2].GetComponent<Tile>());
+            }
+            if (xPos - 3 > -1 && yPos + 2 < myGraph[0].Count)
+            {
+                myGraph[xPos - 3][yPos + 2].GetComponent<Tile>().isAttackable = true;
+                attackableTiles.Add(myGraph[xPos - 3][yPos + 2].GetComponent<Tile>());
+            }
+            if (xPos - 2 > -1 && yPos + 3 < myGraph[0].Count)
+            {
+                myGraph[xPos - 2][yPos + 3].GetComponent<Tile>().isAttackable = true;
+                attackableTiles.Add(myGraph[xPos - 2][yPos + 3].GetComponent<Tile>());
+            }
+            //Upper right
+            if (xPos + 2 < myGraph.Count && yPos + 2 < myGraph[0].Count)
+            {
+                myGraph[xPos + 2][yPos + 2].GetComponent<Tile>().isAttackable = true;
+                attackableTiles.Add(myGraph[xPos + 2][yPos + 2].GetComponent<Tile>());
+            }
+            if (xPos + 3 < myGraph.Count && yPos + 2 < myGraph[0].Count)
+            {
+                myGraph[xPos + 3][yPos + 2].GetComponent<Tile>().isAttackable = true;
+                attackableTiles.Add(myGraph[xPos + 3][yPos + 2].GetComponent<Tile>());
+            }
+            if (xPos + 2 < myGraph.Count && yPos + 3 < myGraph[0].Count)
+            {
+                myGraph[xPos + 2][yPos + 3].GetComponent<Tile>().isAttackable = true;
+                attackableTiles.Add(myGraph[xPos + 2][yPos + 3].GetComponent<Tile>());
+            }
+            //Lower right
+            if (xPos + 2 < myGraph.Count && yPos - 2 > -1)
+            {
+                myGraph[xPos + 2][yPos - 2].GetComponent<Tile>().isAttackable = true;
+                attackableTiles.Add(myGraph[xPos + 2][yPos - 2].GetComponent<Tile>());
+            }
+            if (xPos + 3 < myGraph.Count && yPos - 2 > -1)
+            {
+                myGraph[xPos + 3][yPos - 2].GetComponent<Tile>().isAttackable = true;
+                attackableTiles.Add(myGraph[xPos + 3][yPos - 2].GetComponent<Tile>());
+            }
+            if (xPos + 2 < myGraph.Count && yPos - 3 > -1)
+            {
+                myGraph[xPos + 2][yPos - 3].GetComponent<Tile>().isAttackable = true;
+                attackableTiles.Add(myGraph[xPos + 2][yPos - 3].GetComponent<Tile>());
+            }
+
+        }
+    }
+
+    //Calculates the attackable tiles for direct attack units.
+    public void findAttackableTileForDirectAttack()
+    {
+        //Left
+        if (xPos > 0)
+        {
+            myGraph[xPos - 1][yPos].GetComponent<Tile>().isAttackable = true;
+            attackableTiles.Add(myGraph[xPos - 1][yPos].GetComponent<Tile>());
+        }
+        //Right
+        if (xPos < myGraph.Count - 1)
+        {
+            myGraph[xPos + 1][yPos].GetComponent<Tile>().isAttackable = true;
+            attackableTiles.Add(myGraph[xPos + 1][yPos].GetComponent<Tile>());
+        }
+        //Top
+        if (yPos > 0)
+        {
+            myGraph[xPos][yPos - 1].GetComponent<Tile>().isAttackable = true;
+            attackableTiles.Add(myGraph[xPos][yPos - 1].GetComponent<Tile>());
+        }
+        //Bottom
+        if (yPos < myGraph[0].Count - 1)
+        {
+            myGraph[xPos][yPos + 1].GetComponent<Tile>().isAttackable = true;
+            attackableTiles.Add(myGraph[xPos][yPos + 1].GetComponent<Tile>());
+        }
     }
 
     //Checks the attackable tiles for enemies.
-    public void findEnemies()
+    public void findAttackableEnemies()
     {
+        attackableUnits.Clear();
         for(int i = 0; i < attackableTiles.Count; i++)
         {
             if(attackableTiles[i].unitStandingHere != null)
             {
                 //Only if the unit on the tile is in the opposite team add it to the attackableUnits list.
-                if((this.teamBlue && attackableTiles[i].unitStandingHere.teamRed) || (this.teamRed && attackableTiles[i].unitStandingHere.teamBlue))
+                if(isEnemy(attackableTiles[i].unitStandingHere))
+                //if((this.teamBlue && attackableTiles[i].unitStandingHere.teamRed) || (this.teamRed && attackableTiles[i].unitStandingHere.teamBlue))
                 {
                     attackableUnits.Add(attackableTiles[i].unitStandingHere);
                 }
             }
+        }
+    }
+
+    //Checks if a given unit is in the enemy team of THIS unit. 
+    public bool isEnemy(Unit possibleEnemy)
+    {
+        if(possibleEnemy != null)
+        {
+            for(int i = 0; i < myTeam.enemyTeams.Count; i++)
+            {
+                for(int j = 0; j < myTeam.enemyTeams[i].myUnits.Count; j++)
+                {
+                    if(myTeam.enemyTeams[i].myUnits[j] != null)//Entries of the teamUnits list can be empty! (Destroying an item in a list doesnt fill the gaps!)
+                    {
+                        if(myTeam.enemyTeams[i].myUnits[j].GetComponent<Unit>() == possibleEnemy)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }        
+        return false;
+    }
+
+    //Indicates the units that can be attacked by this unit.
+    public void showAttackableEnemies()
+    {
+        for(int i = 0; i < attackableUnits.Count; i++)
+        {
+            myLevelManager.GetComponent<MainFunctions>().createMarkingCursor(attackableUnits[i]);
         }
     }
 
@@ -524,247 +542,31 @@ public class Unit : MonoBehaviour
         this.thumbNail = myThumb;
     }
 
-    //Berechnen, wie weit man von einer Position mit einer bestimmten Anzahl von Bewegungspunkten kommt.
-    private void calcReachableArea(int x, int y, int Bewegungspunkte, moveType myMoveType)
-    {
-        switch (myMoveType)
-        {
-            case moveType.Foot:
-                calcReachableAreaFoot(x, y, Bewegungspunkte + myGraph[x][y].GetComponent<Tile>().footCost, null);
-                break;
-
-            case moveType.Mech:
-                calcReachableAreaMech(x, y, Bewegungspunkte + myGraph[x][y].GetComponent<Tile>().mechCost, null);
-                break;
-
-            case moveType.Treads:                
-                calcReachableAreaTreads(x, y, Bewegungspunkte + myGraph[x][y].GetComponent<Tile>().treadsCost, null);
-                break;
-
-            case moveType.Wheels:
-                calcReachableAreaWheels(x, y, Bewegungspunkte + myGraph[x][y].GetComponent<Tile>().wheelsCost, null);
-                break;
-
-            case moveType.Lander:
-                calcReachableAreaLander(x, y, Bewegungspunkte + myGraph[x][y].GetComponent<Tile>().landerCost, null);
-                break;
-
-            case moveType.Ship:
-                calcReachableAreaShip(x, y, Bewegungspunkte + myGraph[x][y].GetComponent<Tile>().shipCost, null);
-                break;
-
-            case moveType.Air:
-                calcReachableAreaAir(x, y, Bewegungspunkte + myGraph[x][y].GetComponent<Tile>().airCost, null);
-                break;
-
-            default:
-                Debug.Log("Incorrect move type!");
-                
-                break;
-        }
-    }
-    //Foot
-    private void calcReachableAreaFoot(int x, int y, int Bewegungspunkte, Tile cameFromTile)
+    //Calculate how far you can move from a certain position depending on your movement points.
+    private void calcReachableArea(int x, int y, int movementPoints, moveType myMoveType, Tile cameFromTile)
     {
         counter++;
-        Tile myTileProperties = myGraph[x][y].gameObject.GetComponent<Tile>();
-               
-        Bewegungspunkte = Bewegungspunkte - myTileProperties.footCost;            
-        
-        //Wenn genug Bewegungspunkt übrig sind und das Feld erreichbar ist, ist die Rekursion durchführen.
-        if ((Bewegungspunkte >= 0) && (myTileProperties.footCost > 0) && ((teamRed && !myTileProperties.isBlockedByBlue) || (teamBlue && !myTileProperties.isBlockedByRed)))
-        {             
-            List<Transform> meineNachbarn = myTileProperties.nachbarn;
-            //Als erreichbar markieren
-            myTileProperties.isReachable = true;
-            
-            //Das Feld wurde erreicht, also werden alle Nachbarn auf ihre Erreichbarkeit geprüft. Das Feld, von dem man gekommen ist wird ignoriert.
-            for (int i = 0; i < meineNachbarn.Count; i++)
-            {
-                if(meineNachbarn[i].gameObject.GetComponent<Tile>() != cameFromTile )
-                {
-                int nachbarX = meineNachbarn[i].GetComponent<Tile>().xPos;
-                int nachbarY = meineNachbarn[i].GetComponent<Tile>().yPos;
+        Tile tile = myGraph[x][y].gameObject.GetComponent<Tile>();
 
-                calcReachableAreaFoot(nachbarX, nachbarY, Bewegungspunkte, myTileProperties);
-                }
-            }
-        }                     
-    }
+        movementPoints = movementPoints - tile.getMovementCost(myMoveType);
 
-    //Mech
-    private void calcReachableAreaMech(int x, int y, int Bewegungspunkte, Tile cameFromTile)
-    {
-        counter++;
-        Tile myTileProperties = myGraph[x][y].gameObject.GetComponent<Tile>();
-
-        Bewegungspunkte = Bewegungspunkte - myTileProperties.mechCost;
-
-        //Wenn genug Bewegungspunkt übrig sind und das Feld erreichbar ist, ist die Rekursion durchführen.
-        if ((Bewegungspunkte >= 0) && (myTileProperties.mechCost > 0) && ((teamRed && !myTileProperties.isBlockedByBlue) || (teamBlue && !myTileProperties.isBlockedByRed)))
+        //If enough movement points are left and the tile is passable (we can move through our own units, but are blocked by enemies), do the recursion.
+        if ((movementPoints >= 0) && (tile.getMovementCost(myMoveType) > 0) && !isEnemy(tile.unitStandingHere))
         {
-            List<Transform> meineNachbarn = myTileProperties.nachbarn;
-            //Als erreichbar markieren
-            myTileProperties.isReachable = true;
+            List<Transform> myNeighbors = tile.neighbors;
+            tile.isReachable = true;//Mark as rachable.
 
-            //Das Feld wurde erreicht, also werden alle Nachbarn auf ihre Erreichbarkeit geprüft. Das Feld, von dem man gekommen ist wird ignoriert.
-            for (int i = 0; i < meineNachbarn.Count; i++)
+            //The tile was reached, so test all its neighbors for reachability. Ignore the tile you came from.
+            for (int i = 0; i < myNeighbors.Count; i++)
             {
-                if (meineNachbarn[i].gameObject.GetComponent<Tile>() != cameFromTile)
+                if (myNeighbors[i].gameObject.GetComponent<Tile>() != cameFromTile)
                 {
-                    int nachbarX = meineNachbarn[i].GetComponent<Tile>().xPos;
-                    int nachbarY = meineNachbarn[i].GetComponent<Tile>().yPos;
+                    int neighborX = myNeighbors[i].GetComponent<Tile>().xPos;
+                    int neighborY = myNeighbors[i].GetComponent<Tile>().yPos;
 
-                    calcReachableAreaMech(nachbarX, nachbarY, Bewegungspunkte, myTileProperties);
+                    calcReachableArea(neighborX, neighborY, movementPoints, myMoveType, tile);
                 }
             }
         }
-    }
-
-    //Treads
-    private void calcReachableAreaTreads(int x, int y, int Bewegungspunkte, Tile cameFromTile)
-    {
-        counter++;
-        Tile myTileProperties = myGraph[x][y].gameObject.GetComponent<Tile>();
-
-        Bewegungspunkte = Bewegungspunkte - myTileProperties.treadsCost;
-
-        //Wenn genug Bewegungspunkt übrig sind und das Feld erreichbar ist, ist die Rekursion durchführen.
-        if ((Bewegungspunkte >= 0) && (myTileProperties.treadsCost > 0) && ((teamRed && !myTileProperties.isBlockedByBlue) || (teamBlue && !myTileProperties.isBlockedByRed)))
-        {
-            List<Transform> meineNachbarn = myTileProperties.nachbarn;
-            //Als erreichbar markieren
-            myTileProperties.isReachable = true;
-
-            //Das Feld wurde erreicht, also werden alle Nachbarn auf ihre Erreichbarkeit geprüft. Das Feld, von dem man gekommen ist, wird ignoriert.
-            for (int i = 0; i < meineNachbarn.Count; i++)
-            {
-                if (meineNachbarn[i].gameObject.GetComponent<Tile>() != cameFromTile)
-                {
-                    int nachbarX = meineNachbarn[i].GetComponent<Tile>().xPos;
-                    int nachbarY = meineNachbarn[i].GetComponent<Tile>().yPos;
-
-                    calcReachableAreaTreads(nachbarX, nachbarY, Bewegungspunkte, myTileProperties);
-                }
-            }
-        }
-    }
-
-    //Wheels
-    private void calcReachableAreaWheels(int x, int y, int Bewegungspunkte, Tile cameFromTile)
-    {
-        counter++;
-        Tile myTileProperties = myGraph[x][y].gameObject.GetComponent<Tile>();
-
-        Bewegungspunkte = Bewegungspunkte - myTileProperties.wheelsCost;
-
-        //Wenn genug Bewegungspunkt übrig sind und das Feld erreichbar ist, ist die Rekursion durchführen.
-        if ((Bewegungspunkte >= 0) && (myTileProperties.wheelsCost > 0) && ((teamRed && !myTileProperties.isBlockedByBlue) || (teamBlue && !myTileProperties.isBlockedByRed)))
-        {
-            List<Transform> meineNachbarn = myTileProperties.nachbarn;
-            //Als erreichbar markieren
-            myTileProperties.isReachable = true;
-
-            //Das Feld wurde erreicht, also werden alle Nachbarn auf ihre Erreichbarkeit geprüft. Das Feld, von dem man gekommen ist wird ignoriert.
-            for (int i = 0; i < meineNachbarn.Count; i++)
-            {
-                if (meineNachbarn[i].gameObject.GetComponent<Tile>() != cameFromTile)
-                {
-                    int nachbarX = meineNachbarn[i].GetComponent<Tile>().xPos;
-                    int nachbarY = meineNachbarn[i].GetComponent<Tile>().yPos;
-
-                    calcReachableAreaWheels(nachbarX, nachbarY, Bewegungspunkte, myTileProperties);
-                }
-            }
-        }
-    }
-
-    //Lander
-    private void calcReachableAreaLander(int x, int y, int Bewegungspunkte, Tile cameFromTile)
-    {
-        counter++;
-        Tile myTileProperties = myGraph[x][y].gameObject.GetComponent<Tile>();
-
-        Bewegungspunkte = Bewegungspunkte - myTileProperties.landerCost;
-
-        //Wenn genug Bewegungspunkt übrig sind und das Feld erreichbar ist, ist die Rekursion durchführen.
-        if ((Bewegungspunkte >= 0) && (myTileProperties.landerCost > 0) && ((teamRed && !myTileProperties.isBlockedByBlue) || (teamBlue && !myTileProperties.isBlockedByRed)))
-        {
-            List<Transform> meineNachbarn = myTileProperties.nachbarn;
-            //Als erreichbar markieren
-            myTileProperties.isReachable = true;
-
-            //Das Feld wurde erreicht, also werden alle Nachbarn auf ihre Erreichbarkeit geprüft. Das Feld, von dem man gekommen ist wird ignoriert.
-            for (int i = 0; i < meineNachbarn.Count; i++)
-            {
-                if (meineNachbarn[i].gameObject.GetComponent<Tile>() != cameFromTile)
-                {
-                    int nachbarX = meineNachbarn[i].GetComponent<Tile>().xPos;
-                    int nachbarY = meineNachbarn[i].GetComponent<Tile>().yPos;
-
-                    calcReachableAreaLander(nachbarX, nachbarY, Bewegungspunkte, myTileProperties);
-                }
-            }
-        }
-    }
-
-    //Ship
-    private void calcReachableAreaShip(int x, int y, int Bewegungspunkte, Tile cameFromTile)
-    {
-        counter++;
-        Tile myTileProperties = myGraph[x][y].gameObject.GetComponent<Tile>();
-
-        Bewegungspunkte = Bewegungspunkte - myTileProperties.shipCost;
-
-        //Wenn genug Bewegungspunkt übrig sind und das Feld erreichbar ist, ist die Rekursion durchführen.
-        if ((Bewegungspunkte >= 0) && (myTileProperties.shipCost > 0) && ((teamRed && !myTileProperties.isBlockedByBlue) || (teamBlue && !myTileProperties.isBlockedByRed)))
-        {
-            List<Transform> meineNachbarn = myTileProperties.nachbarn;
-            //Als erreichbar markieren
-            myTileProperties.isReachable = true;
-
-            //Das Feld wurde erreicht, also werden alle Nachbarn auf ihre Erreichbarkeit geprüft. Das Feld, von dem man gekommen ist wird ignoriert.
-            for (int i = 0; i < meineNachbarn.Count; i++)
-            {
-                if (meineNachbarn[i].gameObject.GetComponent<Tile>() != cameFromTile)
-                {
-                    int nachbarX = meineNachbarn[i].GetComponent<Tile>().xPos;
-                    int nachbarY = meineNachbarn[i].GetComponent<Tile>().yPos;
-
-                    calcReachableAreaShip(nachbarX, nachbarY, Bewegungspunkte, myTileProperties);
-                }
-            }
-        }
-    }
-
-    //Air
-    private void calcReachableAreaAir(int x, int y, int Bewegungspunkte, Tile cameFromTile)
-    {
-        counter++;
-        Tile myTileProperties = myGraph[x][y].gameObject.GetComponent<Tile>();
-
-        Bewegungspunkte = Bewegungspunkte - myTileProperties.airCost;
-
-        //Wenn genug Bewegungspunkt übrig sind und das Feld erreichbar ist, ist die Rekursion durchführen.
-        if ((Bewegungspunkte >= 0) && (myTileProperties.airCost > 0) && ((teamRed && !myTileProperties.isBlockedByBlue) || (teamBlue && !myTileProperties.isBlockedByRed)))
-        {
-            List<Transform> meineNachbarn = myTileProperties.nachbarn;
-            //Als erreichbar markieren
-            myTileProperties.isReachable = true;
-
-            //Das Feld wurde erreicht, also werden alle Nachbarn auf ihre Erreichbarkeit geprüft. Das Feld, von dem man gekommen ist wird ignoriert.
-            for (int i = 0; i < meineNachbarn.Count; i++)
-            {
-                if (meineNachbarn[i].gameObject.GetComponent<Tile>() != cameFromTile)
-                {
-                    int nachbarX = meineNachbarn[i].GetComponent<Tile>().xPos;
-                    int nachbarY = meineNachbarn[i].GetComponent<Tile>().yPos;
-
-                    calcReachableAreaAir(nachbarX, nachbarY, Bewegungspunkte, myTileProperties);
-                }
-            }
-        }
-    }
-
-      
+    }      
 }

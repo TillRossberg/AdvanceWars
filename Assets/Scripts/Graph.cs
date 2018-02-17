@@ -5,19 +5,44 @@ using UnityEngine;
 
 public class Graph : MonoBehaviour
 {
+    //Required data structures
+    Database database;
+
     //General
-	public enum tileType {Plain, Road, Forest, Sea, Shore, Structure, Mountain};
     private List<List<Transform>> myGraph = new List<List<Transform>>();
+
 
     //Graphic elements
     public Transform tilePrefab;
     public Transform reachableTile;
     public Transform attackableTile;
-
-    public Transform forestPrefab;
+    //Plain
     public Transform plainPrefab;
+    public Transform plainWaterPrefab;
+    public Transform plainWaterCornerPrefab;
+    //Forest
+    public Transform forestPrefab;
+    //Road
     public Transform roadPrefab;
-	public Transform mountainPrefab;
+    public Transform roadBridgePrefab;
+    public Transform roadCurvePrefab;
+    public Transform roadCrossingPrefab;
+    public Transform roadTPartPrefab;
+    public Transform roadDeadEndPrefab;
+    //Mountain
+    public Transform mountainPrefab;
+    //Property
+    public Transform cityPrefab;
+    public Transform facilityPrefab;
+    public Transform airPortPrefab;
+    public Transform portPrefab;
+    //Sea
+    public Transform seaPrefab;
+    public Transform reef;
+
+    public enum GraphicType { plain_Normal, plain_Water, plain_WaterCorner, forest_Normal, road_Normal, road_Bridge, road_Curve, road_Crossing, road_TPart, road_Deadend,
+                              mountain_Normal, property_City, property_Facility, property_Airport, property_Port, sea_Normal, reef_Normal  };
+    public List<Transform> tilePrefabs = new List<Transform>(); // 0 = plain, 1 = forest, 2 = road, 3 = mountain, 4 = river, 5 = shoal, 6 = sea, 7 = reef, 8 = property, 9 = port
 
     //Thumbnails
     public Sprite plainThumb;
@@ -31,199 +56,223 @@ public class Graph : MonoBehaviour
 	public int gridHeight = 3;
 	public int gridWidth = 3;
 
-	// Use this for initialization
-	void Start ()
+    public void Start()
     {
-                 
+        database = GetComponent<Database>();
     }
-    
-    
+
     //Create an empty Graph of plain tiles.
     private void createEmptyGraph(int dimX, int dimY)
     {
-        
         for (int colIndex = 0; colIndex < dimX; colIndex++)
-        {            
-            List<Transform> listToAdd = new List<Transform>();
-            myGraph.Add(listToAdd);
+        {
+            myGraph.Add(new List<Transform>());
             for (int rowIndex = 0; rowIndex < dimY; rowIndex++)
             {                
-                Transform myTile = createTile("Plain", colIndex, rowIndex, 0);               
+                Transform myTile = createTile(Tile.type.Plain, colIndex, rowIndex, 0);               
                 myGraph[colIndex].Add(myTile);               
             }
         }        
     }        
     //Change an existing tile.
-    public void changeTile(string newTileName, int x, int y, int angle)
+    public void changeTile(int x, int y, int angle, Tile.type myTileType)
     {
         Destroy(myGraph[x][y].gameObject);
-        myGraph[x][y] = createTile(newTileName, x, y, angle);
+        myGraph[x][y] = createTile(myTileType, x, y, angle);
     }
     //Create a tile using position, angle and name to specify its properties.
-    public Transform createTile(string myTileName, int x, int y, int angle)
+    public Transform createTile(Tile.type myTileType, int x, int y, int angle)
     {
-        Transform myTile;
-        Tile myTileProperties;
-        switch (myTileName)
+        Transform tileTransform;
+        Tile tile;
+        switch (myTileType)
         {
-            case "Plain":
+            case Tile.type.Plain:
                 //Create tile
-                myTile = Instantiate(plainPrefab, new Vector3(x, 0, y), Quaternion.Euler(new Vector3(0, angle, 0)));
-                myTileProperties = myTile.GetComponent<Tile>();
-                
-                myTileProperties.terrainName = myTileName;
-                myTileProperties.thumbnail = plainThumb;
-                myTileProperties.xPos = x;
-                myTileProperties.yPos = y;
+                tileTransform = Instantiate(plainPrefab, new Vector3(x, 0, y), Quaternion.Euler(new Vector3(0, angle, 0)));
+                tile = tileTransform.GetComponent<Tile>();
+
+                tile.terrainName = Tile.type.Plain.ToString();
+                tile.myTileType = Tile.type.Plain;
+                tile.thumbnail = plainThumb;
+                tile.xPos = x;
+                tile.yPos = y;
                 
                 //Set weights
-                myTileProperties.weight = 1;
-                myTileProperties.cover = 1;                
-                myTileProperties.footCost = 1;
-                myTileProperties.mechCost = 1;
-                myTileProperties.treadsCost = 1;
-                myTileProperties.wheelsCost = 2;
-                myTileProperties.landerCost = -1;
-                myTileProperties.shipCost = -1;
-                myTileProperties.airCost = 1;
+                tile.cover = 1;
+                setMovementCost(tile, GetComponent<MainFunctions>().actualWeather);
 
                 //Declare Levelmanager as parent.
-                myTile.transform.parent = this.transform.Find("Tiles");
+                tileTransform.transform.parent = this.transform.Find("Tiles");
                 //Change the name to "terrainName at X: ... Y: ..."
-                myTile.name = myTileProperties.terrainName + " at X: " + myTileProperties.xPos + " Y: " + myTileProperties.yPos;
+                tileTransform.name = tile.terrainName + " at X: " + tile.xPos + " Y: " + tile.yPos;
 
-                return myTile;
+                return tileTransform;
                 
-            case "Forest":
+            case Tile.type.Forest:
                 //Create tile
-                myTile = Instantiate(forestPrefab, new Vector3(x, 0, y), Quaternion.Euler(new Vector3(0, angle, 0)));                
-                myTileProperties = myTile.GetComponent<Tile>();
+                tileTransform = Instantiate(forestPrefab, new Vector3(x, 0, y), Quaternion.Euler(new Vector3(0, angle, 0)));                
+                tile = tileTransform.GetComponent<Tile>();
 
-                myTileProperties.terrainName = myTileName;
-                myTileProperties.thumbnail = forestThumb;
-                myTileProperties.xPos = x;
-                myTileProperties.yPos = y;
+                tile.terrainName = Tile.type.Forest.ToString();
+                tile.myTileType = Tile.type.Forest;
+                tile.thumbnail = forestThumb;
+                tile.xPos = x;
+                tile.yPos = y;
 
                 //Set weights
-                myTileProperties.weight = 1;
-                myTileProperties.cover = 2;
-                myTileProperties.footCost = 1;
-                myTileProperties.mechCost = 1;
-                myTileProperties.treadsCost = 2;
-                myTileProperties.wheelsCost = 3;
-                myTileProperties.landerCost = -1;
-                myTileProperties.shipCost = -1;
-                myTileProperties.airCost = 1;
+                tile.cover = 2;
+                setMovementCost(tile, GetComponent<MainFunctions>().actualWeather);
 
                 //Declare Levelmanager as parent.
-                myTile.transform.parent = this.transform.Find("Tiles");
+                tileTransform.transform.parent = this.transform.Find("Tiles");
                 //Change the name to "terrainName at X: ... Y: ..."
-                myTile.name = myTileProperties.terrainName + " at X: " + myTileProperties.xPos + " Y: " + myTileProperties.yPos;
+                tileTransform.name = tile.terrainName + " at X: " + tile.xPos + " Y: " + tile.yPos;
 
-                return myTile;              
+                return tileTransform;              
 
-            case "Road":
+            case Tile.type.RoadStraight:
                 //Create tile
-                myTile = Instantiate(roadPrefab, new Vector3(x, 0, y), Quaternion.Euler(new Vector3(0, angle, 0)));
-                myTileProperties = myTile.GetComponent<Tile>();
+                tileTransform = Instantiate(roadPrefab, new Vector3(x, 0, y), Quaternion.Euler(new Vector3(0, angle, 0)));
+                tile = tileTransform.GetComponent<Tile>();
 
-                myTileProperties.terrainName = myTileName;
-                myTileProperties.thumbnail = roadThumb;
-                myTileProperties.xPos = x;
-                myTileProperties.yPos = y;
-
-                //Set weights
-                myTileProperties.weight = 1;
-                myTileProperties.cover = 0;
-                myTileProperties.footCost = 1;
-                myTileProperties.mechCost = 1;
-                myTileProperties.treadsCost = 1;
-                myTileProperties.wheelsCost = 1;
-                myTileProperties.landerCost = -1;
-                myTileProperties.shipCost = -1;
-                myTileProperties.airCost = 1;
+                tile.terrainName = "Road";
+                tile.myTileType = Tile.type.RoadStraight;
+                tile.thumbnail = roadThumb;
+                tile.xPos = x;
+                tile.yPos = y;
+                tile.cover = 0;
+                setMovementCost(tile, GetComponent<MainFunctions>().actualWeather);
 
                 //Declare Levelmanager as parent.
-                myTile.transform.parent = this.transform.Find("Tiles");
+                tileTransform.transform.parent = this.transform.Find("Tiles");
                 //Change the name to "terrainName at X: ... Y: ..."
-                myTile.name = myTileProperties.terrainName + " at X: " + myTileProperties.xPos + " Y: " + myTileProperties.yPos;
+                tileTransform.name = tile.terrainName + " at X: " + tile.xPos + " Y: " + tile.yPos;
 
-                return myTile;
-              
-            case "Mountain":
+                return tileTransform;
+
+            case Tile.type.RoadCurve:
                 //Create tile
-                myTile = Instantiate(mountainPrefab, new Vector3(x, 0, y), Quaternion.Euler(new Vector3(0, angle, 0)));
-                myTileProperties = myTile.GetComponent<Tile>();
+                tileTransform = Instantiate(roadCurvePrefab, new Vector3(x, 0, y), Quaternion.Euler(new Vector3(0, angle, 0)));
+                tile = tileTransform.GetComponent<Tile>();
+
+                tile.terrainName = "Road";
+                tile.myTileType = Tile.type.RoadStraight;
+                tile.thumbnail = roadThumb;
+                tile.xPos = x;
+                tile.yPos = y;
+                tile.cover = 0;
+                setMovementCost(tile, GetComponent<MainFunctions>().actualWeather);
+
+                //Declare Levelmanager as parent.
+                tileTransform.transform.parent = this.transform.Find("Tiles");
+                //Change the name to "terrainName at X: ... Y: ..."
+                tileTransform.name = tile.terrainName + " at X: " + tile.xPos + " Y: " + tile.yPos;
+
+                return tileTransform;
+
+            case Tile.type.Mountain:
+                //Create tile
+                tileTransform = Instantiate(mountainPrefab, new Vector3(x, 0, y), Quaternion.Euler(new Vector3(0, angle, 0)));
+                tile = tileTransform.GetComponent<Tile>();
                 
-                myTileProperties.terrainName = myTileName;
-                myTileProperties.xPos = x;
-                myTileProperties.yPos = y;
-                //Set weights
-                myTileProperties.weight = -1;
-                myTileProperties.cover = 4;
-                myTileProperties.footCost = 2;
-                myTileProperties.mechCost = 1;
-                myTileProperties.treadsCost = -1;
-                myTileProperties.wheelsCost = -1;
-                myTileProperties.landerCost = -1;
-                myTileProperties.shipCost = -1;
-                myTileProperties.airCost = 1;
+                tile.terrainName = Tile.type.Mountain.ToString();
+                tile.myTileType = Tile.type.Mountain;
+                tile.xPos = x;
+                tile.yPos = y;
+                tile.cover = 4;
+                setMovementCost(tile, GetComponent<MainFunctions>().actualWeather);
 
                 //Declare Levelmanager as parent.
-                myTile.transform.parent = this.transform.Find("Tiles");
+                tileTransform.transform.parent = this.transform.Find("Tiles");
                 //Change the name to "terrainName at X: ... Y: ..."
-                myTile.name = myTileProperties.terrainName + " at X: " + myTileProperties.xPos + " Y: " + myTileProperties.yPos;
+                tileTransform.name = tile.terrainName + " at X: " + tile.xPos + " Y: " + tile.yPos;
 
-                return myTile;                
+                return tileTransform;
+
+            case Tile.type.City:
+                //Create tile
+                tileTransform = Instantiate(cityPrefab, new Vector3(x, 0, y), Quaternion.Euler(new Vector3(0, angle, 0)));
+                tile = tileTransform.GetComponent<Tile>();
+
+                tile.terrainName = Tile.type.City.ToString();
+                tile.myTileType = Tile.type.City;
+                tile.xPos = x;
+                tile.yPos = y;
+                tile.cover = 3;
+                setMovementCost(tile, GetComponent<MainFunctions>().actualWeather);
+
+                //Declare Levelmanager as parent.
+                tileTransform.transform.parent = this.transform.Find("Tiles");
+                //Change the name to "terrainName at X: ... Y: ..."
+                tileTransform.name = tile.terrainName + " at X: " + tile.xPos + " Y: " + tile.yPos;
+
+                return tileTransform;
+
+            case Tile.type.Facility:
+                //Create tile
+                tileTransform = Instantiate(facilityPrefab, new Vector3(x, 0, y), Quaternion.Euler(new Vector3(0, angle, 0)));
+                tile = tileTransform.GetComponent<Tile>();
+
+                tile.terrainName = Tile.type.Facility.ToString();
+                tile.myTileType = Tile.type.Facility;
+                tile.xPos = x;
+                tile.yPos = y;
+                tile.cover = 3;
+                setMovementCost(tile, GetComponent<MainFunctions>().actualWeather);
+
+                //Declare Levelmanager as parent.
+                tileTransform.transform.parent = this.transform.Find("Tiles");
+                //Change the name to "terrainName at X: ... Y: ..."
+                tileTransform.name = tile.terrainName + " at X: " + tile.xPos + " Y: " + tile.yPos;
+
+                return tileTransform;
+
+            case Tile.type.Sea:
+                //Create tile
+                tileTransform = Instantiate(seaPrefab, new Vector3(x, -0.1f, y), Quaternion.Euler(new Vector3(0, angle, 0)));
+                tile = tileTransform.GetComponent<Tile>();
+
+                tile.terrainName = Tile.type.Sea.ToString();
+                tile.myTileType = Tile.type.Sea;
+                tile.xPos = x;
+                tile.yPos = y;
+                tile.cover = 4;
+                setMovementCost(tile, GetComponent<MainFunctions>().actualWeather);
+
+                //Declare Levelmanager as parent.
+                tileTransform.transform.parent = this.transform.Find("Tiles");
+                //Change the name to "terrainName at X: ... Y: ..."
+                tileTransform.name = tile.terrainName + " at X: " + tile.xPos + " Y: " + tile.yPos;
+
+                return tileTransform;
 
             default:
-                Debug.Log("Incorrect Tilename: " + myTileName);
+                Debug.Log("Graph: Couldn't find the given tile type: " + myTileType);
                 return null;                
         }
     }
    
-    //Block or unblock a tile.
-    public void setIsBlockedByBlue(int x, int y, bool value)
+    //Sets the cost of movement for the tile depending on the type of the tile, weather and the movement type of a unit.
+    public void setMovementCost(Tile tile, Database.weather myWeather)
     {
-        myGraph[x][y].gameObject.GetComponent<Tile>().isBlockedByBlue = value;
-    }
-    
-    public void setIsBlockedByRed(int x, int y, bool value)
-    {
-        myGraph[x][y].gameObject.GetComponent<Tile>().isBlockedByRed = value;
+        tile.footCost = database.getMovementCost(tile.myTileType, Unit.moveType.Foot, myWeather);
+        tile.mechCost = database.getMovementCost(tile.myTileType, Unit.moveType.Mech, myWeather);
+        tile.treadsCost = database.getMovementCost(tile.myTileType, Unit.moveType.Treads, myWeather);
+        tile.wheelsCost = database.getMovementCost(tile.myTileType, Unit.moveType.Wheels, myWeather);
+        tile.landerCost = database.getMovementCost(tile.myTileType, Unit.moveType.Lander, myWeather);
+        tile.shipCost = database.getMovementCost(tile.myTileType, Unit.moveType.Ship, myWeather);
+        tile.airCost = database.getMovementCost(tile.myTileType, Unit.moveType.Air, myWeather);
     }
 
-    //Reset the reachable bool on all tiles to false and delete the blue fields.
-    public void resetReachableTiles()
-    {        
-        for (int i = 0; i < this.GetComponent<MainFunctions>().selectedUnit.transform.Find("reachableArea").transform.childCount; i++)
+    //Change the weather and with it the movement costs of all tiles.
+    public void changeWeather(Database.weather newWeather)
+    {
+        for(int i = 0; i < myGraph.Count; i++)
         {
-            Destroy(this.GetComponent<MainFunctions>().selectedUnit.transform.Find("reachableArea").GetChild(i).gameObject);
-        }
-
-        for (int i = 0; i < myGraph.Count; i++)
-        {
-            for(int j = 0; j < myGraph[0].Count; j++)
+            for(int j = 0; j < myGraph[0].Count; i++)
             {
-                myGraph[i][j].GetComponent<Tile>().isReachable = false;
-            }
-        }
-    }
-
-    //Reset the isAttackable bool on all tiles to false and delete red fields.
-    public void resetAttackableTiles()
-    {
-        
-        for (int i = 0; i < this.GetComponent<MainFunctions>().selectedUnit.transform.Find("attackableTiles").transform.childCount; i++)
-        {
-            Destroy(this.GetComponent<MainFunctions>().selectedUnit.transform.Find("attackableTiles").GetChild(i).gameObject);
-        }
-
-        for (int i = 0; i < myGraph.Count; i++)
-        {
-            for (int j = 0; j < myGraph[0].Count; j++)
-            {
-                myGraph[i][j].GetComponent<Tile>().isAttackable = false;
+                setMovementCost(myGraph[i][j].GetComponent<Tile>(), newWeather);
             }
         }
     }
@@ -237,21 +286,277 @@ public class Graph : MonoBehaviour
     public void createExampleGraph01()
 	{
 		createEmptyGraph (gridWidth, gridHeight);
-        changeTile("Mountain", 3, 1, 0);
-        changeTile("Mountain", 3, 2, 0);
-        changeTile("Mountain", 3, 3, 0);
-        changeTile("Mountain", 3, 4, 0);
-        changeTile("Mountain", 7, 3, 0);
-        changeTile("Forest", 4, 2, 0);
-        changeTile("Forest", 4, 3, 0);
-        changeTile("Forest", 4, 4, 0);
-        changeTile("Forest", 4, 5, 0);
-        //changeTile("Forest", 7, 2, 0);
-        //changeTile("Forest", 8, 2, 0);
-        changeTile("Road", 6, 2, 90);
-        changeTile("Road", 6, 3, 90);
-        changeTile("Road", 6, 4, 90);
-        changeTile("Road", 6, 5, 90);
+        changeTile(3, 1, 0, Tile.type.Mountain);
+        changeTile(3, 2, 0, Tile.type.Mountain);
+        changeTile(3, 3, 0, Tile.type.Mountain);
+        changeTile(3, 4, 0, Tile.type.Mountain);
+        changeTile(7, 3, 0, Tile.type.Mountain);
+        changeTile(4, 2, 0, Tile.type.Forest);
+        changeTile(4, 3, 0, Tile.type.Forest);
+        changeTile(4, 4, 0, Tile.type.Forest);
+        changeTile(4, 5, 0, Tile.type.Forest);
+        changeTile(7, 2, 0, Tile.type.Forest);
+        changeTile(8, 2, 0, Tile.type.Forest);
+        changeTile(6, 2, 90, Tile.type.RoadStraight);
+        changeTile(6, 3, 90, Tile.type.RoadStraight);
+        changeTile(6, 4, 90, Tile.type.RoadStraight);
+        changeTile(6, 5, 90, Tile.type.RoadStraight);
+        changeTile(0, 0, 0, Tile.type.City);
+        changeTile(9, 2, 0, Tile.type.City);
+        changeTile(10, 2, 0, Tile.type.City);
+        changeTile(11, 2, 0, Tile.type.Facility);
+        changeTile(13, 2, 0, Tile.type.Facility);
+        findNeighbors();
+    }
+
+    public void createLevel01()
+    {
+        createEmptyGraph(16, 15);
+        //x = 0
+        changeTile(0, 0, 0, Tile.type.Sea);
+        changeTile(0, 1, 0, Tile.type.Sea);
+        changeTile(0, 2, 0, Tile.type.Sea);
+        changeTile(0, 3, 0, Tile.type.Sea);
+        changeTile(0, 4, 0, Tile.type.Sea);
+        changeTile(0, 5, 0, Tile.type.Sea);
+        changeTile(0, 6, 0, Tile.type.Sea);
+        changeTile(0, 7, 0, Tile.type.Sea);
+        changeTile(0, 8, 0, Tile.type.Sea);
+        changeTile(0, 9, 0, Tile.type.Sea);
+        changeTile(0, 10, 0, Tile.type.Sea);
+        changeTile(0, 11, 0, Tile.type.Sea);
+        changeTile(0, 12, 0, Tile.type.Sea);
+        changeTile(0, 13, 0, Tile.type.Sea);
+        changeTile(0, 14, 0, Tile.type.Sea);
+        //x = 1
+        changeTile(1, 0, 0, Tile.type.Sea);
+        changeTile(1, 1, 0, Tile.type.Sea);
+        changeTile(1, 2, 0, Tile.type.Sea);
+        changeTile(1, 3, 0, Tile.type.Sea);
+        changeTile(1, 4, 0, Tile.type.City);
+        changeTile(1, 6, 0, Tile.type.Facility);
+        changeTile(1, 8, 0, Tile.type.Facility);
+        changeTile(1, 10, 0, Tile.type.City);
+        changeTile(1, 12, 0, Tile.type.Sea);
+        changeTile(1, 13, 0, Tile.type.Sea);
+        changeTile(1, 14, 0, Tile.type.Sea);
+        //x = 2
+        changeTile(2, 0, 0, Tile.type.Sea);
+        changeTile(2, 1, 0, Tile.type.Sea);
+        changeTile(2, 2, 0, Tile.type.Sea);
+        changeTile(2, 3, 0, Tile.type.Sea);
+        changeTile(2, 4, 0, Tile.type.City);
+        changeTile(2, 6, 0, Tile.type.Forest);
+        changeTile(2, 7, 0, Tile.type.Facility);
+        changeTile(2, 10, 0, Tile.type.City);
+        changeTile(2, 13, 0, Tile.type.Sea);
+        changeTile(2, 14, 0, Tile.type.Sea);
+        //x = 3
+        changeTile(3, 0, 0, Tile.type.Sea);
+        changeTile(3, 1, 0, Tile.type.Sea);
+        changeTile(3, 2, 0, Tile.type.Sea);
+        changeTile(3, 5, 90, Tile.type.RoadCurve);
+        changeTile(3, 6, 90, Tile.type.RoadStraight);
+        changeTile(3, 7, 90, Tile.type.RoadStraight);
+        changeTile(3, 8, 0, Tile.type.Facility);
+        changeTile(3, 10, 0, Tile.type.Mountain);
+        changeTile(3, 11, 0, Tile.type.Mountain);
+        changeTile(3, 13, 0, Tile.type.Sea);
+        changeTile(3, 14, 0, Tile.type.Sea);
+        //x = 4
+        changeTile(4, 0, 0, Tile.type.Sea);
+        changeTile(4, 1, 0, Tile.type.Sea);
+        changeTile(4, 4, 0, Tile.type.Forest);
+        changeTile(4, 5, 0, Tile.type.RoadStraight);
+        changeTile(4, 6, 0, Tile.type.Mountain);
+        changeTile(4, 7, 0, Tile.type.Mountain);
+        changeTile(4, 8, 0, Tile.type.Mountain);
+        changeTile(4, 9, 0, Tile.type.Mountain);
+        changeTile(4, 10, 0, Tile.type.Mountain);
+        changeTile(4, 11, 0, Tile.type.Mountain);
+        changeTile(4, 12, 0, Tile.type.Mountain);
+        changeTile(4, 13, 0, Tile.type.Sea);
+        changeTile(4, 14, 0, Tile.type.Sea);
+        //x = 5
+        changeTile(5, 0, 0, Tile.type.Sea);
+        changeTile(5, 1, 0, Tile.type.Sea);
+        changeTile(5, 4, 0, Tile.type.Forest);
+        changeTile(5, 5, 0, Tile.type.RoadCurve);
+        changeTile(5, 6, 90, Tile.type.RoadStraight);
+        changeTile(5, 7, 90, Tile.type.RoadStraight);
+        changeTile(5, 8, 90, Tile.type.RoadStraight);
+        changeTile(5, 9, 180, Tile.type.RoadCurve);
+        changeTile(5, 10, 0, Tile.type.City);
+        changeTile(5, 12, 0, Tile.type.Forest);
+        changeTile(5, 14, 0, Tile.type.Sea);
+        //x = 6
+        changeTile(6, 0, 0, Tile.type.Sea);
+        changeTile(6, 1, 0, Tile.type.Sea);
+        changeTile(6, 2, 0, Tile.type.Sea);
+        changeTile(6, 4, 0, Tile.type.Mountain);
+        changeTile(6, 5, 0, Tile.type.City);
+        changeTile(6, 7, 0, Tile.type.City);
+        changeTile(6, 9, 0, Tile.type.RoadStraight);
+        changeTile(6, 10, 0, Tile.type.City);
+        changeTile(6, 12, 0, Tile.type.Forest);
+        changeTile(6, 14, 0, Tile.type.Sea);
+        //x = 7
+        changeTile(7, 0, 0, Tile.type.Sea);
+        changeTile(7, 1, 0, Tile.type.Sea);
+        changeTile(7, 2, 0, Tile.type.Sea);
+        changeTile(7, 4, 0, Tile.type.Mountain);
+        changeTile(7, 5, 0, Tile.type.Mountain);
+        changeTile(7, 6, 0, Tile.type.Mountain);
+        changeTile(7, 7, 0, Tile.type.Mountain);
+        changeTile(7, 8, 0, Tile.type.Mountain);
+        changeTile(7, 9, 0, Tile.type.RoadStraight);
+        changeTile(7, 10, 0, Tile.type.City);
+        changeTile(7, 12, 0, Tile.type.Forest);
+        changeTile(7, 13, 0, Tile.type.Sea);
+        changeTile(7, 14, 0, Tile.type.Sea);
+
+        //x = 8
+        changeTile(8, 0, 0, Tile.type.Sea);
+        changeTile(8, 1, 0, Tile.type.Sea);
+        changeTile(8, 2, 0, Tile.type.Sea);
+        changeTile(8, 3, 0, Tile.type.Sea);
+        changeTile(8, 4, 0, Tile.type.Mountain);
+        changeTile(8, 5, 0, Tile.type.Mountain);
+        changeTile(8, 6, 0, Tile.type.Mountain);
+        changeTile(8, 7, 0, Tile.type.Mountain);
+        changeTile(8, 8, 0, Tile.type.Mountain);
+        changeTile(8, 9, 0, Tile.type.RoadStraight);
+        changeTile(8, 10, 0, Tile.type.City);
+        changeTile(8, 12, 0, Tile.type.Forest);
+        changeTile(8, 13, 0, Tile.type.Sea);
+        changeTile(8, 14, 0, Tile.type.Sea);
+
+        //x = 9
+        changeTile(9, 0, 0, Tile.type.Sea);
+        changeTile(9, 1, 0, Tile.type.Sea);
+        changeTile(9, 2, 0, Tile.type.Sea);
+        changeTile(9, 4, 0, Tile.type.Mountain);
+        changeTile(9, 5, 0, Tile.type.City);
+        changeTile(9, 7, 0, Tile.type.City);
+        changeTile(9, 9, 0, Tile.type.RoadStraight);
+        changeTile(9, 10, 0, Tile.type.City);
+        changeTile(9, 12, 0, Tile.type.Forest);
+        changeTile(9, 13, 0, Tile.type.Sea);
+        changeTile(9, 14, 0, Tile.type.Sea);
+
+        //x = 10
+        changeTile(10, 0, 0, Tile.type.Sea);
+        changeTile(10, 1, 0, Tile.type.Sea);
+        changeTile(10, 2, 0, Tile.type.Sea);
+        changeTile(10, 4, 0, Tile.type.Forest);
+        changeTile(10, 5, 90, Tile.type.RoadCurve);
+        changeTile(10, 6, 90, Tile.type.RoadStraight);
+        changeTile(10, 7, 90, Tile.type.RoadStraight);
+        changeTile(10, 8, 90, Tile.type.RoadStraight);
+        changeTile(10, 9, 270, Tile.type.RoadCurve);
+        changeTile(10, 10, 0, Tile.type.City);
+        changeTile(10, 12, 0, Tile.type.Forest);
+        changeTile(10, 14, 0, Tile.type.Sea);
+
+        //x = 11
+        changeTile(11, 0, 0, Tile.type.Sea);
+        changeTile(11, 1, 0, Tile.type.Sea);
+        changeTile(11, 4, 0, Tile.type.Forest);
+        changeTile(11, 5, 0, Tile.type.RoadStraight);
+        changeTile(11, 6, 0, Tile.type.Mountain);
+        changeTile(11, 7, 0, Tile.type.Mountain);
+        changeTile(11, 8, 0, Tile.type.Mountain);
+        changeTile(11, 9, 0, Tile.type.Mountain);
+        changeTile(11, 10, 0, Tile.type.Mountain);
+        changeTile(11, 11, 0, Tile.type.Mountain);
+        changeTile(11, 12, 0, Tile.type.Mountain);
+        changeTile(11, 13, 0, Tile.type.Mountain);
+        changeTile(11, 14, 0, Tile.type.Sea);
+
+        //x = 12 
+        changeTile(12, 0, 0, Tile.type.Sea);
+        changeTile(12, 1, 0, Tile.type.Sea);
+        changeTile(12, 2, 0, Tile.type.Sea);
+        changeTile(12, 4, 0, Tile.type.Forest);
+        changeTile(12, 5, 0, Tile.type.RoadCurve);
+        changeTile(12, 6, 90, Tile.type.RoadStraight);
+        changeTile(12, 7, 90, Tile.type.RoadStraight);
+        changeTile(12, 8, 0, Tile.type.Facility);
+        changeTile(12, 10, 0, Tile.type.Mountain);
+        changeTile(12, 11, 0, Tile.type.Mountain);
+        changeTile(12, 12, 0, Tile.type.Mountain);
+        changeTile(12, 13, 0, Tile.type.Sea);
+        changeTile(12, 14, 0, Tile.type.Sea);
+
+        //x = 13
+        changeTile(13, 0, 0, Tile.type.Sea);
+        changeTile(13, 1, 0, Tile.type.Sea);
+        changeTile(13, 2, 0, Tile.type.Sea);
+        changeTile(13, 3, 0, Tile.type.Sea);
+        changeTile(13, 4, 0, Tile.type.City);
+        changeTile(13, 6, 0, Tile.type.Forest);
+        changeTile(13, 7, 0, Tile.type.Facility);
+        changeTile(13, 10, 0, Tile.type.City);
+        changeTile(13, 13, 0, Tile.type.Sea);
+        changeTile(13, 14, 0, Tile.type.Sea);
+
+        //x = 14
+        changeTile(14, 0, 0, Tile.type.Sea);
+        changeTile(14, 1, 0, Tile.type.Sea);
+        changeTile(14, 2, 0, Tile.type.Sea);
+        changeTile(14, 3, 0, Tile.type.Sea);
+        changeTile(14, 4, 0, Tile.type.City);
+        changeTile(14, 6, 0, Tile.type.Facility);
+        changeTile(14, 8, 0, Tile.type.Facility);
+        changeTile(14, 10, 0, Tile.type.City);
+        changeTile(14, 12, 0, Tile.type.Sea);
+        changeTile(14, 13, 0, Tile.type.Sea);
+        changeTile(14, 14, 0, Tile.type.Sea);
+
+        //x = 15
+        changeTile(15, 0, 0, Tile.type.Sea);
+        changeTile(15, 1, 0, Tile.type.Sea);
+        changeTile(15, 2, 0, Tile.type.Sea);
+        changeTile(15, 3, 0, Tile.type.Sea);
+        changeTile(15, 4, 0, Tile.type.Sea);
+        changeTile(15, 5, 0, Tile.type.Sea);
+        changeTile(15, 6, 0, Tile.type.Sea);
+        changeTile(15, 7, 0, Tile.type.Sea);
+        changeTile(15, 8, 0, Tile.type.Sea);
+        changeTile(15, 9, 0, Tile.type.Sea);
+        changeTile(15, 10, 0, Tile.type.Sea);
+        changeTile(15, 11, 0, Tile.type.Sea);
+        changeTile(15, 12, 0, Tile.type.Sea);
+        changeTile(15, 13, 0, Tile.type.Sea);
+        changeTile(15, 14, 0, Tile.type.Sea);
+
+        
+        //Team red properties
+        Team teamRed = this.GetComponent<TeamManager>().teams[0];
+        this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(1,4));
+        this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(1,6));
+        this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(1,8));
+        this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(1,10));
+        this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(2,4));
+        this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(2,7));
+        this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(2,10));
+        this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(3,8));
+        this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(6,5));
+        this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(6,7));
+    
+        //Team blue properties
+        Team teamBlue = this.GetComponent<TeamManager>().teams[1];
+        this.GetComponent<TeamManager>().occupyProperty(teamBlue, getTile(9,5));
+        this.GetComponent<TeamManager>().occupyProperty(teamBlue, getTile(9,7));
+        this.GetComponent<TeamManager>().occupyProperty(teamBlue, getTile(12,8));
+        this.GetComponent<TeamManager>().occupyProperty(teamBlue, getTile(13,4));
+        this.GetComponent<TeamManager>().occupyProperty(teamBlue, getTile(13,7));
+        this.GetComponent<TeamManager>().occupyProperty(teamBlue, getTile(13,10));
+        this.GetComponent<TeamManager>().occupyProperty(teamBlue, getTile(14,4));
+        this.GetComponent<TeamManager>().occupyProperty(teamBlue, getTile(14,6));
+        this.GetComponent<TeamManager>().occupyProperty(teamBlue, getTile(14,8));
+        this.GetComponent<TeamManager>().occupyProperty(teamBlue, getTile(14,10));
+
         findNeighbors();
     }
 
@@ -265,44 +570,44 @@ public class Graph : MonoBehaviour
     private void findNeighbors()
     {
         //Linke untere Ecke
-        getTile(0, 0).nachbarn.Add(myGraph[1][0]);//rechts
-        getTile(0, 0).nachbarn.Add(myGraph[0][1]);//oben
+        getTile(0, 0).neighbors.Add(myGraph[1][0]);//rechts
+        getTile(0, 0).neighbors.Add(myGraph[0][1]);//oben
         //Rechte untere Ecke        
-        getTile(myGraph.Count - 1, 0).nachbarn.Add(myGraph[myGraph.Count - 1][1]);//oben
-        getTile(myGraph.Count - 1, 0).nachbarn.Add(myGraph[myGraph.Count - 2][0]);//links
+        getTile(myGraph.Count - 1, 0).neighbors.Add(myGraph[myGraph.Count - 1][1]);//oben
+        getTile(myGraph.Count - 1, 0).neighbors.Add(myGraph[myGraph.Count - 2][0]);//links
         //Linke obere Ecke
-        getTile(0, myGraph[0].Count - 1).nachbarn.Add(myGraph[1][myGraph[0].Count - 1]);//rechts
-        getTile(0, myGraph[0].Count - 1).nachbarn.Add(myGraph[0][myGraph[0].Count - 2]);//unten
+        getTile(0, myGraph[0].Count - 1).neighbors.Add(myGraph[1][myGraph[0].Count - 1]);//rechts
+        getTile(0, myGraph[0].Count - 1).neighbors.Add(myGraph[0][myGraph[0].Count - 2]);//unten
         //Rechte obere Ecke
-        getTile(myGraph.Count - 1, myGraph[0].Count - 1).nachbarn.Add(myGraph[myGraph.Count - 2][myGraph[0].Count - 1]);//links
-        getTile(myGraph.Count - 1, myGraph[0].Count - 1).nachbarn.Add(myGraph[myGraph.Count - 1][myGraph[0].Count - 2]);//unten
+        getTile(myGraph.Count - 1, myGraph[0].Count - 1).neighbors.Add(myGraph[myGraph.Count - 2][myGraph[0].Count - 1]);//links
+        getTile(myGraph.Count - 1, myGraph[0].Count - 1).neighbors.Add(myGraph[myGraph.Count - 1][myGraph[0].Count - 2]);//unten
 
         //oberer und unterer Rand
         for (int i = 1; i < myGraph.Count - 1; i++)
         {
             //oberer Rand            
-            getTile(i, myGraph[0].Count - 1).nachbarn.Add(myGraph[i - 1][myGraph[0].Count - 1]);//links            
-            getTile(i, myGraph[0].Count - 1).nachbarn.Add(myGraph[i + 1][myGraph[0].Count - 1]);//rechts            
-            getTile(i, myGraph[0].Count - 1).nachbarn.Add(myGraph[i][myGraph[0].Count - 2]);//unten
+            getTile(i, myGraph[0].Count - 1).neighbors.Add(myGraph[i - 1][myGraph[0].Count - 1]);//links            
+            getTile(i, myGraph[0].Count - 1).neighbors.Add(myGraph[i + 1][myGraph[0].Count - 1]);//rechts            
+            getTile(i, myGraph[0].Count - 1).neighbors.Add(myGraph[i][myGraph[0].Count - 2]);//unten
 
             //unterer Rand           
-            getTile(i, 0).nachbarn.Add(myGraph[i - 1][0]);//links            
-            getTile(i, 0).nachbarn.Add(myGraph[i + 1][0]);//rechts           
-            getTile(i, 0).nachbarn.Add(myGraph[i][1]);//oben
+            getTile(i, 0).neighbors.Add(myGraph[i - 1][0]);//links            
+            getTile(i, 0).neighbors.Add(myGraph[i + 1][0]);//rechts           
+            getTile(i, 0).neighbors.Add(myGraph[i][1]);//oben
         }
 
         //linker und rechter Rand
         for (int i = 1; i < myGraph[0].Count - 1; i++)
         {
             //linker Rand            
-            getTile(0, i).nachbarn.Add(myGraph[0][i + 1]);//oben            
-            getTile(0, i).nachbarn.Add(myGraph[0][i - 1]);//unten            
-            getTile(0, i).nachbarn.Add(myGraph[1][i]);//rechts
+            getTile(0, i).neighbors.Add(myGraph[0][i + 1]);//oben            
+            getTile(0, i).neighbors.Add(myGraph[0][i - 1]);//unten            
+            getTile(0, i).neighbors.Add(myGraph[1][i]);//rechts
 
             //rechter Rand            
-            getTile(myGraph.Count - 1, i).nachbarn.Add(myGraph[myGraph.Count - 1][i + 1]);//oben           
-            getTile(myGraph.Count - 1, i).nachbarn.Add(myGraph[myGraph.Count - 1][i - 1]);//unten            
-            getTile(myGraph.Count - 1, i).nachbarn.Add(myGraph[myGraph.Count - 2][i]);//links
+            getTile(myGraph.Count - 1, i).neighbors.Add(myGraph[myGraph.Count - 1][i + 1]);//oben           
+            getTile(myGraph.Count - 1, i).neighbors.Add(myGraph[myGraph.Count - 1][i - 1]);//unten            
+            getTile(myGraph.Count - 1, i).neighbors.Add(myGraph[myGraph.Count - 2][i]);//links
         }
 
         //der Rest
@@ -310,10 +615,10 @@ public class Graph : MonoBehaviour
         {
             for (int j = 1; j < myGraph[i].Count - 1; j++)
             {               
-                getTile(i, j).nachbarn.Add(myGraph[i][j + 1]); //oben                
-                getTile(i, j).nachbarn.Add(myGraph[i][j - 1]);//unten                
-                getTile(i, j).nachbarn.Add(myGraph[i - 1][j]);//links                
-                getTile(i, j).nachbarn.Add(myGraph[i + 1][j]);//rechts
+                getTile(i, j).neighbors.Add(myGraph[i][j + 1]); //oben                
+                getTile(i, j).neighbors.Add(myGraph[i][j - 1]);//unten                
+                getTile(i, j).neighbors.Add(myGraph[i - 1][j]);//links                
+                getTile(i, j).neighbors.Add(myGraph[i + 1][j]);//rechts
             }
         }
     }
@@ -344,32 +649,27 @@ public class Graph : MonoBehaviour
 		}
 	}
 
+//Functions for reachable and attackable tiles.
     //Draws the tiles, that can be reached by the unit.
-    public void drawReachableTiles()
+    public void createReachableTiles()
     {
-        for (int i = 0; i < myGraph.Count; i++)
+        if (this.GetComponent<MainFunctions>().selectedUnit.reachableTiles.Count == 0)
         {
-            for (int j = 0; j < myGraph[i].Count; j++)
+            for (int i = 0; i < myGraph.Count; i++)
             {
-                if (myGraph[i][j].gameObject.GetComponent<Tile>().isReachable)
+                for (int j = 0; j < myGraph[i].Count; j++)
                 {
-                    Instantiate(reachableTile, new Vector3(i, 0, j), Quaternion.identity, this.GetComponent<MainFunctions>().selectedUnit.transform.Find("reachableArea"));
+                    if (myGraph[i][j].gameObject.GetComponent<Tile>().isReachable)
+                    {
+                        Instantiate(reachableTile, new Vector3(i, 0, j), Quaternion.identity, this.GetComponent<MainFunctions>().selectedUnit.transform.Find("reachableArea"));
+                    }
                 }
             }
         }
     }
 
-    //Sets the reachable tile to inactive, so they are not visible
-    public void hideReachableTiles()
-    {
-        for (int i = 0; i < this.GetComponent<MainFunctions>().selectedUnit.transform.Find("reachableArea").transform.childCount; i++)
-        {
-            this.GetComponent<MainFunctions>().selectedUnit.transform.Find("reachableArea").GetChild(i).gameObject.SetActive(false);
-        }
-    }
-
-    //Draws the tiles, that can be attacked by the unit.
-    public void drawAttackableTilesForRangeAttack()
+    //Creates the graphics for the tiles, that can be attacked by the unit.
+    public void createAttackableTiles()
     {
         for (int i = 0; i < myGraph.Count; i++)
         {
@@ -383,20 +683,64 @@ public class Graph : MonoBehaviour
         }
     }
 
-    //Draws the tiles, that can be attacked by the unit.
-    public void drawAttackableTilesForDirectAttack()
+    //Sets the reachable tiles to active or inactive, so they are visible or not.
+    public void showReachableTiles(bool value)
     {
-        Unit selectedUnit = this.GetComponent<MainFunctions>().selectedUnit;
+        for (int i = 0; i < this.GetComponent<MainFunctions>().selectedUnit.transform.Find("reachableArea").transform.childCount; i++)
+        {
+            this.GetComponent<MainFunctions>().selectedUnit.transform.Find("reachableArea").GetChild(i).gameObject.SetActive(value);
+        }
+        this.GetComponent<ContextMenu>().showReachableTiles = value;//Inform the context menu, if the tiles are visible or not.
+    }
+
+    //Sets the attackable tiles to active or inactive, so they are visible or not.
+    public void showAttackableTiles(bool value)
+    {
+        for (int i = 0; i < this.GetComponent<MainFunctions>().selectedUnit.transform.Find("attackableTiles").transform.childCount; i++)
+        {
+            this.GetComponent<MainFunctions>().selectedUnit.transform.Find("attackableTiles").GetChild(i).gameObject.SetActive(value);
+        }
+        this.GetComponent<ContextMenu>().showAttackableTiles = value;//Inform the context menu, if the tiles are visible or not.
+    }
+
+    //Reset the reachable bool on all tiles to false and delete the blue fields.
+    public void resetReachableTiles()
+    {
+        for (int i = 0; i < this.GetComponent<MainFunctions>().selectedUnit.transform.Find("reachableArea").transform.childCount; i++)
+        {
+            Destroy(this.GetComponent<MainFunctions>().selectedUnit.transform.Find("reachableArea").GetChild(i).gameObject);
+        }
+
         for (int i = 0; i < myGraph.Count; i++)
         {
-            for (int j = 0; j < myGraph[i].Count; j++)
+            for (int j = 0; j < myGraph[0].Count; j++)
             {
-                Unit unitOnTheTile = myGraph[i][j].GetComponent<Tile>().unitStandingHere;
-                if (myGraph[i][j].GetComponent<Tile>().isAttackable && unitOnTheTile != null && ((selectedUnit.teamBlue && unitOnTheTile.teamRed) || (selectedUnit.teamRed && unitOnTheTile.teamBlue)))
-                {
-                    Instantiate(attackableTile, new Vector3(i, 0.1f, j), Quaternion.identity, this.GetComponent<MainFunctions>().selectedUnit.transform.Find("attackableTiles"));
-                }
+                myGraph[i][j].GetComponent<Tile>().isReachable = false;
             }
         }
+        this.GetComponent<MainFunctions>().selectedUnit.reachableTiles.Clear();
+        this.GetComponent<ContextMenu>().showReachableTiles = false;
     }
+
+    //Reset the isAttackable bool on all tiles to false and delete the red fields.
+    public void resetAttackableTiles()
+    {
+        for (int i = 0; i < this.GetComponent<MainFunctions>().selectedUnit.transform.Find("attackableTiles").transform.childCount; i++)
+        {
+            Destroy(this.GetComponent<MainFunctions>().selectedUnit.transform.Find("attackableTiles").GetChild(i).gameObject);
+        }
+
+        for (int i = 0; i < myGraph.Count; i++)
+        {
+            for (int j = 0; j < myGraph[0].Count; j++)
+            {
+                myGraph[i][j].GetComponent<Tile>().isAttackable = false;
+            }
+        }
+        this.GetComponent<MainFunctions>().selectedUnit.attackableTiles.Clear();
+        this.GetComponent<ContextMenu>().showAttackableTiles = false;
+    }
+
+    
+    
 }

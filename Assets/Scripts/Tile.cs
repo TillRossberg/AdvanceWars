@@ -7,7 +7,6 @@ public class Tile: MonoBehaviour
 {
     //Required Structures
     GameObject myLevelManager;
-    
 
 	//General
 	public string terrainName;
@@ -15,13 +14,16 @@ public class Tile: MonoBehaviour
 	public int xPos;
 	public int yPos;
 	public int rotation;
-    public int weight;
-    
-    public List<Transform> nachbarn = new List<Transform>();
+    public Unit unitStandingHere = null;
+
+    //Tile types
+    public enum type  { Road , Plain, RoadStraight, RoadCurve, RoadBridge, Mountain, Forest, Sea, Shoal, Reef, Port, Facility, Airport, City, River};
+    public type myTileType;
+       
+    public List<Transform> neighbors = new List<Transform>();
 
     //Graphic
     public Transform markingCursor;
-    public Unit unitStandingHere;
 
     //Movement
     public int footCost;
@@ -32,29 +34,20 @@ public class Tile: MonoBehaviour
 	public int shipCost;
 	public int airCost;
 
+    //Property stuff (i.e. is a building/facility that can be occupied)
+    public int takeOverCounter = 20;//For each lifepoint of the infantry/mech unit this value is lowered by one, if the takeover action is performed.
+    
+    public Team owningTeam;
+
+    //States
     public bool isReachable = false;
     public bool isSelected = false;
-    public bool isBlockedByBlue = false;
-    public bool isBlockedByRed = false;
     public bool isPartOfArrowPath = false;
     public bool isAttackable = false;
 
     //Battle
-    //Kampfhintergrund
     public int cover;
-
-    public Tile(string terrainName, int xPos, int yPos)
-    {
-        this.terrainName = terrainName;
-        this.xPos = xPos;
-        this.xPos = yPos;        
-    }
-
-    public void setTerrainName(string name)
-    {
-        this.terrainName = name;
-    }
-
+    
 	// Use this for initialization
 	void Start () 
 	{
@@ -63,49 +56,53 @@ public class Tile: MonoBehaviour
 
     private void OnMouseDown()
     {
-        //Actions are only perfomed, if the menu is not opened.
-        if(!myLevelManager.GetComponent<ContextMenu>().isOpened)
+        //myLevelManager.GetComponent<AnimController>().boom(xPos, yPos);
+        //Actions are only perfomed, if no menu is opened.
+        if (!myLevelManager.GetComponent<ContextMenu>().isOpened && !myLevelManager.GetComponent<Menu_BuyUnits>().isOpened)
         {
+            
+            //Move mode
             if(myLevelManager.GetComponent<MainFunctions>().moveMode)
             {
-                if(isPartOfArrowPath)
+                if(isPartOfArrowPath && unitStandingHere == null)
                 {
                     //Move to the position and try to find units that can be attacked.
                     myLevelManager.GetComponent<MainFunctions>().selectedUnit.GetComponent<Unit>().moveUnitTo(this.xPos, this.yPos);
                     myLevelManager.GetComponent<MainFunctions>().selectedUnit.GetComponent<Unit>().findAttackableTiles();
+                    myLevelManager.GetComponent<MainFunctions>().selectedUnit.GetComponent<Unit>().findAttackableEnemies();
                     //Delete the reachable tiles and the movement arrow.
                     myLevelManager.GetComponent<Graph>().resetReachableTiles();
                     myLevelManager.GetComponent<ArrowBuilder>().resetAll();
                     //Decide if the menu with firebutton and wait button is opened OR if only the wait button is to display.
                     if(myLevelManager.GetComponent<MainFunctions>().selectedUnit.attackableUnits.Count > 0)
                     {
-                        //Open context menu at the position you want to go to.
                         myLevelManager.GetComponent<ContextMenu>().openContextMenu(xPos, yPos, 1);
                     }
                     else
                     {
-                        //Open context menu at the position you want to go to.
                         myLevelManager.GetComponent<ContextMenu>().openContextMenu(xPos, yPos, 0);
                     }
                 }
                 else
+                //Even in move mode, you can still click on buildings.
                 //If no unit stands here...
-                if (!isBlockedByBlue && !isBlockedByRed)
+                if (unitStandingHere == null)
                 {
                     //...select the tile.
                     myLevelManager.GetComponent<MainFunctions>().selectTile(this);         
                 }
             }
+            //Normal mode
             if(myLevelManager.GetComponent<MainFunctions>().normalMode)
             {
                 //If no unit stands here...
-                if (!isBlockedByBlue && !isBlockedByRed)
+                if (unitStandingHere == null)
                 {
                     //...select the tile.
                     myLevelManager.GetComponent<MainFunctions>().selectTile(this);
-                }
-               
+                }                
             }
+            //Fire mode
             if(myLevelManager.GetComponent<MainFunctions>().fireMode)
             {
 
@@ -130,7 +127,7 @@ public class Tile: MonoBehaviour
                 myLevelManager.GetComponent<ArrowBuilder>().tryToGoBack(this);
                 
                 //Resets the arrowPath if you hover over the unit again. (If this is the tile the unit stands on and an arrow has been drawn.)
-                if (this == myLevelManager.GetComponent<ArrowBuilder>().arrowPath[0].myTileProperties && myLevelManager.GetComponent<ArrowBuilder>().arrowPath.Count > 2)
+                if (this == myLevelManager.GetComponent<ArrowBuilder>().arrowPath[0].tile && myLevelManager.GetComponent<ArrowBuilder>().arrowPath.Count > 2)
                 {
                     myLevelManager.GetComponent<ArrowBuilder>().resetArrowPath();
                 }
@@ -146,8 +143,32 @@ public class Tile: MonoBehaviour
     }
 
     //If a unit moves on or dies, clear the unit that was standing on this tile
-    public void clearUnit()
+    public void clearUnitHere()
     {
         unitStandingHere = null;
+    }
+
+    //If the tile is a property, set its color to the occuping team color
+    public void setMaterial(Material newMaterial)
+    {
+        this.transform.Find("Building").GetComponent<MeshRenderer>().material = newMaterial;
+    }
+
+    //Returns the movement cost for a certain movement type.
+    public int getMovementCost(Unit.moveType myMoveType)
+    {
+        switch(myMoveType)
+        {
+            case Unit.moveType.Air: return airCost;
+            case Unit.moveType.Foot: return footCost;
+            case Unit.moveType.Lander: return landerCost;
+            case Unit.moveType.Mech: return mechCost;
+            case Unit.moveType.Ship: return shipCost;
+            case Unit.moveType.Treads: return treadsCost;
+            case Unit.moveType.Wheels: return wheelsCost;
+            default:
+                Debug.Log("Tile: No such moveType" + myMoveType + "was found!");
+                return -1;
+        }
     }
 }

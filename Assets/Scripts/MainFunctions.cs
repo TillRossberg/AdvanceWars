@@ -9,6 +9,9 @@ public class MainFunctions : MonoBehaviour
     //public Transform selectedObject;
     public Tile selectedTile;
     public Unit selectedUnit;
+    public Team activeTeam;
+    public Database.commander activeCommander;
+    public Database.weather actualWeather;
     public Transform markingCursor;
 
     bool isTile = false;
@@ -35,7 +38,11 @@ public class MainFunctions : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(1))
         {            
-            deselectObject();            
+            deselectObject();
+            if(this.GetComponent<Menu_BuyUnits>().isOpened)
+            {
+                this.GetComponent<Menu_BuyUnits>().closeMenu();
+            }
         }
     }
     
@@ -61,6 +68,49 @@ public class MainFunctions : MonoBehaviour
         moveMode = true;
     }
 
+    //Select an unit draw a marking cursor, show its status and initiate the arrow that shows the movement.
+    public void selectUnit(Unit myUnit)
+    {
+        deselectObject(); //Previous selected object out!
+        selectedUnit = myUnit;//Handover the object.
+        selectedUnit.isSelected = true;
+        isUnit = true;
+        this.GetComponent<ContextMenu>().closeMenu();//Make sure the menu is not visible, when you click on a unit.
+        createMarkingCursor(selectedUnit);
+        this.GetComponent<StatusWindow>().showStatus(true);
+
+        //The logic that draws an arrow, that shows where the unit can go.
+        Tile tileTheUnitStandsOn = this.GetComponent<Graph>().getGraph()[selectedUnit.xPos][selectedUnit.yPos].GetComponent<Tile>();
+        this.GetComponent<ArrowBuilder>().init(tileTheUnitStandsOn, selectedUnit.moveDist);
+    }
+
+    //Select a tile.
+    public void selectTile(Tile myObject)
+    {
+        deselectObject();//Previous selected object out!
+        selectedTile = myObject.GetComponent<Tile>(); ;//Handover the tile.
+        this.GetComponent<ContextMenu>().closeMenu();//Make sure the menu is not visible, when you click on a tile.
+        selectedTile.isSelected = true;
+        isTile = true;
+        //Decide wich menu to open.
+        //Facility
+        if (myObject.myTileType == Tile.type.Facility) { this.GetComponent<Menu_BuyUnits>().openMenu(1); }
+        else
+        //Airport
+        if (myObject.myTileType == Tile.type.Airport) { this.GetComponent<Menu_BuyUnits>().openMenu(2); }
+        else
+        //Harbor
+        if (myObject.myTileType == Tile.type.Port) { this.GetComponent<Menu_BuyUnits>().openMenu(3); }
+        else
+        {
+            //Open menu with info button about the tile.
+            this.GetComponent<ContextMenu>().openContextMenu(selectedTile.xPos, selectedTile.yPos, 2);
+        }
+        //Create marking cursor
+        Instantiate(markingCursor, new Vector3(selectedTile.transform.position.x, -0.1f, selectedTile.transform.position.z), Quaternion.identity, this.transform);
+    }
+
+
     //If you click on a new object, drop the old one, return to normal mode, delete the marking cursor and reset all data relying to this object.
     public void deselectObject()
     {
@@ -77,6 +127,7 @@ public class MainFunctions : MonoBehaviour
         this.GetComponent<StatusWindow>().showStatus(false);
         activateNormalMode();
     }
+
     //Deselect a Unit.
     public void deselectUnit()
     {
@@ -93,6 +144,7 @@ public class MainFunctions : MonoBehaviour
         isUnit = false;//Necessary to decide whether we have a tile or an unit selected.
         selectedUnit = null;
     }
+
     //Deselect a Tile.
     public void deselectTile()
     {
@@ -101,57 +153,11 @@ public class MainFunctions : MonoBehaviour
         selectedTile = null;
     }
 
-    //Select a tile.
-    public void selectTile(Tile myObject)
+    //Sets the team that now has its turn.
+    public void setActiveTeam(Team team)
     {
-        deselectObject();//Previous selected object out!
-        selectedTile = myObject.GetComponent<Tile>(); ;//Handover the tile.
-        this.GetComponent<ContextMenu>().closeMenu();//Make sure the menu is not visible, when you click on a unit.
-        selectedTile.isSelected = true;
-        isTile = true;
-        //Open menu with info button about the tile.
-        this.GetComponent<ContextMenu>().openContextMenu(selectedTile.xPos, selectedTile.yPos, 2);
-        //Create marking cursor
-        Instantiate(markingCursor, new Vector3(selectedTile.transform.position.x, - 0.1f, selectedTile.transform.position.z), Quaternion.identity, this.transform);
+        activeTeam = team;
     }
-
-    //Select an unit.
-    public void selectUnit(Unit myObject)
-    {
-        //If you click the same unit again, the menu should open...
-        if(selectedUnit == myObject)
-        {
-            //Open the menu
-            this.GetComponent<ContextMenu>().openContextMenu(selectedUnit.xPos, selectedUnit.yPos, 0);
-        }
-        //...otherwise, simply select the unit and initiate the arrow path.
-        else
-        {
-            deselectObject(); //Previous selected object out!
-            selectedUnit = myObject;//Handover the object
-            this.GetComponent<ContextMenu>().closeMenu();//Make sure the menu is not visible, when you click on a unit.
-            this.GetComponent<StatusWindow>().showStatus(false);
-            selectedUnit.isSelected = true;
-            isUnit = true;
-            //Create marking cursor
-            Instantiate(markingCursor, new Vector3(selectedUnit.transform.position.x, selectedUnit.transform.position.y - 0.2f, selectedUnit.transform.position.z), Quaternion.identity, selectedUnit.transform);
-            //Show the status of the unit.
-            this.GetComponent<StatusWindow>().showStatus(true);
-            int myCover = this.GetComponent<Graph>().getTile(selectedUnit.xPos, selectedUnit.yPos).cover;
-            string tileName = this.GetComponent<Graph>().getTile(selectedUnit.xPos, selectedUnit.yPos).terrainName;
-            Sprite tileThumb = this.GetComponent<Graph>().getTile(selectedUnit.xPos, selectedUnit.yPos).thumbnail;
-            this.GetComponent<StatusWindow>().changeStatus(selectedUnit.unitName, selectedUnit.thumbNail, selectedUnit.health, selectedUnit.ammo, selectedUnit.fuel, tileName, tileThumb, myCover);
-
-            //The logic that draws an arrow, that shows where the unit can go.
-            Tile tilePropTheUnitStandsOn = this.GetComponent<Graph>().getGraph()[selectedUnit.xPos][selectedUnit.yPos].GetComponent<Tile>();
-            tilePropTheUnitStandsOn.isPartOfArrowPath = true;
-            ArrowPart myArrowPart = ScriptableObject.CreateInstance("ArrowPart") as ArrowPart;
-            myArrowPart.init("First node", null, tilePropTheUnitStandsOn);
-            this.GetComponent<ArrowBuilder>().arrowPath.Add(myArrowPart);//Set this tile as startpoint of the arrowPath
-            this.GetComponent<ArrowBuilder>().momMovementPoints = selectedUnit.moveDist;//Handover the maximum movement points of the unit.
-            this.GetComponent<ArrowBuilder>().maxMovementPoints = selectedUnit.moveDist;//Set a maximum for the movement points (for resetting purposes).
-        }
-    }    
 
     //Deletes all instances of the marking cursor.
     public void deleteMarkingCursor()
@@ -160,5 +166,10 @@ public class MainFunctions : MonoBehaviour
         {
             Destroy(markingCursor);
         }        
+    }
+    //Creates a marking cursor at the position of the given unit.
+    public void createMarkingCursor(Unit myUnit)
+    {
+        Instantiate(markingCursor, new Vector3(myUnit.transform.position.x, myUnit.transform.position.y - 0.2f, myUnit.transform.position.z), Quaternion.identity, myUnit.transform);
     }
 }

@@ -14,28 +14,39 @@ public class ArrowBuilder : MonoBehaviour
     
     public List<ArrowPart> arrowPath = new List<ArrowPart>();//arrowParts hold information about the tile they are on and about the graphic element they should display.
 
+    //Initiate the arrowBuilder.
+    public void init(Tile myTile, int moveDist)
+    {
+        myTile.isPartOfArrowPath = true;
+        ArrowPart myArrowPart = ScriptableObject.CreateInstance("ArrowPart") as ArrowPart;
+        myArrowPart.init("First node", null, myTile);
+        this.GetComponent<ArrowBuilder>().arrowPath.Add(myArrowPart);//Set this tile as startpoint of the arrowPath
+        this.GetComponent<ArrowBuilder>().momMovementPoints = moveDist;//Handover the maximum movement points of the unit.
+        this.GetComponent<ArrowBuilder>().maxMovementPoints = moveDist;//Set a maximum for the movement points (for resetting purposes).
+    }
+
     //Tries to draw an arrow on the tile if it is reachable.
-    public void createArrowPath(Tile myTileProperties)
+    public void createArrowPath(Tile tile)
     {           
         //Only when the tile is adjacent (it is a neighbor) draw an arrow.
-        Tile predecessor = arrowPath[arrowPath.Count - 1].myTileProperties;
-        for (int i = 0; i < myTileProperties.nachbarn.Count; i++)
+        Tile predecessor = arrowPath[arrowPath.Count - 1].tile;
+        for (int i = 0; i < tile.neighbors.Count; i++)
         {
-            Tile neighborProperties = myTileProperties.nachbarn[i].GetComponent<Tile>();
-            if (neighborProperties == predecessor && momMovementPoints > 0 && !myTileProperties.isPartOfArrowPath)
+            Tile neighborProperties = tile.neighbors[i].GetComponent<Tile>();
+            if (neighborProperties == predecessor && momMovementPoints > 0 && !tile.isPartOfArrowPath)
             {
                 momMovementPoints--;//Are decreased, so the arrow doesn't get too long.
                 //Draw the head of the arrow (predecessor is responsible for the alignment)
-                ArrowPart arrow = calcArrowDirection(myTileProperties, predecessor);
+                ArrowPart arrow = calcArrowDirection(tile, predecessor);
                 arrowPath.Add(arrow);
                 
                 //If one moves further than one field away from the startfield, the predecessor arrow should be replace by a curve or a straight part.
                 if (arrowPath.Count > 2)
                 {                    
-                    predecessor = arrowPath[arrowPath.Count - 2].myTileProperties;//Set a new predecessor, because we drew a
-                    Tile prePredecessor = arrowPath[arrowPath.Count - 3].myTileProperties;
+                    predecessor = arrowPath[arrowPath.Count - 2].tile;//Set a new predecessor, because we drew a
+                    Tile prePredecessor = arrowPath[arrowPath.Count - 3].tile;
 
-                    drawArrowParts(myTileProperties, predecessor, prePredecessor);
+                    drawArrowParts(tile, predecessor, prePredecessor);
                 }
             }
         }
@@ -95,117 +106,127 @@ public class ArrowBuilder : MonoBehaviour
         }
     }
     
-    //Calculates the alignment of the curve/straight partn by the actual tile, its predecessor and its prepredecessor.
-    private void drawArrowParts(Tile myTileProperties, Tile predecessor, Tile prePredecessor)
+    //Calculates the alignment of the curve/straight part by the actual tile, its predecessor and its prepredecessor.
+    private void drawArrowParts(Tile tile, Tile predecessor, Tile prePredecessor)
     {
         //Vertical...
-        if (myTileProperties.xPos == predecessor.xPos)
+        if (tile.xPos == predecessor.xPos)
         {
             //Top/bottom in a straight line.
-            if (myTileProperties.xPos == prePredecessor.xPos)
+            if (tile.xPos == prePredecessor.xPos)
             {
-                drawArrowPart("gerade", predecessor.xPos, predecessor.yPos, 0, myTileProperties);
+                drawArrowPart("straight", predecessor.xPos, predecessor.yPos, 0);
             }
+            else
             //...with one step up...
-            if (myTileProperties.yPos > predecessor.yPos)
+            if (tile.yPos > predecessor.yPos)
             {
                 //...and the prepredecessor on the left.
-                if (myTileProperties.xPos > prePredecessor.xPos)
+                if (tile.xPos > prePredecessor.xPos)
                 {
-                    drawArrowPart("kurve", predecessor.xPos, predecessor.yPos, 90, myTileProperties);
+                    drawArrowPart("curve", predecessor.xPos, predecessor.yPos, 90);
                 }
+                else
                 //...and the prepredecessor on the right.
-                if (myTileProperties.xPos < prePredecessor.xPos)
+                if (tile.xPos < prePredecessor.xPos)
                 {
-                    drawArrowPart("kurve", predecessor.xPos, predecessor.yPos, 180, myTileProperties);
+                    drawArrowPart("curve", predecessor.xPos, predecessor.yPos, 180);
                 }
             }
-            //...mit einem Schritt nach unten...
-            if (myTileProperties.yPos < predecessor.yPos)
+            else
+            //...with one step up...
+            if (tile.yPos < predecessor.yPos)
             {
-                //...und dem Vorvorgänger links.
-                if (myTileProperties.xPos > prePredecessor.xPos)
+                //...and the prepredecessor on the left.
+                if (tile.xPos > prePredecessor.xPos)
                 {
-                    drawArrowPart("kurve", predecessor.xPos, predecessor.yPos, 0, myTileProperties);
+                    drawArrowPart("curve", predecessor.xPos, predecessor.yPos, 0);
                 }
-                //...und dem Vorvorgänger rechts.
-                if (myTileProperties.xPos < prePredecessor.xPos)
+                else
+                //...and the prepredecessor on the right.
+                if (tile.xPos < prePredecessor.xPos)
                 {
-                    drawArrowPart("kurve", predecessor.xPos, predecessor.yPos, 270, myTileProperties);
+                    drawArrowPart("curve", predecessor.xPos, predecessor.yPos, 270);
                 }
             }
         }
+        else
         //Horizontal
-        if (myTileProperties.yPos == predecessor.yPos)
+        if (tile.yPos == predecessor.yPos)
         {
-            //Links/Rechts
-            if (myTileProperties.yPos == prePredecessor.yPos)
+            //Left/Right
+            if (tile.yPos == prePredecessor.yPos)
             {
-                drawArrowPart("gerade", predecessor.xPos, predecessor.yPos, 90, myTileProperties);
+                drawArrowPart("straight", predecessor.xPos, predecessor.yPos, 90);
             }
-            //...mit einem Schritt nach rechts...
-            if (myTileProperties.xPos > predecessor.xPos)
+            else
+            //...with one step to the right...
+            if (tile.xPos > predecessor.xPos)
             {
-                //...und dem Vorvorgänger oben.
-                if (myTileProperties.yPos < prePredecessor.yPos)
+                //...and the prepredecessor upwards.
+                if (tile.yPos < prePredecessor.yPos)
                 {
-                    drawArrowPart("kurve", predecessor.xPos, predecessor.yPos, 180, myTileProperties);
+                    drawArrowPart("curve", predecessor.xPos, predecessor.yPos, 180);
                 }
-                //...und dem Vorvorgänger unten.
-                if (myTileProperties.yPos > prePredecessor.yPos)
+                else
+                //...and the prepredecessor downwards.
+                if (tile.yPos > prePredecessor.yPos)
                 {
-                    drawArrowPart("kurve", predecessor.xPos, predecessor.yPos, 270, myTileProperties);
+                    drawArrowPart("curve", predecessor.xPos, predecessor.yPos, 270);
                 }
             }
-            //...mit einem Schritt nach links...
-            if (myTileProperties.xPos < predecessor.xPos)
+            else
+            //...with one step to the left...
+            if (tile.xPos < predecessor.xPos)
             {
-                //...und dem Vorvorgänger oben.
-                if (myTileProperties.yPos < prePredecessor.yPos)
+                //...and the prepredecessor upwards.
+                if (tile.yPos < prePredecessor.yPos)
                 {
-                    drawArrowPart("kurve", predecessor.xPos, predecessor.yPos, 90, myTileProperties);
+                    drawArrowPart("curve", predecessor.xPos, predecessor.yPos, 90);
                 }
-                //...und dem Vorvorgänger unten.
-                if (myTileProperties.yPos > prePredecessor.yPos)
+                else
+                //...and the prepredecessor downwards.
+                if (tile.yPos > prePredecessor.yPos)
                 {
-                    drawArrowPart("kurve", predecessor.xPos, predecessor.yPos, 0, myTileProperties);
+                    drawArrowPart("curve", predecessor.xPos, predecessor.yPos, 0);
                 }
             }
         }    
     }
     
-    private void drawArrowPart(string name, int x, int y, int angle, Tile myTileProperties)
+    //Draw a curve or a straight part of the arrowpart.
+    private void drawArrowPart(string partName, int x, int y, int angle)
     {        
-        if (name == "gerade")
+        if (partName == "straight")
         {
             Transform arrowPart = Instantiate(straight, new Vector3(x, 0.3f, y), Quaternion.Euler(0, angle, 0), this.transform.Find("MovementArrow"));
-            arrowPart.name = "gerade" + (arrowPath.Count - 2);
+            arrowPart.name = "straight" + (arrowPath.Count - 2);
 
             arrowPath[arrowPath.Count - 2].arrowPartName = arrowPart.name;
             arrowPath[arrowPath.Count - 2].replaceArrowGraphic(arrowPart);
         }
-        if (name == "kurve")
+        if (partName == "curve")
         {
             Transform arrowPart = Instantiate(curve, new Vector3(x, 0.3f, y), Quaternion.Euler(0, angle, 0), this.transform.Find("MovementArrow"));
-            arrowPart.name = "kurve" + (arrowPath.Count - 2);
+            arrowPart.name = "curve" + (arrowPath.Count - 2);
 
             arrowPath[arrowPath.Count - 2].arrowPartName = arrowPart.name;
             arrowPath[arrowPath.Count - 2].replaceArrowGraphic(arrowPart);
         }       
     }
 
-   
-    //Remove all parts of the arrowPath list and reset the movement points.
+    
+    //Clear the arrow path, inform the tiles that they are no longer part of the arrow path and reset the movement points.
+    //Also we set the first entry of the arrow path to be the position of the unit, so we can start building a new path from there.
     public void resetArrowPath()
     {
         momMovementPoints = maxMovementPoints;
         ArrowPart startTile = arrowPath[0];
-        //Teile des Pfeils zerstören, tileProperties null setzten (sonst werden die auch gelöscht) und nicht mehr als Teil des ArrowPath setzen.
         for(int i = 1; i < arrowPath.Count; i++)
         {
             Destroy(arrowPath[i].myArrowPart.gameObject);
-            arrowPath[i].myTileProperties.isPartOfArrowPath = false;
-            arrowPath[i].myTileProperties = null;
+            arrowPath[i].tile.isPartOfArrowPath = false;
+            arrowPath[i].tile = null;
         }
         arrowPath.Clear();
         arrowPath.Add(startTile);
@@ -215,7 +236,6 @@ public class ArrowBuilder : MonoBehaviour
     {        
         momMovementPoints = 0;
         maxMovementPoints = 0;
-        //Teile des Pfeils zerstören, tileProperties null setzten (sonst werden die auch gelöscht) und nicht mehr als Teil des ArrowPath setzen.
         if(arrowPath.Count > 0)
         {
             for (int i = 0; i < arrowPath.Count; i++)
@@ -224,35 +244,32 @@ public class ArrowBuilder : MonoBehaviour
                 {
                     Destroy(arrowPath[i].myArrowPart.gameObject);
                 }
-                arrowPath[i].myTileProperties.isPartOfArrowPath = false;
-                arrowPath[i].myTileProperties = null;
+                arrowPath[i].tile.isPartOfArrowPath = false;
             }
             arrowPath.Clear();
         }        
     }
     
-    //If one hovers with the mouse over the predecessor of the arrow, the arrow should become smaller.
+    //If you hover with the mouse over the predecessor of the arrow, the arrow should become smaller.
     public void tryToGoBack(Tile myTileproperties)
     {       
-        if(arrowPath.Count > 1)//Der erste Eintrag soll unangetastet bleiben, denn das ist das Feld mit der Einheit drauf.
+        if(arrowPath.Count > 1)//Dont't touch the first entry, because that's the tile where the unit stands on.
         {
-            if(arrowPath[arrowPath.Count - 2].myTileProperties == myTileproperties)//Wenn man auf das vorletzte Feld geht, soll fröhlich gelöscht werden.
-            {                
-                momMovementPoints++;//Da man zurück geht, werden die Bewegungspunkte wieder erhöht.
-                //Letzten Eintrag in arrowParts löschen (und damit den Pfeilkopf!).
-                arrowPath[arrowPath.Count - 1].myTileProperties.isPartOfArrowPath = false;//Ist nicht mehr Teil des Arrowpath.
-                Destroy(arrowPath[arrowPath.Count - 1].myArrowPart.gameObject);//Grafik löschen.
-                arrowPath[arrowPath.Count - 1].myTileProperties = null;//Verhindert, dass die Tile gelöscht wird.
-                arrowPath.RemoveAt(arrowPath.Count - 1);//Aus Liste löschen.
+            if(arrowPath[arrowPath.Count - 2].tile == myTileproperties)//If you hover over the predecessor tile, start deleting.
+            {                           
+                momMovementPoints++;//If you go back, you have more movement points available.
+                //Delete last entry of the arrow path, because that is the arrowhead.
+                arrowPath[arrowPath.Count - 1].tile.isPartOfArrowPath = false;//Is no longe part of the arrow path.
+                Destroy(arrowPath[arrowPath.Count - 1].myArrowPart.gameObject);//Delete Graphic.
+                arrowPath.RemoveAt(arrowPath.Count - 1);//Finally delete it from the list.
 
-                //Nur wenn man ein Feld weit weg vom Startfeld ist, ist eine Kurve/Gerade zu sehen, nur dann soll diese durch den Pfeil ersetzt werden.
+                //Only if you are at least one tile away from the unit, a curve/straight part is visible, only then replace this part with the new arrowhead.
                 if(arrowPath.Count >= 2)
                 {
-                    //Vorletzten Eintrag (is immer ne Kurve oder ne Gerade, kann niemals ein Pfeil sein!) durch eine Pfeilspitze ersetzen.
-                    Tile vorgänger = arrowPath[arrowPath.Count - 2].myTileProperties;
-                    ArrowPart newArrowHead = calcArrowDirection(myTileproperties, vorgänger);
+                    //Replace predecessor entry (always is a straight/curve part, can never be an arrowhead!) with an arrowhead.
+                    Tile predecessor = arrowPath[arrowPath.Count - 2].tile;
+                    ArrowPart newArrowHead = calcArrowDirection(myTileproperties, predecessor);
                     arrowPath[arrowPath.Count - 1].replaceArrowGraphic(newArrowHead.myArrowPart);               
-
                 }
             }            
         }     

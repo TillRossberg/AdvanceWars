@@ -7,7 +7,7 @@ public class StatusWindow : MonoBehaviour
 {
     public Canvas statusWindow;
 
-    GameObject unitStatus;
+    GameObject unitStatusWindow;
     Image unitThumb;
     Text unitName;
     Text health;
@@ -16,11 +16,15 @@ public class StatusWindow : MonoBehaviour
     Text tileName;
     Image tileThumb;
     Text cover;
+
+    public Text team;
+    public Text funds;
+    public Text roundNr;
     
 	// Use this for initialization
 	void Start ()
     {
-        unitStatus = GameObject.Find("Unit_Status");
+        unitStatusWindow = GameObject.Find("Unit_Status");
         unitThumb = GameObject.Find("Unit_Status/Thumbnail_Unit").GetComponent<Image>();
         unitName = GameObject.Find("Unit_Status/Text_Unit_Name").GetComponent<Text>();
         health = GameObject.Find("Unit_Status/Text_Health").GetComponent<Text>();
@@ -29,26 +33,42 @@ public class StatusWindow : MonoBehaviour
         tileName = GameObject.Find("Unit_Status/Text_tileName").GetComponent<Text>();
         tileThumb = GameObject.Find("Unit_Status/Thumbnail_Tile").GetComponent<Image>();
         cover = GameObject.Find("Unit_Status/Text_Cover").GetComponent<Text>();
-        unitStatus.SetActive(false);
+        unitStatusWindow.SetActive(false);
     }
 	
-	// Update is called once per frame
-	void Update ()
-    {
-		
-	}
-
+    //De/Activates the status window for the selected unit.
     public void showStatus(bool value)
     {
-        resetStatus();
-        unitStatus.SetActive(value);
+        if(value)
+        {
+            resetStatus();
+            unitStatusWindow.SetActive(value);
+            Unit myUnit = this.GetComponent<MainFunctions>().selectedUnit;
+            int myCover = this.GetComponent<Graph>().getTile(myUnit.xPos, myUnit.yPos).cover;
+            string tileName = this.GetComponent<Graph>().getTile(myUnit.xPos, myUnit.yPos).terrainName;
+            Sprite tileThumb = this.GetComponent<Graph>().getTile(myUnit.xPos, myUnit.yPos).thumbnail;
+            changeStatus(myUnit.unitName, myUnit.thumbNail, myUnit.health, myUnit.ammo, myUnit.fuel, tileName, tileThumb, myCover);
+        }
+        else
+        {
+            resetStatus();
+            unitStatusWindow.SetActive(value);
+        } 
+    }
+
+    //Displays the active team, its funds and the round number.
+    public void displayGeneralInfo()
+    {
+        this.team.text = "Team: " + GetComponent<MainFunctions>().activeTeam.name;
+        this.funds.text = "$: " + GetComponent<MainFunctions>().activeTeam.money.ToString();
+        this.roundNr.text = "Round: " + GetComponent<MasterClass>().dayCounter.ToString();
     }
 
     public void changeStatus(string unitName, Sprite unitThumb, int health, int ammo, int fuel, string terrainName, Sprite tileThumb, int cover)
     {
         this.unitName.text = unitName;
         this.unitThumb.sprite = unitThumb;
-        this.health.text = health.ToString();
+        this.health.text = getRoundedHealth(health).ToString();
         this.ammo.text = ammo.ToString();
         this.fuel.text = fuel.ToString();
         this.tileName.text = terrainName;
@@ -75,5 +95,25 @@ public class StatusWindow : MonoBehaviour
         this.cover.text = newCover.ToString();
         this.tileName.text = newTileName;
         this.tileThumb.sprite = newThumb;
+    }
+
+    //Just cut the decimal of the healh, so the units look a bit weaker than they really are.
+    int getRoundedHealth(int oldHealth)
+    {
+        int newHealth;
+        if (oldHealth > 10)
+        {
+            newHealth = (int)(oldHealth / 10);
+        }
+        else
+        {
+            newHealth = 1;
+        }
+        if (oldHealth <= 0)
+        {
+            newHealth = 0;
+        }
+
+        return newHealth;
     }
 }

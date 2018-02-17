@@ -12,19 +12,6 @@ public class BattleMode : MonoBehaviour
         initCoverList();
 	}
 	
-    public void findAttackableTiles()
-    {
-        this.GetComponent<MainFunctions>().activateFireMode();
-        this.GetComponent<MainFunctions>().selectedUnit.findAttackableTiles();
-        this.GetComponent<Graph>().resetReachableTiles();
-    }
-
-	public void testBattle()
-    {
-        Unit attacker = this.GetComponent<UnitManager>().teamRed[0].GetComponent<Unit>();
-        Unit defender = this.GetComponent<UnitManager>().teamBlue[0].GetComponent<Unit>();
-        fight(attacker, defender);
-    }
     //Lets two units battle!! The fun part :)
     public void fight(Unit attacker, Unit defender)
     {
@@ -48,96 +35,136 @@ public class BattleMode : MonoBehaviour
         }
     }
 
-    //Calc the damage inflicted, based on the attacker, defender, the chosen General(will be added later!) and the cover of the tiles they stand on.
+    //Calculate the damage inflicted, based on the attacker, defender, the chosen General(will be added later!) and the cover of the tiles they stand on.
     public int calcDamage(Unit attacker, Unit defender, Tile defendingTile)
     {
         float Damage;//Damage that will be inflicted.
         int BaseDamage = getBaseDamage(attacker.myUnitType, defender.myUnitType);//Base damage of the unit. (Depends on the unit it fights against.)
-        float dmgModifierAttacker = 100; // Attacking CO attack value.(Will vary later ^^)
-        int RandomNumber = Random.Range(0, 10); //Random number to between 0-9 to vary the damage.
-        int AttackerHP = attacker.health; //Attacker HP
-        float dmgModifierDefender = 100; // Defending CO attack value.(Will vary later ^^)
-        float dmgReductionCover = coverRatings[defendingTile.cover]; //Defending terrain stars.    
-        float DefenderHp = defender.health; //HP of the defender.
+        if(BaseDamage > 0)
+        {
+            float dmgModifierAttacker = 100; // Attacking CO attack value.(Will vary later ^^)
+            int RandomNumber = Random.Range(0, 10); //Random number between 0-9 to vary the damage.
+            int AttackerHP = attacker.health; //Attacker HP
+            float dmgModifierDefender = 100; // Defending CO attack value.(Will vary later ^^)
+            float dmgReductionCover = coverRatings[defendingTile.cover]; //Defending terrain stars.    
+            float DefenderHp = defender.health; //HP of the defender.
 
-        Debug.Log("Damage = (BaseDamage:" + BaseDamage + " + RandomNumber:" + RandomNumber + ") * AttackerHp/100:" + AttackerHP / 100 + " * dmgReductionCover:" + dmgReductionCover);
-        return (int)(Damage = (BaseDamage + RandomNumber) * AttackerHP / 100 * dmgReductionCover);
+            Debug.Log("Damage = (BaseDamage:" + BaseDamage + " + RandomNumber:" + RandomNumber + ") * AttackerHp/100:" + AttackerHP / 100 + " * dmgReductionCover:" + dmgReductionCover);
+            return (int)(Damage = (BaseDamage + RandomNumber) * AttackerHP / 100 * dmgReductionCover);
+        }
+        else
+        {
+            Debug.Log("BattleMode: Invalid base damage, i.e. can't attack this unit!");
+            return 0;
+        }
     }
 
     //Returns the base damage of the attacking unit against the defending unit.
-    public int getBaseDamage(Unit.unitType attackingUnit, Unit.unitType defendingUnit)
+    public int getBaseDamage(Unit.type attackingUnit, Unit.type defendingUnit)
     {
         switch(attackingUnit)
         {
-            case Unit.unitType.Infantry:
+            case Unit.type.Infantry:
                 switch(defendingUnit)
                 {
-                    case Unit.unitType.Infantry: return 55;
-                    case Unit.unitType.Mech: return 45;
+                    case Unit.type.Infantry: return 55;
+                    case Unit.type.Mech: return 45;
 
                     default:
-                    Debug.Log("Invalid unit type for defending unit!");
+                    Debug.Log("BattleMode: Invalid unit type for defending unit!");
                         return -1;
                 }
 
-            case Unit.unitType.Tank:
+            case Unit.type.Tank:
                 switch (defendingUnit)
                 {
-                    case Unit.unitType.Infantry: return 75;
-                    case Unit.unitType.Mech: return 70;
-                    case Unit.unitType.Recon: return 85;
-                    case Unit.unitType.Tank: return 55;
-                    case Unit.unitType.MdTank: return 15;
-                    case Unit.unitType.Neotank: return 15;
-                    case Unit.unitType.APC: return 75;
-                    case Unit.unitType.Artillery: return 70;
-                    case Unit.unitType.Rockets: return 85;
-                    case Unit.unitType.AntiAir: return 65;
-                    case Unit.unitType.Missiles: return 85;
-                    case Unit.unitType.BCopter: return 10;
-                    case Unit.unitType.TCopter: return 40;
-                    case Unit.unitType.Fighter: return -1;
-                    case Unit.unitType.Bomber: return -1;
-                    case Unit.unitType.Battleship: return 1;
-                    case Unit.unitType.Lander: return 10;
-                    case Unit.unitType.Cruiser: return 5;
-                    case Unit.unitType.Sub: return 1;
-                    case Unit.unitType.Pipe: return 15;
+                    case Unit.type.Infantry: return 75;
+                    case Unit.type.Mech: return 70;
+                    case Unit.type.Recon: return 85;
+                    case Unit.type.Tank: return 55;
+                    case Unit.type.MdTank: return 15;
+                    case Unit.type.Titantank: return 15;
+                    case Unit.type.APC: return 75;
+                    case Unit.type.Artillery: return 70;
+                    case Unit.type.Rockets: return 85;
+                    case Unit.type.Flak: return 65;
+                    case Unit.type.Missiles: return 85;
+                    case Unit.type.BCopter: return 10;
+                    case Unit.type.TCopter: return 40;
+                    case Unit.type.Fighter: return -1;
+                    case Unit.type.Bomber: return -1;
+                    case Unit.type.Battleship: return 1;
+                    case Unit.type.Lander: return 10;
+                    case Unit.type.Cruiser: return 5;
+                    case Unit.type.Sub: return 1;
+                    case Unit.type.Pipe: return 15;
 
                     default:
-                        Debug.Log("Invalid unit type for defending unit!");
+                        Debug.Log("BattleMode: Invalid unit type for defending unit!");
                         return -1;
                 }
 
-            case Unit.unitType.Rockets:
+            case Unit.type.MdTank:
                 switch (defendingUnit)
                 {
-                    case Unit.unitType.Infantry: return 95;
-                    case Unit.unitType.Mech: return 90;
-                    case Unit.unitType.Recon: return 90;
-                    case Unit.unitType.Tank: return 80;
-                    case Unit.unitType.MdTank: return 55;
-                    case Unit.unitType.Neotank: return 50;
-                    case Unit.unitType.APC: return 80;
-                    case Unit.unitType.Artillery: return 80;
-                    case Unit.unitType.Rockets: return 85;
-                    case Unit.unitType.AntiAir: return 85;
-                    case Unit.unitType.Missiles: return 90;
-                    case Unit.unitType.BCopter: return -1;
-                    case Unit.unitType.TCopter: return -1;
-                    case Unit.unitType.Battleship: return 55;
-                    case Unit.unitType.Lander: return 60;
-                    case Unit.unitType.Cruiser: return 85;
-                    case Unit.unitType.Sub: return 85;
-                    case Unit.unitType.Pipe: return 55;
+                    case Unit.type.Infantry: return 105;
+                    case Unit.type.Mech: return 95;
+                    case Unit.type.Recon: return 105;
+                    case Unit.type.Tank: return 85;
+                    case Unit.type.MdTank: return 55;
+                    case Unit.type.Titantank: return 45;
+                    case Unit.type.APC: return 105;
+                    case Unit.type.Artillery: return 105;
+                    case Unit.type.Rockets: return 105;
+                    case Unit.type.Flak: return 105;
+                    case Unit.type.Missiles: return 105;
+                    case Unit.type.BCopter: return 12;
+                    case Unit.type.TCopter: return 45;
+                    case Unit.type.Fighter: return -1;
+                    case Unit.type.Bomber: return -1;
+                    case Unit.type.Battleship: return 10;
+                    case Unit.type.Lander: return 35;
+                    case Unit.type.Cruiser: return 45;
+                    case Unit.type.Sub: return 10;
+                    case Unit.type.Pipe: return 55;
 
                     default:
-                        Debug.Log("Invalid unit type for defending unit!");
+                        Debug.Log("BattleMode: Invalid unit type for defending unit!");
+                        return -1;
+                }
+
+
+            case Unit.type.Rockets:
+                switch (defendingUnit)
+                {
+                    case Unit.type.Infantry: return 95;
+                    case Unit.type.Mech: return 90;
+                    case Unit.type.Recon: return 90;
+                    case Unit.type.Tank: return 80;
+                    case Unit.type.MdTank: return 55;
+                    case Unit.type.Titantank: return 50;
+                    case Unit.type.APC: return 80;
+                    case Unit.type.Artillery: return 80;
+                    case Unit.type.Rockets: return 85;
+                    case Unit.type.Flak: return 85;
+                    case Unit.type.Missiles: return 90;
+                    case Unit.type.BCopter: return -1;
+                    case Unit.type.TCopter: return -1;
+                    case Unit.type.Fighter: return -1;
+                    case Unit.type.Bomber: return -1;
+                    case Unit.type.Battleship: return 55;
+                    case Unit.type.Lander: return 60;
+                    case Unit.type.Cruiser: return 85;
+                    case Unit.type.Sub: return 85;
+                    case Unit.type.Pipe: return 55;
+
+                    default:
+                        Debug.Log("BattleMode: Invalid unit type for defending unit!");
                         return -1;
                 }
 
             default:
-                Debug.Log("Invalid unit type for attacking unit!");
+                Debug.Log("BattleMode: Invalid unit type for attacking unit!");
                 return -1;
         }
     }
