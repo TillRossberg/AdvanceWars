@@ -15,6 +15,8 @@ public class MainMenu : MonoBehaviour
     public Canvas optionsCanvas;
     public Canvas levelSelectCanvas;
     public Text moneyIncreaseText;
+    public Text battleDurationText;
+
 
     private void Awake()
     {
@@ -95,6 +97,18 @@ public class MainMenu : MonoBehaviour
         int myMoneyIncrease = (int)(value * 500 + 1000);
         moneyIncreaseText.text = myMoneyIncrease.ToString();
         container.setMoneyIncrement(myMoneyIncrease);
+    }
+
+    public void setBattleDuration(float value)
+    {        
+        if(value == 4)
+        {
+            battleDurationText.text = "Duration of battle: OFF";
+        }
+        else
+        {
+            battleDurationText.text = "Duration of battle: " + value + " days";
+        }
     }
 
     //Tech options
