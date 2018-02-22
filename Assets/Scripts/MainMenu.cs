@@ -27,6 +27,7 @@ public class MainMenu : MonoBehaviour
         container = GameObject.FindGameObjectWithTag("Container").GetComponent<Container>();
         //Find a better place to do this
         setupLevelSelectionDropdown();
+        setupWeatherSelectionDropdown();
     }
 
     //Sets up the dropdown list for the level selection.
@@ -34,6 +35,13 @@ public class MainMenu : MonoBehaviour
     {        
         GameObject.Find("LevelDropdown").GetComponent<Dropdown>().AddOptions(levelManager.GetComponent<Database>().getLevels());//Get the available levels from the database.
         GameObject.Find("LevelDropdown").GetComponent<Dropdown>().captionText.text = "Select Level...";//Add title to the level select drop down menu.
+    }
+
+    //Sets up the dropdown list for the weather selection.
+    public void setupWeatherSelectionDropdown()
+    {
+        GameObject.Find("WeatherDropdown").GetComponent<Dropdown>().AddOptions(levelManager.GetComponent<Database>().getWeatherOptions());//Get the available weather types from the database.
+        GameObject.Find("WeatherDropdown").GetComponent<Dropdown>().captionText.text = "Select Weather...";//Add title to the weather select drop down menu.
     }
 
     //Play
@@ -73,6 +81,11 @@ public class MainMenu : MonoBehaviour
     public void setFogOfWar(bool value)
     {
         container.setFogOfWar(value);
+    }
+
+    public void setWeather(int value)
+    {
+        container.setWeather(value);        
     }
 
     //Tech options

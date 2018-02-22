@@ -1,28 +1,35 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class Database : MonoBehaviour
 {
     public enum commander { Andy, Kanbei, Max}
     public enum weather { Clear, Rain, Snow }
-    private List<string> levelNames = new List<string>() { "Level01", "Level02", "Level03" };
+    public List<string> weatherNames = new List<string>();//List to hold the available weather types for creating the dropdown menu to chose from them.
+    private List<string> levelNames = new List<string>() { "Kidney Island", "Level02", "Level03" };
 
     // Use this for initialization
     void Start ()
     {
-		
-	}
+        weatherNames = System.Enum.GetNames(typeof(weather)).ToList<string>();
+    }
 	
 	// Update is called once per frame
 	void Update ()
     {
 		
 	}
+    //Returns a list with the names of weather types.
+    public List<string> getWeatherOptions()
+    {
+        return weatherNames;
+    }
     //Returns a list with the names of available levels.
     public List<string> getLevels()
     {
-        return levelNames;
+        return levelNames;        
     }
 
     //Returns the cost for moving over this tile depending on the weather and the move type of the unit.
