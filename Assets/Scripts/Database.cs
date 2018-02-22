@@ -9,6 +9,7 @@ public class Database : MonoBehaviour
     public enum weather { Clear, Rain, Snow }
     public List<string> weatherNames = new List<string>();//List to hold the available weather types for creating the dropdown menu to chose from them.
     private List<string> levelNames = new List<string>() { "Kidney Island", "Level02", "Level03" };
+    private int moneyIncrement = 1000; //The funds that the player gets for each property he holds.
 
     // Use this for initialization
     void Start ()
@@ -16,16 +17,24 @@ public class Database : MonoBehaviour
         weatherNames = System.Enum.GetNames(typeof(weather)).ToList<string>();
     }
 	
-	// Update is called once per frame
-	void Update ()
+    //Moooooney
+    public void setMoneyIncrement(int value)
     {
-		
-	}
+        moneyIncrement = value;
+    }
+
+    public int getMoneyIncrement()
+    {
+        return moneyIncrement;
+    }
+
+
     //Returns a list with the names of weather types.
     public List<string> getWeatherOptions()
     {
         return weatherNames;
     }
+
     //Returns a list with the names of available levels.
     public List<string> getLevels()
     {

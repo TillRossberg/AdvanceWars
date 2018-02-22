@@ -14,9 +14,11 @@ public class MainMenu : MonoBehaviour
     public Canvas multiplayerCanvas;
     public Canvas optionsCanvas;
     public Canvas levelSelectCanvas;
+    public Text moneyIncreaseText;
 
     private void Awake()
     {
+        //TODO: only acitvate main Canvas
         optionsCanvas.gameObject.SetActive(false);
         levelSelectCanvas.gameObject.SetActive(false);
     }
@@ -86,6 +88,13 @@ public class MainMenu : MonoBehaviour
     public void setWeather(int value)
     {
         container.setWeather(value);        
+    }
+
+    public void setFundsIncrease(float value)
+    {
+        int myMoneyIncrease = (int)(value * 500 + 1000);
+        moneyIncreaseText.text = myMoneyIncrease.ToString();
+        container.setMoneyIncrement(myMoneyIncrease);
     }
 
     //Tech options

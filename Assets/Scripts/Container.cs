@@ -8,6 +8,8 @@ public class Container : MonoBehaviour
     List<List<Team>> teams = new List<List<Team>>();
     public bool fogOfWar = true;
     public Database.weather myWeather;
+    public int moneyIncrement = 1000;
+
 
 	// Use this for initialization
 	void Start ()
@@ -19,6 +21,12 @@ public class Container : MonoBehaviour
 	void Update () {
         
 	}
+
+    //Moneyz
+    public void setMoneyIncrement(int value)
+    {
+        moneyIncrement = value;
+    }
 
     //Weather
     public void setWeather(int value)
