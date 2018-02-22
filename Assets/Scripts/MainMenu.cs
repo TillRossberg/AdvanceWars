@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿//created by Till Roßberg, 2017-18
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,7 +17,7 @@ public class MainMenu : MonoBehaviour
     public Canvas levelSelectCanvas;
     public Text moneyIncreaseText;
     public Text battleDurationText;
-
+    public Text propertiesToWinText;
 
     private void Awake()
     {
@@ -92,22 +93,36 @@ public class MainMenu : MonoBehaviour
         container.setWeather(value);        
     }
 
-    public void setFundsIncrease(float value)
+    public void setMoneyIncrease(float value)
     {
         int myMoneyIncrease = (int)(value * 500 + 1000);
-        moneyIncreaseText.text = myMoneyIncrease.ToString();
+        moneyIncreaseText.text = myMoneyIncrease.ToString() + " $";
         container.setMoneyIncrement(myMoneyIncrease);
     }
-
+    //Duration
     public void setBattleDuration(float value)
-    {        
-        if(value == 4)
+    {
+        container.setBattleDuration(value);
+        if (value == 4)
         {
             battleDurationText.text = "Duration of battle: OFF";
         }
         else
         {
             battleDurationText.text = "Duration of battle: " + value + " days";
+        }
+    }
+    //Properties
+    public void setPropertiesToWin(float value)
+    {
+        container.setPropertiesToWin(value);
+        if (value == 11)
+        {
+            propertiesToWinText.text = "Properties to Win: OFF";
+        }
+        else
+        {
+            propertiesToWinText.text = "Properties to Win: " + value;
         }
     }
 
