@@ -9,6 +9,7 @@ public class Container : MonoBehaviour
     public int nextLevelToLoad;
     List<List<Team>> teams = new List<List<Team>>();
     public bool fogOfWar = true;
+    public bool abilityPower = true;//Are the abilities for the players activated?
     public Database.weather myWeather;
     public int moneyIncrement = 1000;//The money you get per round per building.
     public float battleDuration = 4;//Duration of the battle in days, 4 means no limited duration.
@@ -20,6 +21,12 @@ public class Container : MonoBehaviour
     {
         DontDestroyOnLoad(this);	
 	}
+
+    //Ability
+    public void setAbility(bool value)
+    {
+        abilityPower = value;
+    }
 
     //Amount of properties one player needs to win the game
     public void setPropertiesToWin(float value)

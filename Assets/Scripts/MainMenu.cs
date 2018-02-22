@@ -99,10 +99,10 @@ public class MainMenu : MonoBehaviour
         moneyIncreaseText.text = myMoneyIncrease.ToString() + " $";
         container.setMoneyIncrement(myMoneyIncrease);
     }
-    //Duration
     public void setBattleDuration(float value)
     {
         container.setBattleDuration(value);
+
         if (value == 4)
         {
             battleDurationText.text = "Duration of battle: OFF";
@@ -112,10 +112,10 @@ public class MainMenu : MonoBehaviour
             battleDurationText.text = "Duration of battle: " + value + " days";
         }
     }
-    //Properties
     public void setPropertiesToWin(float value)
     {
         container.setPropertiesToWin(value);
+        
         if (value == 11)
         {
             propertiesToWinText.text = "Properties to Win: OFF";
@@ -124,6 +124,10 @@ public class MainMenu : MonoBehaviour
         {
             propertiesToWinText.text = "Properties to Win: " + value;
         }
+    }
+    public void setAbility(bool value)
+    {
+        container.setAbility(value);
     }
 
     //Tech options

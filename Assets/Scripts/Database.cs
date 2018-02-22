@@ -7,7 +7,7 @@ using System.Linq;
 public class Database : MonoBehaviour
 {
     public enum commander { Andy, Kanbei, Max}
-    public enum weather { Clear, Rain, Snow }
+    public enum weather { Clear, Rain, Snow, Random }
     public List<string> weatherNames = new List<string>();//List to hold the available weather types for creating the dropdown menu to chose from them.
     private List<string> levelNames = new List<string>() { "Kidney Island", "Level02", "Level03" };
     private int moneyIncrement = 1000; //The funds that the player gets for each property he holds.
