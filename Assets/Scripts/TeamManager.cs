@@ -84,7 +84,7 @@ public class TeamManager : MonoBehaviour
         if(successionCounter == teams.Count)
         {
             successionCounter = 0;
-            GetComponent<MasterClass>().dayCounter++;
+            GetComponent<MainFunctions>().dayCounter++;
         }
         return teams[succession[successionCounter]];//Look up the index of the team that has the next turn.
     }

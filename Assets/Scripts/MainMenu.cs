@@ -11,28 +11,38 @@ public class MainMenu : MonoBehaviour
     Container container;
     GameObject levelManager;
 
+    //UI
     public Canvas mainCanvas;
     public Canvas multiplayerCanvas;
+    public GameObject multiplayerMapSelect;
+    public GameObject playerSelect;
+    public GameObject multiplayerOptions;
     public Canvas optionsCanvas;
     public Canvas levelSelectCanvas;
     public Text moneyIncreaseText;
     public Text battleDurationText;
     public Text propertiesToWinText;
 
-    private void Awake()
-    {
-        //TODO: only acitvate main Canvas
-        optionsCanvas.gameObject.SetActive(false);
-        levelSelectCanvas.gameObject.SetActive(false);
-    }
-
     private void Start()
     {
         levelManager = GameObject.Find("LevelManager");
         container = GameObject.FindGameObjectWithTag("Container").GetComponent<Container>();
-        //Find a better place to do this
+
+        mainCanvas.gameObject.SetActive(true);
+        optionsCanvas.gameObject.SetActive(false);
+        levelSelectCanvas.gameObject.SetActive(false);
+        multiplayerCanvas.gameObject.SetActive(false);
+
+        initDropdownMenus();
+    }
+
+    //Fills the dropdown menus with data.
+    private void initDropdownMenus()
+    {
+        multiplayerCanvas.gameObject.SetActive(true);
         setupLevelSelectionDropdown();
         setupWeatherSelectionDropdown();
+        multiplayerCanvas.gameObject.SetActive(false);
     }
 
     //Sets up the dropdown list for the level selection.
@@ -49,6 +59,33 @@ public class MainMenu : MonoBehaviour
         GameObject.Find("WeatherDropdown").GetComponent<Dropdown>().captionText.text = "Select Weather...";//Add title to the weather select drop down menu.
     }
 
+    //Next-buttons: when pressed get to the NEXT fitting menu level.
+    public void goToMenuLevel(int levelIndex)
+    {
+        switch(levelIndex)
+        {
+            case 1://Multiplayer: set map
+                multiplayerMapSelect.gameObject.SetActive(true);
+                playerSelect.gameObject.SetActive(false);
+                multiplayerOptions.SetActive(false);
+                break;
+            case 2://Multiplayer: set players
+                multiplayerMapSelect.gameObject.SetActive(false);
+                playerSelect.gameObject.SetActive(true);
+                multiplayerOptions.SetActive(false);
+                break;
+            case 3://Multiplayer: set options
+                multiplayerMapSelect.gameObject.SetActive(false);
+                playerSelect.gameObject.SetActive(false);
+                multiplayerOptions.SetActive(true);
+                break;
+
+            default:
+                Debug.Log("MainMenu: Menu level not found!");
+                break;
+        }
+    }
+
     //Play
     public void playButton()
     {
@@ -61,20 +98,29 @@ public class MainMenu : MonoBehaviour
     public void level01Button()
     {
         container.setNextLevel(0);
-        SceneManager.LoadScene("Scene01");
+        SceneManager.LoadScene("Battlefield");
     }
 
     public void level02Button()
     {
         container.setNextLevel(1);
-        SceneManager.LoadScene("Scene01");
+        SceneManager.LoadScene("Battlefield");
     }
 
     //Multiplayer
     public void multiplayerButton()
     {
         multiplayerCanvas.gameObject.SetActive(true);
-        mainCanvas.gameObject.SetActive(false);
+        mainCanvas.gameObject.SetActive(false);        
+        multiplayerMapSelect.gameObject.SetActive(true);
+        playerSelect.gameObject.SetActive(false);
+        multiplayerOptions.SetActive(false);
+    }
+
+    public void startGameButton()
+    {
+        container.setNextLevel(container.getNextLevel());
+        SceneManager.LoadScene("Battlefield");
     }
     //Game Options
     public void setLevel(int value)

@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class Container : MonoBehaviour
 {
-    public int nextLevelToLoad;
+    public int nextLevelToLoad = 0;
     List<List<Team>> teams = new List<List<Team>>();
     public bool fogOfWar = true;
     public bool abilityPower = true;//Are the abilities for the players activated?

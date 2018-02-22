@@ -62,7 +62,7 @@ public class StatusWindow : MonoBehaviour
     {
         this.team.text = "Team: " + GetComponent<MainFunctions>().activeTeam.name;
         this.funds.text = "$: " + GetComponent<MainFunctions>().activeTeam.money.ToString();
-        this.roundNr.text = "Round: " + GetComponent<MasterClass>().dayCounter.ToString();
+        this.roundNr.text = "Round: " + GetComponent<MainFunctions>().dayCounter.ToString();
     }
 
     public void changeStatus(string unitName, Sprite unitThumb, int health, int ammo, int fuel, string terrainName, Sprite tileThumb, int cover)
