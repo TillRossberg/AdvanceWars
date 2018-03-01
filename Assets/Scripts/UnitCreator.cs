@@ -44,6 +44,15 @@ public class UnitCreator : MonoBehaviour
         createUnit(Database.commander.Andy, Unit.type.MdTank, teamBlue, 9, 9, 0);
     }
 
+    public void createUnitSet02()
+    {
+        Team teamRed = this.GetComponent<TeamManager>().getTeam("TeamRed");
+        Team teamBlue = this.GetComponent<TeamManager>().getTeam("TeamBlue");
+        createUnit(Database.commander.Andy, Unit.type.Recon, teamRed, 3, 4, 180);
+        createUnit(Database.commander.Andy, Unit.type.Tank, teamBlue, 5, 5, 180);
+
+    }
+
     //Create a unit for the given team, position and rotation.
     public void createUnit(Database.commander myCommanderType, Unit.type myUnitType, Team team,  int x, int y, int rotation)
     {
@@ -279,7 +288,7 @@ public class UnitCreator : MonoBehaviour
         unit.maxFuel = database.getMaxFuel(myUnitType, myCommanderType);
         unit.fuel = unit.maxFuel;
         unit.moveDist = database.getMoveDistance(myUnitType, myCommanderType);
-        unit.vision = database.getVision(myUnitType, myCommanderType);
+        unit.visionRange = database.getVision(myUnitType, myCommanderType);
         unit.minRange = database.getMinRange(myUnitType, myCommanderType);
         unit.maxRange = database.getMaxRange(myUnitType, myCommanderType);
         unit.cost = database.getCost(myUnitType, myCommanderType);

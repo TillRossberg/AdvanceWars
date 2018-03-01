@@ -28,7 +28,7 @@ public class Unit : MonoBehaviour
     //Required data structures
     GameObject myLevelManager;
     private List<List<Transform>> myGraph = new List<List<Transform>>();
-  
+    Graph graph;
     //Tilestuff
 	public Transform reachableTilePrefab;
     public Transform attackableTilePrefab;
@@ -43,7 +43,7 @@ public class Unit : MonoBehaviour
     public int fuel;
     public int maxFuel;
 	public int moveDist;
-	public int vision;
+	public int visionRange;
     public int minRange;
     public int maxRange;
     public int cost;
@@ -59,7 +59,7 @@ public class Unit : MonoBehaviour
 	{
 		myLevelManager = GameObject.FindGameObjectWithTag ("LevelManager");
         myGraph = myLevelManager.GetComponent<Graph>().getGraph();
-        
+        graph = myLevelManager.GetComponent<Graph>();
     }
 	
     private void OnMouseDown()
@@ -79,7 +79,8 @@ public class Unit : MonoBehaviour
             myLevelManager.GetComponent<Graph>().createAttackableTiles();
             myLevelManager.GetComponent<Graph>().showAttackableTiles(false);
             findAttackableEnemies();
-
+            //Test
+            calcVisibleArea();
             myLevelManager.GetComponent<MainFunctions>().activateMoveMode();
         }
         else
@@ -214,8 +215,6 @@ public class Unit : MonoBehaviour
         displayHealth();//Repostition the health indicator.       
         hasMoved = false;
     }
-
-  
 
     //Aligns the unit so it faces the direction of the given coordinates. 
     public void alignUnit(int targetX, int targetY)
@@ -569,5 +568,99 @@ public class Unit : MonoBehaviour
                 }
             }
         }
-    }      
+    }
+    
+    //Calculates the visible area of this unit depending on its vision range.
+    public void calcVisibleArea()
+    {
+        for(int i = 1; i <= visionRange; i++)
+        {
+            //Left
+            int xTest = this.xPos - i;
+            int yTest = this.yPos;
+            if (xTest >= 0)
+            {
+                if ((i < 2) || (graph.getTile(xTest, yTest).myTileType != Tile.type.Forest))
+                {
+                    graph.getTile(xTest, yTest).setVisiblity(true);
+                }                
+                for(int j = 1; j <= visionRange - i; j++)
+                {
+                    //...and up.
+                    yTest = this.yPos + j;
+                    if(yTest < graph.getGraph()[0].Count)
+                    {
+                        if (graph.getTile(xTest, yTest).myTileType != Tile.type.Forest)
+                        {
+                            graph.getTile(xTest, yTest).setVisiblity(true);
+                        }
+                    }
+                    //...and down.
+                    yTest = this.yPos - j;
+                    if (yTest >= 0)
+                    {
+                        if (graph.getTile(xTest, yTest).myTileType != Tile.type.Forest)
+                        {
+                            graph.getTile(xTest, yTest).setVisiblity(true);
+                        }
+                    }
+                }                
+            }
+            //Right
+            xTest = this.xPos + i;
+            yTest = this.yPos;
+            if (xTest < graph.getGraph().Count)
+            {
+                if ((i < 2) || (graph.getTile(xTest, yTest).myTileType != Tile.type.Forest))
+                {
+                    graph.getTile(xTest, yTest).setVisiblity(true);
+                }
+                for (int j = 1; j <= visionRange - i; j++)
+                {
+                    //...and up.
+                    yTest = this.yPos + j;
+                    if (yTest < graph.getGraph()[0].Count)
+                    {
+                        if (graph.getTile(xTest, yTest).myTileType != Tile.type.Forest)
+                        {
+                            graph.getTile(xTest, yTest).setVisiblity(true);
+                        }
+                    }
+                    //...and down.
+                    yTest = this.yPos - j;
+                    if (yTest >= 0)
+                    {
+                        if (graph.getTile(xTest, yTest).myTileType != Tile.type.Forest)
+                        {
+                            graph.getTile(xTest, yTest).setVisiblity(true);
+                        }
+                    }
+                }
+            }
+        }
+        for(int i = 1; i <= visionRange; i++)
+        {
+            //Up
+            int xTest = this.xPos;
+            int yTest = this.yPos + i;
+            if(yTest < graph.getGraph()[0].Count)
+            {
+                if ((i < 2) || (graph.getTile(xTest, yTest).myTileType != Tile.type.Forest))
+                {
+                    graph.getTile(xTest, yTest).setVisiblity(true);
+                }
+            }
+            //Down
+            yTest = this.yPos - i;
+            if (yTest >= 0)
+            {
+                if ((i < 2) || (graph.getTile(xTest, yTest).myTileType != Tile.type.Forest))
+                {
+                    graph.getTile(xTest, yTest).setVisiblity(true);
+                }
+            }
+        }
+        graph.createVisibilityTiles();
+    }
+   
 }

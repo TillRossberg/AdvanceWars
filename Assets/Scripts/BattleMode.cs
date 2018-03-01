@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class BattleMode : MonoBehaviour
 {
-    List<float> coverRatings = new List<float>(); //Holds the damage reduction values: 0 = 10%, 1 = 20%, 2 = 30%, 3 = 40%, 4 = 50% ...
+    List<float> coverRatings = new List<float>() { 0.9f, 0.85f,0.8f,0.7f,0.5f}; //Holds the damage reduction values: 0 = 10%, 1 = 20%, 2 = 30%, 3 = 40%, 4 = 50% ...
 
     // Use this for initialization
     void Start ()
     {
-        initCoverList();
+        
 	}
 	
     //Lets two units battle!! The fun part :)
@@ -169,12 +169,5 @@ public class BattleMode : MonoBehaviour
         }
     }
     
-    private void initCoverList()
-    {
-        coverRatings.Add(0.9f);
-        coverRatings.Add(0.85f);
-        coverRatings.Add(0.8f);
-        coverRatings.Add(0.7f);
-        coverRatings.Add(0.5f);       
-    }
+    
 }

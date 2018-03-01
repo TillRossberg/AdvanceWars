@@ -62,14 +62,14 @@ public class Graph : MonoBehaviour
     }
 
     //Create an empty Graph of plain tiles.
-    private void createEmptyGraph(int dimX, int dimY)
+    private void createEmptyGraph(int dimX, int dimY, Tile.type myTileType)
     {
         for (int colIndex = 0; colIndex < dimX; colIndex++)
         {
             myGraph.Add(new List<Transform>());
             for (int rowIndex = 0; rowIndex < dimY; rowIndex++)
             {                
-                Transform myTile = createTile(Tile.type.Plain, colIndex, rowIndex, 0);               
+                Transform myTile = createTile(myTileType, colIndex, rowIndex, 0);               
                 myGraph[colIndex].Add(myTile);               
             }
         }        
@@ -285,7 +285,7 @@ public class Graph : MonoBehaviour
     //Examplegraphs
     public void createExampleGraph01()
 	{
-		createEmptyGraph (gridWidth, gridHeight);
+		createEmptyGraph (gridWidth, gridHeight, Tile.type.Plain);
         changeTile(3, 1, 0, Tile.type.Mountain);
         changeTile(3, 2, 0, Tile.type.Mountain);
         changeTile(3, 3, 0, Tile.type.Mountain);
@@ -309,9 +309,17 @@ public class Graph : MonoBehaviour
         findNeighbors();
     }
 
+    public void createLevel02()
+    {
+        createEmptyGraph(12, 12, Tile.type.Plain);
+        changeTile(3, 5, 0, Tile.type.Forest);
+        
+        findNeighbors();
+    }
+
     public void createLevel01()
     {
-        createEmptyGraph(16, 15);
+        createEmptyGraph(16, 15, Tile.type.Plain);
         //x = 0
         changeTile(0, 0, 0, Tile.type.Sea);
         changeTile(0, 1, 0, Tile.type.Sea);
@@ -676,6 +684,20 @@ public class Graph : MonoBehaviour
             for (int j = 0; j < myGraph[i].Count; j++)
             {
                 if (myGraph[i][j].GetComponent<Tile>().isAttackable)
+                {
+                    Instantiate(attackableTile, new Vector3(i, 0.1f, j), Quaternion.identity, this.GetComponent<MainFunctions>().selectedUnit.transform.Find("attackableTiles"));
+                }
+            }
+        }
+    }
+
+    public void createVisibilityTiles()
+    {
+        for (int i = 0; i < myGraph.Count; i++)
+        {
+            for (int j = 0; j < myGraph[i].Count; j++)
+            {
+                if (myGraph[i][j].GetComponent<Tile>().isVisible)
                 {
                     Instantiate(attackableTile, new Vector3(i, 0.1f, j), Quaternion.identity, this.GetComponent<MainFunctions>().selectedUnit.transform.Find("attackableTiles"));
                 }

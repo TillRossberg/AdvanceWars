@@ -174,7 +174,8 @@ public class MainFunctions : MonoBehaviour
                 break;
 
             case 1:
-
+                this.GetComponent<Graph>().createLevel02();
+                this.GetComponent<UnitCreator>().createUnitSet02();
 
                 break;
 

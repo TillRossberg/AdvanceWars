@@ -43,9 +43,9 @@ public class TurnManager : MonoBehaviour
 
         giveMoney(activeTeam);//Give money for properties.
 
-        //Subtract funds for repairing units.
+        //Repair units.
 
-        //Repair units and subtract money for repairing.
+        //Subtract money for repairing units.
     }
 
     //End turn

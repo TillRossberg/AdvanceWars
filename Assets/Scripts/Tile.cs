@@ -41,6 +41,7 @@ public class Tile: MonoBehaviour
     public Team owningTeam;
 
     //States
+    public bool isVisible = false;
     public bool isReachable = false;
     public bool isSelected = false;
     public bool isPartOfArrowPath = false;
@@ -171,5 +172,11 @@ public class Tile: MonoBehaviour
                 Debug.Log("Tile: No such moveType" + myMoveType + "was found!");
                 return -1;
         }
+    }
+
+    //Sets the visiblity of this tile.
+    public void setVisiblity(bool value)
+    {
+        isVisible = value;        
     }
 }
