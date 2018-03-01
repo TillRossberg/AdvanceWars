@@ -167,7 +167,5 @@ public class BattleMode : MonoBehaviour
                 Debug.Log("BattleMode: Invalid unit type for attacking unit!");
                 return -1;
         }
-    }
-    
-    
+    }    
 }

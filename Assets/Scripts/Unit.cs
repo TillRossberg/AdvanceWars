@@ -162,9 +162,11 @@ public class Unit : MonoBehaviour
         myLevelManager.GetComponent<AnimController>().boom(xPos,yPos);
         //Finally delete the unit.
         Destroy(this.gameObject);
+        //If this was the last unit of the player the game is lost.
+        //TODO: Oposing team wins!
     }
 
-    //Move the unit to a field an align it so it faces away, from where it came.
+    //Move the unit to a field and align it so it faces away, from where it came.
     public void moveUnitTo(int newX, int newY)
     {
         //Only if we drew at least one arrow Path, we should be able move.
