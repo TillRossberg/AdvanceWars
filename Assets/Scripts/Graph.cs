@@ -100,7 +100,7 @@ public class Graph : MonoBehaviour
                 
                 //Set weights
                 tile.cover = 1;
-                setMovementCost(tile, GetComponent<MainFunctions>().actualWeather);
+                setMovementCost(tile, GetComponent<TurnManager>().getWeather());
 
                 //Declare Levelmanager as parent.
                 tileTransform.transform.parent = this.transform.Find("Tiles");
@@ -122,7 +122,7 @@ public class Graph : MonoBehaviour
 
                 //Set weights
                 tile.cover = 2;
-                setMovementCost(tile, GetComponent<MainFunctions>().actualWeather);
+                setMovementCost(tile, GetComponent<TurnManager>().getWeather());
 
                 //Declare Levelmanager as parent.
                 tileTransform.transform.parent = this.transform.Find("Tiles");
@@ -142,7 +142,7 @@ public class Graph : MonoBehaviour
                 tile.xPos = x;
                 tile.yPos = y;
                 tile.cover = 0;
-                setMovementCost(tile, GetComponent<MainFunctions>().actualWeather);
+                setMovementCost(tile, GetComponent<TurnManager>().getWeather());
 
                 //Declare Levelmanager as parent.
                 tileTransform.transform.parent = this.transform.Find("Tiles");
@@ -162,7 +162,7 @@ public class Graph : MonoBehaviour
                 tile.xPos = x;
                 tile.yPos = y;
                 tile.cover = 0;
-                setMovementCost(tile, GetComponent<MainFunctions>().actualWeather);
+                setMovementCost(tile, GetComponent<TurnManager>().getWeather());
 
                 //Declare Levelmanager as parent.
                 tileTransform.transform.parent = this.transform.Find("Tiles");
@@ -181,7 +181,7 @@ public class Graph : MonoBehaviour
                 tile.xPos = x;
                 tile.yPos = y;
                 tile.cover = 4;
-                setMovementCost(tile, GetComponent<MainFunctions>().actualWeather);
+                setMovementCost(tile, GetComponent<TurnManager>().getWeather());
 
                 //Declare Levelmanager as parent.
                 tileTransform.transform.parent = this.transform.Find("Tiles");
@@ -200,7 +200,7 @@ public class Graph : MonoBehaviour
                 tile.xPos = x;
                 tile.yPos = y;
                 tile.cover = 3;
-                setMovementCost(tile, GetComponent<MainFunctions>().actualWeather);
+                setMovementCost(tile, GetComponent<TurnManager>().getWeather());
 
                 //Declare Levelmanager as parent.
                 tileTransform.transform.parent = this.transform.Find("Tiles");
@@ -219,7 +219,7 @@ public class Graph : MonoBehaviour
                 tile.xPos = x;
                 tile.yPos = y;
                 tile.cover = 3;
-                setMovementCost(tile, GetComponent<MainFunctions>().actualWeather);
+                setMovementCost(tile, GetComponent<TurnManager>().getWeather());
 
                 //Declare Levelmanager as parent.
                 tileTransform.transform.parent = this.transform.Find("Tiles");
@@ -238,7 +238,7 @@ public class Graph : MonoBehaviour
                 tile.xPos = x;
                 tile.yPos = y;
                 tile.cover = 4;
-                setMovementCost(tile, GetComponent<MainFunctions>().actualWeather);
+                setMovementCost(tile, GetComponent<TurnManager>().getWeather());
 
                 //Declare Levelmanager as parent.
                 tileTransform.transform.parent = this.transform.Find("Tiles");
@@ -530,9 +530,9 @@ public class Graph : MonoBehaviour
         changeTile(15, 13, 0, Tile.type.Sea);
         changeTile(15, 14, 0, Tile.type.Sea);
 
-        
+
         //Team red properties
-        Team teamRed = this.GetComponent<TeamManager>().teams[0];
+        Team teamRed = this.GetComponent<TeamManager>().getTeamList()[0];
         this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(1,4));
         this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(1,6));
         this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(1,8));
@@ -545,7 +545,7 @@ public class Graph : MonoBehaviour
         this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(6,7));
     
         //Team blue properties
-        Team teamBlue = this.GetComponent<TeamManager>().teams[1];
+        Team teamBlue = this.GetComponent<TeamManager>().getTeamList()[1];
         this.GetComponent<TeamManager>().occupyProperty(teamBlue, getTile(9,5));
         this.GetComponent<TeamManager>().occupyProperty(teamBlue, getTile(9,7));
         this.GetComponent<TeamManager>().occupyProperty(teamBlue, getTile(12,8));

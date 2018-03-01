@@ -19,6 +19,7 @@ public class StatusWindow : MonoBehaviour
     Text cover;
 
     public Image commanderThumbnail;
+    public Image commanderFrame;
     public Text activeTeam;
     public Text money;
     public Text roundNr;
@@ -73,8 +74,9 @@ public class StatusWindow : MonoBehaviour
         TurnManager turnManager = GetComponent<TurnManager>();
         this.activeTeam.text = "Team: " + turnManager.activeTeam.name;
         this.money.text = "$: " + turnManager.activeTeam.money.ToString();
-        this.roundNr.text = "Round: " + GetComponent<MainFunctions>().dayCounter.ToString();
+        this.roundNr.text = "Round: " + turnManager.roundCounter.ToString();
         this.commanderThumbnail.sprite = GetComponent<Database>().getCommanderThumb(turnManager.activeTeam.getTeamCommander());
+        this.commanderFrame.color = turnManager.activeTeam.teamColor;
     }
 
     public void changeStatus(string unitName, Sprite unitThumb, int health, int ammo, int fuel, string terrainName, Sprite tileThumb, int cover)

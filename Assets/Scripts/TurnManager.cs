@@ -9,24 +9,17 @@ public class TurnManager : MonoBehaviour
 
     public Team activeTeam;
     public Database.weather actualWeather;
-    public int roundCounter = 1;
+    public int roundCounter = 1;//A round has passed, when all teams had their turn.
 
     //Succession
     public List<int> succession = new List<int>();
     int successionCounter = 0;
-
-    // Use this for initialization
-    void Start ()
+    
+    public void init()
     {
         mainFunctions = GetComponent<MainFunctions>();
         teamManager = GetComponent<TeamManager>();
-    }
-
-    // Update is called once per frame
-    void Update ()
-    {
-		
-	}
+    }   
 
     //Manage who has turn.
     public void manageTurns()
@@ -39,10 +32,8 @@ public class TurnManager : MonoBehaviour
     {
         mainFunctions.deselectObject();//Make sure nothing is selected when the next turn starts.
         activeTeam = team;
+        GetComponent<StatusWindow>().displayGeneralInfo();//Adapt the GUI for the active team       
         activateUnits(team);
-        GetComponent<StatusWindow>().displayGeneralInfo();
-
-        //Adapt the GUI for the active team
 
         //Set fog of war.
 
@@ -50,7 +41,7 @@ public class TurnManager : MonoBehaviour
 
         //Give rations from properties and APCs.
 
-        //Give funds for properties.
+        giveMoney(activeTeam);//Give money for properties.
 
         //Subtract funds for repairing units.
 
@@ -62,7 +53,13 @@ public class TurnManager : MonoBehaviour
     {
         deactivateUnits(activeTeam);
         startTurn(getNextTeam());
-        GetComponent<StatusWindow>().displayGeneralInfo();
+    }
+
+    //Give money for each property the team owns. 
+    public void giveMoney(Team team)
+    {
+        team.money += team.ownedProperties.Count * GetComponent<MasterClass>().container.getMoneyIncrement();
+        GetComponent<StatusWindow>().displayGeneralInfo();  
     }
 
     //Setup all the units of a team so they have a turn, can move and fire.
@@ -101,22 +98,31 @@ public class TurnManager : MonoBehaviour
     public Team getNextTeam()
     {
         successionCounter++;
-        //If you get past the last entry of the succession list all teams had their turn, so increase the number of rounds and start again from the beginning. 
-        if (successionCounter == teamManager.teams.Count)
+        //If you get past the last entry of the succession list all teams had their turn, so end the round and start again from the beginning. 
+        if (successionCounter == teamManager.getTeamList().Count)
         {
             successionCounter = 0;
-            roundCounter++;
+            endRound();
         }
-        return teamManager.teams[succession[successionCounter]];//Look up the index of the team that has the next turn.
+        return teamManager.getTeamList()[succession[successionCounter]];//Look up the index of the team that has the next turn.
     }
 
-    //When all teams had their turn change the weather (if random was selected), increase the round counter
+    //When all teams had their turn: change the weather (if random was selected), increase the round counter, check if the battle duration is ecxeeded
+    public void endRound()
+    {
+        roundCounter++;
+        //if(roundCounter == GetComponent<MasterClass>().container.battleDuration && GetComponent<MasterClass>().container.battleDuration > 4)//Minimum for the duration of the battle is 5 rounds, if below this winning condition will never trigger.
+        //{
+        //    //TODO: If the maximum amount of rounds has passed, check who won the game. (Depending on the occupied properties)
+        //}
+        //setWeather();
+    }
 
     //Define the succession and set the first team that has a turn.
     public void initSuccession()
     {
         setupRandomSuccession();
-        activeTeam = teamManager.teams[succession[0]];
+        activeTeam = teamManager.getTeamList()[succession[0]];
         activateUnits(activeTeam);
     }
 
@@ -124,9 +130,9 @@ public class TurnManager : MonoBehaviour
     public void setupRandomSuccession()
     {
         int counter = 0;
-        while (succession.Count < teamManager.teams.Count)
+        while (succession.Count < teamManager.getTeamList().Count)
         {
-            int randomPick = Random.Range(0, teamManager.teams.Count);
+            int randomPick = Random.Range(0, teamManager.getTeamList().Count);
 
             if (!succession.Contains(randomPick))
             {
@@ -152,5 +158,9 @@ public class TurnManager : MonoBehaviour
         {
             actualWeather = GetComponent<MasterClass>().container.getWeather();
         }
+    }
+    public Database.weather getWeather()
+    {
+        return actualWeather;
     }
 }

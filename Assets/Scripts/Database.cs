@@ -11,12 +11,25 @@ public class Database : MonoBehaviour
     public enum weather { Clear, Rain, Snow, Random }
     public List<string> weatherNames = new List<string>();//List to hold the available weather types for creating the dropdown menu to chose from them.
     private List<string> levelNames = new List<string>() { "Kidney Island", "Level02", "Level03" };
+    public List<Material> teamMaterials = new List<Material>();//A list of available team materials.
+    private List<Color> teamColors = new List<Color>() { Color.red, Color.blue, Color.green, Color.yellow };//A list of available team colors.
 
     // Use this for initialization
     void Start ()
     {
         weatherNames = System.Enum.GetNames(typeof(weather)).ToList<string>();
     }
+
+    public Material getTeamMaterial(int value)
+    {
+        return teamMaterials[value];
+    }
+
+    public Color getTeamColor(int value)
+    {
+        return teamColors[value];
+    }
+
     //Returns the thumbnail for the the given commander.
     public Sprite getCommanderThumb(commander myCommander)
     {

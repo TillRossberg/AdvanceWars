@@ -11,6 +11,7 @@ public class ContextMenu : MonoBehaviour
     public RectTransform fireButton;
     public RectTransform rangeButton;
     public RectTransform tileInfoButton;
+    public RectTransform endTurnButton;
     public bool isOpened = false;
     public int clickedHereX;
     public int clickedHereY;
@@ -80,7 +81,7 @@ public class ContextMenu : MonoBehaviour
         this.GetComponent<MainFunctions>().deselectObject();            
     }
 
-    //Show the attack range of the unit.
+    //Switch the visiblity of the attackable tiles of the unit.
     public void rangeButtonPressed()
     {
         if (showAttackableTiles)
@@ -103,6 +104,12 @@ public class ContextMenu : MonoBehaviour
                 showAttackableTiles = true;
             }
         }
+    }
+
+    //End the turn for the active player and proceed to the next player in the succession.
+    public void endTurnButtonPressed()
+    {
+        GetComponent<TurnManager>().endTurn();
     }
 
     //Show the tile info.

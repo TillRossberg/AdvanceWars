@@ -8,7 +8,8 @@ public class Team : ScriptableObject
     public List<Transform> myUnits = new List<Transform>();
     public List<Tile> ownedProperties = new List<Tile>();
     public List<Unit.type> availableUnits = new List<Unit.type>();//Units this team can build.
-    public Material teamColor;
+    public Material teamMaterial;
+    public Color teamColor;
     public int unitCounter = 0;//Counts the overall created units.
     public int money = 5000;
 
@@ -20,7 +21,7 @@ public class Team : ScriptableObject
         myUnits.Add(unitToAdd);
         unitToAdd.GetComponent<Unit>().myTeam = this;
         unitToAdd.GetComponent<Unit>().enemyTeams = enemyTeams;
-        unitToAdd.GetComponent<MeshRenderer>().material = teamColor;
+        unitToAdd.GetComponent<MeshRenderer>().material = teamMaterial;
         unitCounter++;
     }
 
@@ -126,7 +127,7 @@ public class Team : ScriptableObject
     }
 
     //Sets the commander for this team.
-    public void setCommander(Database.commander myCommander)
+    public void setTeamCommander(Database.commander myCommander)
     {
         teamCommander = myCommander;
     }

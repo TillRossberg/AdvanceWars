@@ -6,9 +6,12 @@ using UnityEngine;
 public class TeamManager : MonoBehaviour
 {
     //General 
-    public List<Team> teams = new List<Team>();
-    public List<Material> teamColors = new List<Material>();
-
+    private List<Team> teams = new List<Team>();
+   
+    public void blabla()
+    {
+        Debug.Log("Aber warum?");
+    }
     //Initiate the teams for this game with the info from the container. Define wich units they can build, wich teams are enemies and whos commander.
     public void setupTeams()
     {
@@ -18,8 +21,8 @@ public class TeamManager : MonoBehaviour
         getTeam("TeamBlue").addEnemyTeam(this.GetComponent<TeamManager>().getTeam("TeamRed"));
         getTeam("TeamBlue").setAllUnitsAvailable();
         getTeam("TeamRed").setAllUnitsAvailable();
-        getTeam("TeamBlue").setCommander(Database.commander.Max);
-        getTeam("TeamRed").setCommander(Database.commander.Andy);
+        getTeam("TeamBlue").setTeamCommander(Database.commander.Max);
+        getTeam("TeamRed").setTeamCommander(Database.commander.Andy);
     }
 
     //Create a team with a name and a color from the teamColors list and add it to the teams list.
@@ -27,7 +30,8 @@ public class TeamManager : MonoBehaviour
     {
         Team team = ScriptableObject.CreateInstance("Team") as Team;
         team.name = myTeamName;
-        team.teamColor = teamColors[colorNumber];
+        team.teamMaterial = GetComponent<Database>().getTeamMaterial(colorNumber);
+        team.teamColor = GetComponent<Database>().getTeamColor(colorNumber);
         teams.Add(team);
         //Create empty game object in wich we will store the units for the team later.
         GameObject emptyGameObject = new GameObject();
@@ -45,6 +49,12 @@ public class TeamManager : MonoBehaviour
                 teams[i].addUnit(unit);
             }
         }
+    }
+
+    //Returns the list of all the teams.
+    public List<Team> getTeamList()
+    {
+        return teams;
     }
 
     //Searches for a team by a given name and returns it.
@@ -76,7 +86,7 @@ public class TeamManager : MonoBehaviour
             //Introduce the new owner to the tile.
             tile.owningTeam = newOwner;
             //Set the color of the property to the occupying team color.
-            tile.setMaterial(newOwner.teamColor);
+            tile.setMaterial(newOwner.teamMaterial);
             //Add the tile to the new owners properties.
             newOwner.ownedProperties.Add(tile);
         }

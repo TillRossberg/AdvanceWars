@@ -7,11 +7,11 @@ using UnityEngine;
 public class MasterClass : MonoBehaviour
 {
     //Datastructures
-    TeamManager teamManager;
+    public TeamManager teamManager;
     MainFunctions mainFunctions;
     public Container container;
+    public GameObject containerPrefab;
 
-   
 
 	// Use this for initialization
 	void Start ()
@@ -19,10 +19,9 @@ public class MasterClass : MonoBehaviour
         //Init
         mainFunctions = GetComponent<MainFunctions>();
         teamManager = GetComponent<TeamManager>();
+        GetComponent<TurnManager>().init();
 
         teamManager.setupTeams();
-        GetComponent<TurnManager>().initSuccession();        
-        GetComponent<StatusWindow>().displayGeneralInfo();
 
         //Load a specified level with its predefined units. (The container exists only if we load a level from the main menu.)
         if (GameObject.FindWithTag("Container") != null)
@@ -33,10 +32,13 @@ public class MasterClass : MonoBehaviour
         }
         else
         {
-            Debug.Log("MasterClass: No container found, loading default map!");
+            Debug.Log("MasterClass: No container found, loading default container!");
+            container = Instantiate(containerPrefab, this.transform).GetComponent<Container>();
             GetComponent<TurnManager>().actualWeather = Database.weather.Clear;
             mainFunctions.loadLevel(0);
         }
+        GetComponent<TurnManager>().initSuccession();        
+        GetComponent<StatusWindow>().displayGeneralInfo();
     }
 	
 	// Update is called once per frame
