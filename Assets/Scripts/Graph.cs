@@ -41,7 +41,7 @@ public class Graph : MonoBehaviour
     public Transform reef;
 
     public enum GraphicType { plain_Normal, plain_Water, plain_WaterCorner, forest_Normal, road_Normal, road_Bridge, road_Curve, road_Crossing, road_TPart, road_Deadend,
-                              mountain_Normal, property_City, property_Facility, property_Airport, property_Port, sea_Normal, reef_Normal  };
+                              mountain_Normal, property_HQ, property_City, property_Facility, property_Airport, property_Port, sea_Normal, reef_Normal  };
     public List<Transform> tilePrefabs = new List<Transform>(); // 0 = plain, 1 = forest, 2 = road, 3 = mountain, 4 = river, 5 = shoal, 6 = sea, 7 = reef, 8 = property, 9 = port
 
     //Thumbnails

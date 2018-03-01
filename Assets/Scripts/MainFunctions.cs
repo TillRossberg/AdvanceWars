@@ -13,12 +13,9 @@ public class MainFunctions : MonoBehaviour
     //Selectstuff
     public Tile selectedTile;
     public Unit selectedUnit;
-    public Team activeTeam;
 
     //Gameplaystuff (Who hast turn? What weather is it? What day is it? And so on...)
-    public Database.commander activeCommander;
-    public Database.weather actualWeather;
-    public int dayCounter = 1;
+    
 
     //States    
     //These bools should help to decide if we selected a unit or a tile.
@@ -165,93 +162,7 @@ public class MainFunctions : MonoBehaviour
         isTile = false;
         selectedTile = null;
     }
-    //Sets the team that now has its turn.
-    public void setActiveTeam(Team team)
-    {
-        activeTeam = team;
-    }
-
-    
-
-    //Manage who has turn.
-    public void manageTurns()
-    {
-
-    }
-
-    //Start turn
-    public void startTurn(Team team)
-    {
-        deselectObject();//Make sure nothing is selected when the next turn starts.
-        activeTeam = team;
-        activateUnits(team);
-        //Adapt the GUI for the active team
-
-        //Set fog of war.
-
-        //Subtract fuel.
-
-        //Give rations from properties and APCs.
-
-        //Give funds for properties.
-
-        //Subtract funds for repairing units.
-
-        //Repair units and subtract money for repairing.
-    }
-
-    //End turn
-    public void endTurn()
-    {
-        deactivateUnits(activeTeam);
-        startTurn(teamManager.getNextTeam());
-        GetComponent<StatusWindow>().displayGeneralInfo();
-    }
-
-    //Setup all the units of a team so they have a turn, can move and fire.
-    public void activateUnits(Team teamToActivate)
-    {
-        for (int i = 0; i < teamToActivate.myUnits.Count; i++)
-        {
-            if (teamToActivate.myUnits[i] != null)
-            {
-                teamToActivate.myUnits[i].GetComponent<Unit>().hasTurn = true;
-                teamToActivate.myUnits[i].GetComponent<Unit>().hasMoved = false;
-                teamToActivate.myUnits[i].GetComponent<Unit>().canFire = true;
-            }
-        }
-    }
-
-    //Set the properties of all units of a team so they don't have a turn.
-    public void deactivateUnits(Team teamToDeactivate)
-    {
-        for (int i = 0; i < teamToDeactivate.myUnits.Count; i++)
-        {
-            if (teamToDeactivate.myUnits[i] != null)
-            {
-                teamToDeactivate.myUnits[i].GetComponent<Unit>().hasTurn = false;
-            }
-        }
-    }
-
-    //Initiate the teams for this game, define wich units they can build and wich teams are enemies.
-    public void setupTeams()
-    {
-        this.GetComponent<TeamManager>().createTeam("TeamRed", 0);
-        this.GetComponent<TeamManager>().createTeam("TeamBlue", 1);
-        this.GetComponent<TeamManager>().getTeam("TeamRed").addEnemyTeam(this.GetComponent<TeamManager>().getTeam("TeamBlue"));
-        this.GetComponent<TeamManager>().getTeam("TeamBlue").addEnemyTeam(this.GetComponent<TeamManager>().getTeam("TeamRed"));
-        this.GetComponent<TeamManager>().getTeam("TeamBlue").setAllUnitsAvailable();
-        this.GetComponent<TeamManager>().getTeam("TeamRed").setAllUnitsAvailable();
-    }
-
-    //Define the succession and set the first team that has a turn.
-    public void setupSuccession()
-    {
-        teamManager.setupRandomSuccession();
-        activeTeam = teamManager.teams[teamManager.succession[0]];
-    }
-
+   
     //Load a specified level and spawn untis.
     public void loadLevel(int value)
     {
@@ -274,18 +185,7 @@ public class MainFunctions : MonoBehaviour
         }
     }
 
-    //Sets the weather for the next day, if random weather was selcted. Otherwise simply take the preset weather.
-    public void setWeather()
-    {
-        if (container.getWeather() == Database.weather.Random)
-        {
-            //TODO: randomly chose a weather
-        }
-        else
-        {
-            actualWeather = container.getWeather();
-        }
-    }
+   
 
     //Deletes all instances of the marking cursor.
     public void deleteMarkingCursor()

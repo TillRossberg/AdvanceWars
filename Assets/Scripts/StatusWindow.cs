@@ -18,13 +18,15 @@ public class StatusWindow : MonoBehaviour
     Image tileThumb;
     Text cover;
 
-    public Text team;
-    public Text funds;
+    public Image commanderThumbnail;
+    public Text activeTeam;
+    public Text money;
     public Text roundNr;
     
 	// Use this for initialization
 	void Start ()
     {
+        //Get the graphic elements for the unit status window
         unitStatusWindow = GameObject.Find("Unit_Status");
         unitThumb = GameObject.Find("Unit_Status/Thumbnail_Unit").GetComponent<Image>();
         unitName = GameObject.Find("Unit_Status/Text_Unit_Name").GetComponent<Text>();
@@ -34,10 +36,18 @@ public class StatusWindow : MonoBehaviour
         tileName = GameObject.Find("Unit_Status/Text_tileName").GetComponent<Text>();
         tileThumb = GameObject.Find("Unit_Status/Thumbnail_Tile").GetComponent<Image>();
         cover = GameObject.Find("Unit_Status/Text_Cover").GetComponent<Text>();
+
+
+        //(DOESNT WORK!!)Get the graphic elements for the general info 
+        //commanderThumbnail = GameObject.Find("CommanderThumbnail").GetComponent<Image>();
+        //team = GameObject.Find("ActiveTeam_Text").GetComponent<Text>();
+        //money = GameObject.Find("Money_Text").GetComponent<Text>();
+        //roundNr = GameObject.Find("RoundNr_Text").GetComponent<Text>();
+
         unitStatusWindow.SetActive(false);
     }
 	
-    //De/Activates the status window for the selected unit.
+    //De-/activates the status window for the selected unit.
     public void showStatus(bool value)
     {
         if(value)
@@ -57,12 +67,14 @@ public class StatusWindow : MonoBehaviour
         } 
     }
 
-    //Displays the active team, its funds and the round number.
+    //Displays the active team, its money, the round number and update the thumbnail for the active commander.
     public void displayGeneralInfo()
     {
-        this.team.text = "Team: " + GetComponent<MainFunctions>().activeTeam.name;
-        this.funds.text = "$: " + GetComponent<MainFunctions>().activeTeam.money.ToString();
+        TurnManager turnManager = GetComponent<TurnManager>();
+        this.activeTeam.text = "Team: " + turnManager.activeTeam.name;
+        this.money.text = "$: " + turnManager.activeTeam.money.ToString();
         this.roundNr.text = "Round: " + GetComponent<MainFunctions>().dayCounter.ToString();
+        this.commanderThumbnail.sprite = GetComponent<Database>().getCommanderThumb(turnManager.activeTeam.getTeamCommander());
     }
 
     public void changeStatus(string unitName, Sprite unitThumb, int health, int ammo, int fuel, string terrainName, Sprite tileThumb, int cover)
@@ -93,6 +105,7 @@ public class StatusWindow : MonoBehaviour
         int newCover = this.GetComponent<Graph>().getTile(x, y).cover;
         string newTileName = this.GetComponent<Graph>().getTile(x, y).terrainName;
         Sprite newThumb = this.GetComponent<Graph>().getTile(x, y).thumbnail;
+
         this.cover.text = newCover.ToString();
         this.tileName.text = newTileName;
         this.tileThumb.sprite = newThumb;
@@ -116,5 +129,11 @@ public class StatusWindow : MonoBehaviour
         }
 
         return newHealth;
+    }
+
+    //Sets the thumbnail for the commander to the given one.
+    public void setCommanderThumb(Sprite newThumb)
+    {
+        commanderThumbnail.sprite = newThumb;
     }
 }

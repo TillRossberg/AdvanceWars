@@ -7,6 +7,7 @@ using System.Linq;
 public class Database : MonoBehaviour
 {
     public enum commander { Andy, Kanbei, Max}
+    public List<Sprite> commanderThumbs = new List<Sprite>();
     public enum weather { Clear, Rain, Snow, Random }
     public List<string> weatherNames = new List<string>();//List to hold the available weather types for creating the dropdown menu to chose from them.
     private List<string> levelNames = new List<string>() { "Kidney Island", "Level02", "Level03" };
@@ -15,6 +16,20 @@ public class Database : MonoBehaviour
     void Start ()
     {
         weatherNames = System.Enum.GetNames(typeof(weather)).ToList<string>();
+    }
+    //Returns the thumbnail for the the given commander.
+    public Sprite getCommanderThumb(commander myCommander)
+    {
+        switch(myCommander)
+        {
+            case commander.Andy: return commanderThumbs[0];
+            case commander.Max: return commanderThumbs[1];
+            case commander.Kanbei: return commanderThumbs[2];
+
+            default:
+                Debug.Log("Database: Couldn't find the given commander type: " + myCommander.ToString());
+                return null;
+        }
     }
 
     //Returns a list with the names of weather types.

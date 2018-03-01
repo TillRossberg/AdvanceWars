@@ -15,7 +15,6 @@ public class Menu_BuyUnits : MonoBehaviour
     public RectTransform buyRocketsButton;
     int xPos;
     int yPos;
-    Team activeTeam;
     public bool isOpened = false;
 
     //Details window
@@ -48,8 +47,7 @@ public class Menu_BuyUnits : MonoBehaviour
         Tile selectedTile = this.GetComponent<MainFunctions>().selectedTile;
         setProductionPosition(selectedTile.xPos, selectedTile.yPos);
         //Get the team that has turn now, so we know for whom we create the new unit.
-        Team activeTeam = this.GetComponent<MainFunctions>().activeTeam;
-        this.activeTeam = activeTeam;
+
         //Get available units from the team.
 
 
@@ -109,13 +107,13 @@ public class Menu_BuyUnits : MonoBehaviour
     //Buy buttons
     public void buyTankButtonPressed()
     {
-        this.GetComponent<UnitCreator>().createUnit(GetComponent<MainFunctions>().activeCommander, Unit.type.Tank, activeTeam, xPos, yPos, 90);
+        this.GetComponent<UnitCreator>().createUnit(GetComponent<TurnManager>().activeTeam.getTeamCommander(), Unit.type.Tank, GetComponent<TurnManager>().activeTeam, xPos, yPos, 90);
         closeMenu();
     }
 
     public void buyRocketsButtonPressed()
     {
-        this.GetComponent<UnitCreator>().createUnit(GetComponent<MainFunctions>().activeCommander, Unit.type.Rockets, activeTeam, xPos, yPos, 90);
+        this.GetComponent<UnitCreator>().createUnit(GetComponent<TurnManager>().activeTeam.getTeamCommander(), Unit.type.Rockets, GetComponent<TurnManager>().activeTeam, xPos, yPos, 90);
         closeMenu();
     }
 

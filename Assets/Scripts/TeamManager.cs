@@ -9,8 +9,18 @@ public class TeamManager : MonoBehaviour
     public List<Team> teams = new List<Team>();
     public List<Material> teamColors = new List<Material>();
 
-    public List<int> succession = new List<int>();
-    int successionCounter = 0;
+    //Initiate the teams for this game with the info from the container. Define wich units they can build, wich teams are enemies and whos commander.
+    public void setupTeams()
+    {
+        createTeam("TeamRed", 0);
+        createTeam("TeamBlue", 1);
+        getTeam("TeamRed").addEnemyTeam(this.GetComponent<TeamManager>().getTeam("TeamBlue"));
+        getTeam("TeamBlue").addEnemyTeam(this.GetComponent<TeamManager>().getTeam("TeamRed"));
+        getTeam("TeamBlue").setAllUnitsAvailable();
+        getTeam("TeamRed").setAllUnitsAvailable();
+        getTeam("TeamBlue").setCommander(Database.commander.Max);
+        getTeam("TeamRed").setCommander(Database.commander.Andy);
+    }
 
     //Create a team with a name and a color from the teamColors list and add it to the teams list.
     public void createTeam(string myTeamName, int colorNumber)
@@ -76,37 +86,5 @@ public class TeamManager : MonoBehaviour
         }
     }
 
-    //Gets the next team in the succesion.
-    public Team getNextTeam()
-    {
-        successionCounter++;
-        //If you get past the last entry of the succession list all teams had their turn, so increase the number of rounds and start again from the beginning. 
-        if(successionCounter == teams.Count)
-        {
-            successionCounter = 0;
-            GetComponent<MainFunctions>().dayCounter++;
-        }
-        return teams[succession[successionCounter]];//Look up the index of the team that has the next turn.
-    }
-
-    //Defines the order in wich the teams have their turns. (TODO: find a better way to solve this...)
-    public void setupRandomSuccession()
-    {
-        int counter = 0;
-        while(succession.Count < this.teams.Count)
-        {
-            int randomPick = Random.Range(0, this.teams.Count );
-
-            if(!succession.Contains(randomPick))
-            {
-                succession.Add(randomPick);
-            }
-            counter++;
-            if(counter > 1000)
-            {
-                Debug.Log("TeamManager: Too many attempts to create a random succession!");
-                break;
-            }
-        }
-    }
+    
 }

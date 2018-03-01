@@ -124,4 +124,14 @@ public class Team : ScriptableObject
         availableUnits.Add(Unit.type.Tank);
         availableUnits.Add(Unit.type.TCopter);       
     }
+
+    //Sets the commander for this team.
+    public void setCommander(Database.commander myCommander)
+    {
+        teamCommander = myCommander;
+    }
+    public Database.commander getTeamCommander()
+    {
+        return teamCommander;
+    }
 }
