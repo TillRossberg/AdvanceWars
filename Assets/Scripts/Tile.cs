@@ -18,7 +18,7 @@ public class Tile: MonoBehaviour
     public Unit unitStandingHere = null;
 
     //Tile types
-    public enum type  { Road , Plain, RoadStraight, RoadCurve, RoadBridge, Mountain, Forest, Sea, Shoal, Reef, Port, Facility, Airport, City, River};
+    public enum type  { Road , Plain, RoadStraight, RoadCurve, RoadBridge, Mountain, Forest, Sea, Shoal, Reef, Port, Facility, Airport, City, HQ, River};
     public type myTileType;
        
     public List<Transform> neighbors = new List<Transform>();
@@ -153,7 +153,11 @@ public class Tile: MonoBehaviour
     //If the tile is a property, set its color to the occuping team color
     public void setMaterial(Material newMaterial)
     {
-        this.transform.Find("Building").GetComponent<MeshRenderer>().material = newMaterial;
+        //this.transform.Find("Building").GetComponent<MeshRenderer>().material = newMaterial;
+
+        Material[] tempMats = this.transform.Find("Building").GetComponent<MeshRenderer>().materials;
+        tempMats[0] = newMaterial;
+        this.transform.Find("Building").GetComponent<MeshRenderer>().materials = tempMats;
     }
 
     //Returns the movement cost for a certain movement type.

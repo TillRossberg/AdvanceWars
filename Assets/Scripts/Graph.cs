@@ -32,6 +32,7 @@ public class Graph : MonoBehaviour
     //Mountain
     public Transform mountainPrefab;
     //Property
+    public Transform HQPrefab;
     public Transform cityPrefab;
     public Transform facilityPrefab;
     public Transform airPortPrefab;
@@ -51,8 +52,6 @@ public class Graph : MonoBehaviour
     public Sprite mountainThumb;
 
 	//Graph
-	public Transform kantenGewichtTextMesh;
-
 	public int gridHeight = 3;
 	public int gridWidth = 3;
 
@@ -178,6 +177,25 @@ public class Graph : MonoBehaviour
                 
                 tile.terrainName = Tile.type.Mountain.ToString();
                 tile.myTileType = Tile.type.Mountain;
+                tile.xPos = x;
+                tile.yPos = y;
+                tile.cover = 4;
+                setMovementCost(tile, GetComponent<TurnManager>().getWeather());
+
+                //Declare Levelmanager as parent.
+                tileTransform.transform.parent = this.transform.Find("Tiles");
+                //Change the name to "terrainName at X: ... Y: ..."
+                tileTransform.name = tile.terrainName + " at X: " + tile.xPos + " Y: " + tile.yPos;
+
+                return tileTransform;
+
+            case Tile.type.HQ:
+                //Create tile
+                tileTransform = Instantiate(HQPrefab, new Vector3(x, 0, y), Quaternion.Euler(new Vector3(0, angle, 0)));
+                tile = tileTransform.GetComponent<Tile>();
+
+                tile.terrainName = Tile.type.HQ.ToString();
+                tile.myTileType = Tile.type.HQ;
                 tile.xPos = x;
                 tile.yPos = y;
                 tile.cover = 4;
@@ -343,6 +361,7 @@ public class Graph : MonoBehaviour
         changeTile(1, 3, 0, Tile.type.Sea);
         changeTile(1, 4, 0, Tile.type.City);
         changeTile(1, 6, 0, Tile.type.Facility);
+        changeTile(1, 7, 0, Tile.type.HQ);
         changeTile(1, 8, 0, Tile.type.Facility);
         changeTile(1, 10, 0, Tile.type.City);
         changeTile(1, 12, 0, Tile.type.Sea);
@@ -515,6 +534,7 @@ public class Graph : MonoBehaviour
         changeTile(14, 3, 0, Tile.type.Sea);
         changeTile(14, 4, 0, Tile.type.City);
         changeTile(14, 6, 0, Tile.type.Facility);
+        changeTile(14, 7, 0, Tile.type.HQ);
         changeTile(14, 8, 0, Tile.type.Facility);
         changeTile(14, 10, 0, Tile.type.City);
         changeTile(14, 12, 0, Tile.type.Sea);
@@ -543,6 +563,7 @@ public class Graph : MonoBehaviour
         Team teamRed = this.GetComponent<TeamManager>().getTeamList()[0];
         this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(1,4));
         this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(1,6));
+        this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(1,7));
         this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(1,8));
         this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(1,10));
         this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(2,4));
@@ -562,6 +583,7 @@ public class Graph : MonoBehaviour
         this.GetComponent<TeamManager>().occupyProperty(teamBlue, getTile(13,10));
         this.GetComponent<TeamManager>().occupyProperty(teamBlue, getTile(14,4));
         this.GetComponent<TeamManager>().occupyProperty(teamBlue, getTile(14,6));
+        this.GetComponent<TeamManager>().occupyProperty(teamBlue, getTile(14,7));
         this.GetComponent<TeamManager>().occupyProperty(teamBlue, getTile(14,8));
         this.GetComponent<TeamManager>().occupyProperty(teamBlue, getTile(14,10));
 
@@ -631,31 +653,7 @@ public class Graph : MonoBehaviour
         }
     }
 
-    //Draws the weight for treads on all tiles.
-	private void drawTreadsCost()
-	{
-        //Instantiate parent object for the weight-meshes.
-        var gameObject = new GameObject();
-        gameObject.transform.parent = this.transform;
-        gameObject.name = "weights";
-        for (int i = 0; i < myGraph.Count; i++) 
-		{
-			for (int j = 0; j < myGraph [i].Count; j++) 
-			{			
-                //Create textMesh
-				Transform kantenGewichtTextTransform = Instantiate(kantenGewichtTextMesh, new Vector3 (i, 0	, j), kantenGewichtTextMesh.rotation);				
-                //Get tileProperties
-                Tile myTileProperties = myGraph[i][j].GetComponent<Tile>();
-                //Set the text
-                TextMesh kantenGewichtText = kantenGewichtTextTransform.GetComponent<TextMesh>();
-                kantenGewichtText.color = Color.red;
-                kantenGewichtText.text = "G: " + myTileProperties.treadsCost;				
-				kantenGewichtText.name = "Weight at X: " + i + " Y: " + j + " is: " + myTileProperties.treadsCost;
-                //Declare Levelmanager/weights as parent.                
-                kantenGewichtText.transform.parent = this.transform.Find("weights");
-            }
-		}
-	}
+    
 
 //Functions for reachable and attackable tiles.
     //Draws the tiles, that can be reached by the unit.

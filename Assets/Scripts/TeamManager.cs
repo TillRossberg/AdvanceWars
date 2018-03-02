@@ -71,12 +71,12 @@ public class TeamManager : MonoBehaviour
     public void occupyProperty(Team newOwner, Tile tile)
     {
         //Make sure the tile is a property.
-        if(tile.myTileType == Tile.type.City || tile.myTileType == Tile.type.Facility || tile.myTileType == Tile.type.Airport || tile.myTileType == Tile.type.Port)
+        if(tile.myTileType == Tile.type.City || tile.myTileType == Tile.type.Facility || tile.myTileType == Tile.type.Airport || tile.myTileType == Tile.type.Port || tile.myTileType == Tile.type.HQ)
         {
             //If it was occupied by another team, delete it from their property list.
             if(tile.owningTeam != null)
             {
-                tile.owningTeam.ownedProperties.Remove(tile);//Maybe confusing: delete the property from the list of the team that owned it.
+                tile.owningTeam.ownedProperties.Remove(tile);//This maybe confusing: we delete the property from the list of the team that owned it.
                 tile.owningTeam = null;                     
             }
             //Introduce the new owner to the tile.

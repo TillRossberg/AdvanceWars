@@ -40,7 +40,7 @@ public class MasterClass : MonoBehaviour
             Debug.Log("MasterClass: No container found, loading default container!");
             container = Instantiate(containerPrefab, this.transform).GetComponent<Container>();
             GetComponent<TurnManager>().actualWeather = Database.weather.Clear;
-            mainFunctions.loadLevel(1);
+            mainFunctions.loadLevel(0);
         }
         GetComponent<TurnManager>().initSuccession();        
         GetComponent<StatusWindow>().displayGeneralInfo();

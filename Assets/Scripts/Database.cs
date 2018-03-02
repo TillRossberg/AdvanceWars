@@ -81,6 +81,22 @@ public class Database : MonoBehaviour
                                     return -1;
                             }
                         }
+                    case Tile.type.HQ:
+                        {
+                            switch (myMoveType)
+                            {
+                                case Unit.moveType.Air: return 1;
+                                case Unit.moveType.Foot: return 1;
+                                case Unit.moveType.Lander: return -1;
+                                case Unit.moveType.Mech: return 1;
+                                case Unit.moveType.Ship: return -1;
+                                case Unit.moveType.Treads: return 1;
+                                case Unit.moveType.Wheels: return 1;
+                                default:
+                                    Debug.Log("Database(getMaxMoveDistance): No such move type found on " + myTileType + "!");
+                                    return -1;
+                            }
+                        }
                     case Tile.type.City:
                         {
                             switch (myMoveType)
@@ -298,6 +314,22 @@ public class Database : MonoBehaviour
                 switch (myTileType)
                 {
                     case Tile.type.Airport:
+                        {
+                            switch (myMoveType)
+                            {
+                                case Unit.moveType.Air: return 1;
+                                case Unit.moveType.Foot: return 1;
+                                case Unit.moveType.Lander: return -1;
+                                case Unit.moveType.Mech: return 1;
+                                case Unit.moveType.Ship: return -1;
+                                case Unit.moveType.Treads: return 1;
+                                case Unit.moveType.Wheels: return 1;
+                                default:
+                                    Debug.Log("Database(getMaxMoveDistance): No such move type found on " + myTileType + "!");
+                                    return -1;
+                            }
+                        }
+                    case Tile.type.HQ:
                         {
                             switch (myMoveType)
                             {
@@ -534,6 +566,22 @@ public class Database : MonoBehaviour
                             switch (myMoveType)
                             {
                                 case Unit.moveType.Air: return 2;
+                                case Unit.moveType.Foot: return 1;
+                                case Unit.moveType.Lander: return -1;
+                                case Unit.moveType.Mech: return 1;
+                                case Unit.moveType.Ship: return -1;
+                                case Unit.moveType.Treads: return 1;
+                                case Unit.moveType.Wheels: return 1;
+                                default:
+                                    Debug.Log("Database(getMaxMoveDistance): No such move type found on " + myTileType + "!");
+                                    return -1;
+                            }
+                        }
+                    case Tile.type.HQ:
+                        {
+                            switch (myMoveType)
+                            {
+                                case Unit.moveType.Air: return 1;
                                 case Unit.moveType.Foot: return 1;
                                 case Unit.moveType.Lander: return -1;
                                 case Unit.moveType.Mech: return 1;
