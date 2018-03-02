@@ -527,7 +527,7 @@ Prefab:
     - target: {fileID: 224652675902207546, guid: 86f1ce47cc928a74e9ed8299775246fb,
         type: 2}
       propertyPath: m_LocalPosition.x
-      value: 478
+      value: 476
       objectReference: {fileID: 0}
     - target: {fileID: 224652675902207546, guid: 86f1ce47cc928a74e9ed8299775246fb,
         type: 2}
@@ -846,7 +846,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 224910191}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 392.55402, y: 171.53703, z: 0}
+  m_LocalPosition: {x: 390.91782, y: 171.53703, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1212983113}
@@ -870,7 +870,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -1601,7 +1601,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 503320964}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 244.236, y: 149.97203, z: 0}
+  m_LocalPosition: {x: 243.21204, y: 149.97203, z: 0}
   m_LocalScale: {x: 0.29999998, y: 0.29999998, z: 0.29999998}
   m_Children: []
   m_Father: {fileID: 1212983113}
@@ -1625,7 +1625,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -2720,6 +2720,7 @@ GameObject:
   - component: {fileID: 1130033965}
   - component: {fileID: 1130033959}
   - component: {fileID: 1130033966}
+  - component: {fileID: 1130033968}
   m_Layer: 0
   m_Name: LevelManager
   m_TagString: LevelManager
@@ -2908,7 +2909,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc994087a25b58941a165c46f62d2b73, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  teamManager: {fileID: 0}
   container: {fileID: 0}
+  containerPrefab: {fileID: 1775027360952410, guid: 3852c0280030353439a7b87b0bcdcdee,
+    type: 2}
+  testlist: 000000000000000000000000
 --- !u!114 &1130033960
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3103,6 +3108,17 @@ MonoBehaviour:
   actualWeather: 0
   roundCounter: 1
   succession: 
+--- !u!114 &1130033968
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1130033951}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8615395af71e60d40ad14dd9dcbfc08a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1132417549
 GameObject:
   m_ObjectHideFlags: 0
@@ -3260,7 +3276,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1184873840}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 392.55405, y: 171.544, z: 0}
+  m_LocalPosition: {x: 390.9095, y: 171.544, z: 0}
   m_LocalScale: {x: 1.1441422, y: 1.1441422, z: 1.1441422}
   m_Children: []
   m_Father: {fileID: 1212983113}
@@ -3284,7 +3300,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 0, b: 0, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -3454,7 +3470,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1212983109}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 478, y: 236, z: 0}
+  m_LocalPosition: {x: 476, y: 236, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 457299350}
@@ -4475,7 +4491,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1684069497}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 478, y: 236, z: 0}
+  m_LocalPosition: {x: 476, y: 236, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 371156657}
@@ -4854,7 +4870,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1822496134}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 239.91205, y: 179.33202, z: 0}
+  m_LocalPosition: {x: 238.90402, y: 179.33202, z: 0}
   m_LocalScale: {x: 0.29999998, y: 0.29999998, z: 0.29999998}
   m_Children: []
   m_Father: {fileID: 1212983113}
@@ -4878,7 +4894,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -5070,7 +5086,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1854603720}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 239.91205, y: 200.21202, z: 0}
+  m_LocalPosition: {x: 238.90402, y: 200.21202, z: 0}
   m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
   m_Children: []
   m_Father: {fileID: 1212983113}
@@ -5094,7 +5110,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []

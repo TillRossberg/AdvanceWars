@@ -11,11 +11,16 @@ public class MasterClass : MonoBehaviour
     MainFunctions mainFunctions;
     public Container container;
     public GameObject containerPrefab;
-
+    public List<int> testlist = new List<int>();
 
 	// Use this for initialization
 	void Start ()
     {
+        
+        if(testlist.Count == 0)
+        {
+            Debug.Log("List is empty");
+        }
         //Init
         mainFunctions = GetComponent<MainFunctions>();
         teamManager = GetComponent<TeamManager>();

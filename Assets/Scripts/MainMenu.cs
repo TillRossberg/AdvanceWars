@@ -119,8 +119,8 @@ public class MainMenu : MonoBehaviour
 
     public void startGameButton()
     {
-        container.setNextLevel(container.getNextLevel());
-        SceneManager.LoadScene("Battlefield");
+        container.setNextLevel(container.getNextLevel());        
+        SceneManager.LoadScene(1);
     }
     //Game Options
     public void setLevel(int value)

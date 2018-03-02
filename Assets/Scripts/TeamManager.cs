@@ -6,12 +6,8 @@ using UnityEngine;
 public class TeamManager : MonoBehaviour
 {
     //General 
-    private List<Team> teams = new List<Team>();
-   
-    public void blabla()
-    {
-        Debug.Log("Aber warum?");
-    }
+    public List<Team> teams = new List<Team>();   
+    
     //Initiate the teams for this game with the info from the container. Define wich units they can build, wich teams are enemies and whos commander.
     public void setupTeams()
     {

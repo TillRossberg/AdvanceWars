@@ -61,7 +61,7 @@ public class Unit : MonoBehaviour
         myGraph = myLevelManager.GetComponent<Graph>().getGraph();
         graph = myLevelManager.GetComponent<Graph>();
     }
-	
+
     private void OnMouseDown()
     {
         //If normal mode is activated.
@@ -160,10 +160,15 @@ public class Unit : MonoBehaviour
         myGraph[xPos][yPos].GetComponent<Tile>().clearUnitHere();
         //Boom
         myLevelManager.GetComponent<AnimController>().boom(xPos,yPos);
+        //Remove unit from team list
+        myTeam.myUnits.Remove(this.transform);
+        //If this was the last unit of the player the game is lost.
+        if(myTeam.myUnits.Count == 0)
+        {
+            myLevelManager.GetComponent<LevelLoader>().loadGameFinishedScreenWithDelay();//This has a short delay, so the players see how the last unit is destroyed.
+        }
         //Finally delete the unit.
         Destroy(this.gameObject);
-        //If this was the last unit of the player the game is lost.
-        //TODO: Oposing team wins!
     }
 
     //Move the unit to a field and align it so it faces away, from where it came.
@@ -572,10 +577,11 @@ public class Unit : MonoBehaviour
         }
     }
     
-    //Calculates the visible area of this unit depending on its vision range.
+    //Calculates the visible area of this unit depending on its vision range and marks the visible tiles in the graph.
     public void calcVisibleArea()
     {
-        for(int i = 1; i <= visionRange; i++)
+        graph.getTile(xPos, yPos).setVisiblity(true);//Mark own position as visible.
+        for (int i = 1; i <= visionRange; i++)
         {
             //Left
             int xTest = this.xPos - i;
@@ -665,4 +671,5 @@ public class Unit : MonoBehaviour
         graph.createVisibilityTiles();
     }
    
+    
 }
