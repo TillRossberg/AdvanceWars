@@ -1,10 +1,16 @@
 fileFormatVersion: 2
 guid: 5c294c4ad2eb6d24faaaec2ce8d41072
-timeCreated: 1500647550
+timeCreated: 1520028458
 licenseType: Free
 MonoImporter:
+  externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - thumbnail: {instanceID: 0}
+  - unitStandingHere: {instanceID: 0}
+  - markingCursor: {instanceID: 0}
+  - owningTeam: {instanceID: 0}
+  - fogOfWar: {fileID: 4347596677510864, guid: 1e55daabda982fa49b44c2cccfcd3019, type: 2}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

@@ -85,6 +85,11 @@ public class TeamManager : MonoBehaviour
             tile.setMaterial(newOwner.teamMaterial);
             //Add the tile to the new owners properties.
             newOwner.ownedProperties.Add(tile);
+            if(tile.myTileType == Tile.type.HQ && GetComponent<TurnManager>().roundCounter > 1)
+            {
+                //TODO: decide if more than two teams are playing and then only remove the defeated team from the map.
+                GetComponent<LevelLoader>().loadGameFinishedScreenWithDelay();
+            }
         }
         else
         {

@@ -9,46 +9,45 @@ Prefab:
     m_Modifications: []
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
-  m_RootGameObject: {fileID: 1378277374759322}
+  m_RootGameObject: {fileID: 1517181847272604}
   m_IsPrefabParent: 1
---- !u!1 &1378277374759322
+--- !u!1 &1517181847272604
 GameObject:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   serializedVersion: 5
   m_Component:
-  - component: {fileID: 4279721105964804}
-  - component: {fileID: 33161689046605842}
-  - component: {fileID: 65210698301568916}
-  - component: {fileID: 23420398693925564}
-  - component: {fileID: 114423714300783596}
+  - component: {fileID: 4347596677510864}
+  - component: {fileID: 33294352188220268}
+  - component: {fileID: 65194175327134682}
+  - component: {fileID: 23002414749292240}
   m_Layer: 0
-  m_Name: Prefab_Tile
+  m_Name: Prefab_Tile_FogOfWar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4279721105964804
+--- !u!4 &4347596677510864
 Transform:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1378277374759322}
+  m_GameObject: {fileID: 1517181847272604}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 11.202724, y: -2.4041924, z: 5.623467}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!23 &23420398693925564
+--- !u!23 &23002414749292240
 MeshRenderer:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1378277374759322}
+  m_GameObject: {fileID: 1517181847272604}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -57,7 +56,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 2100000, guid: 0292a118a8a0a2645baf513490efa323, type: 2}
+  - {fileID: 2100000, guid: 659d7fe35b97ca9428c1446081eae600, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -77,60 +76,22 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!33 &33161689046605842
+--- !u!33 &33294352188220268
 MeshFilter:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1378277374759322}
-  m_Mesh: {fileID: 4300002, guid: 25198c269e883fd4eaa55247d27569ec, type: 3}
---- !u!65 &65210698301568916
+  m_GameObject: {fileID: 1517181847272604}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!65 &65194175327134682
 BoxCollider:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1378277374759322}
+  m_GameObject: {fileID: 1517181847272604}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
-  m_Size: {x: 1.0244389, y: 0.14236045, z: 1}
-  m_Center: {x: -0.012219429, y: 0.005883336, z: 0}
---- !u!114 &114423714300783596
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1378277374759322}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5c294c4ad2eb6d24faaaec2ce8d41072, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  terrainName: 
-  thumbnail: {fileID: 0}
-  xPos: 0
-  yPos: 0
-  rotation: 0
-  unitStandingHere: {fileID: 0}
-  myTileType: 0
-  neighbors: []
-  markingCursor: {fileID: 4585957028998916, guid: 393ee9f82e0a38441afac254b7e9323e,
-    type: 2}
-  fogOfWarTile: {fileID: 4347596677510864, guid: 1e55daabda982fa49b44c2cccfcd3019,
-    type: 2}
-  footCost: 0
-  mechCost: 0
-  treadsCost: 0
-  wheelsCost: 0
-  landerCost: 0
-  shipCost: 0
-  airCost: 0
-  takeOverCounter: 0
-  owningTeam: {fileID: 0}
-  isVisible: 0
-  isReachable: 0
-  isSelected: 0
-  isPartOfArrowPath: 0
-  isAttackable: 0
-  cover: 0
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}

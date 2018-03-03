@@ -52,6 +52,7 @@ MeshRenderer:
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -67,6 +68,7 @@ MeshRenderer:
   m_PreserveUVs: 1
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
   m_SelectedEditorRenderState: 3
   m_MinimumChartSize: 4
   m_AutoUVMaxDistance: 0.5
@@ -115,6 +117,8 @@ MonoBehaviour:
   neighbors: []
   markingCursor: {fileID: 4585957028998916, guid: 393ee9f82e0a38441afac254b7e9323e,
     type: 2}
+  fogOfWarTile: {fileID: 4347596677510864, guid: 1e55daabda982fa49b44c2cccfcd3019,
+    type: 2}
   footCost: 0
   mechCost: 0
   treadsCost: 0
@@ -124,6 +128,7 @@ MonoBehaviour:
   airCost: 0
   takeOverCounter: 0
   owningTeam: {fileID: 0}
+  isVisible: 0
   isReachable: 0
   isSelected: 0
   isPartOfArrowPath: 0

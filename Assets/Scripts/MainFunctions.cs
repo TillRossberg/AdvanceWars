@@ -169,13 +169,13 @@ public class MainFunctions : MonoBehaviour
         switch (value)
         {
             case 0:
-                this.GetComponent<Graph>().createLevel01();
-                this.GetComponent<UnitCreator>().createUnitSet01();
+                this.GetComponent<Graph>().createLevel00();
+                this.GetComponent<UnitCreator>().createUnitSet00();
                 break;
 
             case 1:
-                this.GetComponent<Graph>().createLevel02();
-                this.GetComponent<UnitCreator>().createUnitSet02();
+                this.GetComponent<Graph>().createLevel01();
+                this.GetComponent<UnitCreator>().createUnitSet01();
 
                 break;
 

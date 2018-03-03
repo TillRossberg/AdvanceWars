@@ -846,8 +846,32 @@ public class Database : MonoBehaviour
                 }
 
             case commander.Max:
+                switch (myUnitType)
+                {
+                    case Unit.type.Flak: return 9;
+                    case Unit.type.APC: return 0;
+                    case Unit.type.Artillery: return 9;
+                    case Unit.type.Battleship: return 9;
+                    case Unit.type.BCopter: return 6;
+                    case Unit.type.Bomber: return 9;
+                    case Unit.type.Cruiser: return 9;
+                    case Unit.type.Fighter: return 9;
+                    case Unit.type.Infantry: return 0;
+                    case Unit.type.Lander: return 0;
+                    case Unit.type.MdTank: return 8;
+                    case Unit.type.Mech: return 3;
+                    case Unit.type.Missiles: return 6;
+                    case Unit.type.Titantank: return 9;
+                    case Unit.type.Recon: return 0;
+                    case Unit.type.Rockets: return 6;
+                    case Unit.type.Sub: return 6;
+                    case Unit.type.Tank: return 9;
+                    case Unit.type.TCopter: return 0;
 
-                return -1;
+                    default:
+                        Debug.Log("Database(getAmmo()): Unittype " + myUnitType + " not found for " + myCommandType + "!");
+                        return -1;
+                }
 
             case commander.Kanbei:
 
@@ -1158,7 +1182,7 @@ public class Database : MonoBehaviour
             case Unit.type.Lander: return "Transports two ground units.";
             case Unit.type.MdTank: return "The strength of the medium tank lies not with its firepower, but its armor instead. A regular tank gets shredded once shelled by an artillery piece or attacked by a mech, but a medium tank can survive more than 2 hits from both instances.";
             case Unit.type.Mech: return "The Mech unit is a MECHanized form of the Infantry, but notably slower than it's counterpart. At the cost of 3000 it packs an anti-vehicle rocket launcher that can be used to great effect. Like the Infantry, it can also capture cities. Surprisingly the Mech's movement is not taxed by mountain travel. Both infantry units can increase their line of sight by 3 if they move to a mountain terrain.";
-            case Unit.type.Missiles: return "This unit can attack air units from a distance. Cannot attack ground or naval units.";
+            case Unit.type.Missiles: return "This unit can attack air units from a distance. It cannot attack ground or naval units.";
             case Unit.type.Titantank: return "Essentially a medium tank with more firepower, more armor, and 1 more unit of mobility. Downside is the price.";
             case Unit.type.Recon: return "The Recon unit is the lowest priced vehicle that is very mobile - especially on the roads. As a RECONnaissance unit they provide a large line of site during the Fog of War. Otherwise, this is an unarmored vehicle that has the same machine gun the small tank has.";
             case Unit.type.Rockets: return "This unit can attack units from a distance. Weak against Direct combat units, stronger than Artillery with a longer range.";

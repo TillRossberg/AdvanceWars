@@ -15,7 +15,7 @@ public class Tile: MonoBehaviour
 	public int xPos;
 	public int yPos;
 	public int rotation;
-    public Unit unitStandingHere = null;
+    public Transform unitStandingHere = null;
 
     //Tile types
     public enum type  { Road , Plain, RoadStraight, RoadCurve, RoadBridge, Mountain, Forest, Sea, Shoal, Reef, Port, Facility, Airport, City, HQ, River};
@@ -42,6 +42,7 @@ public class Tile: MonoBehaviour
 
     //States
     public bool isVisible = false;
+    public Transform fogOfWar;
     public bool isReachable = false;
     public bool isSelected = false;
     public bool isPartOfArrowPath = false;
@@ -51,10 +52,10 @@ public class Tile: MonoBehaviour
     public int cover;
     
 	// Use this for initialization
-	void Start () 
+	void Awake () 
 	{
         myLevelManager = GameObject.FindGameObjectWithTag("LevelManager");
-    }	
+    }
 
     private void OnMouseDown()
     {
@@ -66,7 +67,7 @@ public class Tile: MonoBehaviour
             //Move mode
             if(myLevelManager.GetComponent<MainFunctions>().moveMode)
             {
-                if(isPartOfArrowPath && unitStandingHere == null)
+                if((isPartOfArrowPath && unitStandingHere == null) || (isPartOfArrowPath && !isVisible))
                 {
                     //Move to the position and try to find units that can be attacked.
                     myLevelManager.GetComponent<MainFunctions>().selectedUnit.GetComponent<Unit>().moveUnitTo(this.xPos, this.yPos);
@@ -138,8 +139,10 @@ public class Tile: MonoBehaviour
         }
     }
 
+    
+
     //Set the unit that stands on this tile.
-    public void setUnitHere(Unit unit)
+    public void setUnitHere(Transform unit)
     {
         unitStandingHere = unit;
     }
@@ -153,8 +156,6 @@ public class Tile: MonoBehaviour
     //If the tile is a property, set its color to the occuping team color
     public void setMaterial(Material newMaterial)
     {
-        //this.transform.Find("Building").GetComponent<MeshRenderer>().material = newMaterial;
-
         Material[] tempMats = this.transform.Find("Building").GetComponent<MeshRenderer>().materials;
         tempMats[0] = newMaterial;
         this.transform.Find("Building").GetComponent<MeshRenderer>().materials = tempMats;
@@ -179,7 +180,7 @@ public class Tile: MonoBehaviour
     }
 
     //Sets the visiblity of this tile.
-    public void setVisiblity(bool value)
+    public void setVisibility(bool value)
     {
         isVisible = value;        
     }

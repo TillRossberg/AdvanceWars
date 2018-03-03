@@ -11,20 +11,15 @@ public class MasterClass : MonoBehaviour
     MainFunctions mainFunctions;
     public Container container;
     public GameObject containerPrefab;
-    public List<int> testlist = new List<int>();
 
 	// Use this for initialization
 	void Start ()
-    {
-        
-        if(testlist.Count == 0)
-        {
-            Debug.Log("List is empty");
-        }
+    {        
         //Init
         mainFunctions = GetComponent<MainFunctions>();
         teamManager = GetComponent<TeamManager>();
         GetComponent<TurnManager>().init();
+        GetComponent<Graph>().init();
 
         teamManager.setupTeams();
 
@@ -38,18 +33,18 @@ public class MasterClass : MonoBehaviour
         else
         {
             Debug.Log("MasterClass: No container found, loading default container!");
-            container = Instantiate(containerPrefab, this.transform).GetComponent<Container>();
+            container = Instantiate(containerPrefab).GetComponent<Container>();
             GetComponent<TurnManager>().actualWeather = Database.weather.Clear;
             mainFunctions.loadLevel(0);
         }
-        GetComponent<TurnManager>().initSuccession();        
+        GetComponent<TurnManager>().initSuccession();
         GetComponent<StatusWindow>().displayGeneralInfo();
+        GetComponent<TurnManager>().setFogOfWar(GetComponent<TurnManager>().activeTeam);
     }
 	
 	// Update is called once per frame
 	void Update ()
     {
 		
-	}
-    
+	}    
 }

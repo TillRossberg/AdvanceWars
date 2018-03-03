@@ -75,9 +75,11 @@ public class ContextMenu : MonoBehaviour
     //Wait here and perform no actions.
     public void waitButtonPressed()
     {
-        this.GetComponent<MainFunctions>().selectedUnit.moveUnitTo(clickedHereX, clickedHereY);
-        this.GetComponent<MainFunctions>().selectedUnit.canFire = false;
-        this.GetComponent<MainFunctions>().selectedUnit.hasTurn = false;
+        Unit selectedUnit = this.GetComponent<MainFunctions>().selectedUnit;
+        selectedUnit.moveUnitTo(clickedHereX, clickedHereY);
+        selectedUnit.canFire = false;
+        selectedUnit.hasTurn = false;
+        this.GetComponent<TurnManager>().setFogOfWar(selectedUnit.myTeam);
         this.GetComponent<MainFunctions>().deselectObject();            
     }
 

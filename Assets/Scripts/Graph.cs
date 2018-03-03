@@ -16,6 +16,7 @@ public class Graph : MonoBehaviour
     public Transform tilePrefab;
     public Transform reachableTile;
     public Transform attackableTile;
+    public Transform fogOfWarTile;
     //Plain
     public Transform plainPrefab;
     public Transform plainWaterPrefab;
@@ -54,10 +55,10 @@ public class Graph : MonoBehaviour
 	//Graph
 	public int gridHeight = 3;
 	public int gridWidth = 3;
-
-    public void Start()
+    
+    public void init()
     {
-        database = GetComponent<Database>();
+        database = GetComponent<Database>();       
     }
 
     //Create an empty Graph of plain tiles.
@@ -79,6 +80,27 @@ public class Graph : MonoBehaviour
         Destroy(myGraph[x][y].gameObject);
         myGraph[x][y] = createTile(myTileType, x, y, angle);
     }
+
+    //Sets the default values for a tile.
+    private void setDefaultValues(Transform tileTransform, Tile.type myTileType)
+    {
+        Tile tile = tileTransform.GetComponent<Tile>();
+
+        tile.terrainName = myTileType.ToString();
+        tile.myTileType = myTileType;
+        tile.xPos = (int)(tileTransform.position.x);
+        tile.yPos = (int)(tileTransform.position.z);
+        setMovementCost(tile, GetComponent<TurnManager>().getWeather());
+
+        //Create the graphic element for the fog of war and make it invisible.
+        tile.fogOfWar = Instantiate(fogOfWarTile, new Vector3(tile.xPos, 0.5f, tile.yPos), Quaternion.identity, this.transform.Find("Tiles").Find("FogOfWar"));
+        tile.fogOfWar.gameObject.SetActive(false);
+        //Declare Levelmanager as parent.
+        tileTransform.transform.parent = this.transform.Find("Tiles");
+        //Change the name to "terrainName at X: ... Y: ..."
+        tileTransform.name = tile.terrainName + " at X: " + tile.xPos + " Y: " + tile.yPos;
+    }
+
     //Create a tile using position, angle and name to specify its properties.
     public Transform createTile(Tile.type myTileType, int x, int y, int angle)
     {
@@ -90,21 +112,11 @@ public class Graph : MonoBehaviour
                 //Create tile
                 tileTransform = Instantiate(plainPrefab, new Vector3(x, 0, y), Quaternion.Euler(new Vector3(0, angle, 0)));
                 tile = tileTransform.GetComponent<Tile>();
+                setDefaultValues(tileTransform, myTileType);
 
-                tile.terrainName = Tile.type.Plain.ToString();
-                tile.myTileType = Tile.type.Plain;
-                tile.thumbnail = plainThumb;
-                tile.xPos = x;
-                tile.yPos = y;
-                
-                //Set weights
+                //Individual values.
                 tile.cover = 1;
-                setMovementCost(tile, GetComponent<TurnManager>().getWeather());
-
-                //Declare Levelmanager as parent.
-                tileTransform.transform.parent = this.transform.Find("Tiles");
-                //Change the name to "terrainName at X: ... Y: ..."
-                tileTransform.name = tile.terrainName + " at X: " + tile.xPos + " Y: " + tile.yPos;
+                tile.thumbnail = plainThumb;
 
                 return tileTransform;
                 
@@ -112,21 +124,11 @@ public class Graph : MonoBehaviour
                 //Create tile
                 tileTransform = Instantiate(forestPrefab, new Vector3(x, 0, y), Quaternion.Euler(new Vector3(0, angle, 0)));                
                 tile = tileTransform.GetComponent<Tile>();
+                setDefaultValues(tileTransform, myTileType);
 
-                tile.terrainName = Tile.type.Forest.ToString();
-                tile.myTileType = Tile.type.Forest;
-                tile.thumbnail = forestThumb;
-                tile.xPos = x;
-                tile.yPos = y;
-
-                //Set weights
+                //Individual values.
                 tile.cover = 2;
-                setMovementCost(tile, GetComponent<TurnManager>().getWeather());
-
-                //Declare Levelmanager as parent.
-                tileTransform.transform.parent = this.transform.Find("Tiles");
-                //Change the name to "terrainName at X: ... Y: ..."
-                tileTransform.name = tile.terrainName + " at X: " + tile.xPos + " Y: " + tile.yPos;
+                tile.thumbnail = forestThumb;         
 
                 return tileTransform;              
 
@@ -134,19 +136,13 @@ public class Graph : MonoBehaviour
                 //Create tile
                 tileTransform = Instantiate(roadPrefab, new Vector3(x, 0, y), Quaternion.Euler(new Vector3(0, angle, 0)));
                 tile = tileTransform.GetComponent<Tile>();
+                setDefaultValues(tileTransform, myTileType);
 
+                //Individual values.
+                tile.cover = 0;
                 tile.terrainName = "Road";
                 tile.myTileType = Tile.type.RoadStraight;
-                tile.thumbnail = roadThumb;
-                tile.xPos = x;
-                tile.yPos = y;
-                tile.cover = 0;
-                setMovementCost(tile, GetComponent<TurnManager>().getWeather());
-
-                //Declare Levelmanager as parent.
-                tileTransform.transform.parent = this.transform.Find("Tiles");
-                //Change the name to "terrainName at X: ... Y: ..."
-                tileTransform.name = tile.terrainName + " at X: " + tile.xPos + " Y: " + tile.yPos;
+                tile.thumbnail = roadThumb;               
 
                 return tileTransform;
 
@@ -154,19 +150,14 @@ public class Graph : MonoBehaviour
                 //Create tile
                 tileTransform = Instantiate(roadCurvePrefab, new Vector3(x, 0, y), Quaternion.Euler(new Vector3(0, angle, 0)));
                 tile = tileTransform.GetComponent<Tile>();
+                setDefaultValues(tileTransform, myTileType);
 
+                //Individual values.
+                tile.cover = 0;
                 tile.terrainName = "Road";
                 tile.myTileType = Tile.type.RoadStraight;
                 tile.thumbnail = roadThumb;
-                tile.xPos = x;
-                tile.yPos = y;
-                tile.cover = 0;
-                setMovementCost(tile, GetComponent<TurnManager>().getWeather());
-
-                //Declare Levelmanager as parent.
-                tileTransform.transform.parent = this.transform.Find("Tiles");
-                //Change the name to "terrainName at X: ... Y: ..."
-                tileTransform.name = tile.terrainName + " at X: " + tile.xPos + " Y: " + tile.yPos;
+                
 
                 return tileTransform;
 
@@ -174,56 +165,32 @@ public class Graph : MonoBehaviour
                 //Create tile
                 tileTransform = Instantiate(mountainPrefab, new Vector3(x, 0, y), Quaternion.Euler(new Vector3(0, angle, 0)));
                 tile = tileTransform.GetComponent<Tile>();
-                
-                tile.terrainName = Tile.type.Mountain.ToString();
-                tile.myTileType = Tile.type.Mountain;
-                tile.xPos = x;
-                tile.yPos = y;
+                setDefaultValues(tileTransform, myTileType);
+
+                //Individual values.
                 tile.cover = 4;
-                setMovementCost(tile, GetComponent<TurnManager>().getWeather());
-
-                //Declare Levelmanager as parent.
-                tileTransform.transform.parent = this.transform.Find("Tiles");
-                //Change the name to "terrainName at X: ... Y: ..."
-                tileTransform.name = tile.terrainName + " at X: " + tile.xPos + " Y: " + tile.yPos;
-
+                
                 return tileTransform;
 
             case Tile.type.HQ:
                 //Create tile
                 tileTransform = Instantiate(HQPrefab, new Vector3(x, 0, y), Quaternion.Euler(new Vector3(0, angle, 0)));
                 tile = tileTransform.GetComponent<Tile>();
+                setDefaultValues(tileTransform, myTileType);
 
-                tile.terrainName = Tile.type.HQ.ToString();
-                tile.myTileType = Tile.type.HQ;
-                tile.xPos = x;
-                tile.yPos = y;
+                //Individual values.
                 tile.cover = 4;
-                setMovementCost(tile, GetComponent<TurnManager>().getWeather());
-
-                //Declare Levelmanager as parent.
-                tileTransform.transform.parent = this.transform.Find("Tiles");
-                //Change the name to "terrainName at X: ... Y: ..."
-                tileTransform.name = tile.terrainName + " at X: " + tile.xPos + " Y: " + tile.yPos;
-
+                
                 return tileTransform;
 
             case Tile.type.City:
                 //Create tile
                 tileTransform = Instantiate(cityPrefab, new Vector3(x, 0, y), Quaternion.Euler(new Vector3(0, angle, 0)));
                 tile = tileTransform.GetComponent<Tile>();
+                setDefaultValues(tileTransform, myTileType);
 
-                tile.terrainName = Tile.type.City.ToString();
-                tile.myTileType = Tile.type.City;
-                tile.xPos = x;
-                tile.yPos = y;
+                //Individual values.
                 tile.cover = 3;
-                setMovementCost(tile, GetComponent<TurnManager>().getWeather());
-
-                //Declare Levelmanager as parent.
-                tileTransform.transform.parent = this.transform.Find("Tiles");
-                //Change the name to "terrainName at X: ... Y: ..."
-                tileTransform.name = tile.terrainName + " at X: " + tile.xPos + " Y: " + tile.yPos;
 
                 return tileTransform;
 
@@ -231,38 +198,22 @@ public class Graph : MonoBehaviour
                 //Create tile
                 tileTransform = Instantiate(facilityPrefab, new Vector3(x, 0, y), Quaternion.Euler(new Vector3(0, angle, 0)));
                 tile = tileTransform.GetComponent<Tile>();
+                setDefaultValues(tileTransform, myTileType);
 
-                tile.terrainName = Tile.type.Facility.ToString();
-                tile.myTileType = Tile.type.Facility;
-                tile.xPos = x;
-                tile.yPos = y;
+                //Individual values.
                 tile.cover = 3;
-                setMovementCost(tile, GetComponent<TurnManager>().getWeather());
-
-                //Declare Levelmanager as parent.
-                tileTransform.transform.parent = this.transform.Find("Tiles");
-                //Change the name to "terrainName at X: ... Y: ..."
-                tileTransform.name = tile.terrainName + " at X: " + tile.xPos + " Y: " + tile.yPos;
-
+               
                 return tileTransform;
 
             case Tile.type.Sea:
                 //Create tile
                 tileTransform = Instantiate(seaPrefab, new Vector3(x, -0.1f, y), Quaternion.Euler(new Vector3(0, angle, 0)));
                 tile = tileTransform.GetComponent<Tile>();
+                setDefaultValues(tileTransform, myTileType);
 
-                tile.terrainName = Tile.type.Sea.ToString();
-                tile.myTileType = Tile.type.Sea;
-                tile.xPos = x;
-                tile.yPos = y;
+                //Individual values.
                 tile.cover = 4;
-                setMovementCost(tile, GetComponent<TurnManager>().getWeather());
-
-                //Declare Levelmanager as parent.
-                tileTransform.transform.parent = this.transform.Find("Tiles");
-                //Change the name to "terrainName at X: ... Y: ..."
-                tileTransform.name = tile.terrainName + " at X: " + tile.xPos + " Y: " + tile.yPos;
-
+                
                 return tileTransform;
 
             default:
@@ -327,7 +278,7 @@ public class Graph : MonoBehaviour
         findNeighbors();
     }
 
-    public void createLevel02()
+    public void createLevel01()
     {
         createEmptyGraph(12, 12, Tile.type.Plain);
         changeTile(3, 5, 0, Tile.type.Forest);
@@ -335,7 +286,7 @@ public class Graph : MonoBehaviour
         findNeighbors();
     }
 
-    public void createLevel01()
+    public void createLevel00()
     {
         createEmptyGraph(16, 15, Tile.type.Plain);
         //x = 0
@@ -599,56 +550,56 @@ public class Graph : MonoBehaviour
     //Find the neighbors of all tiles.
     private void findNeighbors()
     {
-        //Linke untere Ecke
-        getTile(0, 0).neighbors.Add(myGraph[1][0]);//rechts
-        getTile(0, 0).neighbors.Add(myGraph[0][1]);//oben
-        //Rechte untere Ecke        
-        getTile(myGraph.Count - 1, 0).neighbors.Add(myGraph[myGraph.Count - 1][1]);//oben
-        getTile(myGraph.Count - 1, 0).neighbors.Add(myGraph[myGraph.Count - 2][0]);//links
-        //Linke obere Ecke
-        getTile(0, myGraph[0].Count - 1).neighbors.Add(myGraph[1][myGraph[0].Count - 1]);//rechts
-        getTile(0, myGraph[0].Count - 1).neighbors.Add(myGraph[0][myGraph[0].Count - 2]);//unten
-        //Rechte obere Ecke
-        getTile(myGraph.Count - 1, myGraph[0].Count - 1).neighbors.Add(myGraph[myGraph.Count - 2][myGraph[0].Count - 1]);//links
-        getTile(myGraph.Count - 1, myGraph[0].Count - 1).neighbors.Add(myGraph[myGraph.Count - 1][myGraph[0].Count - 2]);//unten
+        //Lower left corner
+        getTile(0, 0).neighbors.Add(myGraph[1][0]);//right
+        getTile(0, 0).neighbors.Add(myGraph[0][1]);//up
+        //Lower right corner       
+        getTile(myGraph.Count - 1, 0).neighbors.Add(myGraph[myGraph.Count - 1][1]);//up
+        getTile(myGraph.Count - 1, 0).neighbors.Add(myGraph[myGraph.Count - 2][0]);//left
+        //Upper left corner
+        getTile(0, myGraph[0].Count - 1).neighbors.Add(myGraph[1][myGraph[0].Count - 1]);//right
+        getTile(0, myGraph[0].Count - 1).neighbors.Add(myGraph[0][myGraph[0].Count - 2]);//down
+        //Upper right corner
+        getTile(myGraph.Count - 1, myGraph[0].Count - 1).neighbors.Add(myGraph[myGraph.Count - 2][myGraph[0].Count - 1]);//left
+        getTile(myGraph.Count - 1, myGraph[0].Count - 1).neighbors.Add(myGraph[myGraph.Count - 1][myGraph[0].Count - 2]);//down
 
-        //oberer und unterer Rand
+        //Upper and lower border
         for (int i = 1; i < myGraph.Count - 1; i++)
         {
-            //oberer Rand            
-            getTile(i, myGraph[0].Count - 1).neighbors.Add(myGraph[i - 1][myGraph[0].Count - 1]);//links            
-            getTile(i, myGraph[0].Count - 1).neighbors.Add(myGraph[i + 1][myGraph[0].Count - 1]);//rechts            
-            getTile(i, myGraph[0].Count - 1).neighbors.Add(myGraph[i][myGraph[0].Count - 2]);//unten
+            //Upper border
+            getTile(i, myGraph[0].Count - 1).neighbors.Add(myGraph[i - 1][myGraph[0].Count - 1]);//left            
+            getTile(i, myGraph[0].Count - 1).neighbors.Add(myGraph[i + 1][myGraph[0].Count - 1]);//right
+            getTile(i, myGraph[0].Count - 1).neighbors.Add(myGraph[i][myGraph[0].Count - 2]);//down
 
-            //unterer Rand           
-            getTile(i, 0).neighbors.Add(myGraph[i - 1][0]);//links            
-            getTile(i, 0).neighbors.Add(myGraph[i + 1][0]);//rechts           
-            getTile(i, 0).neighbors.Add(myGraph[i][1]);//oben
+            //Lower border
+            getTile(i, 0).neighbors.Add(myGraph[i - 1][0]);//left            
+            getTile(i, 0).neighbors.Add(myGraph[i + 1][0]);//right
+            getTile(i, 0).neighbors.Add(myGraph[i][1]);//up
         }
 
-        //linker und rechter Rand
+        //Left and right border
         for (int i = 1; i < myGraph[0].Count - 1; i++)
         {
-            //linker Rand            
-            getTile(0, i).neighbors.Add(myGraph[0][i + 1]);//oben            
-            getTile(0, i).neighbors.Add(myGraph[0][i - 1]);//unten            
-            getTile(0, i).neighbors.Add(myGraph[1][i]);//rechts
+            //Left border
+            getTile(0, i).neighbors.Add(myGraph[0][i + 1]);//up            
+            getTile(0, i).neighbors.Add(myGraph[0][i - 1]);//down
+            getTile(0, i).neighbors.Add(myGraph[1][i]);//right
 
-            //rechter Rand            
-            getTile(myGraph.Count - 1, i).neighbors.Add(myGraph[myGraph.Count - 1][i + 1]);//oben           
-            getTile(myGraph.Count - 1, i).neighbors.Add(myGraph[myGraph.Count - 1][i - 1]);//unten            
-            getTile(myGraph.Count - 1, i).neighbors.Add(myGraph[myGraph.Count - 2][i]);//links
+            //Right border
+            getTile(myGraph.Count - 1, i).neighbors.Add(myGraph[myGraph.Count - 1][i + 1]);//up           
+            getTile(myGraph.Count - 1, i).neighbors.Add(myGraph[myGraph.Count - 1][i - 1]);//down            
+            getTile(myGraph.Count - 1, i).neighbors.Add(myGraph[myGraph.Count - 2][i]);//left
         }
 
-        //der Rest
+        //The rest
         for (int i = 1; i < myGraph.Count - 1; i++)
         {
             for (int j = 1; j < myGraph[i].Count - 1; j++)
             {               
-                getTile(i, j).neighbors.Add(myGraph[i][j + 1]); //oben                
-                getTile(i, j).neighbors.Add(myGraph[i][j - 1]);//unten                
-                getTile(i, j).neighbors.Add(myGraph[i - 1][j]);//links                
-                getTile(i, j).neighbors.Add(myGraph[i + 1][j]);//rechts
+                getTile(i, j).neighbors.Add(myGraph[i][j + 1]); //up                
+                getTile(i, j).neighbors.Add(myGraph[i][j - 1]);//down
+                getTile(i, j).neighbors.Add(myGraph[i - 1][j]);//left
+                getTile(i, j).neighbors.Add(myGraph[i + 1][j]);//right
             }
         }
     }
@@ -688,8 +639,9 @@ public class Graph : MonoBehaviour
             }
         }
     }
-
-    public void createVisibilityTiles()
+    
+    //Switches the visibility of the graphic element of the fog of war and the enemy units for each tile.
+    public void setVisibility()
     {
         for (int i = 0; i < myGraph.Count; i++)
         {
@@ -697,7 +649,25 @@ public class Graph : MonoBehaviour
             {
                 if (myGraph[i][j].GetComponent<Tile>().isVisible)
                 {
-                    Instantiate(attackableTile, new Vector3(i, 0.1f, j), Quaternion.identity, this.GetComponent<MainFunctions>().selectedUnit.transform.Find("attackableTiles"));
+                    myGraph[i][j].GetComponent<Tile>().fogOfWar.gameObject.SetActive(false);
+                    //Check if a unit is standing on this tile and make it visible.
+                    if (myGraph[i][j].GetComponent<Tile>().unitStandingHere != null)
+                    {
+                        myGraph[i][j].GetComponent<Tile>().unitStandingHere.GetComponent<MeshRenderer>().enabled = true;
+                        myGraph[i][j].GetComponent<Tile>().unitStandingHere.Find("Lifepoints").GetComponent<MeshRenderer>().enabled = true;
+                        myGraph[i][j].GetComponent<Tile>().unitStandingHere.GetComponent<BoxCollider>().enabled = true;
+                    }
+                }
+                else
+                {
+                    myGraph[i][j].GetComponent<Tile>().fogOfWar.gameObject.SetActive(true);
+                    //Check if a unit is standing on this tile and make it invisible.
+                    if (myGraph[i][j].GetComponent<Tile>().unitStandingHere != null)
+                    {
+                        myGraph[i][j].GetComponent<Tile>().unitStandingHere.GetComponent<MeshRenderer>().enabled = false;
+                        myGraph[i][j].GetComponent<Tile>().unitStandingHere.Find("Lifepoints").GetComponent<MeshRenderer>().enabled = false;//Also set the mesh that indicates the lifepoints to invisible.
+                        myGraph[i][j].GetComponent<Tile>().unitStandingHere.GetComponent<BoxCollider>().enabled = false;//Collider needs to be deactivated, so we cannot indicate by clicking if there is a unit.
+                    }
                 }
             }
         }
@@ -721,6 +691,19 @@ public class Graph : MonoBehaviour
             this.GetComponent<MainFunctions>().selectedUnit.transform.Find("attackableTiles").GetChild(i).gameObject.SetActive(value);
         }
         this.GetComponent<ContextMenu>().showAttackableTiles = value;//Inform the context menu, if the tiles are visible or not.
+    }
+
+    //Resets the visiblity value of each tile to invisible.
+    public void resetFogOfWar()
+    {
+        Debug.Log("Resetting fog of war");
+        for (int i = 0; i < myGraph.Count; i++)
+        {
+            for (int j = 0; j < myGraph[i].Count; j++)
+            {
+                myGraph[i][j].GetComponent<Tile>().setVisibility(false);
+            }
+        }
     }
 
     //Reset the reachable bool on all tiles to false and delete the blue fields.

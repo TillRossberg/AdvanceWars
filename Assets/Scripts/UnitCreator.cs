@@ -25,7 +25,7 @@ public class UnitCreator : MonoBehaviour
         database = this.GetComponent<Database>();
     }
 	
-	public void createUnitSet01()
+	public void createUnitSet00()
     {
         Team teamRed = this.GetComponent<TeamManager>().getTeam("TeamRed");
         Team teamBlue = this.GetComponent<TeamManager>().getTeam("TeamBlue");
@@ -44,12 +44,12 @@ public class UnitCreator : MonoBehaviour
         createUnit(Database.commander.Andy, Unit.type.MdTank, teamBlue, 9, 9, 0);
     }
 
-    public void createUnitSet02()
+    public void createUnitSet01()
     {
         Team teamRed = this.GetComponent<TeamManager>().getTeam("TeamRed");
         Team teamBlue = this.GetComponent<TeamManager>().getTeam("TeamBlue");
-        createUnit(Database.commander.Andy, Unit.type.Recon, teamRed, 3, 4, 180);
-        createUnit(Database.commander.Andy, Unit.type.Tank, teamBlue, 5, 5, 180);
+        createUnit(Database.commander.Andy, Unit.type.Recon, teamRed, 3, 3, 180);
+        createUnit(Database.commander.Andy, Unit.type.Tank, teamBlue, 7, 7, 180);
 
     }
 
@@ -64,7 +64,7 @@ public class UnitCreator : MonoBehaviour
                 Transform unitTransform = Instantiate(unitPrefab, new Vector3(x, 0, y), Quaternion.Euler(0, 90, 0), this.transform.Find(team.name));
                 Unit unit = unitTransform.GetComponent<Unit>();
                 unit.rotateUnit(rotation);
-                myGraph.getGraph()[x][y].GetComponent<Tile>().setUnitHere(unit);//Pass the unit to the tile it stands on
+                myGraph.getGraph()[x][y].GetComponent<Tile>().setUnitHere(unitTransform);//Pass the unit to the tile it stands on
                 this.GetComponent<TeamManager>().addUnit(unitTransform, team);//Add to the correct team list.
                 //Properties
                 //Graphics
@@ -87,7 +87,7 @@ public class UnitCreator : MonoBehaviour
                 unitTransform = Instantiate(unitPrefab, new Vector3(x, 0, y), Quaternion.Euler(0, 90, 0), this.transform.Find(team.name));
                 unit = unitTransform.GetComponent<Unit>();
                 unit.rotateUnit(rotation);
-                myGraph.getGraph()[x][y].GetComponent<Tile>().setUnitHere(unit);//Pass the unit to the tile it stands on
+                myGraph.getGraph()[x][y].GetComponent<Tile>().setUnitHere(unitTransform);//Pass the unit to the tile it stands on
                 this.GetComponent<TeamManager>().addUnit(unitTransform, team);//Add to the correct team list.
                 //Properties
                 //Graphics
@@ -110,7 +110,7 @@ public class UnitCreator : MonoBehaviour
                 unitTransform = Instantiate(unitPrefab, new Vector3(x, 0, y), Quaternion.Euler(0, 90, 0), this.transform.Find(team.name));
                 unit = unitTransform.GetComponent<Unit>();
                 unit.rotateUnit(rotation);
-                myGraph.getGraph()[x][y].GetComponent<Tile>().setUnitHere(unit);//Pass the unit to the tile it stands on
+                myGraph.getGraph()[x][y].GetComponent<Tile>().setUnitHere(unitTransform);//Pass the unit to the tile it stands on
                 this.GetComponent<TeamManager>().addUnit(unitTransform, team);//Add to the correct team list.
                 //Properties
                 //Graphics
@@ -133,7 +133,7 @@ public class UnitCreator : MonoBehaviour
                 unitTransform = Instantiate(unitPrefab, new Vector3(x, 0, y), Quaternion.Euler(0, 90, 0), this.transform.Find(team.name));
                 unit = unitTransform.GetComponent<Unit>();
                 unit.rotateUnit(rotation);
-                myGraph.getGraph()[x][y].GetComponent<Tile>().setUnitHere(unit);//Pass the unit to the tile it stands on
+                myGraph.getGraph()[x][y].GetComponent<Tile>().setUnitHere(unitTransform);//Pass the unit to the tile it stands on
                 this.GetComponent<TeamManager>().addUnit(unitTransform, team);//Add to the correct team list.
                 //Properties
                 //Graphics
@@ -156,7 +156,7 @@ public class UnitCreator : MonoBehaviour
                 unitTransform = Instantiate(unitPrefab, new Vector3(x, 0, y), Quaternion.Euler(0, 90, 0), this.transform.Find(team.name));
                 unit = unitTransform.GetComponent<Unit>();
                 unit.rotateUnit(rotation);
-                myGraph.getGraph()[x][y].GetComponent<Tile>().setUnitHere(unit);//Pass the unit to the tile it stands on
+                myGraph.getGraph()[x][y].GetComponent<Tile>().setUnitHere(unitTransform);//Pass the unit to the tile it stands on
                 this.GetComponent<TeamManager>().addUnit(unitTransform, team);//Add to the correct team list.
                 //Properties
                 //Graphics
@@ -179,7 +179,7 @@ public class UnitCreator : MonoBehaviour
                 unitTransform = Instantiate(unitPrefab, new Vector3(x, 0, y), Quaternion.Euler(0, 90, 0), this.transform.Find(team.name));
                 unit = unitTransform.GetComponent<Unit>();
                 unit.rotateUnit(rotation);
-                myGraph.getGraph()[x][y].GetComponent<Tile>().setUnitHere(unit);//Pass the unit to the tile it stands on
+                myGraph.getGraph()[x][y].GetComponent<Tile>().setUnitHere(unitTransform);//Pass the unit to the tile it stands on
                 this.GetComponent<TeamManager>().addUnit(unitTransform, team);//Add to the correct team list.
                 //Properties
                 //Graphics
@@ -202,7 +202,7 @@ public class UnitCreator : MonoBehaviour
                 unitTransform = Instantiate(unitPrefab, new Vector3(x, 0, y),Quaternion.Euler(0, 90, 0), this.transform.Find(team.name));
                 unit = unitTransform.GetComponent<Unit>();
                 unit.rotateUnit(rotation);
-                myGraph.getGraph()[x][y].GetComponent<Tile>().setUnitHere(unit);//Pass the unit to the tile it stands on
+                myGraph.getGraph()[x][y].GetComponent<Tile>().setUnitHere(unitTransform);//Pass the unit to the tile it stands on
                 this.GetComponent<TeamManager>().addUnit(unitTransform, team);//Add to the correct team list.
                 //Properties
                 //Graphics
@@ -225,7 +225,7 @@ public class UnitCreator : MonoBehaviour
                 unitTransform = Instantiate(unitPrefab, new Vector3(x, 0, y), Quaternion.Euler(0, 90, 0), this.transform.Find(team.name));
                 unit = unitTransform.GetComponent<Unit>();
                 unit.rotateUnit(rotation);
-                myGraph.getGraph()[x][y].GetComponent<Tile>().setUnitHere(unit);//Pass the unit to the tile it stands on
+                myGraph.getGraph()[x][y].GetComponent<Tile>().setUnitHere(unitTransform);//Pass the unit to the tile it stands on
                 this.GetComponent<TeamManager>().addUnit(unitTransform, team);//Add to the correct team list.
                 //Properties
                 //Graphics
@@ -248,7 +248,7 @@ public class UnitCreator : MonoBehaviour
                 unitTransform = Instantiate(unitPrefab, new Vector3(x, 0, y), Quaternion.Euler(0, 90, 0), this.transform.Find(team.name));
                 unit = unitTransform.GetComponent<Unit>();
                 unit.rotateUnit(rotation);
-                myGraph.getGraph()[x][y].GetComponent<Tile>().setUnitHere(unit);//Pass the unit to the tile it stands on
+                myGraph.getGraph()[x][y].GetComponent<Tile>().setUnitHere(unitTransform);//Pass the unit to the tile it stands on
                 this.GetComponent<TeamManager>().addUnit(unitTransform, team);//Add to the correct team list.
                 //Properties
                 //Graphics

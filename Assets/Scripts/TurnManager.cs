@@ -33,9 +33,8 @@ public class TurnManager : MonoBehaviour
         mainFunctions.deselectObject();//Make sure nothing is selected when the next turn starts.
         activeTeam = team;
         GetComponent<StatusWindow>().displayGeneralInfo();//Adapt the GUI for the active team       
-        activateUnits(team);
-
-        //Set fog of war.
+        activateUnits(team);       
+        setFogOfWar(activeTeam);//Set fog of war for this team.
 
         //Subtract fuel.
 
@@ -52,6 +51,7 @@ public class TurnManager : MonoBehaviour
     public void endTurn()
     {
         deactivateUnits(activeTeam);
+        GetComponent<Graph>().resetFogOfWar();
         startTurn(getNextTeam());
     }
 
@@ -162,5 +162,20 @@ public class TurnManager : MonoBehaviour
     public Database.weather getWeather()
     {
         return actualWeather;
+    }
+
+    //Each unit of the given team calculates its visiblity and marks the tiles it can see. (Only if fog of war was activated in the options)
+    //Then the graph sets the visibility of what the team can see and what not.
+    public void setFogOfWar(Team team)
+    {
+        if(GetComponent<MasterClass>().container.fogOfWar)
+        {
+            GetComponent<Graph>().resetFogOfWar();//Reset all tiles to invisible.
+            for(int i = 0; i < team.myUnits.Count; i++)
+            {
+                team.myUnits[i].GetComponent<Unit>().calcVisibleArea();
+            }
+            GetComponent<Graph>().setVisibility();
+        }
     }
 }

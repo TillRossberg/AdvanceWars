@@ -8,7 +8,7 @@ public class Container : MonoBehaviour
 {
     public int nextLevelToLoad = 0;
     private List<List<Team>> teams = new List<List<Team>>();
-    public bool fogOfWar = true;
+    public bool fogOfWar = false;
     public bool abilityPower = true;//Are the abilities for the players activated?
     public Database.weather myWeather;
     public int moneyIncrement = 1000;//The money you get per round per building.

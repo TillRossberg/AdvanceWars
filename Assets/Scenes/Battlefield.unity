@@ -136,7 +136,8 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
+  m_Children:
+  - {fileID: 156826782}
   m_Father: {fileID: 1130033952}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -484,6 +485,34 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 141563744}
+--- !u!1 &156826781
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 156826782}
+  m_Layer: 0
+  m_Name: FogOfWar
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &156826782
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 156826781}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 20533425}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &165910651
 GameObject:
   m_ObjectHideFlags: 0
@@ -696,6 +725,16 @@ Prefab:
     - target: {fileID: 1786161649846306, guid: 86f1ce47cc928a74e9ed8299775246fb, type: 2}
       propertyPath: m_Name
       value: Menu_Text
+      objectReference: {fileID: 0}
+    - target: {fileID: 224136532456447682, guid: 86f1ce47cc928a74e9ed8299775246fb,
+        type: 2}
+      propertyPath: m_LocalPosition.x
+      value: -419.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 224136532456447682, guid: 86f1ce47cc928a74e9ed8299775246fb,
+        type: 2}
+      propertyPath: m_LocalPosition.y
+      value: 217.2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 86f1ce47cc928a74e9ed8299775246fb, type: 2}
@@ -2705,6 +2744,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 1130033952}
+  - component: {fileID: 1130033959}
   - component: {fileID: 1130033953}
   - component: {fileID: 1130033954}
   - component: {fileID: 1130033955}
@@ -2718,7 +2758,6 @@ GameObject:
   - component: {fileID: 1130033963}
   - component: {fileID: 1130033964}
   - component: {fileID: 1130033965}
-  - component: {fileID: 1130033959}
   - component: {fileID: 1130033966}
   - component: {fileID: 1130033968}
   m_Layer: 0
@@ -2759,6 +2798,8 @@ MonoBehaviour:
     type: 2}
   attackableTile: {fileID: 4347596677510864, guid: 944c9089dfbaeeb46886439aa6f92bee,
     type: 2}
+  fogOfWarTile: {fileID: 4347596677510864, guid: 1e55daabda982fa49b44c2cccfcd3019,
+    type: 2}
   plainPrefab: {fileID: 4279721105964804, guid: d5f1a88ad4303434a87d6e4a863a9435,
     type: 2}
   plainWaterPrefab: {fileID: 0}
@@ -2774,6 +2815,7 @@ MonoBehaviour:
   roadDeadEndPrefab: {fileID: 0}
   mountainPrefab: {fileID: 4341198272668524, guid: 7a3c735ef6b1aa943ad6fdc61aa05de4,
     type: 2}
+  HQPrefab: {fileID: 4260801821130060, guid: 108848d22352c2a40a424bcdd03ad5fc, type: 2}
   cityPrefab: {fileID: 4084753006214346, guid: 24532ee6e9de5724d9aa4684a4eb809f, type: 2}
   facilityPrefab: {fileID: 4459882219916346, guid: ffc7ec25c69a8604e916328b60a922ff,
     type: 2}
@@ -2796,8 +2838,6 @@ MonoBehaviour:
   forestThumb: {fileID: 21300000, guid: db735d11af6d8054fa2fa4ef7e8ff123, type: 3}
   roadThumb: {fileID: 21300000, guid: 16a29c4ba24c2de44a9053529722d52f, type: 3}
   mountainThumb: {fileID: 0}
-  kantenGewichtTextMesh: {fileID: 4384167501589362, guid: a99ca93bf56ce4747bcca81f27d9f8b5,
-    type: 2}
   gridHeight: 15
   gridWidth: 20
 --- !u!114 &1130033954
@@ -2913,7 +2953,6 @@ MonoBehaviour:
   container: {fileID: 0}
   containerPrefab: {fileID: 1775027360952410, guid: 3852c0280030353439a7b87b0bcdcdee,
     type: 2}
-  testlist: 000000000000000000000000
 --- !u!114 &1130033960
 MonoBehaviour:
   m_ObjectHideFlags: 0
