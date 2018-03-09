@@ -6,37 +6,19 @@ using UnityEngine;
 
 public class MasterClass : MonoBehaviour
 {
-    //Datastructures
-    public TeamManager teamManager;
-    MainFunctions mainFunctions;
+    //Datastructures    
     public Container container;
     public GameObject containerPrefab;
 
 	// Use this for initialization
 	void Start ()
     {        
-        //Init
-        mainFunctions = GetComponent<MainFunctions>();
-        teamManager = GetComponent<TeamManager>();
         GetComponent<TurnManager>().init();
         GetComponent<Graph>().init();
-
-        teamManager.setupTeams();
-
-        //Load a specified level with its predefined units. (The container exists only if we load a level from the main menu.)
-        if (GameObject.FindWithTag("Container") != null)
-        {
-            container = GameObject.FindWithTag("Container").GetComponent<Container>();
-            GetComponent<TurnManager>().actualWeather = container.getWeather();
-            mainFunctions.loadLevel(container.getNextLevel());
-        }
-        else
-        {
-            Debug.Log("MasterClass: No container found, loading default container!");
-            container = Instantiate(containerPrefab).GetComponent<Container>();
-            GetComponent<TurnManager>().actualWeather = Database.weather.Clear;
-            mainFunctions.loadLevel(0);
-        }
+        GetComponent<TeamManager>().setupTeams();
+        container = getContainer();
+        GetComponent<TurnManager>().actualWeather = container.getWeather();
+        GetComponent<MainFunctions>().loadLevel(0);
         GetComponent<TurnManager>().initSuccession();
         GetComponent<StatusWindow>().displayGeneralInfo();
         GetComponent<TurnManager>().setFogOfWar(GetComponent<TurnManager>().activeTeam);
@@ -46,5 +28,19 @@ public class MasterClass : MonoBehaviour
 	void Update ()
     {
 		
-	}    
+	}
+
+    //Check if the data container with a game setup created in the main menu is existing and return it. If not, we create a default container.
+    public Container getContainer()
+    {
+        if (GameObject.FindWithTag("Container") != null)
+        {
+            return  GameObject.FindWithTag("Container").GetComponent<Container>();
+        }
+        else
+        {
+            Debug.Log("MasterClass: No container found, loading default container!");
+            return  Instantiate(containerPrefab).GetComponent<Container>();           
+        }
+    }
 }

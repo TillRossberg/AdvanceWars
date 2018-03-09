@@ -165,16 +165,21 @@ public class TurnManager : MonoBehaviour
     }
 
     //Each unit of the given team calculates its visiblity and marks the tiles it can see. (Only if fog of war was activated in the options)
-    //Then the graph sets the visibility of what the team can see and what not.
+    //Then the graph sets the visibility of what the team can see and what not. Owned properties always have vision.
     public void setFogOfWar(Team team)
     {
         if(GetComponent<MasterClass>().container.fogOfWar)
         {
-            GetComponent<Graph>().resetFogOfWar();//Reset all tiles to invisible.
+            GetComponent<Graph>().resetFogOfWar();//Reset all tiles to invisible.            
             for(int i = 0; i < team.myUnits.Count; i++)
             {
                 team.myUnits[i].GetComponent<Unit>().calcVisibleArea();
             }
+            for(int i = 0; i  < team.ownedProperties.Count; i++)
+            {
+                team.ownedProperties[i].isVisible = true;
+            }
+
             GetComponent<Graph>().setVisibility();
         }
     }

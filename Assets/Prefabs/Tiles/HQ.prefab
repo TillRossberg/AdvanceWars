@@ -54,6 +54,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4260801821130060}
   - component: {fileID: 114631079484587666}
+  - component: {fileID: 65226057913235216}
   m_Layer: 0
   m_Name: HQ
   m_TagString: Untagged
@@ -185,6 +186,18 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1002438315412636}
   m_Mesh: {fileID: 4300016, guid: 59aff5a02688ef945b37e55ce3ee933e, type: 3}
+--- !u!65 &65226057913235216
+BoxCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1802113618143998}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 0.100708246, z: 1}
+  m_Center: {x: 0, y: -0.0047672987, z: 0}
 --- !u!114 &114631079484587666
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -215,6 +228,7 @@ MonoBehaviour:
   takeOverCounter: 20
   owningTeam: {fileID: 0}
   isVisible: 0
+  fogOfWar: {fileID: 0}
   isReachable: 0
   isSelected: 0
   isPartOfArrowPath: 0

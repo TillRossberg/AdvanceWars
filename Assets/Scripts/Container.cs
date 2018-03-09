@@ -10,7 +10,7 @@ public class Container : MonoBehaviour
     private List<List<Team>> teams = new List<List<Team>>();
     public bool fogOfWar = false;
     public bool abilityPower = true;//Are the abilities for the players activated?
-    public Database.weather myWeather;
+    public Database.weather myWeather = Database.weather.Clear;
     public int moneyIncrement = 1000;//The money you get per round per building.
     public float battleDuration = 4;//Duration of the battle in days, 4 means no limited duration.
     public float propertiesToWin = 11;//Amount of properties one player needs to win the game, 11 turns this winning condition off.

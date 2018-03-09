@@ -80,6 +80,8 @@ public class Tile: MonoBehaviour
                     if(myLevelManager.GetComponent<MainFunctions>().selectedUnit.attackableUnits.Count > 0)
                     {
                         myLevelManager.GetComponent<ContextMenu>().openContextMenu(xPos, yPos, 1);
+                        //If the selected unit is infantry/mech and this tile is a neutral/enemy property also load the 'occupy button'.
+
                     }
                     else
                     {

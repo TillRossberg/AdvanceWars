@@ -604,9 +604,6 @@ public class Graph : MonoBehaviour
         }
     }
 
-    
-
-//Functions for reachable and attackable tiles.
     //Draws the tiles, that can be reached by the unit.
     public void createReachableTiles()
     {

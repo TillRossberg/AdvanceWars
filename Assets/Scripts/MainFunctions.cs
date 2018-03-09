@@ -180,7 +180,7 @@ public class MainFunctions : MonoBehaviour
                 break;
 
             default:
-                Debug.Log("MasterClass: No such level found!");
+                Debug.Log("MapManager: No such level found!");
                 break;
 
         }
