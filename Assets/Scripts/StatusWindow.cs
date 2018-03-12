@@ -56,9 +56,9 @@ public class StatusWindow : MonoBehaviour
             resetStatus();
             unitStatusWindow.SetActive(value);
             Unit myUnit = this.GetComponent<MainFunctions>().selectedUnit;
-            int myCover = this.GetComponent<Graph>().getTile(myUnit.xPos, myUnit.yPos).cover;
-            string tileName = this.GetComponent<Graph>().getTile(myUnit.xPos, myUnit.yPos).terrainName;
-            Sprite tileThumb = this.GetComponent<Graph>().getTile(myUnit.xPos, myUnit.yPos).thumbnail;
+            int myCover = this.GetComponent<MapCreator>().getTile(myUnit.xPos, myUnit.yPos).cover;
+            string tileName = this.GetComponent<MapCreator>().getTile(myUnit.xPos, myUnit.yPos).terrainName;
+            Sprite tileThumb = this.GetComponent<MapCreator>().getTile(myUnit.xPos, myUnit.yPos).thumbnail;
             changeStatus(myUnit.unitName, myUnit.thumbNail, myUnit.health, myUnit.ammo, myUnit.fuel, tileName, tileThumb, myCover);
         }
         else
@@ -104,9 +104,9 @@ public class StatusWindow : MonoBehaviour
     //Updates the cover value to the given coordinates.
     public void updateCover(int x, int y)
     {
-        int newCover = this.GetComponent<Graph>().getTile(x, y).cover;
-        string newTileName = this.GetComponent<Graph>().getTile(x, y).terrainName;
-        Sprite newThumb = this.GetComponent<Graph>().getTile(x, y).thumbnail;
+        int newCover = this.GetComponent<MapCreator>().getTile(x, y).cover;
+        string newTileName = this.GetComponent<MapCreator>().getTile(x, y).terrainName;
+        Sprite newThumb = this.GetComponent<MapCreator>().getTile(x, y).thumbnail;
 
         this.cover.text = newCover.ToString();
         this.tileName.text = newTileName;

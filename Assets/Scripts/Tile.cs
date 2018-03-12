@@ -36,7 +36,7 @@ public class Tile: MonoBehaviour
 	public int airCost;
 
     //Property stuff (i.e. is a building/facility that can be occupied)
-    public int takeOverCounter = 20;//For each lifepoint of the infantry/mech unit this value is lowered by one, if the takeover action is performed.
+    private int takeOverCounter = 20;//For each lifepoint of the infantry/mech unit this value is lowered by one, if the takeover action is performed.
     
     public Team owningTeam;
 
@@ -58,34 +58,50 @@ public class Tile: MonoBehaviour
     }
 
     private void OnMouseDown()
-    {
+    {      
         //myLevelManager.GetComponent<AnimController>().boom(xPos, yPos);
         //Actions are only perfomed, if no menu is opened.
         if (!myLevelManager.GetComponent<ContextMenu>().isOpened && !myLevelManager.GetComponent<Menu_BuyUnits>().isOpened)
-        {
-            
+        {            
             //Move mode
             if(myLevelManager.GetComponent<MainFunctions>().moveMode)
             {
+                Unit selectedUnit = myLevelManager.GetComponent<MainFunctions>().selectedUnit.GetComponent<Unit>();
                 if((isPartOfArrowPath && unitStandingHere == null) || (isPartOfArrowPath && !isVisible))
                 {
                     //Move to the position and try to find units that can be attacked.
-                    myLevelManager.GetComponent<MainFunctions>().selectedUnit.GetComponent<Unit>().moveUnitTo(this.xPos, this.yPos);
-                    myLevelManager.GetComponent<MainFunctions>().selectedUnit.GetComponent<Unit>().findAttackableTiles();
-                    myLevelManager.GetComponent<MainFunctions>().selectedUnit.GetComponent<Unit>().findAttackableEnemies();
+                    selectedUnit.moveUnitTo(this.xPos, this.yPos);
+                    selectedUnit.findAttackableTiles();
+                    selectedUnit.findAttackableEnemies();
                     //Delete the reachable tiles and the movement arrow.
-                    myLevelManager.GetComponent<Graph>().resetReachableTiles();
+                    myLevelManager.GetComponent<MapCreator>().resetReachableTiles();
                     myLevelManager.GetComponent<ArrowBuilder>().resetAll();
-                    //Decide if the menu with firebutton and wait button is opened OR if only the wait button is to display.
-                    if(myLevelManager.GetComponent<MainFunctions>().selectedUnit.attackableUnits.Count > 0)
-                    {
-                        myLevelManager.GetComponent<ContextMenu>().openContextMenu(xPos, yPos, 1);
-                        //If the selected unit is infantry/mech and this tile is a neutral/enemy property also load the 'occupy button'.
 
+                    //Decide if the menu with firebutton and wait button is opened ...
+                    if(selectedUnit.attackableUnits.Count > 0)
+                    {
+                        //If the selected unit is infantry/mech and this tile is a neutral/enemy property also load the 'occupy button'.
+                        if (isOccupyable(selectedUnit))
+                        {
+                            myLevelManager.GetComponent<ContextMenu>().openContextMenu(xPos, yPos, 3);
+                        }
+                        else
+                        {
+                            myLevelManager.GetComponent<ContextMenu>().openContextMenu(xPos, yPos, 1);
+                        }
                     }
+                    //...OR if only the wait button is to display.
                     else
                     {
-                        myLevelManager.GetComponent<ContextMenu>().openContextMenu(xPos, yPos, 0);
+                        //If the selected unit is infantry/mech and this tile is a neutral/enemy property also load the 'occupy button'.
+                        if (isOccupyable(selectedUnit))
+                        {
+                            myLevelManager.GetComponent<ContextMenu>().openContextMenu(xPos, yPos, 2);
+                        }
+                        else
+                        {
+                            myLevelManager.GetComponent<ContextMenu>().openContextMenu(xPos, yPos, 0);
+                        }
                     }
                 }
                 else
@@ -141,7 +157,21 @@ public class Tile: MonoBehaviour
         }
     }
 
-    
+    //Check if a unit can occupy this tile
+    //TODO: Check if the owning team is part of our teamteam.
+    private bool isOccupyable(Unit unit)
+    {
+        if ((owningTeam != unit.myTeam)
+            && (unit.myUnitType == Unit.type.Infantry || unit.myUnitType == Unit.type.Mech)
+            && (myTileType == type.Airport || myTileType == type.Facility || myTileType == type.HQ || myTileType == type.City || myTileType == type.Port))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
 
     //Set the unit that stands on this tile.
     public void setUnitHere(Transform unit)
@@ -185,5 +215,25 @@ public class Tile: MonoBehaviour
     public void setVisibility(bool value)
     {
         isVisible = value;        
+    }
+
+    //Subtract the life points of the unit that tries to occupy from the take over counter.
+    //If that counter reaches zero, your team captures the property.
+    public void occupy(int unitHealth)
+    {
+        takeOverCounter -= unitHealth;
+        //TODO: play some animation for taking over.
+        if (takeOverCounter <= 0)
+        {
+            takeOverCounter = 0;
+            //TODO: play some animation for successfuls take over.
+            myLevelManager.GetComponent<TeamManager>().occupyProperty(myLevelManager.GetComponent<MainFunctions>().selectedUnit.myTeam, this);
+        }
+    }
+
+    //Reset the take over counter to 20.
+    public void interruptOccupation()
+    {
+        takeOverCounter = 20;
     }
 }

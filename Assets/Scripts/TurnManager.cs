@@ -51,7 +51,7 @@ public class TurnManager : MonoBehaviour
     public void endTurn()
     {
         deactivateUnits(activeTeam);
-        GetComponent<Graph>().resetFogOfWar();
+        GetComponent<MapCreator>().resetFogOfWar();
         startTurn(getNextTeam());
     }
 
@@ -111,11 +111,11 @@ public class TurnManager : MonoBehaviour
     public void endRound()
     {
         roundCounter++;
-        //if(roundCounter == GetComponent<MasterClass>().container.battleDuration && GetComponent<MasterClass>().container.battleDuration > 4)//Minimum for the duration of the battle is 5 rounds, if below this winning condition will never trigger.
-        //{
-        //    //TODO: If the maximum amount of rounds has passed, check who won the game. (Depending on the occupied properties)
-        //}
-        //setWeather();
+        if (roundCounter == GetComponent<MasterClass>().container.battleDuration && GetComponent<MasterClass>().container.battleDuration > 4)//Minimum for the duration of the battle is 5 rounds, if below this winning condition will never trigger.
+        {
+            //TODO: If the maximum amount of rounds has passed, check who won the game. (Depending on the occupied properties)
+        }
+        setWeather();
     }
 
     //Define the succession and set the first team that has a turn.
@@ -170,7 +170,7 @@ public class TurnManager : MonoBehaviour
     {
         if(GetComponent<MasterClass>().container.fogOfWar)
         {
-            GetComponent<Graph>().resetFogOfWar();//Reset all tiles to invisible.            
+            GetComponent<MapCreator>().resetFogOfWar();//Reset all tiles to invisible.            
             for(int i = 0; i < team.myUnits.Count; i++)
             {
                 team.myUnits[i].GetComponent<Unit>().calcVisibleArea();
@@ -180,7 +180,7 @@ public class TurnManager : MonoBehaviour
                 team.ownedProperties[i].isVisible = true;
             }
 
-            GetComponent<Graph>().setVisibility();
+            GetComponent<MapCreator>().setVisibility();
         }
     }
 }

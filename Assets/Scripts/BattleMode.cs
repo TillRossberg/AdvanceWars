@@ -16,8 +16,8 @@ public class BattleMode : MonoBehaviour
     public void fight(Unit attacker, Unit defender)
     {
         //Get the tiles the Units are standing on.
-        Tile attackerTile = this.GetComponent<Graph>().getTile(attacker.xPos, attacker.yPos);
-        Tile defenderTile = this.GetComponent<Graph>().getTile(defender.xPos, defender.yPos);
+        Tile attackerTile = this.GetComponent<MapCreator>().getTile(attacker.xPos, attacker.yPos);
+        Tile defenderTile = this.GetComponent<MapCreator>().getTile(defender.xPos, defender.yPos);
         //1. the attacker shoots.
         int attackerDamage = calcDamage(attacker, defender, defenderTile);
         Debug.Log("Attacker: " + attacker.name +  " damage: " + attackerDamage);

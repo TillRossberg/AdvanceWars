@@ -14,9 +14,6 @@ public class MainFunctions : MonoBehaviour
     public Tile selectedTile;
     public Unit selectedUnit;
 
-    //Gameplaystuff (Who hast turn? What weather is it? What day is it? And so on...)
-    
-
     //States    
     //These bools should help to decide if we selected a unit or a tile.
     bool isTile = false;
@@ -95,7 +92,7 @@ public class MainFunctions : MonoBehaviour
         this.GetComponent<StatusWindow>().showStatus(true);//Show Unit status
 
         //The logic that draws an arrow, that shows where the unit can go.
-        Tile tileTheUnitStandsOn = this.GetComponent<Graph>().getGraph()[selectedUnit.xPos][selectedUnit.yPos].GetComponent<Tile>();
+        Tile tileTheUnitStandsOn = this.GetComponent<MapCreator>().getGraph()[selectedUnit.xPos][selectedUnit.yPos].GetComponent<Tile>();
         this.GetComponent<ArrowBuilder>().init(tileTheUnitStandsOn, selectedUnit.moveDist);
     }
     //Select a tile.
@@ -118,7 +115,7 @@ public class MainFunctions : MonoBehaviour
         else
         {
             //Open menu with info button about the tile.
-            this.GetComponent<ContextMenu>().openContextMenu(selectedTile.xPos, selectedTile.yPos, 2);
+            this.GetComponent<ContextMenu>().openContextMenu(selectedTile.xPos, selectedTile.yPos, 5);
         }
         //Create marking cursor
         Instantiate(markingCursor, new Vector3(selectedTile.transform.position.x, -0.1f, selectedTile.transform.position.z), Quaternion.identity, this.transform);
@@ -149,8 +146,8 @@ public class MainFunctions : MonoBehaviour
         }
         selectedUnit.isSelected = false;//Deselect Unit
         selectedUnit.resetBattleInformation();//Reset the attackableTiles-list and the attackableUnits-list.
-        this.GetComponent<Graph>().resetReachableTiles();//Resets all tiles to not reachable
-        this.GetComponent<Graph>().resetAttackableTiles();//Resets all tiles to not attackable
+        this.GetComponent<MapCreator>().resetReachableTiles();//Resets all tiles to not reachable
+        this.GetComponent<MapCreator>().resetAttackableTiles();//Resets all tiles to not attackable
         this.GetComponent<ArrowBuilder>().resetAll();//Resets the movement arrow.        
         isUnit = false;
         selectedUnit = null;
@@ -169,12 +166,12 @@ public class MainFunctions : MonoBehaviour
         switch (value)
         {
             case 0:
-                this.GetComponent<Graph>().createLevel00();
+                this.GetComponent<MapCreator>().createLevel00();
                 this.GetComponent<UnitCreator>().createUnitSet00();
                 break;
 
             case 1:
-                this.GetComponent<Graph>().createLevel01();
+                this.GetComponent<MapCreator>().createLevel01();
                 this.GetComponent<UnitCreator>().createUnitSet01();
 
                 break;

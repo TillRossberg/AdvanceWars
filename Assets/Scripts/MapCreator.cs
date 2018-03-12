@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Graph : MonoBehaviour
+public class MapCreator : MonoBehaviour
 {
     //Required data structures
     Database database;
@@ -693,7 +693,6 @@ public class Graph : MonoBehaviour
     //Resets the visiblity value of each tile to invisible.
     public void resetFogOfWar()
     {
-        Debug.Log("Resetting fog of war");
         for (int i = 0; i < myGraph.Count; i++)
         {
             for (int j = 0; j < myGraph[i].Count; j++)

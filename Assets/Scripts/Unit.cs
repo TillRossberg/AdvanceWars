@@ -28,7 +28,7 @@ public class Unit : MonoBehaviour
     //Required data structures
     GameObject myLevelManager;
     private List<List<Transform>> graphMatrix = new List<List<Transform>>();
-    Graph graph;
+    MapCreator graph;
     //Tilestuff
 	public Transform reachableTilePrefab;
     public Transform attackableTilePrefab;
@@ -58,8 +58,8 @@ public class Unit : MonoBehaviour
     void Awake () 
 	{
 		myLevelManager = GameObject.FindGameObjectWithTag ("LevelManager");
-        graphMatrix = myLevelManager.GetComponent<Graph>().getGraph();
-        graph = myLevelManager.GetComponent<Graph>();
+        graphMatrix = myLevelManager.GetComponent<MapCreator>().getGraph();
+        graph = myLevelManager.GetComponent<MapCreator>();
     }
 
     private void OnMouseDown()
@@ -73,11 +73,11 @@ public class Unit : MonoBehaviour
             counter = 0;
             calcReachableArea(this.xPos, this.yPos, moveDist, myMoveType, null);
             Debug.Log("Reachable iterations: " + counter);
-            myLevelManager.GetComponent<Graph>().createReachableTiles();
+            myLevelManager.GetComponent<MapCreator>().createReachableTiles();
             //Calculate attackable area, instantiate the graphics for the tiles and store the attackable units in a list.
             findAttackableTiles();
-            myLevelManager.GetComponent<Graph>().createAttackableTiles();
-            myLevelManager.GetComponent<Graph>().showAttackableTiles(false);
+            myLevelManager.GetComponent<MapCreator>().createAttackableTiles();
+            myLevelManager.GetComponent<MapCreator>().showAttackableTiles(false);
             findAttackableEnemies();
             //Test
             calcVisibleArea();
@@ -670,6 +670,11 @@ public class Unit : MonoBehaviour
             }
         }
     }
-   
-    
+
+    //Returns the actual health of the unit downsized to ten and as int.
+    public int getHealthAsInt()
+    {
+        Debug.Log(Mathf.RoundToInt(health / 10));
+        return Mathf.RoundToInt(health/10);
+    }
 }

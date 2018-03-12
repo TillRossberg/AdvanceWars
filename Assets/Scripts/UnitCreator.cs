@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class UnitCreator : MonoBehaviour
 {
     //Required data structures   
-    private Graph myGraph = new Graph();
+    private MapCreator myGraph = new MapCreator();
     public Transform unitPrefab;
     Database database;
 
@@ -21,7 +21,7 @@ public class UnitCreator : MonoBehaviour
     // Use this for initialization
     void Start ()
     {		
-        myGraph = this.GetComponent<Graph>();
+        myGraph = this.GetComponent<MapCreator>();
         database = this.GetComponent<Database>();
     }
 	
@@ -36,12 +36,12 @@ public class UnitCreator : MonoBehaviour
         createUnit(Database.commander.Andy, Unit.type.APC, teamRed, 4, 5, 180);
         createUnit(Database.commander.Andy, Unit.type.Artillery, teamRed, 3, 5, 180);
         createUnit(Database.commander.Andy, Unit.type.Flak, teamRed, 2, 5, 180);
-
         createUnit(Database.commander.Andy, Unit.type.Rockets, teamRed, 6, 6, 180);
         createUnit(Database.commander.Andy, Unit.type.MdTank, teamRed, 6, 9, 180);
+
         createUnit(Database.commander.Andy, Unit.type.Tank, teamBlue, 10, 8, 0);
         createUnit(Database.commander.Andy, Unit.type.Rockets, teamBlue, 9, 6, 0);
-        createUnit(Database.commander.Andy, Unit.type.MdTank, teamBlue, 9, 9, 0);
+        createUnit(Database.commander.Andy, Unit.type.Infantry, teamBlue, 9, 9, 0);
     }
 
     public void createUnitSet01()

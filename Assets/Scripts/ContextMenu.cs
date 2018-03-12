@@ -6,12 +6,13 @@ using UnityEngine.UI;
 public class ContextMenu : MonoBehaviour
 {
     private int height = 1;//Heigth above the playground.
-    Canvas contextMenu;//Graphics
+    public Canvas contextMenu;//Graphics
     public RectTransform waitButton;
     public RectTransform fireButton;
     public RectTransform rangeButton;
     public RectTransform tileInfoButton;
     public RectTransform endTurnButton;
+    public RectTransform occupyButton;
     public bool isOpened = false;
     public int clickedHereX;
     public int clickedHereY;
@@ -23,7 +24,7 @@ public class ContextMenu : MonoBehaviour
 	// Use this for initialization
 	void Start ()
     {
-        contextMenu = GameObject.FindGameObjectWithTag("ContextMenu").GetComponent<Canvas>();
+        //contextMenu = GameObject.FindGameObjectWithTag("ContextMenu").GetComponent<Canvas>();
         contextMenu.gameObject.SetActive(false);
 	}
 	
@@ -49,6 +50,7 @@ public class ContextMenu : MonoBehaviour
     //Postitions the context menu, where it is not visible.
     public void resetContextMenu()
     {
+        deactivateAllButtons();
         contextMenu.gameObject.SetActive(false);
         clickedHereX = 0;
         clickedHereY = 0;
@@ -67,12 +69,13 @@ public class ContextMenu : MonoBehaviour
     public void fireButtonPressed()
     {
         this.GetComponent<MainFunctions>().activateFireMode();
-        this.GetComponent<Graph>().showReachableTiles(false);
+        this.GetComponent<MapCreator>().showReachableTiles(false);
         this.GetComponent<MainFunctions>().selectedUnit.showAttackableEnemies();
         closeMenu();
     }
 
     //Wait here and perform no actions.
+    //TODO: find a better place for this.
     public void waitButtonPressed()
     {
         Unit selectedUnit = this.GetComponent<MainFunctions>().selectedUnit;
@@ -88,7 +91,7 @@ public class ContextMenu : MonoBehaviour
     {
         if (showAttackableTiles)
         {
-            this.GetComponent<Graph>().showAttackableTiles(false);
+            this.GetComponent<MapCreator>().showAttackableTiles(false);
             showAttackableTiles = false;
         }
         else
@@ -96,13 +99,13 @@ public class ContextMenu : MonoBehaviour
             //For direct attack
             if (this.GetComponent<MainFunctions>().selectedUnit.directAttack)
             {
-                this.GetComponent<Graph>().showAttackableTiles(true);
+                this.GetComponent<MapCreator>().showAttackableTiles(true);
                 showAttackableTiles = true;
             }
             //For range attack
             if (this.GetComponent<MainFunctions>().selectedUnit.rangeAttack)
             {
-                this.GetComponent<Graph>().showAttackableTiles(true);
+                this.GetComponent<MapCreator>().showAttackableTiles(true);
                 showAttackableTiles = true;
             }
         }
@@ -114,6 +117,19 @@ public class ContextMenu : MonoBehaviour
         GetComponent<TurnManager>().endTurn();
     }
 
+    //Perform the occupy action on a property.
+    public void occupyButtonPressed()
+    {
+        Debug.Log("Occupying...");
+        Unit selectedUnit = this.GetComponent<MainFunctions>().selectedUnit;
+        selectedUnit.moveUnitTo(clickedHereX, clickedHereY);
+        this.GetComponent<MapCreator>().getTile(selectedUnit.xPos, selectedUnit.yPos).occupy(selectedUnit.getHealthAsInt());
+        selectedUnit.canFire = false;
+        selectedUnit.hasTurn = false;
+        this.GetComponent<TurnManager>().setFogOfWar(selectedUnit.myTeam);
+        this.GetComponent<MainFunctions>().deselectObject();
+    }
+
     //Show the tile info.
     public void tileInfoButtonPressed()
     {
@@ -121,11 +137,12 @@ public class ContextMenu : MonoBehaviour
     }
 
     //Activates the different menu types.
+    //TODO: Make the positions generic!
     public void setMenuType(int menuType)
     {
         switch(menuType)
         {
-            //Waitbutton only
+            //Wait button & range button
             case 0:
                 deactivateAllButtons();
                 waitButton.gameObject.SetActive(true);
@@ -134,7 +151,7 @@ public class ContextMenu : MonoBehaviour
                 rangeButton.anchoredPosition = new Vector3(-418, 140, 0);
                 break;
 
-            //Firebutton and waitbutton
+            //Fire button & wait button & range button
             case 1:
                 deactivateAllButtons();
                 fireButton.gameObject.SetActive(true);
@@ -145,8 +162,33 @@ public class ContextMenu : MonoBehaviour
                 rangeButton.anchoredPosition = new Vector3(-418, 140, 0);
                 break;
 
-            //Infobutton about a tile
+            //Wait button & occupy button & range button
             case 2:
+                deactivateAllButtons();
+                waitButton.gameObject.SetActive(true);
+                waitButton.anchoredPosition = new Vector3(-418, 184, 0);
+                rangeButton.gameObject.SetActive(true);
+                rangeButton.anchoredPosition = new Vector3(-418, 161, 0);
+                occupyButton.gameObject.SetActive(true);
+                occupyButton.anchoredPosition = new Vector3(-418, 140, 0);
+
+                break;
+
+            //Firebutton, waitbutton, occupy button & range button
+            case 3:
+                deactivateAllButtons();
+                fireButton.gameObject.SetActive(true);
+                fireButton.anchoredPosition = new Vector3(-418, 184, 0);
+                waitButton.gameObject.SetActive(true);
+                waitButton.anchoredPosition = new Vector3(-418, 161, 0);
+                rangeButton.gameObject.SetActive(true);
+                rangeButton.anchoredPosition = new Vector3(-418, 140, 0);
+                occupyButton.gameObject.SetActive(true);
+                occupyButton.anchoredPosition = new Vector3(-418, 119, 0);
+                break;
+
+            //Infobutton about a tile
+            case 5:
                 deactivateAllButtons();
                 tileInfoButton.anchoredPosition = new Vector3(-418, 184, 0);
                 tileInfoButton.gameObject.SetActive(true);
@@ -166,5 +208,6 @@ public class ContextMenu : MonoBehaviour
         waitButton.gameObject.SetActive(false);
         rangeButton.gameObject.SetActive(false);
         tileInfoButton.gameObject.SetActive(false);
+        occupyButton.gameObject.SetActive(false);
     }
 }

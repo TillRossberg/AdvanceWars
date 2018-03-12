@@ -14,7 +14,7 @@ public class MasterClass : MonoBehaviour
 	void Start ()
     {        
         GetComponent<TurnManager>().init();
-        GetComponent<Graph>().init();
+        GetComponent<MapCreator>().init();
         GetComponent<TeamManager>().setupTeams();
         container = getContainer();
         GetComponent<TurnManager>().actualWeather = container.getWeather();
