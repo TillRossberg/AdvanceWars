@@ -191,9 +191,12 @@ public class Unit : MonoBehaviour
             if (newY == pathY && newX < pathX){rotateUnit(0);}
 
             //If a possible path was found, go to the desired position.
+            //TODO: Replace with movement animation.
             this.transform.position = new Vector3(newX, 0, newY);
             //Reset the unitStandingHere property of the old tile to null
             graphMatrix[xPos][yPos].GetComponent<Tile>().clearUnitHere();
+            //Reset the take over counter
+            graphMatrix[xPos][yPos].GetComponent<Tile>().resetTakeOverCounter();
             //Remember the last position of the unit. (For resetting purposes.)
             prePosX = this.xPos;
             prePosY = this.yPos;            

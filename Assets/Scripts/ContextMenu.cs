@@ -123,7 +123,7 @@ public class ContextMenu : MonoBehaviour
         Debug.Log("Occupying...");
         Unit selectedUnit = this.GetComponent<MainFunctions>().selectedUnit;
         selectedUnit.moveUnitTo(clickedHereX, clickedHereY);
-        this.GetComponent<MapCreator>().getTile(selectedUnit.xPos, selectedUnit.yPos).occupy(selectedUnit.getHealthAsInt());
+        this.GetComponent<MapCreator>().getTile(selectedUnit.xPos, selectedUnit.yPos).occupy(selectedUnit.getHealthAsInt());//The take over action.
         selectedUnit.canFire = false;
         selectedUnit.hasTurn = false;
         this.GetComponent<TurnManager>().setFogOfWar(selectedUnit.myTeam);

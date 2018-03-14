@@ -226,13 +226,18 @@ public class Tile: MonoBehaviour
         if (takeOverCounter <= 0)
         {
             takeOverCounter = 0;
-            //TODO: play some animation for successfuls take over.
+            //TODO: play some animation for a successful take over.
             myLevelManager.GetComponent<TeamManager>().occupyProperty(myLevelManager.GetComponent<MainFunctions>().selectedUnit.myTeam, this);
+            //If this is the HQ, the game is lost.
+            if(this.myTileType == Tile.type.HQ)
+            {
+                myLevelManager.GetComponent<LevelLoader>().loadGameFinishedScreenWithDelay();//This has a short delay, so the player sees how HQ is taken over.
+            }
         }
     }
 
     //Reset the take over counter to 20.
-    public void interruptOccupation()
+    public void resetTakeOverCounter()
     {
         takeOverCounter = 20;
     }
