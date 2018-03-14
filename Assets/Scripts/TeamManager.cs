@@ -6,13 +6,15 @@ using UnityEngine;
 public class TeamManager : MonoBehaviour
 {
     //General 
-    public List<Team> teams = new List<Team>();   
+    public List<List<Team>> teams = new List<List<Team>>();   
     
     //Initiate the teams for this game with the info from the container. Define wich units they can build, wich teams are enemies and whos commander.
     public void setupTeams()
     {
-        createTeam("TeamRed", 0);
-        createTeam("TeamBlue", 1);
+        teams.Add(new List<Team>());
+        teams.Add(new List<Team>());
+        createTeam("TeamRed", 0, 0);
+        createTeam("TeamBlue", 1, 1);
         getTeam("TeamRed").addEnemyTeam(this.GetComponent<TeamManager>().getTeam("TeamBlue"));
         getTeam("TeamBlue").addEnemyTeam(this.GetComponent<TeamManager>().getTeam("TeamRed"));
         getTeam("TeamBlue").setAllUnitsAvailable();
@@ -22,13 +24,21 @@ public class TeamManager : MonoBehaviour
     }
 
     //Create a team with a name and a color from the teamColors list and add it to the teams list.
-    public void createTeam(string myTeamName, int colorNumber)
+    public void createTeam(string myTeamName, int mySuperTeam, int colorNumber)
     {
         Team team = ScriptableObject.CreateInstance("Team") as Team;
         team.name = myTeamName;
         team.teamMaterial = GetComponent<Database>().getTeamMaterial(colorNumber);
         team.teamColor = GetComponent<Database>().getTeamColor(colorNumber);
-        teams.Add(team);
+        //TODO: Maybe move this into setup teams
+        //Make sure there where lists initialized in the first place.
+        if(teams[mySuperTeam] == null)
+        {
+            Debug.Log("Creating temp lists.");
+            List<Team> tempTeam = new List<Team>();
+            teams.Add( tempTeam);
+        }
+        teams[mySuperTeam].Add(team);
         //Create empty game object in wich we will store the units for the team later.
         GameObject emptyGameObject = new GameObject();
         emptyGameObject.name = myTeamName;
@@ -40,15 +50,18 @@ public class TeamManager : MonoBehaviour
     {
         for (int i = 0; i < teams.Count; i++)
         {
-            if(teams[i] == myTeam)
+            for(int j = 0; j < teams[i].Count; j++)
             {
-                teams[i].addUnit(unit);
+                if(teams[i][j] == myTeam)
+                {
+                    teams[i][j].addUnit(unit);
+                }
             }
         }
     }
 
-    //Returns the list of all the teams.
-    public List<Team> getTeamList()
+    //Returns the list of all the super teams.
+    public List<List<Team>> getSuperTeamList()
     {
         return teams;
     }
@@ -58,9 +71,12 @@ public class TeamManager : MonoBehaviour
     {
         for (int i = 0; i < teams.Count; i++)
         {
-            if(teamName == teams[i].name)
+            for(int j = 0; j < teams[i].Count; j++)
             {
-                return teams[i];
+                if(teamName == teams[i][j].name)
+                {
+                    return teams[i][j];
+                }
             }
         }
         Debug.Log("TeamManager: No such team found!");
@@ -85,7 +101,14 @@ public class TeamManager : MonoBehaviour
             tile.setMaterial(newOwner.teamMaterial);
             //Add the tile to the new owners properties.
             newOwner.ownedProperties.Add(tile);
+            //If you occupy the enemies HQ, you win the game.
             if(tile.myTileType == Tile.type.HQ && GetComponent<TurnManager>().roundCounter > 1)
+            {
+                //TODO: decide if more than two teams are playing and then only remove the defeated team from the map.
+                GetComponent<LevelLoader>().loadGameFinishedScreenWithDelay();
+            }
+            //If you reach the necessary amount of properties you also win the game.
+            if(newOwner.ownedProperties.Count == GetComponent<MasterClass>().container.getPropertiesToWin())
             {
                 //TODO: decide if more than two teams are playing and then only remove the defeated team from the map.
                 GetComponent<LevelLoader>().loadGameFinishedScreenWithDelay();

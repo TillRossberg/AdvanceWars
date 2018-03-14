@@ -21,22 +21,29 @@ public class Container : MonoBehaviour
     {
         DontDestroyOnLoad(this);	
 	}
-
+    
     //Ability
     public void setAbility(bool value)
     {
         abilityPower = value;
     }
-
+     
     //Amount of properties one player needs to win the game
     public void setPropertiesToWin(float value)
     {
         propertiesToWin = value;
     }
 
-    public float getPropertiesToWin()
+    public int getPropertiesToWin()
     {
-        return propertiesToWin;
+        if(propertiesToWin > 11)
+        {
+            return (int)(propertiesToWin);
+        }
+        else
+        {
+            return -1;
+        }
     }
 	
 	//Duration of the battle
@@ -45,9 +52,9 @@ public class Container : MonoBehaviour
         battleDuration = value;
     }
 
-    public float getBattleDuration()
+    public int getBattleDuration()
     {
-        return battleDuration;
+        return (int)(battleDuration);
     }
 
     //Moneyz

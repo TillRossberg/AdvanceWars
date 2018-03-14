@@ -511,7 +511,7 @@ public class MapCreator : MonoBehaviour
 
 
         //Team red properties
-        Team teamRed = this.GetComponent<TeamManager>().getTeamList()[0];
+        Team teamRed = this.GetComponent<TeamManager>().getSuperTeamList()[0][0];
         this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(1,4));
         this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(1,6));
         this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(1,7));
@@ -525,7 +525,7 @@ public class MapCreator : MonoBehaviour
         this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(6,7));
     
         //Team blue properties
-        Team teamBlue = this.GetComponent<TeamManager>().getTeamList()[1];
+        Team teamBlue = this.GetComponent<TeamManager>().getSuperTeamList()[1][0];
         this.GetComponent<TeamManager>().occupyProperty(teamBlue, getTile(9,5));
         this.GetComponent<TeamManager>().occupyProperty(teamBlue, getTile(9,7));
         this.GetComponent<TeamManager>().occupyProperty(teamBlue, getTile(12,8));

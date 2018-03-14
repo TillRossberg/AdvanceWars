@@ -31,6 +31,7 @@ public class UnitCreator : MonoBehaviour
         Team teamBlue = this.GetComponent<TeamManager>().getTeam("TeamBlue");
         createUnit(Database.commander.Andy, Unit.type.Tank, teamRed, 5, 8, 180);
         createUnit(Database.commander.Andy, Unit.type.Infantry, teamRed, 5, 7, 180);
+        createUnit(Database.commander.Andy, Unit.type.Infantry, teamRed, 13, 8, 180);
         createUnit(Database.commander.Andy, Unit.type.Mech, teamRed, 5, 6, 180);
         createUnit(Database.commander.Andy, Unit.type.Recon, teamRed, 5, 5, 180);
         createUnit(Database.commander.Andy, Unit.type.APC, teamRed, 4, 5, 180);

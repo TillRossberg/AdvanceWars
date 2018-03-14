@@ -12,7 +12,7 @@ public class TurnManager : MonoBehaviour
     public int roundCounter = 1;//A round has passed, when all teams had their turn.
 
     //Succession
-    public List<int> succession = new List<int>();
+    public List<Team> succession = new List<Team>();
     int successionCounter = 0;
     
     public void init()
@@ -99,12 +99,12 @@ public class TurnManager : MonoBehaviour
     {
         successionCounter++;
         //If you get past the last entry of the succession list all teams had their turn, so end the round and start again from the beginning. 
-        if (successionCounter == teamManager.getTeamList().Count)
+        if (successionCounter == succession.Count)
         {
             successionCounter = 0;
             endRound();
         }
-        return teamManager.getTeamList()[succession[successionCounter]];//Look up the index of the team that has the next turn.
+        return succession[successionCounter];//Look up the index of the team that has the next turn.
     }
 
     //When all teams had their turn: change the weather (if random was selected), increase the round counter, check if the battle duration is ecxeeded
@@ -114,6 +114,9 @@ public class TurnManager : MonoBehaviour
         if (roundCounter == GetComponent<MasterClass>().container.battleDuration && GetComponent<MasterClass>().container.battleDuration > 4)//Minimum for the duration of the battle is 5 rounds, if below this winning condition will never trigger.
         {
             //TODO: If the maximum amount of rounds has passed, check who won the game. (Depending on the occupied properties)
+
+            //TODO: decide if more than two teams are playing and then only remove the defeated team from the map.
+            GetComponent<LevelLoader>().loadGameFinishedScreenWithDelay();
         }
         setWeather();
     }
@@ -122,7 +125,7 @@ public class TurnManager : MonoBehaviour
     public void initSuccession()
     {
         setupRandomSuccession();
-        activeTeam = teamManager.getTeamList()[succession[0]];
+        activeTeam = succession[0];
         activateUnits(activeTeam);
     }
 
@@ -130,13 +133,22 @@ public class TurnManager : MonoBehaviour
     public void setupRandomSuccession()
     {
         int counter = 0;
-        while (succession.Count < teamManager.getTeamList().Count)
+        List<Team> allTeams = new List<Team>();
+        //Fill all teams in a list...
+        for(int i = 0; i < teamManager.getSuperTeamList().Count; i++)
         {
-            int randomPick = Random.Range(0, teamManager.getTeamList().Count);
-
-            if (!succession.Contains(randomPick))
+            for(int j = 0; j < teamManager.getSuperTeamList()[i].Count; j++)
             {
-                succession.Add(randomPick);
+                allTeams.Add(teamManager.getSuperTeamList()[i][j]);
+            }
+        }
+        //...and randomly pick teams from this list       
+        while (succession.Count < allTeams.Count)
+        {
+            int randomPick = Random.Range(0, allTeams.Count);
+            if (!succession.Contains(allTeams[randomPick]))
+            {
+                succession.Add(allTeams[randomPick]);
             }
             counter++;
             if (counter > 1000)
@@ -182,5 +194,11 @@ public class TurnManager : MonoBehaviour
 
             GetComponent<MapCreator>().setVisibility();
         }
+    }
+
+    //Count the properties of the two teams and compare them, the winner will be returned.
+    public void comparePropertyAmount()
+    {
+
     }
 }

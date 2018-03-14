@@ -40,12 +40,10 @@ public class ContextMenu : MonoBehaviour
         contextMenu.gameObject.SetActive(true);
         setMenuType(menuType);
         isOpened = true;
-        //Store where the user clicked on, for...whatever purpose...
+        //Store where the user clicked on, for dynamic positioning.
         clickedHereX = x;
         clickedHereY = y;
     }
-
-
 
     //Postitions the context menu, where it is not visible.
     public void resetContextMenu()
@@ -62,8 +60,6 @@ public class ContextMenu : MonoBehaviour
         resetContextMenu();
         isOpened = false;
     }
-
-    
     
     //Activate the fire mode, show the enemies that can be attacked and close the menu.
     public void fireButtonPressed()
@@ -75,7 +71,6 @@ public class ContextMenu : MonoBehaviour
     }
 
     //Wait here and perform no actions.
-    //TODO: find a better place for this.
     public void waitButtonPressed()
     {
         Unit selectedUnit = this.GetComponent<MainFunctions>().selectedUnit;
@@ -84,6 +79,19 @@ public class ContextMenu : MonoBehaviour
         selectedUnit.hasTurn = false;
         this.GetComponent<TurnManager>().setFogOfWar(selectedUnit.myTeam);
         this.GetComponent<MainFunctions>().deselectObject();            
+    }
+
+    //Perform the occupy action on a property.
+    public void occupyButtonPressed()
+    {
+        Debug.Log("Occupying...");
+        Unit selectedUnit = this.GetComponent<MainFunctions>().selectedUnit;
+        selectedUnit.moveUnitTo(clickedHereX, clickedHereY);
+        this.GetComponent<MapCreator>().getTile(selectedUnit.xPos, selectedUnit.yPos).occupy(selectedUnit.getHealthAsInt());//The take over action.
+        selectedUnit.canFire = false;
+        selectedUnit.hasTurn = false;
+        this.GetComponent<TurnManager>().setFogOfWar(selectedUnit.myTeam);
+        this.GetComponent<MainFunctions>().deselectObject();
     }
 
     //Switch the visiblity of the attackable tiles of the unit.
@@ -117,18 +125,7 @@ public class ContextMenu : MonoBehaviour
         GetComponent<TurnManager>().endTurn();
     }
 
-    //Perform the occupy action on a property.
-    public void occupyButtonPressed()
-    {
-        Debug.Log("Occupying...");
-        Unit selectedUnit = this.GetComponent<MainFunctions>().selectedUnit;
-        selectedUnit.moveUnitTo(clickedHereX, clickedHereY);
-        this.GetComponent<MapCreator>().getTile(selectedUnit.xPos, selectedUnit.yPos).occupy(selectedUnit.getHealthAsInt());//The take over action.
-        selectedUnit.canFire = false;
-        selectedUnit.hasTurn = false;
-        this.GetComponent<TurnManager>().setFogOfWar(selectedUnit.myTeam);
-        this.GetComponent<MainFunctions>().deselectObject();
-    }
+   
 
     //Show the tile info.
     public void tileInfoButtonPressed()

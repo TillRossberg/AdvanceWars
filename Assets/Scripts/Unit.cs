@@ -79,7 +79,7 @@ public class Unit : MonoBehaviour
             myLevelManager.GetComponent<MapCreator>().createAttackableTiles();
             myLevelManager.GetComponent<MapCreator>().showAttackableTiles(false);
             findAttackableEnemies();
-            //Test
+            
             calcVisibleArea();
             myLevelManager.GetComponent<MainFunctions>().activateMoveMode();
         }
@@ -88,15 +88,32 @@ public class Unit : MonoBehaviour
         if (myLevelManager.GetComponent<MainFunctions>().moveMode)
         {
             if (isSelected)
-            {                
-                //Decide if the menu with firebutton and wait button is opened OR if only the wait button is to display.
+            {
+                //Decide if the menu with firebutton and wait button is opened ...
                 if (myLevelManager.GetComponent<MainFunctions>().selectedUnit.attackableUnits.Count > 0)
                 {
-                    myLevelManager.GetComponent<ContextMenu>().openContextMenu(xPos, yPos, 1);
+                    //If the selected unit is infantry/mech and this tile is a neutral/enemy property also load the 'occupy button'.
+                    if (graphMatrix[xPos][yPos].GetComponent<Tile>().isOccupyable(this))
+                    {
+                        myLevelManager.GetComponent<ContextMenu>().openContextMenu(xPos, yPos, 3);
+                    }
+                    else
+                    {
+                        myLevelManager.GetComponent<ContextMenu>().openContextMenu(xPos, yPos, 1);
+                    }
                 }
+                //...OR if only the wait button is to display.
                 else
                 {
-                    myLevelManager.GetComponent<ContextMenu>().openContextMenu(xPos, yPos, 0);
+                    //If the selected unit is infantry/mech and this tile is a neutral/enemy property also load the 'occupy button'.
+                    if (graphMatrix[xPos][yPos].GetComponent<Tile>().isOccupyable(this))
+                    {
+                        myLevelManager.GetComponent<ContextMenu>().openContextMenu(xPos, yPos, 2);
+                    }
+                    else
+                    {
+                        myLevelManager.GetComponent<ContextMenu>().openContextMenu(xPos, yPos, 0);
+                    }
                 }               
             }
         }

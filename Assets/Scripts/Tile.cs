@@ -159,7 +159,7 @@ public class Tile: MonoBehaviour
 
     //Check if a unit can occupy this tile
     //TODO: Check if the owning team is part of our teamteam.
-    private bool isOccupyable(Unit unit)
+    public bool isOccupyable(Unit unit)
     {
         if ((owningTeam != unit.myTeam)
             && (unit.myUnitType == Unit.type.Infantry || unit.myUnitType == Unit.type.Mech)
@@ -227,12 +227,7 @@ public class Tile: MonoBehaviour
         {
             takeOverCounter = 0;
             //TODO: play some animation for a successful take over.
-            myLevelManager.GetComponent<TeamManager>().occupyProperty(myLevelManager.GetComponent<MainFunctions>().selectedUnit.myTeam, this);
-            //If this is the HQ, the game is lost.
-            if(this.myTileType == Tile.type.HQ)
-            {
-                myLevelManager.GetComponent<LevelLoader>().loadGameFinishedScreenWithDelay();//This has a short delay, so the player sees how HQ is taken over.
-            }
+            myLevelManager.GetComponent<TeamManager>().occupyProperty(myLevelManager.GetComponent<MainFunctions>().selectedUnit.myTeam, this);            
         }
     }
 
