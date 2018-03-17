@@ -49,8 +49,8 @@ public class UnitCreator : MonoBehaviour
     {
         Team teamRed = this.GetComponent<TeamManager>().getTeam("TeamRed");
         Team teamBlue = this.GetComponent<TeamManager>().getTeam("TeamBlue");
-        createUnit(Database.commander.Andy, Unit.type.Recon, teamRed, 3, 3, 180);
-        createUnit(Database.commander.Andy, Unit.type.Tank, teamBlue, 7, 7, 180);
+        createUnit(Database.commander.Andy, Unit.type.Tank, teamRed, 0, 0, 180);
+        createUnit(Database.commander.Andy, Unit.type.Tank, teamBlue, 11, 11 , 180);
 
     }
 

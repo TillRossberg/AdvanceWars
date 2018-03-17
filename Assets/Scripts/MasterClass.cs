@@ -18,7 +18,7 @@ public class MasterClass : MonoBehaviour
         GetComponent<TeamManager>().setupTeams();
         container = getContainer();
         GetComponent<TurnManager>().actualWeather = container.getWeather();
-        GetComponent<MainFunctions>().loadLevel(0);
+        GetComponent<MainFunctions>().loadLevel(1);
         GetComponent<TurnManager>().initSuccession();
         GetComponent<StatusWindow>().displayGeneralInfo();
         GetComponent<TurnManager>().setFogOfWar(GetComponent<TurnManager>().activeTeam);

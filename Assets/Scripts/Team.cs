@@ -14,7 +14,7 @@ public class Team : ScriptableObject
     public int money = 5000;
 
     public List<Team> enemyTeams = new List<Team>();//Holds all the enemy teams.
-
+    public List<Team> alliedTeams = new List<Team>();//Holds all friendos.
     //Add an unit to the team, set its color to the teamcolor and pass information about the own team and the enemy team to the unit.
     public void addUnit(Transform unitToAdd)
     {
@@ -31,18 +31,7 @@ public class Team : ScriptableObject
         Destroy(unit);        
     }
 
-    //Add enemy team, but only if it is not already in the list and it is not THIS team.
-    public void addEnemyTeam(Team enemyTeam)
-    {
-        if(enemyTeam != this && !enemyTeams.Contains(enemyTeam))
-        {
-            enemyTeams.Add(enemyTeam);
-        }
-        else
-        {
-            Debug.Log("Team: You are either trying to add your own team to the enemy teams list or this enemy team is already in the list!");
-        }
-    }
+   
 
     //Checks if enough money is on the account to do the deposit.
     public bool enoughMoney(int amount)
@@ -134,5 +123,41 @@ public class Team : ScriptableObject
     public Database.commander getTeamCommander()
     {
         return teamCommander;
+    }
+
+    //Add enemy team, but only if it is not already in the list and it is not THIS team.
+    public void addEnemyTeam(Team possibleEnemy)
+    {
+        if (possibleEnemy != this && !enemyTeams.Contains(possibleEnemy) && !alliedTeams.Contains(possibleEnemy))
+        {
+            enemyTeams.Add(possibleEnemy);
+        }
+        else
+        {
+            Debug.Log("Team: You are either trying to add your own team to the enemy teams list, this enemy team is already in the list or you try to add one of your allies to the enemy list!");
+        }
+    }
+
+    public List<Team> getEnemyTeams()
+    {
+        return enemyTeams;
+    }
+
+    //Get/Set allied Teams
+    public void addAlliedTeam(Team possibleAlly)
+    {
+        if (possibleAlly != this && !alliedTeams.Contains(possibleAlly) && !enemyTeams.Contains(possibleAlly) )
+        {
+            alliedTeams.Add(possibleAlly);
+        }
+        else
+        {
+            Debug.Log("Team: You are either trying to add your own team to the allied teams list, this possible allied team is already in the list or you try to add one of your enemies to the allied list!");
+        }
+    }
+
+    public List<Team> getAlliedTeams()
+    {
+        return alliedTeams;
     }
 }

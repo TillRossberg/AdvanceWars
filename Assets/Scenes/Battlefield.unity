@@ -3069,6 +3069,7 @@ MonoBehaviour:
   arrow: {fileID: 400000, guid: 3b724501ef83f134182cee5543e901af, type: 3}
   straight: {fileID: 400000, guid: 51b4e5ee88b14af49b980156827443a6, type: 3}
   curve: {fileID: 400000, guid: 3060c1aba91b6824695ef35db77e8a1f, type: 3}
+  movementPath: []
   maxMovementPoints: 0
   momMovementPoints: 0
   arrowPath: []
@@ -4021,7 +4022,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1286107527}
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 10, y: 9.79, z: 7}
+  m_LocalPosition: {x: 10, y: 11.58, z: 4.88}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}

@@ -8,7 +8,7 @@ public class ArrowPart : ScriptableObject
     //General
     public string arrowPartName;    
     public Transform myArrowPart;
-    public Tile tile;
+    private Tile tile;
         
     //Replace the current graphic by a given one.
     public void replaceArrowGraphic(Transform newGraphic)
@@ -24,4 +24,12 @@ public class ArrowPart : ScriptableObject
         this.tile = myTile;
     }
 	
+    public void setTile(Tile _tile)
+    {
+        tile = _tile;
+    }
+    public Tile getTile()
+    {
+        return tile;
+    }
 }

@@ -148,7 +148,7 @@ public class Tile: MonoBehaviour
                 myLevelManager.GetComponent<ArrowBuilder>().tryToGoBack(this);
                 
                 //Resets the arrowPath if you hover over the unit again. (If this is the tile the unit stands on and an arrow has been drawn.)
-                if (this == myLevelManager.GetComponent<ArrowBuilder>().arrowPath[0].tile && myLevelManager.GetComponent<ArrowBuilder>().arrowPath.Count > 2)
+                if (this == myLevelManager.GetComponent<ArrowBuilder>().arrowPath[0].getTile() && myLevelManager.GetComponent<ArrowBuilder>().arrowPath.Count > 2)
                 {
                     myLevelManager.GetComponent<ArrowBuilder>().resetArrowPath();
                 }

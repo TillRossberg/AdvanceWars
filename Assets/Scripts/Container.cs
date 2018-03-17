@@ -8,6 +8,7 @@ public class Container : MonoBehaviour
 {
     public int nextLevelToLoad = 0;
     private List<List<Team>> teams = new List<List<Team>>();
+    private List<Team> winnerTeam = new List<Team>();
     public bool fogOfWar = false;
     public bool abilityPower = true;//Are the abilities for the players activated?
     public Database.weather myWeather = Database.weather.Clear;
@@ -22,6 +23,17 @@ public class Container : MonoBehaviour
         DontDestroyOnLoad(this);	
 	}
     
+    //Set/Get Winnerteam
+    public void setWinnerTeam(List<Team> winners)
+    {
+        winnerTeam = winners;
+    }
+
+    public List<Team> getWinnerTeam()
+    {
+        return winnerTeam;
+    }
+
     //Ability
     public void setAbility(bool value)
     {

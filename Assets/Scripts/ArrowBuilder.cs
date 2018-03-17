@@ -8,7 +8,7 @@ public class ArrowBuilder : MonoBehaviour
     public Transform arrow;
     public Transform straight;
     public Transform curve;
-
+    public List<Vector3> movementPath = new List<Vector3>();
     public int maxMovementPoints = 0; //Maximum MovementPoints or the maximum length of the arrow
     public int momMovementPoints = 0; //Momentary MovementPoints.
     
@@ -29,7 +29,7 @@ public class ArrowBuilder : MonoBehaviour
     public void createArrowPath(Tile tile)
     {           
         //Only when the tile is adjacent (it is a neighbor) draw an arrow.
-        Tile predecessor = arrowPath[arrowPath.Count - 1].tile;
+        Tile predecessor = arrowPath[arrowPath.Count - 1].getTile();
         for (int i = 0; i < tile.neighbors.Count; i++)
         {
             Tile neighborProperties = tile.neighbors[i].GetComponent<Tile>();
@@ -43,8 +43,8 @@ public class ArrowBuilder : MonoBehaviour
                 //If one moves further than one field away from the startfield, the predecessor arrow should be replace by a curve or a straight part.
                 if (arrowPath.Count > 2)
                 {                    
-                    predecessor = arrowPath[arrowPath.Count - 2].tile;//Set a new predecessor, because we drew a
-                    Tile prePredecessor = arrowPath[arrowPath.Count - 3].tile;
+                    predecessor = arrowPath[arrowPath.Count - 2].getTile();//Set a new predecessor, because we drew a
+                    Tile prePredecessor = arrowPath[arrowPath.Count - 3].getTile();
 
                     drawArrowParts(tile, predecessor, prePredecessor);
                 }
@@ -225,8 +225,8 @@ public class ArrowBuilder : MonoBehaviour
         for(int i = 1; i < arrowPath.Count; i++)
         {
             Destroy(arrowPath[i].myArrowPart.gameObject);
-            arrowPath[i].tile.isPartOfArrowPath = false;
-            arrowPath[i].tile = null;
+            arrowPath[i].getTile().isPartOfArrowPath = false;
+            arrowPath[i].setTile(null);
         }
         arrowPath.Clear();
         arrowPath.Add(startTile);
@@ -244,7 +244,7 @@ public class ArrowBuilder : MonoBehaviour
                 {
                     Destroy(arrowPath[i].myArrowPart.gameObject);
                 }
-                arrowPath[i].tile.isPartOfArrowPath = false;
+                arrowPath[i].getTile().isPartOfArrowPath = false;
             }
             arrowPath.Clear();
         }        
@@ -255,11 +255,11 @@ public class ArrowBuilder : MonoBehaviour
     {       
         if(arrowPath.Count > 1)//Dont't touch the first entry, because that's the tile where the unit stands on.
         {
-            if(arrowPath[arrowPath.Count - 2].tile == myTileproperties)//If you hover over the predecessor tile, start deleting.
+            if(arrowPath[arrowPath.Count - 2].getTile() == myTileproperties)//If you hover over the predecessor tile, start deleting.
             {                           
                 momMovementPoints++;//If you go back, you have more movement points available.
                 //Delete last entry of the arrow path, because that is the arrowhead.
-                arrowPath[arrowPath.Count - 1].tile.isPartOfArrowPath = false;//Is no longe part of the arrow path.
+                arrowPath[arrowPath.Count - 1].getTile().isPartOfArrowPath = false;//Is no longe part of the arrow path.
                 Destroy(arrowPath[arrowPath.Count - 1].myArrowPart.gameObject);//Delete Graphic.
                 arrowPath.RemoveAt(arrowPath.Count - 1);//Finally delete it from the list.
 
@@ -267,7 +267,7 @@ public class ArrowBuilder : MonoBehaviour
                 if(arrowPath.Count >= 2)
                 {
                     //Replace predecessor entry (always is a straight/curve part, can never be an arrowhead!) with an arrowhead.
-                    Tile predecessor = arrowPath[arrowPath.Count - 2].tile;
+                    Tile predecessor = arrowPath[arrowPath.Count - 2].getTile();
                     ArrowPart newArrowHead = calcArrowDirection(myTileproperties, predecessor);
                     arrowPath[arrowPath.Count - 1].replaceArrowGraphic(newArrowHead.myArrowPart);               
                 }
@@ -275,4 +275,127 @@ public class ArrowBuilder : MonoBehaviour
         }     
     }
         
+    //Calculates a direct path from the arrow path. I.e.: combine arrow parts that are in a straight line to be just one checkpoint for the movement.
+    public void createMovementPath()
+    {
+        movementPath.Clear();
+        movementPath.Add(new Vector3(arrowPath[0].getTile().xPos, 0, arrowPath[0].getTile().yPos));//Set the starting position of the movement path as the position we are on right now.
+        int wayPointX = -1;
+        int wayPointY = -1;
+        //TODO: implement the height for mountains and rivers!
+
+        for(int i = 0; i < arrowPath.Count; i++)
+        {
+            Debug.Log("i = " + i);
+            Tile currentTile = arrowPath[i].getTile();
+            Tile nextTileToTest;
+            //movementPath.Add(new Vector3(currentTile.xPos, 0, currentTile.yPos));
+            //Debug.Log("Adding current tile: " + currentTile.xPos + " : " + currentTile.yPos);
+
+            if (i+1 < arrowPath.Count)//Check if we reached the last tile in the list.
+            {
+                nextTileToTest = arrowPath[i + 1].getTile();
+            }
+            else
+            {
+                //Debug.Log("End of arrow path reached!");
+                break;//If we reach the end of the arrow path, we don't want to continue.
+            }
+
+            //Check up/downwards
+            if (currentTile.xPos == nextTileToTest.xPos)
+            {
+                Debug.Log("X fixed!");
+                wayPointX = currentTile.xPos;//Fix the x position.
+                for(int j = i; j < arrowPath.Count; j++)
+                {
+                    if(currentTile.xPos == nextTileToTest.xPos)
+                    {
+                        if (j + 1 < arrowPath.Count)//Check if we reached the last tile in the list...
+                        {
+                            nextTileToTest = arrowPath[j + 1].getTile();//...if not we want to test its alignment.
+                        }
+                    }
+                    else
+                    {
+                        wayPointY = nextTileToTest.yPos;
+                        Debug.Log("X fixed...adding: " + wayPointX + " : " + wayPointY);
+                        movementPath.Add(new Vector3(wayPointX, 0, wayPointY));//X position of the current and next tile are not equal, so we add this "corner" to the list.
+                        i = j - 2;//No idea, why this is working...
+                        break;
+                    }
+                }
+            }
+            //Check left/right
+            if (currentTile.yPos == nextTileToTest.yPos)
+            {
+                Debug.Log("Y fixed!");
+                wayPointY = currentTile.yPos;
+                for (int j = i; j < arrowPath.Count; j++)
+                {
+                    if (currentTile.yPos == nextTileToTest.yPos)
+                    {
+                        if (j + 1 < arrowPath.Count)//Check if we reached the last tile in the list...
+                        {
+                            nextTileToTest = arrowPath[j + 1].getTile();//...if not we want to test its alignment.
+                        }
+                    }
+                    else
+                    {
+                        wayPointX = nextTileToTest.xPos;
+                        Debug.Log("X fixed...adding: " + wayPointX + " : " + wayPointY);
+                        movementPath.Add(new Vector3(wayPointX, 0, wayPointY));//Y position of the current and next tile are not equal, so we add this "corner" to the list.
+                        i = j - 2;//No idea, why this is working...
+                        break;
+                    }
+                }
+            }
+        }
+        movementPath.Add(new Vector3(arrowPath[arrowPath.Count - 1].getTile().xPos, 0, arrowPath[arrowPath.Count - 1].getTile().yPos));//Endpoint
+    }
+    //int counter = 0;
+    //while (currentTile.xPos == nextTile.xPos && !finished)
+    //{
+    //    counter++;
+    //    if (counter > 1000) { finished = true; Debug.Log("Too many attempts to create movement path!"); }
+    //    if (i + 1 < arrowPath.Count)//Check if we reached the last tile in the list.
+    //    {
+    //        i++;
+    //        Debug.Log("i = " + i);
+
+    //        nextTile = arrowPath[i].getTile();
+    //        wayPointY = nextTile.yPos;
+    //    }
+    //    else
+    //    {
+    //        i--;
+    //        Debug.Log("Finished in x while.");
+    //        wayPointY = currentTile.yPos;
+    //        finished = true;
+    //    }
+    //}
+    //Debug.Log("Adding X : " + wayPointX + " Y : " + wayPointY);
+    //int counter = 0;
+    //while(currentTile.yPos == nextTile.yPos && !finished)
+    //{
+    //    counter++;                    
+    //    if(counter > 1000) { finished = true; Debug.Log("Too many attempts to create movement path!"); }
+
+    //    if (i + 1 < arrowPath.Count)//Check if we reached the last tile in the list.
+    //    {
+    //        i++;
+    //        Debug.Log("i = " + i);
+
+    //        nextTile = arrowPath[i].getTile();
+    //        wayPointX = nextTile.xPos;
+    //    }
+    //    else
+    //    {
+    //        i--;    
+    //        Debug.Log("Finished in y while.");
+    //        wayPointX = currentTile.xPos;
+    //        finished = true;
+    //    }                    
+    //}
+    //Debug.Log("Adding X : " + wayPointX + " Y : " + wayPointY);
 }

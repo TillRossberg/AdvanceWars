@@ -26,4 +26,9 @@ public class AnimController : MonoBehaviour
         Transform exploder = Instantiate(explosion, new Vector3(x, 0, y), this.transform.rotation);
         Destroy(exploder.gameObject, 3);
     }
+
+    public void moveTo(Unit unit, int x, int y)
+    {
+        
+    }
 }

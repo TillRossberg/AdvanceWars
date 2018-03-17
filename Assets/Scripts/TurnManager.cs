@@ -196,9 +196,35 @@ public class TurnManager : MonoBehaviour
         }
     }
 
-    //Count the properties of the two teams and compare them, the winner will be returned.
-    public void comparePropertyAmount()
+    //Count the properties of all the teams and the team with the most wins.
+    //TODO: !WORKING
+    public void findTeamWithMostProperties()
     {
+        //Create a list to hold the super teams overall held properties.
+        List<int> countingList = new List<int>();
+        List<Team> teamList = new List<Team>();//To keep track of wich team has 
+        int maxProperties = 0;
+        int winnerTeamIndex = 0;
+        for(int i = 0; i < teamManager.getSuperTeamList().Count; i++)
+        {            
+            for(int j = 0; j < teamManager.getSuperTeamList()[i].Count; j++)
+            {
+
+                countingList[i] += teamManager.getSuperTeamList()[i][j].ownedProperties.Count;//Add the amount of a teams properties to the super team amount.
+                teamList.Add(teamManager.getSuperTeamList()[i][j]);
+            }
+        }
+        //Find the team with the most properties
+        for(int i = 0; i < countingList.Count; i++)
+        {
+            if(countingList[i] > maxProperties)
+            {
+                maxProperties = countingList[i];
+                winnerTeamIndex = i;
+            }
+        }
+        //Finally set the winning teams in the container to the list of teams that made it
+
 
     }
 }

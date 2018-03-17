@@ -9,6 +9,7 @@ public class TeamManager : MonoBehaviour
     public List<List<Team>> teams = new List<List<Team>>();   
     
     //Initiate the teams for this game with the info from the container. Define wich units they can build, wich teams are enemies and whos commander.
+    //TODO: get the actual values from the container
     public void setupTeams()
     {
         teams.Add(new List<Team>());

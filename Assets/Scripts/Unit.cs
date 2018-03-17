@@ -72,7 +72,7 @@ public class Unit : MonoBehaviour
             //Calculate reachable area and instantiate the graphics for the tiles.
             counter = 0;
             calcReachableArea(this.xPos, this.yPos, moveDist, myMoveType, null);
-            Debug.Log("Reachable iterations: " + counter);
+            //Debug.Log("Reachable iterations: " + counter);
             myLevelManager.GetComponent<MapCreator>().createReachableTiles();
             //Calculate attackable area, instantiate the graphics for the tiles and store the attackable units in a list.
             findAttackableTiles();
@@ -82,6 +82,7 @@ public class Unit : MonoBehaviour
             
             calcVisibleArea();
             myLevelManager.GetComponent<MainFunctions>().activateMoveMode();
+            
         }
         else
         //If move mode is activated
@@ -195,8 +196,8 @@ public class Unit : MonoBehaviour
         if (myLevelManager.GetComponent<ArrowBuilder>().arrowPath.Count > 1)
         {
             //Rotate unit so it faces away from where it came, using the predecessor x and y of the arrow path.
-            int pathX = myLevelManager.GetComponent<ArrowBuilder>().arrowPath[myLevelManager.GetComponent<ArrowBuilder>().arrowPath.Count - 2].tile.xPos;
-            int pathY = myLevelManager.GetComponent<ArrowBuilder>().arrowPath[myLevelManager.GetComponent<ArrowBuilder>().arrowPath.Count - 2].tile.yPos;
+            int pathX = myLevelManager.GetComponent<ArrowBuilder>().arrowPath[myLevelManager.GetComponent<ArrowBuilder>().arrowPath.Count - 2].getTile().xPos;
+            int pathY = myLevelManager.GetComponent<ArrowBuilder>().arrowPath[myLevelManager.GetComponent<ArrowBuilder>().arrowPath.Count - 2].getTile().yPos;
             preRot = this.rotation;//Remember the previous rotation.
             //Face up
             if (newX == pathX && newY > pathY){rotateUnit(90);}
@@ -208,6 +209,7 @@ public class Unit : MonoBehaviour
             if (newY == pathY && newX < pathX){rotateUnit(0);}
 
             //If a possible path was found, go to the desired position.
+            myLevelManager.GetComponent<ArrowBuilder>().createMovementPath();
             //TODO: Replace with movement animation.
             this.transform.position = new Vector3(newX, 0, newY);
             //Reset the unitStandingHere property of the old tile to null
@@ -696,5 +698,23 @@ public class Unit : MonoBehaviour
     {
         Debug.Log(Mathf.RoundToInt(health / 10));
         return Mathf.RoundToInt(health/10);
+    }
+
+    public void rotateMeee()
+    {
+        if(GetComponent<Animator>() != null)
+        {
+            GetComponent<Animator>().Play("rotateUnit");
+        }
+    }
+
+    public void moveMeee()
+    {
+        float targetX = 10;
+        
+        while(transform.position.x < targetX)
+        {
+            transform.position = new Vector3(transform.position.x + 0.001f, transform.position.y, transform.position.z);
+        }
     }
 }
