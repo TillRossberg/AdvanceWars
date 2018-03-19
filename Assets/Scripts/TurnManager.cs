@@ -72,6 +72,7 @@ public class TurnManager : MonoBehaviour
                 teamToActivate.myUnits[i].GetComponent<Unit>().hasTurn = true;
                 teamToActivate.myUnits[i].GetComponent<Unit>().hasMoved = false;
                 teamToActivate.myUnits[i].GetComponent<Unit>().canFire = true;
+                teamToActivate.myUnits[i].GetComponent<Unit>().setIsInterrupted(false);
             }
         }
     }

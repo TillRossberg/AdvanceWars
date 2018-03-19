@@ -3118,6 +3118,8 @@ MonoBehaviour:
   tileInfoButton: {fileID: 262515012}
   endTurnButton: {fileID: 2142216763}
   occupyButton: {fileID: 566355938}
+  exclamationMark: {fileID: 4167203272189728, guid: 361c44b94afd80d4d8f9a863cd88b303,
+    type: 2}
   isOpened: 0
   clickedHereX: 0
   clickedHereY: 0

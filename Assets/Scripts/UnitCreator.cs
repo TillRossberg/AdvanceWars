@@ -51,7 +51,7 @@ public class UnitCreator : MonoBehaviour
         Team teamBlue = this.GetComponent<TeamManager>().getTeam("TeamBlue");
         createUnit(Database.commander.Andy, Unit.type.Tank, teamRed, 1, 1, Unit.facingDirection.East);
         createUnit(Database.commander.Andy, Unit.type.Tank, teamRed, 1, 2, Unit.facingDirection.West);
-        createUnit(Database.commander.Andy, Unit.type.Tank, teamBlue, 11, 11 , Unit.facingDirection.North);
+        createUnit(Database.commander.Andy, Unit.type.Tank, teamBlue, 5, 2 , Unit.facingDirection.North);
         createUnit(Database.commander.Andy, Unit.type.Tank, teamBlue, 10, 11 , Unit.facingDirection.South);
 
     }

@@ -13,6 +13,7 @@ public class ContextMenu : MonoBehaviour
     public RectTransform tileInfoButton;
     public RectTransform endTurnButton;
     public RectTransform occupyButton;
+    public Transform exclamationMark;
     public bool isOpened = false;
     public int clickedHereX;
     public int clickedHereY;
@@ -73,12 +74,7 @@ public class ContextMenu : MonoBehaviour
     //Wait here and perform no actions.
     public void waitButtonPressed()
     {
-        Unit selectedUnit = this.GetComponent<MainFunctions>().selectedUnit;
-        selectedUnit.moveUnitTo(clickedHereX, clickedHereY);
-        selectedUnit.canFire = false;
-        selectedUnit.hasTurn = false;
-        this.GetComponent<TurnManager>().setFogOfWar(selectedUnit.myTeam);
-        this.GetComponent<MainFunctions>().deselectObject();            
+        this.GetComponent<MainFunctions>().selectedUnit.wait();         
     }
 
     //Perform the occupy action on a property.
@@ -131,6 +127,13 @@ public class ContextMenu : MonoBehaviour
     public void tileInfoButtonPressed()
     {
 
+    }
+    //Creates an exclamation mark that indicates important things!
+    //TODO: maybe find a better place for this.
+    public void showExclamationMark(int x, int y)
+    {
+        Transform mark = Instantiate(exclamationMark, this.transform);
+        mark.position = new Vector3(x, 1, y);
     }
 
     //Activates the different menu types.

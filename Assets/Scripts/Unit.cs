@@ -11,6 +11,7 @@ public class Unit : MonoBehaviour
     public bool hasTurn = false;//The unit is ready for action.
     public bool hasMoved = true;//States if the unit has already moved this turn.
     public bool canFire = false;//Some units can't fire after they have moved.
+    private bool isInterrupted = false;//If we move through terrain that is covered by fog of war, we can be interrupted by an invisible enemy unit that is on our arrowpath.
     public bool directAttack = false;
     public bool rangeAttack = false;
     public Team myTeam;
@@ -61,7 +62,7 @@ public class Unit : MonoBehaviour
     List<Vector3> wayPointList = new List<Vector3>();
     private int wayPointIndex = 1;
 
-    private float movementSpeed = 2;
+    private float movementSpeed = 3;
     private float rotationSpeed = 10;
 
     private Quaternion startRotation;
@@ -113,11 +114,16 @@ public class Unit : MonoBehaviour
                 if (wayPointIndex >= wayPointList.Count)//Start from the beginning again.
                 {
                     isMoving = false;
-                    move = false;
-                    rotate = false;
+                   
                     wayPointIndex = 1;
                     displayHealth(true);
                     setFacingDirection(this.transform.rotation.eulerAngles.y);
+                    choseAMenuType();
+                    if (isInterrupted)
+                    {
+                        wait();
+                        myLevelManager.GetComponent<ContextMenu>().showExclamationMark(xPos, yPos); //Show exclamation mark.
+                    }
                     Debug.Log("Reached last way point!");                    
                 }
                 target = wayPointList[wayPointIndex];
@@ -210,6 +216,15 @@ public class Unit : MonoBehaviour
         }
     }
 
+    //Ends the turn for the unit.
+    public void wait()
+    {
+        canFire = false;
+        hasTurn = false;
+        myLevelManager.GetComponent<TurnManager>().setFogOfWar(myTeam);
+        myLevelManager.GetComponent<MainFunctions>().deselectObject();
+    }
+
     public void subtractHealth(int healthToSubtract)
     {
         health = health - healthToSubtract;
@@ -273,7 +288,7 @@ public class Unit : MonoBehaviour
         if (myLevelManager.GetComponent<ArrowBuilder>().getArrowPath().Count > 1)
         {
             //If a possible path was found, go to the desired position.
-            //TODO: check for interruption and make the tile before the interruption the last of the arrow path!
+            myLevelManager.GetComponent<ArrowBuilder>().checkForInterruption();//Check for interruption with enemies and make the tile before the interruption the last of the arrow path!
             wayPointList = myLevelManager.GetComponent<ArrowBuilder>().createMovementPath();
             target = wayPointList[wayPointIndex];//Set the first target for the movement.
             lookingDirection = (wayPointList[wayPointIndex] - transform.position).normalized;//Vector from our position to the target
@@ -413,7 +428,6 @@ public class Unit : MonoBehaviour
         }
     }
    
-
     //Creates a list of tiles the unit can attack.
     public void findAttackableTiles()
     {
@@ -832,6 +846,37 @@ public class Unit : MonoBehaviour
         }
     }
 
+    //Chose a menu depending on the below given factors.
+    public void choseAMenuType()
+    {
+        //Decide if the menu with firebutton and wait button is opened ...    
+        if (attackableUnits.Count > 0)
+        {
+            //If the selected unit is infantry/mech and this tile is a neutral/enemy property also load the 'occupy button'.
+            if (graphMatrix[xPos][yPos].GetComponent<Tile>().isOccupyable(this))
+            {
+                myLevelManager.GetComponent<ContextMenu>().openContextMenu(xPos, yPos, 3);
+            }
+            else
+            {
+                myLevelManager.GetComponent<ContextMenu>().openContextMenu(xPos, yPos, 1);
+            }
+        }
+        //...OR if only the wait button is to display.
+        else
+        {
+            //If the selected unit is infantry/mech and this tile is a neutral/enemy property also load the 'occupy button'.
+            if (graphMatrix[xPos][yPos].GetComponent<Tile>().isOccupyable(this))
+            {
+                myLevelManager.GetComponent<ContextMenu>().openContextMenu(xPos, yPos, 2);
+            }
+            else
+            {
+                myLevelManager.GetComponent<ContextMenu>().openContextMenu(xPos, yPos, 0);
+            }
+        }
+    }
+
     //Set/get if the unit is moving.
     public void setIsMoving(bool value)
     {
@@ -840,5 +885,23 @@ public class Unit : MonoBehaviour
     public bool getIsMoving()
     {
         return isMoving;
+    }
+    //Set/get if the unit is interrupted.
+    public void setIsInterrupted(bool value)
+    {
+        isInterrupted = value;        
+    }
+    public bool getIsInterrupted()
+    {
+        return isInterrupted;
+    }
+
+    public void setCanFire(bool value)
+    {
+        canFire = value;
+    }
+    public bool getCanFire()
+    {
+        return canFire;
     }
 }

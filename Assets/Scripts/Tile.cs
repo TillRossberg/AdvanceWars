@@ -77,32 +77,7 @@ public class Tile: MonoBehaviour
                     myLevelManager.GetComponent<MapCreator>().resetReachableTiles();
                     myLevelManager.GetComponent<ArrowBuilder>().resetAll();
 
-                    //Decide if the menu with firebutton and wait button is opened ...
-                    if(selectedUnit.attackableUnits.Count > 0)
-                    {
-                        //If the selected unit is infantry/mech and this tile is a neutral/enemy property also load the 'occupy button'.
-                        if (isOccupyable(selectedUnit))
-                        {
-                            myLevelManager.GetComponent<ContextMenu>().openContextMenu(xPos, yPos, 3);
-                        }
-                        else
-                        {
-                            myLevelManager.GetComponent<ContextMenu>().openContextMenu(xPos, yPos, 1);
-                        }
-                    }
-                    //...OR if only the wait button is to display.
-                    else
-                    {
-                        //If the selected unit is infantry/mech and this tile is a neutral/enemy property also load the 'occupy button'.
-                        if (isOccupyable(selectedUnit))
-                        {
-                            myLevelManager.GetComponent<ContextMenu>().openContextMenu(xPos, yPos, 2);
-                        }
-                        else
-                        {
-                            myLevelManager.GetComponent<ContextMenu>().openContextMenu(xPos, yPos, 0);
-                        }
-                    }
+                    
                 }
                 else
                 //Even in move mode, you can still click on buildings.

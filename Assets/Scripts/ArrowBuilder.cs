@@ -248,6 +248,8 @@ public class ArrowBuilder : MonoBehaviour
             arrowPath.Clear();
         }        
     }
+
+    
     
     //If you hover with the mouse over the predecessor of the arrow, the arrow should become smaller.
     public void tryToGoBack(Tile myTileproperties)
@@ -353,4 +355,30 @@ public class ArrowBuilder : MonoBehaviour
         return arrowPath;
     }
 
+    //Tests if there is an enemy on the arrow path and shortens the path, so we are stopping directly before the enemy.
+    public void checkForInterruption()
+    {
+        List<Team> enemyTeams = GetComponent<MainFunctions>().selectedUnit.myTeam.getEnemyTeams();
+        for (int i = 0; i < arrowPath.Count; i++)
+        {
+            for (int j = 0; j < enemyTeams.Count; j++)
+            {
+                if(enemyTeams[j].myUnits.Contains(arrowPath[i].getTile().unitStandingHere))
+                {
+                    for (int k = i ; k < arrowPath.Count; k++)
+                    {
+                        if (arrowPath[k].myArrowPart != null)
+                        {
+                            Destroy(arrowPath[k].myArrowPart.gameObject);
+                        }
+                        arrowPath[k].getTile().isPartOfArrowPath = false;
+                    }
+                    arrowPath.RemoveRange(i, arrowPath.Count - i);
+                    GetComponent<MainFunctions>().selectedUnit.setIsInterrupted(true);
+                    GetComponent<MainFunctions>().selectedUnit.setCanFire(false);
+                    break;
+                }              
+            }
+        }
+    }
 }

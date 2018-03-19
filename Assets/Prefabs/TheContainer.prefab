@@ -52,7 +52,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   nextLevelToLoad: 0
-  fogOfWar: 0
+  fogOfWar: 1
   abilityPower: 1
   myWeather: 0
   moneyIncrement: 1000

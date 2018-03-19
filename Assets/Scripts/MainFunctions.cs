@@ -42,13 +42,13 @@ public class MainFunctions : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(1))
         {            
-            if(isUnit && !selectedUnit.getIsMoving())//We only want to reset if no unit is actually moving.
+            if((isUnit && !selectedUnit.getIsMoving()) || isTile)//We only want to reset if no unit is actually moving.
             {
                 deselectObject();
-                if(this.GetComponent<Menu_BuyUnits>().isOpened)
-                {
-                    this.GetComponent<Menu_BuyUnits>().closeMenu();
-                }
+            }
+            if(this.GetComponent<Menu_BuyUnits>().isOpened)
+            {
+                this.GetComponent<Menu_BuyUnits>().closeMenu();
             }
         }
     }
