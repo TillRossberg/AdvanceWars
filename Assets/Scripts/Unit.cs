@@ -63,7 +63,7 @@ public class Unit : MonoBehaviour
     private int wayPointIndex = 1;
 
     private float movementSpeed = 3;
-    private float rotationSpeed = 10;
+    private float rotationSpeed = 7;
 
     private Quaternion startRotation;
     private Quaternion endRotation;
@@ -98,23 +98,24 @@ public class Unit : MonoBehaviour
             {
                 //Debug.Log("Rotating!");
                 startRotation = this.transform.rotation;
-                transform.rotation = Quaternion.Lerp(startRotation, endRotation, rotationSpeed * Time.deltaTime);//Do the rotation with a lerp.
+                transform.rotation = Quaternion.Slerp(startRotation, endRotation, rotationSpeed * Time.deltaTime);//Do the rotation with a lerp.
             }
 
-            if (rotationComplete())
+            if (rotationComplete() && rotate)
             {
                 rotate = false;
                 move = true;
+                //Stop rotation sound.
+                //Play move sound.
             }
 
-            if (wayPointReached(wayPointList[wayPointIndex]))
+            if (wayPointReached(wayPointList[wayPointIndex]) && move)
             {
                 //Debug.Log("Reached waypoint: " + wayPointIndex);
                 wayPointIndex++;
                 if (wayPointIndex >= wayPointList.Count)//Start from the beginning again.
                 {
-                    isMoving = false;
-                   
+                    isMoving = false;                   
                     wayPointIndex = 1;
                     displayHealth(true);
                     setFacingDirection(this.transform.rotation.eulerAngles.y);
@@ -123,13 +124,16 @@ public class Unit : MonoBehaviour
                     {
                         wait();
                         myLevelManager.GetComponent<ContextMenu>().showExclamationMark(xPos, yPos); //Show exclamation mark.
+                        //Stop move sound.
+                        //Play interruption sound
                     }
                     Debug.Log("Reached last way point!");                    
                 }
                 target = wayPointList[wayPointIndex];
                 lookingDirection = (wayPointList[wayPointIndex] - transform.position).normalized;//Vector from our position to the target
                 endRotation = Quaternion.LookRotation(lookingDirection);//The actual rotation we need to look at the target.  
-
+                //Stop move sound.
+                //Play rotation sound.
                 move = false;
                 rotate = true;
             }
@@ -836,7 +840,7 @@ public class Unit : MonoBehaviour
     //If the forward vector of the unit aligns with the vector from the unit to the target, we finished the rotation.
     private bool rotationComplete()
     {
-        if (this.transform.forward == lookingDirection)
+        if ( Vector3.Angle(this.transform.forward, lookingDirection) < 1)
         {
             return true;
         }
