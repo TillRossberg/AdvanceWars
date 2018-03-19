@@ -7,7 +7,6 @@ using UnityEngine;
 public class MainFunctions : MonoBehaviour
 {
     //Data structures
-    private Container container;
     TeamManager teamManager;
 
     //Selectstuff
@@ -28,16 +27,7 @@ public class MainFunctions : MonoBehaviour
 
 	// Use this for initialization
 	void Start ()
-    {
-        if (GameObject.FindWithTag("Container") != null)
-        {
-            container = GameObject.FindWithTag("Container").GetComponent<Container>();
-         
-        }
-        else
-        {
-            Debug.Log("MainFunctions: No container found!");
-        }
+    {       
         teamManager = GetComponent<TeamManager>();
     }
 	
@@ -47,15 +37,18 @@ public class MainFunctions : MonoBehaviour
         rightMouseClick();
 	}
 
-    //Actions to perform on right mouse down.
+    //The right mouse button is supposed to deselect whatever we have selected.
     public void rightMouseClick()
     {
         if (Input.GetMouseButtonDown(1))
         {            
-            deselectObject();
-            if(this.GetComponent<Menu_BuyUnits>().isOpened)
+            if(isUnit && !selectedUnit.getIsMoving())//We only want to reset if no unit is actually moving.
             {
-                this.GetComponent<Menu_BuyUnits>().closeMenu();
+                deselectObject();
+                if(this.GetComponent<Menu_BuyUnits>().isOpened)
+                {
+                    this.GetComponent<Menu_BuyUnits>().closeMenu();
+                }
             }
         }
     }
@@ -139,10 +132,12 @@ public class MainFunctions : MonoBehaviour
     //Deselect a Unit.
     public void deselectUnit()
     {
+        //Stop the moving animation.
+        selectedUnit.setIsMoving(false);
         //If the unit has moved and still can fire, reset it to where it was before.
         if (selectedUnit.hasMoved && selectedUnit.canFire)
         {
-            this.GetComponent<MainFunctions>().selectedUnit.resetPosition();
+            selectedUnit.resetPosition();
         }
         selectedUnit.isSelected = false;//Deselect Unit
         selectedUnit.resetBattleInformation();//Reset the attackableTiles-list and the attackableUnits-list.

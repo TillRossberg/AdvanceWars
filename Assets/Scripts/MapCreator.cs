@@ -52,6 +52,9 @@ public class MapCreator : MonoBehaviour
     public Sprite roadThumb;
     public Sprite mountainThumb;
 
+    //Stuff i dont know where to put else
+    private float tileHeight = -0.07f;
+
 	//Graph
 	public int gridHeight = 3;
 	public int gridWidth = 3;
@@ -110,7 +113,7 @@ public class MapCreator : MonoBehaviour
         {
             case Tile.type.Plain:
                 //Create tile
-                tileTransform = Instantiate(plainPrefab, new Vector3(x, 0, y), Quaternion.Euler(new Vector3(0, angle, 0)));
+                tileTransform = Instantiate(plainPrefab, new Vector3(x, tileHeight, y), Quaternion.Euler(new Vector3(0, angle, 0)));
                 tile = tileTransform.GetComponent<Tile>();
                 setDefaultValues(tileTransform, myTileType);
 
@@ -122,7 +125,7 @@ public class MapCreator : MonoBehaviour
                 
             case Tile.type.Forest:
                 //Create tile
-                tileTransform = Instantiate(forestPrefab, new Vector3(x, 0, y), Quaternion.Euler(new Vector3(0, angle, 0)));                
+                tileTransform = Instantiate(forestPrefab, new Vector3(x, tileHeight, y), Quaternion.Euler(new Vector3(0, angle, 0)));                
                 tile = tileTransform.GetComponent<Tile>();
                 setDefaultValues(tileTransform, myTileType);
 
@@ -134,7 +137,7 @@ public class MapCreator : MonoBehaviour
 
             case Tile.type.RoadStraight:
                 //Create tile
-                tileTransform = Instantiate(roadPrefab, new Vector3(x, 0, y), Quaternion.Euler(new Vector3(0, angle, 0)));
+                tileTransform = Instantiate(roadPrefab, new Vector3(x, tileHeight, y), Quaternion.Euler(new Vector3(0, angle, 0)));
                 tile = tileTransform.GetComponent<Tile>();
                 setDefaultValues(tileTransform, myTileType);
 
@@ -148,7 +151,7 @@ public class MapCreator : MonoBehaviour
 
             case Tile.type.RoadCurve:
                 //Create tile
-                tileTransform = Instantiate(roadCurvePrefab, new Vector3(x, 0, y), Quaternion.Euler(new Vector3(0, angle, 0)));
+                tileTransform = Instantiate(roadCurvePrefab, new Vector3(x, tileHeight, y), Quaternion.Euler(new Vector3(0, angle, 0)));
                 tile = tileTransform.GetComponent<Tile>();
                 setDefaultValues(tileTransform, myTileType);
 
@@ -163,7 +166,7 @@ public class MapCreator : MonoBehaviour
 
             case Tile.type.Mountain:
                 //Create tile
-                tileTransform = Instantiate(mountainPrefab, new Vector3(x, 0, y), Quaternion.Euler(new Vector3(0, angle, 0)));
+                tileTransform = Instantiate(mountainPrefab, new Vector3(x, tileHeight, y), Quaternion.Euler(new Vector3(0, angle, 0)));
                 tile = tileTransform.GetComponent<Tile>();
                 setDefaultValues(tileTransform, myTileType);
 
@@ -174,7 +177,7 @@ public class MapCreator : MonoBehaviour
 
             case Tile.type.HQ:
                 //Create tile
-                tileTransform = Instantiate(HQPrefab, new Vector3(x, 0, y), Quaternion.Euler(new Vector3(0, angle, 0)));
+                tileTransform = Instantiate(HQPrefab, new Vector3(x, tileHeight, y), Quaternion.Euler(new Vector3(0, angle, 0)));
                 tile = tileTransform.GetComponent<Tile>();
                 setDefaultValues(tileTransform, myTileType);
 
@@ -185,7 +188,7 @@ public class MapCreator : MonoBehaviour
 
             case Tile.type.City:
                 //Create tile
-                tileTransform = Instantiate(cityPrefab, new Vector3(x, 0, y), Quaternion.Euler(new Vector3(0, angle, 0)));
+                tileTransform = Instantiate(cityPrefab, new Vector3(x, tileHeight, y), Quaternion.Euler(new Vector3(0, angle, 0)));
                 tile = tileTransform.GetComponent<Tile>();
                 setDefaultValues(tileTransform, myTileType);
 
@@ -196,7 +199,7 @@ public class MapCreator : MonoBehaviour
 
             case Tile.type.Facility:
                 //Create tile
-                tileTransform = Instantiate(facilityPrefab, new Vector3(x, 0, y), Quaternion.Euler(new Vector3(0, angle, 0)));
+                tileTransform = Instantiate(facilityPrefab, new Vector3(x, tileHeight, y), Quaternion.Euler(new Vector3(0, angle, 0)));
                 tile = tileTransform.GetComponent<Tile>();
                 setDefaultValues(tileTransform, myTileType);
 
@@ -207,7 +210,7 @@ public class MapCreator : MonoBehaviour
 
             case Tile.type.Sea:
                 //Create tile
-                tileTransform = Instantiate(seaPrefab, new Vector3(x, -0.1f, y), Quaternion.Euler(new Vector3(0, angle, 0)));
+                tileTransform = Instantiate(seaPrefab, new Vector3(x, tileHeight, y), Quaternion.Euler(new Vector3(0, angle, 0)));
                 tile = tileTransform.GetComponent<Tile>();
                 setDefaultValues(tileTransform, myTileType);
 
@@ -644,13 +647,13 @@ public class MapCreator : MonoBehaviour
         {
             for (int j = 0; j < myGraph[i].Count; j++)
             {
-                if (myGraph[i][j].GetComponent<Tile>().isVisible)
+                if (myGraph[i][j].GetComponent<Tile>().getVisibility())
                 {
                     myGraph[i][j].GetComponent<Tile>().fogOfWar.gameObject.SetActive(false);
                     //Check if a unit is standing on this tile and make it visible.
                     if (myGraph[i][j].GetComponent<Tile>().unitStandingHere != null)
                     {
-                        myGraph[i][j].GetComponent<Tile>().unitStandingHere.GetComponent<MeshRenderer>().enabled = true;
+                        myGraph[i][j].GetComponent<Tile>().unitStandingHere.Find("Mesh").GetComponent<MeshRenderer>().enabled = true;
                         myGraph[i][j].GetComponent<Tile>().unitStandingHere.Find("Lifepoints").GetComponent<MeshRenderer>().enabled = true;
                         myGraph[i][j].GetComponent<Tile>().unitStandingHere.GetComponent<BoxCollider>().enabled = true;
                     }
@@ -661,7 +664,7 @@ public class MapCreator : MonoBehaviour
                     //Check if a unit is standing on this tile and make it invisible.
                     if (myGraph[i][j].GetComponent<Tile>().unitStandingHere != null)
                     {
-                        myGraph[i][j].GetComponent<Tile>().unitStandingHere.GetComponent<MeshRenderer>().enabled = false;
+                        myGraph[i][j].GetComponent<Tile>().unitStandingHere.Find("Mesh").GetComponent<MeshRenderer>().enabled = false;
                         myGraph[i][j].GetComponent<Tile>().unitStandingHere.Find("Lifepoints").GetComponent<MeshRenderer>().enabled = false;//Also set the mesh that indicates the lifepoints to invisible.
                         myGraph[i][j].GetComponent<Tile>().unitStandingHere.GetComponent<BoxCollider>().enabled = false;//Collider needs to be deactivated, so we cannot indicate by clicking if there is a unit.
                     }
@@ -693,11 +696,14 @@ public class MapCreator : MonoBehaviour
     //Resets the visiblity value of each tile to invisible.
     public void resetFogOfWar()
     {
-        for (int i = 0; i < myGraph.Count; i++)
+        if(GetComponent<MasterClass>().container.fogOfWar)
         {
-            for (int j = 0; j < myGraph[i].Count; j++)
+            for (int i = 0; i < myGraph.Count; i++)
             {
-                myGraph[i][j].GetComponent<Tile>().setVisibility(false);
+                for (int j = 0; j < myGraph[i].Count; j++)
+                {
+                    myGraph[i][j].GetComponent<Tile>().setVisible(false);
+                }
             }
         }
     }

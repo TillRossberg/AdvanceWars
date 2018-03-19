@@ -189,7 +189,7 @@ public class TurnManager : MonoBehaviour
             }
             for(int i = 0; i  < team.ownedProperties.Count; i++)
             {
-                team.ownedProperties[i].isVisible = true;
+                team.ownedProperties[i].setVisible(true);
             }
 
             GetComponent<MapCreator>().setVisibility();

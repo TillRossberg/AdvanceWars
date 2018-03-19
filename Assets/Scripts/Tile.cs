@@ -41,7 +41,7 @@ public class Tile: MonoBehaviour
     public Team owningTeam;
 
     //States
-    public bool isVisible = false;
+    public bool isVisible = true;
     public Transform fogOfWar;
     public bool isReachable = false;
     public bool isSelected = false;
@@ -58,7 +58,7 @@ public class Tile: MonoBehaviour
     }
 
     private void OnMouseDown()
-    {      
+    {
         //myLevelManager.GetComponent<AnimController>().boom(xPos, yPos);
         //Actions are only perfomed, if no menu is opened.
         if (!myLevelManager.GetComponent<ContextMenu>().isOpened && !myLevelManager.GetComponent<Menu_BuyUnits>().isOpened)
@@ -148,7 +148,7 @@ public class Tile: MonoBehaviour
                 myLevelManager.GetComponent<ArrowBuilder>().tryToGoBack(this);
                 
                 //Resets the arrowPath if you hover over the unit again. (If this is the tile the unit stands on and an arrow has been drawn.)
-                if (this == myLevelManager.GetComponent<ArrowBuilder>().arrowPath[0].getTile() && myLevelManager.GetComponent<ArrowBuilder>().arrowPath.Count > 2)
+                if (this == myLevelManager.GetComponent<ArrowBuilder>().getArrowPath()[0].getTile() && myLevelManager.GetComponent<ArrowBuilder>().getArrowPath().Count > 2)
                 {
                     myLevelManager.GetComponent<ArrowBuilder>().resetArrowPath();
                 }
@@ -211,10 +211,14 @@ public class Tile: MonoBehaviour
         }
     }
 
-    //Sets the visiblity of this tile.
-    public void setVisibility(bool value)
+    //Set/get the visiblity of this tile.
+    public void setVisible(bool value)
     {
         isVisible = value;        
+    }
+    public bool getVisibility()
+    {
+        return isVisible;
     }
 
     //Subtract the life points of the unit that tries to occupy from the take over counter.

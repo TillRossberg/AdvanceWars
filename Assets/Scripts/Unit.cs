@@ -19,10 +19,12 @@ public class Unit : MonoBehaviour
     public int xPos;
     public int yPos;
     public int rotation;
+    public facingDirection myFacingDirection;
+    public enum facingDirection { North, East, South, West};
     //Previous position and rotation. (For resetting purposes)
     public int prePosX;
     public int prePosY;
-    public int preRot;
+    public Unit.facingDirection preDirection;
     private int counter = 0;//Counts the iterations of the calcReachableArea algorithm.
 
     //Required data structures
@@ -38,6 +40,7 @@ public class Unit : MonoBehaviour
 
     //Properties
     public int health = 100;
+    private TextMesh healthText; 
 	public int ammo;
     public int maxAmmo;
     public int fuel;
@@ -53,6 +56,21 @@ public class Unit : MonoBehaviour
     public moveType myMoveType;
     public enum moveType {Foot, Mech, Treads, Wheels, Lander, Ship, Air};
 
+    //Animationstuff
+    Vector3 target;
+    List<Vector3> wayPointList = new List<Vector3>();
+    private int wayPointIndex = 1;
+
+    private float movementSpeed = 2;
+    private float rotationSpeed = 10;
+
+    private Quaternion startRotation;
+    private Quaternion endRotation;
+    private Vector3 lookingDirection;
+
+    private bool move = false;
+    private bool rotate = false;
+    private bool isMoving = false;
 
     // Use this for initialization
     void Awake () 
@@ -60,6 +78,58 @@ public class Unit : MonoBehaviour
 		myLevelManager = GameObject.FindGameObjectWithTag ("LevelManager");
         graphMatrix = myLevelManager.GetComponent<MapCreator>().getGraph();
         graph = myLevelManager.GetComponent<MapCreator>();
+        healthText = this.transform.Find("Lifepoints").GetComponent<TextMesh>();
+    }
+
+    public void Update()
+    {
+        //Rotate the unit towards a point the move it to this point, then get the next point and so on.
+        if (isMoving)
+        {
+            if (move)
+            {
+                //Debug.Log("Moving!");
+                float step = movementSpeed * Time.deltaTime;
+                transform.position = Vector3.MoveTowards(this.transform.position, target, step);
+            }
+
+            if (rotate)
+            {
+                //Debug.Log("Rotating!");
+                startRotation = this.transform.rotation;
+                transform.rotation = Quaternion.Lerp(startRotation, endRotation, rotationSpeed * Time.deltaTime);//Do the rotation with a lerp.
+            }
+
+            if (rotationComplete())
+            {
+                rotate = false;
+                move = true;
+            }
+
+            if (wayPointReached(wayPointList[wayPointIndex]))
+            {
+                //Debug.Log("Reached waypoint: " + wayPointIndex);
+                wayPointIndex++;
+                if (wayPointIndex >= wayPointList.Count)//Start from the beginning again.
+                {
+                    isMoving = false;
+                    move = false;
+                    rotate = false;
+                    wayPointIndex = 1;
+                    displayHealth(true);
+                    setFacingDirection(this.transform.rotation.eulerAngles.y);
+                    Debug.Log("Reached last way point!");                    
+                }
+                target = wayPointList[wayPointIndex];
+                lookingDirection = (wayPointList[wayPointIndex] - transform.position).normalized;//Vector from our position to the target
+                endRotation = Quaternion.LookRotation(lookingDirection);//The actual rotation we need to look at the target.  
+
+                move = false;
+                rotate = true;
+            }
+        //Debug.DrawRay(this.transform.position, this.transform.forward * 2);
+        //Debug.DrawLine(this.transform.position, target, Color.green);
+        }
     }
 
     private void OnMouseDown()
@@ -131,8 +201,8 @@ public class Unit : MonoBehaviour
                 alignUnit(attacker.xPos, attacker.yPos);
                 attacker.alignUnit(this.xPos, this.yPos);
                 //Puts the health indicator in the right position.
-                displayHealth();
-                attacker.displayHealth();
+                displayHealth(true);
+                attacker.displayHealth(true);
 
                 myLevelManager.GetComponent<BattleMode>().fight(attacker, defender);//Battle
                 myLevelManager.GetComponent<MainFunctions>().deselectObject();//Deselect the current unit                
@@ -143,7 +213,7 @@ public class Unit : MonoBehaviour
     public void subtractHealth(int healthToSubtract)
     {
         health = health - healthToSubtract;
-        displayHealth();
+        displayHealth(true);
         if(health <= 0)
         {
             killUnit();
@@ -151,23 +221,30 @@ public class Unit : MonoBehaviour
     }
 
     //Displays the actual lifepoints in the "3D"TextMesh
-    public void displayHealth()
+    public void displayHealth(bool value)
     {
-        //Reposition the health text so it is always at the lower left corner of the tile.
-        TextMesh myText = this.GetComponentInChildren<TextMesh>();
-        myText.transform.SetPositionAndRotation(new Vector3(this.transform.position.x - 0.4f,this.transform.position.y, this.transform.position.z - 0.2f), Quaternion.Euler(90, 0, 0));
-        //If the health goes below five the value will be rounded to 0, but we dont want that!
-        if(health > 10)
+        if(value)
         {
-            myText.text = "" + (int)(health / 10);
+            healthText.gameObject.SetActive(true);
+            //Reposition the health text so it is always at the lower left corner of the tile.
+            healthText.transform.SetPositionAndRotation(new Vector3(this.transform.position.x - 0.4f,this.transform.position.y, this.transform.position.z - 0.2f), Quaternion.Euler(90, 0, 0));
+            //If the health goes below five the value will be rounded to 0, but we dont want that!
+            if(health > 10)
+            {
+                healthText.text = "" + (int)(health / 10);
+            }
+            else
+            {
+                healthText.text = "1";
+            }
+            if(health < 0)
+            {
+                healthText.text = "0";
+            }
         }
         else
         {
-            myText.text = "1";
-        }
-        if(health < 0)
-        {
-            myText.text = "0";
+            healthText.gameObject.SetActive(false);
         }
     }
 
@@ -193,38 +270,32 @@ public class Unit : MonoBehaviour
     public void moveUnitTo(int newX, int newY)
     {
         //Only if we drew at least one arrow Path, we should be able move.
-        if (myLevelManager.GetComponent<ArrowBuilder>().arrowPath.Count > 1)
+        if (myLevelManager.GetComponent<ArrowBuilder>().getArrowPath().Count > 1)
         {
-            //Rotate unit so it faces away from where it came, using the predecessor x and y of the arrow path.
-            int pathX = myLevelManager.GetComponent<ArrowBuilder>().arrowPath[myLevelManager.GetComponent<ArrowBuilder>().arrowPath.Count - 2].getTile().xPos;
-            int pathY = myLevelManager.GetComponent<ArrowBuilder>().arrowPath[myLevelManager.GetComponent<ArrowBuilder>().arrowPath.Count - 2].getTile().yPos;
-            preRot = this.rotation;//Remember the previous rotation.
-            //Face up
-            if (newX == pathX && newY > pathY){rotateUnit(90);}
-            //Face down
-            if (newX == pathX && newY < pathY){rotateUnit(270);}
-            //Face right
-            if (newY == pathY && newX > pathX){rotateUnit(180);}
-            //Face left
-            if (newY == pathY && newX < pathX){rotateUnit(0);}
-
             //If a possible path was found, go to the desired position.
-            myLevelManager.GetComponent<ArrowBuilder>().createMovementPath();
-            //TODO: Replace with movement animation.
-            this.transform.position = new Vector3(newX, 0, newY);
+            //TODO: check for interruption and make the tile before the interruption the last of the arrow path!
+            wayPointList = myLevelManager.GetComponent<ArrowBuilder>().createMovementPath();
+            target = wayPointList[wayPointIndex];//Set the first target for the movement.
+            lookingDirection = (wayPointList[wayPointIndex] - transform.position).normalized;//Vector from our position to the target
+            startRotation = Quaternion.LookRotation(this.transform.position);
+            endRotation = Quaternion.LookRotation(lookingDirection);//The actual rotation we need to look at the target
+            isMoving = true; //Init the sequencer in the update function...
+            rotate = true;//...and start rotating towards the first waypoint.
+
             //Reset the unitStandingHere property of the old tile to null
             graphMatrix[xPos][yPos].GetComponent<Tile>().clearUnitHere();
             //Reset the take over counter
             graphMatrix[xPos][yPos].GetComponent<Tile>().resetTakeOverCounter();
-            //Remember the last position of the unit. (For resetting purposes.)
+            //Remember the last position and rotation of the unit. (For resetting purposes.)
+            preDirection = myFacingDirection;
             prePosX = this.xPos;
-            prePosY = this.yPos;            
+            prePosY = this.yPos;
             //Set xPos and yPos to the new position.
-            this.xPos = newX;
-            this.yPos = newY;            
+            this.xPos = (int)(wayPointList[wayPointList.Count - 1].x);
+            this.yPos = (int)(wayPointList[wayPointList.Count - 1].z);
             graphMatrix[xPos][yPos].GetComponent<Tile>().setUnitHere(this.transform);//Inform the new tile, that a unit is standing on it.
             myLevelManager.GetComponent<StatusWindow>().updateCover(xPos, yPos);//When you move the unit, you should see the new cover for the tile it will stand on.
-            displayHealth();//Update the display of the health (if the unit rotates, the healthdisplay rotates with it and we dont want that.)
+            displayHealth(false);//While moving we dont want to see the health.
             hasMoved = true;
         }
     }
@@ -237,11 +308,11 @@ public class Unit : MonoBehaviour
         this.transform.position = new Vector3(prePosX, 0, prePosY);
         this.xPos = prePosX;
         this.yPos = prePosY;
-        rotateUnit(preRot);
-        this.rotation = preRot;
+        rotateUnit(preDirection);
+        wayPointIndex = 1;
         myLevelManager.GetComponent<StatusWindow>().updateCover(xPos, yPos);//When the unit moves back, the display of the cover should be set to the old tile.
         graphMatrix[prePosX][prePosX].GetComponent<Tile>().setUnitHere(this.transform);//Inform the old tile, that we are back.
-        displayHealth();//Repostition the health indicator.       
+        displayHealth(true);//Repostition the health indicator.       
         hasMoved = false;
     }
 
@@ -254,22 +325,22 @@ public class Unit : MonoBehaviour
             //Face right
             if(this.xPos < targetX && this.yPos == targetY)
             {
-                rotateUnit(180);
+                rotateUnit(Unit.facingDirection.East);
             }
             //Face left
             if(this.xPos > targetX && this.yPos == targetY)
             {            
-                rotateUnit(0);
+                rotateUnit(Unit.facingDirection.West);
             }
             //Face up
             if(this.yPos < targetY && this.xPos == targetX)
             {
-                rotateUnit(90);
+                rotateUnit(Unit.facingDirection.North);
             }
             //Face down
             if (this.yPos > targetY && this.xPos == targetX)
             {            
-                rotateUnit(270);
+                rotateUnit(Unit.facingDirection.South);
             }
 
         }
@@ -281,33 +352,67 @@ public class Unit : MonoBehaviour
             //Face right
             if (this.xPos < targetX && this.yPos == targetY)
             {
-                rotateUnit(180);
+                rotateUnit(Unit.facingDirection.East);
             }
             //Face left
             if (this.xPos > targetX && this.yPos == targetY)
             {
-                rotateUnit(0);
+                rotateUnit(Unit.facingDirection.West);
             }
             //Face up
             if (this.yPos < targetY && this.xPos == targetX)
             {
-                rotateUnit(90);
+                rotateUnit(Unit.facingDirection.North);
             }
             //Face down
             if (this.yPos > targetY && this.xPos == targetX)
             {
-                rotateUnit(270);
+                rotateUnit(Unit.facingDirection.South);
             }
         }
 
     }
 
-    public void rotateUnit(int angle)
+    //Rotate the unit so it faces north, east, south or west.
+    public void rotateUnit(Unit.facingDirection newDirection)
     {
-        this.transform.rotation = Quaternion.Euler(0, angle, 0);
-        this.rotation = angle;
-        displayHealth();
+        //this.transform.rotation = Quaternion.Euler(0, angle, 0);
+        //this.rotation = 45;
+        preDirection = myFacingDirection;
+        myFacingDirection = newDirection;
+        switch (newDirection)
+        {
+            case facingDirection.North: this.transform.rotation = Quaternion.Euler(0, 0, 0); break;
+            case facingDirection.East: this.transform.rotation = Quaternion.Euler(0, 90, 0); break;
+            case facingDirection.South: this.transform.rotation = Quaternion.Euler(0, 180, 0); break;
+            case facingDirection.West: this.transform.rotation = Quaternion.Euler(0, 270, 0); break;
+            default:
+                break;
+        }
+        displayHealth(true);
     }
+
+    //Sets the facing direction depending on the transforms rotation.
+    public void setFacingDirection(float angle)
+    {
+        if(-1 < angle && angle < 1)
+        {
+            myFacingDirection = facingDirection.North;
+        }
+        if (89 < angle && angle < 91)
+        {
+            myFacingDirection = facingDirection.East;
+        }
+        if (179 < angle && angle < 181)
+        {
+            myFacingDirection = facingDirection.South;
+        }
+        if (269 < angle && angle < 271)
+        {
+            myFacingDirection = facingDirection.West;
+        }
+    }
+   
 
     //Creates a list of tiles the unit can attack.
     public void findAttackableTiles()
@@ -530,7 +635,7 @@ public class Unit : MonoBehaviour
     //Checks if an enemy is standing on this tile.
     public bool isEnemyHere(Tile tile)
     {
-        if(tile.unitStandingHere != null && tile.isVisible)
+        if(tile.unitStandingHere != null && tile.getVisibility())
         {
             Unit possibleEnemy = tile.unitStandingHere.GetComponent<Unit>();            
             for(int i = 0; i < myTeam.enemyTeams.Count; i++)
@@ -603,67 +708,70 @@ public class Unit : MonoBehaviour
     //Calculates the visible area of this unit depending on its vision range and marks the visible tiles in the graph.
     public void calcVisibleArea()
     {        
-        graph.getTile(xPos, yPos).setVisibility(true);//Mark own position as visible.
-        for (int i = 1; i <= visionRange; i++)
+        if(myLevelManager.GetComponent<MasterClass>().container.fogOfWar)
         {
-            //Left
-            int xTest = this.xPos - i;
-            int yTest = this.yPos;
-            if (xTest >= 0)
+            graph.getTile(xPos, yPos).setVisible(true);//Mark own position as visible.
+            for (int i = 1; i <= visionRange; i++)
             {
-                if ((i < 2) || (graph.getTile(xTest, yTest).myTileType != Tile.type.Forest))
+                //Left
+                int xTest = this.xPos - i;
+                int yTest = this.yPos;
+                if (xTest >= 0)
                 {
-                    graph.getTile(xTest, yTest).setVisibility(true);
-                }                
-                for(int j = 1; j <= visionRange - i; j++)
-                {
-                    //...and up.
-                    yTest = this.yPos + j;
-                    if(yTest < graph.getGraph()[0].Count)
+                    if ((i < 2) || (graph.getTile(xTest, yTest).myTileType != Tile.type.Forest))
                     {
-                        if (graph.getTile(xTest, yTest).myTileType != Tile.type.Forest)
-                        {
-                            graph.getTile(xTest, yTest).setVisibility(true);
-                        }
-                    }
-                    //...and down.
-                    yTest = this.yPos - j;
-                    if (yTest >= 0)
+                        graph.getTile(xTest, yTest).setVisible(true);
+                    }                
+                    for(int j = 1; j <= visionRange - i; j++)
                     {
-                        if (graph.getTile(xTest, yTest).myTileType != Tile.type.Forest)
+                        //...and up.
+                        yTest = this.yPos + j;
+                        if(yTest < graph.getGraph()[0].Count)
                         {
-                            graph.getTile(xTest, yTest).setVisibility(true);
+                            if (graph.getTile(xTest, yTest).myTileType != Tile.type.Forest)
+                            {
+                                graph.getTile(xTest, yTest).setVisible(true);
+                            }
                         }
-                    }
-                }                
-            }
-            //Right
-            xTest = this.xPos + i;
-            yTest = this.yPos;
-            if (xTest < graph.getGraph().Count)
-            {
-                if ((i < 2) || (graph.getTile(xTest, yTest).myTileType != Tile.type.Forest))
-                {
-                    graph.getTile(xTest, yTest).setVisibility(true);
+                        //...and down.
+                        yTest = this.yPos - j;
+                        if (yTest >= 0)
+                        {
+                            if (graph.getTile(xTest, yTest).myTileType != Tile.type.Forest)
+                            {
+                                graph.getTile(xTest, yTest).setVisible(true);
+                            }
+                        }
+                    }                
                 }
-                for (int j = 1; j <= visionRange - i; j++)
+                //Right
+                xTest = this.xPos + i;
+                yTest = this.yPos;
+                if (xTest < graph.getGraph().Count)
                 {
-                    //...and up.
-                    yTest = this.yPos + j;
-                    if (yTest < graph.getGraph()[0].Count)
+                    if ((i < 2) || (graph.getTile(xTest, yTest).myTileType != Tile.type.Forest))
                     {
-                        if (graph.getTile(xTest, yTest).myTileType != Tile.type.Forest)
-                        {
-                            graph.getTile(xTest, yTest).setVisibility(true);
-                        }
+                        graph.getTile(xTest, yTest).setVisible(true);
                     }
-                    //...and down.
-                    yTest = this.yPos - j;
-                    if (yTest >= 0)
+                    for (int j = 1; j <= visionRange - i; j++)
                     {
-                        if (graph.getTile(xTest, yTest).myTileType != Tile.type.Forest)
+                        //...and up.
+                        yTest = this.yPos + j;
+                        if (yTest < graph.getGraph()[0].Count)
                         {
-                            graph.getTile(xTest, yTest).setVisibility(true);
+                            if (graph.getTile(xTest, yTest).myTileType != Tile.type.Forest)
+                            {
+                                graph.getTile(xTest, yTest).setVisible(true);
+                            }
+                        }
+                        //...and down.
+                        yTest = this.yPos - j;
+                        if (yTest >= 0)
+                        {
+                            if (graph.getTile(xTest, yTest).myTileType != Tile.type.Forest)
+                            {
+                                graph.getTile(xTest, yTest).setVisible(true);
+                            }
                         }
                     }
                 }
@@ -678,7 +786,7 @@ public class Unit : MonoBehaviour
             {
                 if ((i < 2) || (graph.getTile(xTest, yTest).myTileType != Tile.type.Forest))
                 {
-                    graph.getTile(xTest, yTest).setVisibility(true);
+                    graph.getTile(xTest, yTest).setVisible(true);
                 }
             }
             //Down
@@ -687,7 +795,7 @@ public class Unit : MonoBehaviour
             {
                 if ((i < 2) || (graph.getTile(xTest, yTest).myTileType != Tile.type.Forest))
                 {
-                    graph.getTile(xTest, yTest).setVisibility(true);
+                    graph.getTile(xTest, yTest).setVisible(true);
                 }
             }
         }
@@ -700,21 +808,37 @@ public class Unit : MonoBehaviour
         return Mathf.RoundToInt(health/10);
     }
 
-    public void rotateMeee()
+    private bool wayPointReached(Vector3 nextWaypoint)
     {
-        if(GetComponent<Animator>() != null)
+        if (nextWaypoint == this.transform.position)
         {
-            GetComponent<Animator>().Play("rotateUnit");
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    //If the forward vector of the unit aligns with the vector from the unit to the target, we finished the rotation.
+    private bool rotationComplete()
+    {
+        if (this.transform.forward == lookingDirection)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 
-    public void moveMeee()
+    //Set/get if the unit is moving.
+    public void setIsMoving(bool value)
     {
-        float targetX = 10;
-        
-        while(transform.position.x < targetX)
-        {
-            transform.position = new Vector3(transform.position.x + 0.001f, transform.position.y, transform.position.z);
-        }
+        isMoving = value;
+    }
+    public bool getIsMoving()
+    {
+        return isMoving;
     }
 }

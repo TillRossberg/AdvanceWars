@@ -3069,10 +3069,6 @@ MonoBehaviour:
   arrow: {fileID: 400000, guid: 3b724501ef83f134182cee5543e901af, type: 3}
   straight: {fileID: 400000, guid: 51b4e5ee88b14af49b980156827443a6, type: 3}
   curve: {fileID: 400000, guid: 3060c1aba91b6824695ef35db77e8a1f, type: 3}
-  movementPath: []
-  maxMovementPoints: 0
-  momMovementPoints: 0
-  arrowPath: []
 --- !u!114 &1130033956
 MonoBehaviour:
   m_ObjectHideFlags: 0

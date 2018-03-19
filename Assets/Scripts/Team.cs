@@ -21,7 +21,7 @@ public class Team : ScriptableObject
         myUnits.Add(unitToAdd);
         unitToAdd.GetComponent<Unit>().myTeam = this;
         unitToAdd.GetComponent<Unit>().enemyTeams = enemyTeams;
-        unitToAdd.GetComponent<MeshRenderer>().material = teamMaterial;
+        unitToAdd.GetComponentInChildren<MeshRenderer>().material = teamMaterial;
         unitCounter++;
     }
 

@@ -8,13 +8,13 @@ public class ArrowBuilder : MonoBehaviour
     public Transform arrow;
     public Transform straight;
     public Transform curve;
-    public List<Vector3> movementPath = new List<Vector3>();
-    public int maxMovementPoints = 0; //Maximum MovementPoints or the maximum length of the arrow
-    public int momMovementPoints = 0; //Momentary MovementPoints.
+    private int maxMovementPoints = 0; //Maximum MovementPoints or the maximum length of the arrow
+    private int momMovementPoints = 0; //Momentary MovementPoints.
     
-    public List<ArrowPart> arrowPath = new List<ArrowPart>();//arrowParts hold information about the tile they are on and about the graphic element they should display.
+    private List<ArrowPart> arrowPath = new List<ArrowPart>();//The path of the movement arrow.
+    private List<Vector3> movementPath = new List<Vector3>();//This path is calculated from the arrowPath and provides coordinates used for animating the units movement.
 
-    //Initiate the arrowBuilder.
+    //Initiate the arrowBuilder with the start point of the path.
     public void init(Tile myTile, int moveDist)
     {
         myTile.isPartOfArrowPath = true;
@@ -40,12 +40,11 @@ public class ArrowBuilder : MonoBehaviour
                 ArrowPart arrow = calcArrowDirection(tile, predecessor);
                 arrowPath.Add(arrow);
                 
-                //If one moves further than one field away from the startfield, the predecessor arrow should be replace by a curve or a straight part.
+                //If one moves further than one field away from the startfield, the predecessor arrow should be replaced by a curve or a straight part depending on the arrow heads prepredecessor.
                 if (arrowPath.Count > 2)
                 {                    
-                    predecessor = arrowPath[arrowPath.Count - 2].getTile();//Set a new predecessor, because we drew a
+                    predecessor = arrowPath[arrowPath.Count - 2].getTile();
                     Tile prePredecessor = arrowPath[arrowPath.Count - 3].getTile();
-
                     drawArrowParts(tile, predecessor, prePredecessor);
                 }
             }
@@ -276,7 +275,7 @@ public class ArrowBuilder : MonoBehaviour
     }
         
     //Calculates a direct path from the arrow path. I.e.: combine arrow parts that are in a straight line to be just one checkpoint for the movement.
-    public void createMovementPath()
+    public List<Vector3> createMovementPath()
     {
         movementPath.Clear();
         movementPath.Add(new Vector3(arrowPath[0].getTile().xPos, 0, arrowPath[0].getTile().yPos));//Set the starting position of the movement path as the position we are on right now.
@@ -286,11 +285,8 @@ public class ArrowBuilder : MonoBehaviour
 
         for(int i = 0; i < arrowPath.Count; i++)
         {
-            Debug.Log("i = " + i);
             Tile currentTile = arrowPath[i].getTile();
-            Tile nextTileToTest;
-            //movementPath.Add(new Vector3(currentTile.xPos, 0, currentTile.yPos));
-            //Debug.Log("Adding current tile: " + currentTile.xPos + " : " + currentTile.yPos);
+            Tile nextTileToTest;            
 
             if (i+1 < arrowPath.Count)//Check if we reached the last tile in the list.
             {
@@ -298,14 +294,12 @@ public class ArrowBuilder : MonoBehaviour
             }
             else
             {
-                //Debug.Log("End of arrow path reached!");
-                break;//If we reach the end of the arrow path, we don't want to continue.
+                break;//If we reach the second to the last of the arrow path, we don't want to continue. (We add the last point of the path after the loop.)
             }
 
             //Check up/downwards
             if (currentTile.xPos == nextTileToTest.xPos)
             {
-                Debug.Log("X fixed!");
                 wayPointX = currentTile.xPos;//Fix the x position.
                 for(int j = i; j < arrowPath.Count; j++)
                 {
@@ -319,17 +313,16 @@ public class ArrowBuilder : MonoBehaviour
                     else
                     {
                         wayPointY = nextTileToTest.yPos;
-                        Debug.Log("X fixed...adding: " + wayPointX + " : " + wayPointY);
                         movementPath.Add(new Vector3(wayPointX, 0, wayPointY));//X position of the current and next tile are not equal, so we add this "corner" to the list.
-                        i = j - 2;//No idea, why this is working...
+                        i = j - 2;//The magic! Difficult to explain in one comment.
                         break;
                     }
                 }
             }
+            else
             //Check left/right
             if (currentTile.yPos == nextTileToTest.yPos)
             {
-                Debug.Log("Y fixed!");
                 wayPointY = currentTile.yPos;
                 for (int j = i; j < arrowPath.Count; j++)
                 {
@@ -343,59 +336,21 @@ public class ArrowBuilder : MonoBehaviour
                     else
                     {
                         wayPointX = nextTileToTest.xPos;
-                        Debug.Log("X fixed...adding: " + wayPointX + " : " + wayPointY);
                         movementPath.Add(new Vector3(wayPointX, 0, wayPointY));//Y position of the current and next tile are not equal, so we add this "corner" to the list.
-                        i = j - 2;//No idea, why this is working...
+                        i = j - 2;//The magic! Difficult to explain in one comment.
                         break;
                     }
                 }
             }
         }
         movementPath.Add(new Vector3(arrowPath[arrowPath.Count - 1].getTile().xPos, 0, arrowPath[arrowPath.Count - 1].getTile().yPos));//Endpoint
+        return movementPath;
     }
-    //int counter = 0;
-    //while (currentTile.xPos == nextTile.xPos && !finished)
-    //{
-    //    counter++;
-    //    if (counter > 1000) { finished = true; Debug.Log("Too many attempts to create movement path!"); }
-    //    if (i + 1 < arrowPath.Count)//Check if we reached the last tile in the list.
-    //    {
-    //        i++;
-    //        Debug.Log("i = " + i);
 
-    //        nextTile = arrowPath[i].getTile();
-    //        wayPointY = nextTile.yPos;
-    //    }
-    //    else
-    //    {
-    //        i--;
-    //        Debug.Log("Finished in x while.");
-    //        wayPointY = currentTile.yPos;
-    //        finished = true;
-    //    }
-    //}
-    //Debug.Log("Adding X : " + wayPointX + " Y : " + wayPointY);
-    //int counter = 0;
-    //while(currentTile.yPos == nextTile.yPos && !finished)
-    //{
-    //    counter++;                    
-    //    if(counter > 1000) { finished = true; Debug.Log("Too many attempts to create movement path!"); }
+    //Get the arrowPath
+    public List<ArrowPart> getArrowPath()
+    {
+        return arrowPath;
+    }
 
-    //    if (i + 1 < arrowPath.Count)//Check if we reached the last tile in the list.
-    //    {
-    //        i++;
-    //        Debug.Log("i = " + i);
-
-    //        nextTile = arrowPath[i].getTile();
-    //        wayPointX = nextTile.xPos;
-    //    }
-    //    else
-    //    {
-    //        i--;    
-    //        Debug.Log("Finished in y while.");
-    //        wayPointX = currentTile.xPos;
-    //        finished = true;
-    //    }                    
-    //}
-    //Debug.Log("Adding X : " + wayPointX + " Y : " + wayPointY);
 }

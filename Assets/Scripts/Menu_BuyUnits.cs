@@ -105,15 +105,16 @@ public class Menu_BuyUnits : MonoBehaviour
     }
 
     //Buy buttons
+    //TODO: make the units created face the HQ of the enemy
     public void buyTankButtonPressed()
     {
-        this.GetComponent<UnitCreator>().createUnit(GetComponent<TurnManager>().activeTeam.getTeamCommander(), Unit.type.Tank, GetComponent<TurnManager>().activeTeam, xPos, yPos, 90);
+        this.GetComponent<UnitCreator>().createUnit(GetComponent<TurnManager>().activeTeam.getTeamCommander(), Unit.type.Tank, GetComponent<TurnManager>().activeTeam, xPos, yPos, Unit.facingDirection.East);
         closeMenu();
     }
 
     public void buyRocketsButtonPressed()
     {
-        this.GetComponent<UnitCreator>().createUnit(GetComponent<TurnManager>().activeTeam.getTeamCommander(), Unit.type.Rockets, GetComponent<TurnManager>().activeTeam, xPos, yPos, 90);
+        this.GetComponent<UnitCreator>().createUnit(GetComponent<TurnManager>().activeTeam.getTeamCommander(), Unit.type.Rockets, GetComponent<TurnManager>().activeTeam, xPos, yPos, Unit.facingDirection.East);
         closeMenu();
     }
 
