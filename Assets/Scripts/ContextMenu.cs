@@ -121,6 +121,14 @@ public class ContextMenu : MonoBehaviour
         GetComponent<TurnManager>().endTurn();
     }
 
+    public void testFunction()
+    {
+        Debug.Log("--Testing--");
+        for (int i = 0; i < this.GetComponent<TeamManager>().getTeams().Count; i++)
+        {
+            Debug.Log(this.GetComponent<TeamManager>().getTeams()[i]);
+        }
+    }
    
 
     //Show the tile info.
@@ -209,5 +217,27 @@ public class ContextMenu : MonoBehaviour
         rangeButton.gameObject.SetActive(false);
         tileInfoButton.gameObject.SetActive(false);
         occupyButton.gameObject.SetActive(false);
+    }
+
+    public void killAllEnemies()
+    {
+        List<Team> enemyTeams = GameObject.FindGameObjectWithTag("LevelManager").GetComponent<TurnManager>().getActiveTeam().getEnemyTeams();
+        for (int i = 0; i < enemyTeams.Count; i++)
+        {
+            //for (int j = 0; i < enemyTeams[i].getUnits().Count; j++)
+            //{
+            //    enemyTeams[i].getUnits()[j].GetComponent<Unit>().killUnit();
+            //}
+            //foreach (Transform unit in enemyTeams[i].getUnits())
+            //{
+            //    unit.GetComponent<Unit>().killUnit();
+            //}
+            int counter = 0;
+            while (enemyTeams[i].getUnits().Count > 0 || counter < 100)
+            {
+                enemyTeams[i].getUnits()[0].GetComponent<Unit>().killUnit();
+                Debug.Log(counter.ToString());
+            }
+        }
     }
 }

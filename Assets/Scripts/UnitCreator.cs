@@ -11,8 +11,7 @@ public class UnitCreator : MonoBehaviour
     Database database;
 
     //Graphics
-    [SerializeField] List<Sprite> thumbnails = new List<Sprite>();
-    [SerializeField] List<Mesh> meshes = new List<Mesh>();
+    
 
     //Teamcolors
     public Material redColor;
@@ -56,216 +55,124 @@ public class UnitCreator : MonoBehaviour
 
     }
 
+    private void setUnit()
+    {
+
+    }
+
     //Create a unit for the given team, position and rotation.
     public void createUnit(Database.commander myCommanderType, Unit.type myUnitType, Team team,  int x, int y, Unit.facingDirection myFacingDirection)
     {
+        //Create the Unit
+        Transform unitTransform = Instantiate(unitPrefab, new Vector3(x, 0, y), Quaternion.Euler(0, 90, 0), this.transform.Find(team.name));
+        Unit unit = unitTransform.GetComponent<Unit>();
+        unit.rotateUnit(myFacingDirection);
+        myGraph.getGraph()[x][y].GetComponent<Tile>().setUnitHere(unitTransform);//Pass the unit to the tile it stands on
+        setPosition(unit, x, y);
+        unit.myUnitType = myUnitType;
+        setUnitProperties(unit, myUnitType, myCommanderType);
+        this.GetComponent<TeamManager>().addUnit(unitTransform, team);//Add to the correct team list.
+
         switch(myUnitType)
         {
             case Unit.type.Infantry:
-
-                //Create the Unit
-                Transform unitTransform = Instantiate(unitPrefab, new Vector3(x, 0, y), Quaternion.Euler(0, 90, 0), this.transform.Find(team.name));
-                Unit unit = unitTransform.GetComponent<Unit>();
-                unit.rotateUnit(myFacingDirection);
-                myGraph.getGraph()[x][y].GetComponent<Tile>().setUnitHere(unitTransform);//Pass the unit to the tile it stands on
-                this.GetComponent<TeamManager>().addUnit(unitTransform, team);//Add to the correct team list.
-                //Properties
-                //Graphics
-                unit.setThumbnail(thumbnails[0]);
-                unitTransform.GetComponentInChildren<MeshFilter>().mesh = meshes[3];
-                //Name, position, rotation, unittype and -movement
+                unit.setThumbnail(database.unitThumbs[0]);
+                unitTransform.GetComponentInChildren<MeshFilter>().mesh = database.meshes[3];  
+                
                 unit.unitName = "Infantry";
-                unitTransform.name = "Infantry" + unit.myTeam.unitCounter;
-                setPosition(unit, x, y);
-                unit.myUnitType = myUnitType;
+                unitTransform.name = "Infantry" + unit.myTeam.unitsBuiltCounter;  
+                
                 unit.myMoveType = Unit.moveType.Foot;
-                //Game relevant
                 unit.directAttack = true;
-                setUnitProperties(unit, myUnitType, myCommanderType);
+                
                 break;
 
-            case Unit.type.Mech:
+            case Unit.type.Mech:                
+                unit.setThumbnail(database.unitThumbs[0]);
+                unitTransform.GetComponentInChildren<MeshFilter>().mesh = database.meshes[4];
 
-                //Create the Unit
-                unitTransform = Instantiate(unitPrefab, new Vector3(x, 0, y), Quaternion.Euler(0, 90, 0), this.transform.Find(team.name));
-                unit = unitTransform.GetComponent<Unit>();
-                unit.rotateUnit(myFacingDirection);
-                myGraph.getGraph()[x][y].GetComponent<Tile>().setUnitHere(unitTransform);//Pass the unit to the tile it stands on
-                this.GetComponent<TeamManager>().addUnit(unitTransform, team);//Add to the correct team list.
-                //Properties
-                //Graphics
-                unit.setThumbnail(thumbnails[0]);
-                unitTransform.GetComponentInChildren<MeshFilter>().mesh = meshes[4];
-                //Name, position, rotation, unittype and -movement
                 unit.unitName = "Mech";
-                unitTransform.name = "Mech" + unit.myTeam.unitCounter;
-                setPosition(unit, x, y);
-                unit.myUnitType = myUnitType;
+                unitTransform.name = "Mech" + unit.myTeam.unitsBuiltCounter;
+
                 unit.myMoveType = Unit.moveType.Mech;
-                //Game relevant
                 unit.directAttack = true;
-                setUnitProperties(unit, myUnitType, myCommanderType);
                 break;
 
-            case Unit.type.Recon:
+            case Unit.type.Recon:                
+                unit.setThumbnail(database.unitThumbs[0]);
+                unitTransform.GetComponentInChildren<MeshFilter>().mesh = database.meshes[5];
 
-                //Create the Unit
-                unitTransform = Instantiate(unitPrefab, new Vector3(x, 0, y), Quaternion.Euler(0, 90, 0), this.transform.Find(team.name));
-                unit = unitTransform.GetComponent<Unit>();
-                unit.rotateUnit(myFacingDirection);
-                myGraph.getGraph()[x][y].GetComponent<Tile>().setUnitHere(unitTransform);//Pass the unit to the tile it stands on
-                this.GetComponent<TeamManager>().addUnit(unitTransform, team);//Add to the correct team list.
-                //Properties
-                //Graphics
-                unit.setThumbnail(thumbnails[0]);
-                unitTransform.GetComponentInChildren<MeshFilter>().mesh = meshes[5];
-                //Name, position, rotation, unittype and -movement
                 unit.unitName = "Recon";
-                unitTransform.name = "Recon" + unit.myTeam.unitCounter;
-                setPosition(unit, x, y);
-                unit.myUnitType = myUnitType;
+                unitTransform.name = "Recon" + unit.myTeam.unitsBuiltCounter;
+
                 unit.myMoveType = Unit.moveType.Wheels;
-                //Game relevant
                 unit.directAttack = true;
-                setUnitProperties(unit, myUnitType, myCommanderType);
                 break;
 
             case Unit.type.APC:
+                unit.setThumbnail(database.unitThumbs[0]);
+                unitTransform.GetComponentInChildren<MeshFilter>().mesh = database.meshes[6];
 
-                //Create the Unit
-                unitTransform = Instantiate(unitPrefab, new Vector3(x, 0, y), Quaternion.Euler(0, 90, 0), this.transform.Find(team.name));
-                unit = unitTransform.GetComponent<Unit>();
-                unit.rotateUnit(myFacingDirection);
-                myGraph.getGraph()[x][y].GetComponent<Tile>().setUnitHere(unitTransform);//Pass the unit to the tile it stands on
-                this.GetComponent<TeamManager>().addUnit(unitTransform, team);//Add to the correct team list.
-                //Properties
-                //Graphics
-                unit.setThumbnail(thumbnails[0]);
-                unitTransform.GetComponentInChildren<MeshFilter>().mesh = meshes[6];
-                //Name, position, rotation, unittype and -movement
                 unit.unitName = "APC";
-                unitTransform.name = "APC" + unit.myTeam.unitCounter;
-                setPosition(unit, x, y);
-                unit.myUnitType = myUnitType;
+                unitTransform.name = "APC" + unit.myTeam.unitsBuiltCounter;
+
                 unit.myMoveType = Unit.moveType.Treads;
-                //Game relevant
                 unit.directAttack = false;
-                setUnitProperties(unit, myUnitType, myCommanderType);
                 break;
 
             case Unit.type.Artillery:
+                unit.setThumbnail(database.unitThumbs[0]);
+                unitTransform.GetComponentInChildren<MeshFilter>().mesh = database.meshes[7];
 
-                //Create the Unit
-                unitTransform = Instantiate(unitPrefab, new Vector3(x, 0, y), Quaternion.Euler(0, 90, 0), this.transform.Find(team.name));
-                unit = unitTransform.GetComponent<Unit>();
-                unit.rotateUnit(myFacingDirection);
-                myGraph.getGraph()[x][y].GetComponent<Tile>().setUnitHere(unitTransform);//Pass the unit to the tile it stands on
-                this.GetComponent<TeamManager>().addUnit(unitTransform, team);//Add to the correct team list.
-                //Properties
-                //Graphics
-                unit.setThumbnail(thumbnails[0]);
-                unitTransform.GetComponentInChildren<MeshFilter>().mesh = meshes[7];
-                //Name, position, rotation, unittype and -movement
                 unit.unitName = "Artillery";
-                unitTransform.name = "Artillery" + unit.myTeam.unitCounter;
-                setPosition(unit, x, y);
-                unit.myUnitType = myUnitType;
+                unitTransform.name = "Artillery" + unit.myTeam.unitsBuiltCounter;
+
                 unit.myMoveType = Unit.moveType.Treads;
-                //Game relevant
                 unit.rangeAttack = true;
-                setUnitProperties(unit, myUnitType, myCommanderType);
                 break;
 
             case Unit.type.Flak:
+                unit.setThumbnail(database.unitThumbs[0]);
+                unitTransform.GetComponentInChildren<MeshFilter>().mesh = database.meshes[8];
 
-                //Create the Unit
-                unitTransform = Instantiate(unitPrefab, new Vector3(x, 0, y), Quaternion.Euler(0, 90, 0), this.transform.Find(team.name));
-                unit = unitTransform.GetComponent<Unit>();
-                unit.rotateUnit(myFacingDirection);
-                myGraph.getGraph()[x][y].GetComponent<Tile>().setUnitHere(unitTransform);//Pass the unit to the tile it stands on
-                this.GetComponent<TeamManager>().addUnit(unitTransform, team);//Add to the correct team list.
-                //Properties
-                //Graphics
-                unit.setThumbnail(thumbnails[0]);
-                unitTransform.GetComponentInChildren<MeshFilter>().mesh = meshes[8];
-                //Name, position, rotation, unittype and -movement
                 unit.unitName = "Flak";
-                unitTransform.name = "Flak" + unit.myTeam.unitCounter;
-                setPosition(unit, x, y);
-                unit.myUnitType = myUnitType;
+                unitTransform.name = "Flak" + unit.myTeam.unitsBuiltCounter;
+
                 unit.myMoveType = Unit.moveType.Treads;
-                //Game relevant
                 unit.directAttack = true;
-                setUnitProperties(unit, myUnitType, myCommanderType);
                 break;
 
             case Unit.type.Tank:
-                
-                //Create the Unit
-                unitTransform = Instantiate(unitPrefab, new Vector3(x, 0, y),Quaternion.Euler(0, 90, 0), this.transform.Find(team.name));
-                unit = unitTransform.GetComponent<Unit>();
-                unit.rotateUnit(myFacingDirection);
-                myGraph.getGraph()[x][y].GetComponent<Tile>().setUnitHere(unitTransform);//Pass the unit to the tile it stands on
-                this.GetComponent<TeamManager>().addUnit(unitTransform, team);//Add to the correct team list.
-                //Properties
-                //Graphics
-                unit.setThumbnail(thumbnails[0]);
-                unitTransform.GetComponentInChildren<MeshFilter>().mesh = meshes[0];
-                //Name, position, rotation, unittype and -movement
+                unit.setThumbnail(database.unitThumbs[0]);
+                unitTransform.GetComponentInChildren<MeshFilter>().mesh = database.meshes[0];
+
                 unit.unitName = "Tank";
-                unitTransform.name = "Tank" + unit.myTeam.unitCounter;
-                setPosition(unit, x, y);
-                unit.myUnitType = myUnitType;
+                unitTransform.name = "Tank" + unit.myTeam.unitsBuiltCounter;
+
                 unit.myMoveType = Unit.moveType.Treads;
-                //Game relevant
                 unit.directAttack = true;
-                setUnitProperties(unit, myUnitType, myCommanderType);
                 break;
 
             case Unit.type.MdTank:
+                unit.setThumbnail(database.unitThumbs[0]);
+                unitTransform.GetComponentInChildren<MeshFilter>().mesh = database.meshes[2];
 
-                //Create the Unit
-                unitTransform = Instantiate(unitPrefab, new Vector3(x, 0, y), Quaternion.Euler(0, 90, 0), this.transform.Find(team.name));
-                unit = unitTransform.GetComponent<Unit>();
-                unit.rotateUnit(myFacingDirection);
-                myGraph.getGraph()[x][y].GetComponent<Tile>().setUnitHere(unitTransform);//Pass the unit to the tile it stands on
-                this.GetComponent<TeamManager>().addUnit(unitTransform, team);//Add to the correct team list.
-                //Properties
-                //Graphics
-                unit.setThumbnail(thumbnails[0]);
-                unitTransform.GetComponentInChildren<MeshFilter>().mesh = meshes[2];
-                //Name, position, rotation, unittype and -movement
                 unit.unitName = "Medium Tank";
-                unitTransform.name = "Medium Tank" + unit.myTeam.unitCounter;
-                setPosition(unit, x, y);
-                unit.myUnitType = Unit.type.MdTank;
+                unitTransform.name = "Medium Tank" + unit.myTeam.unitsBuiltCounter;
+
                 unit.myMoveType = Unit.moveType.Treads;
-                //Game relevant
                 unit.directAttack = true;
-                setUnitProperties(unit, myUnitType, myCommanderType);
                 break;
 
             case Unit.type.Rockets:
-                
-                //Create the Unit
-                unitTransform = Instantiate(unitPrefab, new Vector3(x, 0, y), Quaternion.Euler(0, 90, 0), this.transform.Find(team.name));
-                unit = unitTransform.GetComponent<Unit>();
-                unit.rotateUnit(myFacingDirection);
-                myGraph.getGraph()[x][y].GetComponent<Tile>().setUnitHere(unitTransform);//Pass the unit to the tile it stands on
-                this.GetComponent<TeamManager>().addUnit(unitTransform, team);//Add to the correct team list.
-                //Properties
-                //Graphics
-                unit.setThumbnail(thumbnails[1]);
-                unitTransform.GetComponentInChildren<MeshFilter>().mesh = meshes[1];
-                //Name, position, rotation, unittype and -movement
+                unit.setThumbnail(database.unitThumbs[1]);
+                unitTransform.GetComponentInChildren<MeshFilter>().mesh = database.meshes[1];
+
                 unit.unitName = "Rockets";
-                unitTransform.name = "Rockets" + unit.myTeam.unitCounter;
-                setPosition(unit, x, y);
-                unit.myUnitType = Unit.type.Rockets;
+                unitTransform.name = "Rockets" + unit.myTeam.unitsBuiltCounter;
+
                 unit.myMoveType = Unit.moveType.Wheels;
-                //Game relevant
                 unit.rangeAttack = true;
-                setUnitProperties(unit, myUnitType, myCommanderType);
                 break;
 
             default:

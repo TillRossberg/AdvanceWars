@@ -138,4 +138,8 @@ public class StatusWindow : MonoBehaviour
     {
         commanderThumbnail.sprite = newThumb;
     }
+
+  
+
+
 }

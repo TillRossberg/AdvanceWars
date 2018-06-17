@@ -13,12 +13,12 @@ public class MasterClass : MonoBehaviour
 	// Use this for initialization
 	void Start ()
     {        
+        container = getContainer();
         GetComponent<TurnManager>().init();
         GetComponent<MapCreator>().init();
-        GetComponent<TeamManager>().setupTeams();
-        container = getContainer();
+        GetComponent<TeamManager>().initTeams();
         GetComponent<TurnManager>().actualWeather = container.getWeather();
-        GetComponent<MainFunctions>().loadLevel(1);
+        GetComponent<MainFunctions>().loadLevel(0);
         GetComponent<TurnManager>().initSuccession();
         GetComponent<StatusWindow>().displayGeneralInfo();
         GetComponent<TurnManager>().setFogOfWar(GetComponent<TurnManager>().activeTeam);

@@ -54,6 +54,8 @@ public class MapCreator : MonoBehaviour
 
     //Stuff i dont know where to put else
     private float tileHeight = -0.07f;
+    private float scalingFactor = 100;
+
 
 	//Graph
 	public int gridHeight = 3;
@@ -67,6 +69,7 @@ public class MapCreator : MonoBehaviour
     //Create an empty Graph of plain tiles.
     private void createEmptyGraph(int dimX, int dimY, Tile.type myTileType)
     {
+        
         for (int colIndex = 0; colIndex < dimX; colIndex++)
         {
             myGraph.Add(new List<Transform>());
@@ -514,7 +517,7 @@ public class MapCreator : MonoBehaviour
 
 
         //Team red properties
-        Team teamRed = this.GetComponent<TeamManager>().getSuperTeamList()[0][0];
+        Team teamRed = this.GetComponent<TeamManager>().getTeam("TeamRed");
         this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(1,4));
         this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(1,6));
         this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(1,7));
@@ -526,9 +529,9 @@ public class MapCreator : MonoBehaviour
         this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(3,8));
         this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(6,5));
         this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(6,7));
-    
+
         //Team blue properties
-        Team teamBlue = this.GetComponent<TeamManager>().getSuperTeamList()[1][0];
+        Team teamBlue = this.GetComponent<TeamManager>().getTeam("TeamBlue");
         this.GetComponent<TeamManager>().occupyProperty(teamBlue, getTile(9,5));
         this.GetComponent<TeamManager>().occupyProperty(teamBlue, getTile(9,7));
         this.GetComponent<TeamManager>().occupyProperty(teamBlue, getTile(12,8));

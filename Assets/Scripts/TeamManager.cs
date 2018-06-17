@@ -6,40 +6,36 @@ using UnityEngine;
 public class TeamManager : MonoBehaviour
 {
     //General 
-    public List<List<Team>> teams = new List<List<Team>>();   
+    public List<Team> teams = new List<Team>();   
     
     //Initiate the teams for this game with the info from the container. Define wich units they can build, wich teams are enemies and whos commander.
     //TODO: get the actual values from the container
-    public void setupTeams()
-    {
-        teams.Add(new List<Team>());
-        teams.Add(new List<Team>());
-        createTeam("TeamRed", 0, 0);
-        createTeam("TeamBlue", 1, 1);
+    public void initTeams()
+    {        
+        createTeam("TeamRed", 0);
+        createTeam("TeamBlue", 1);
+        getTeam("TeamRed").setPlayerName("Ulf");
+        getTeam("TeamRed").setPlayerPic(GetComponent<Database>().getCommanderThumb(Database.commander.Andy));
+        getTeam("TeamBlue").setPlayerName("Zwulf");
+        getTeam("TeamBlue").setPlayerPic(GetComponent<Database>().getCommanderThumb(Database.commander.Max));
         getTeam("TeamRed").addEnemyTeam(this.GetComponent<TeamManager>().getTeam("TeamBlue"));
         getTeam("TeamBlue").addEnemyTeam(this.GetComponent<TeamManager>().getTeam("TeamRed"));
         getTeam("TeamBlue").setAllUnitsAvailable();
         getTeam("TeamRed").setAllUnitsAvailable();
         getTeam("TeamBlue").setTeamCommander(Database.commander.Max);
         getTeam("TeamRed").setTeamCommander(Database.commander.Andy);
+        GameObject.FindGameObjectWithTag("Container").GetComponent<Container>().setTeams(teams);
     }
 
     //Create a team with a name and a color from the teamColors list and add it to the teams list.
-    public void createTeam(string myTeamName, int mySuperTeam, int colorNumber)
+    public void createTeam(string myTeamName, int colorNumber)
     {
         Team team = ScriptableObject.CreateInstance("Team") as Team;
         team.name = myTeamName;
         team.teamMaterial = GetComponent<Database>().getTeamMaterial(colorNumber);
         team.teamColor = GetComponent<Database>().getTeamColor(colorNumber);
-        //TODO: Maybe move this into setup teams
-        //Make sure there where lists initialized in the first place.
-        if(teams[mySuperTeam] == null)
-        {
-            Debug.Log("Creating temp lists.");
-            List<Team> tempTeam = new List<Team>();
-            teams.Add( tempTeam);
-        }
-        teams[mySuperTeam].Add(team);
+        //TODO: Maybe move this into setup teams       
+        teams.Add(team);
         //Create empty game object in wich we will store the units for the team later.
         GameObject emptyGameObject = new GameObject();
         emptyGameObject.name = myTeamName;
@@ -48,40 +44,34 @@ public class TeamManager : MonoBehaviour
 
     //Add an unit to a team.
     public void addUnit(Transform unit, Team myTeam)
-    {
+    {        
         for (int i = 0; i < teams.Count; i++)
-        {
-            for(int j = 0; j < teams[i].Count; j++)
+        {            
+            if(teams[i] == myTeam)
             {
-                if(teams[i][j] == myTeam)
-                {
-                    teams[i][j].addUnit(unit);
-                }
-            }
+                teams[i].addUnit(unit);
+            }            
         }
-    }
-
-    //Returns the list of all the super teams.
-    public List<List<Team>> getSuperTeamList()
-    {
-        return teams;
-    }
+    }    
 
     //Searches for a team by a given name and returns it.
     public Team getTeam(string teamName)
     {
         for (int i = 0; i < teams.Count; i++)
-        {
-            for(int j = 0; j < teams[i].Count; j++)
+        {           
+            if(teamName == teams[i].name)
             {
-                if(teamName == teams[i][j].name)
-                {
-                    return teams[i][j];
-                }
-            }
+                return teams[i];
+            }            
         }
         Debug.Log("TeamManager: No such team found!");
         return null;
+    }
+
+    //Returns all teams
+    public List<Team> getTeams()
+    {
+        return teams;
     }
 
     //Adds a property to a team.
@@ -103,13 +93,14 @@ public class TeamManager : MonoBehaviour
             //Add the tile to the new owners properties.
             newOwner.ownedProperties.Add(tile);
             //If you occupy the enemies HQ, you win the game.
+            //TODO: find a better place for this
             if(tile.myTileType == Tile.type.HQ && GetComponent<TurnManager>().roundCounter > 1)
             {
                 //TODO: decide if more than two teams are playing and then only remove the defeated team from the map.
                 GetComponent<LevelLoader>().loadGameFinishedScreenWithDelay();
             }
             //If you reach the necessary amount of properties you also win the game.
-            if(newOwner.ownedProperties.Count == GetComponent<MasterClass>().container.getPropertiesToWin())
+            if(newOwner.ownedProperties.Count == GetComponent<MasterClass>().container.getPropertyCountToWin())
             {
                 //TODO: decide if more than two teams are playing and then only remove the defeated team from the map.
                 GetComponent<LevelLoader>().loadGameFinishedScreenWithDelay();

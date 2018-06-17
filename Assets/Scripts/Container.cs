@@ -7,8 +7,8 @@ using UnityEngine;
 public class Container : MonoBehaviour
 {
     public int nextLevelToLoad = 0;
-    private List<List<Team>> teams = new List<List<Team>>();
-    private List<Team> winnerTeam = new List<Team>();
+    public List<Team> teams = new List<Team>();
+    private Team winnerTeam = new Team();
     public bool fogOfWar = false;
     public bool abilityPower = true;//Are the abilities for the players activated?
     public Database.weather myWeather = Database.weather.Clear;
@@ -24,12 +24,12 @@ public class Container : MonoBehaviour
 	}
     
     //Set/Get Winnerteam
-    public void setWinnerTeam(List<Team> winners)
+    public void setWinnerTeam(Team winner)
     {
-        winnerTeam = winners;
+        winnerTeam = winner;
     }
 
-    public List<Team> getWinnerTeam()
+    public Team getWinnerTeam()
     {
         return winnerTeam;
     }
@@ -46,7 +46,7 @@ public class Container : MonoBehaviour
         propertiesToWin = value;
     }
 
-    public int getPropertiesToWin()
+    public int getPropertyCountToWin()
     {
         if(propertiesToWin > 11)
         {
@@ -111,5 +111,16 @@ public class Container : MonoBehaviour
     public int getNextLevel()
     {
         return nextLevelToLoad;
+    }
+
+    //Teams
+    public void setTeams(List<Team> teams)
+    {
+        this.teams = teams;
+    }
+
+    public List<Team> getTeams()
+    {
+        return teams;
     }
 }

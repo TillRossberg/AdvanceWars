@@ -19,20 +19,14 @@ public class TurnManager : MonoBehaviour
     {
         mainFunctions = GetComponent<MainFunctions>();
         teamManager = GetComponent<TeamManager>();
-    }   
-
-    //Manage who has turn.
-    public void manageTurns()
-    {
-
-    }
+    }      
 
     //Start turn
     public void startTurn(Team team)
     {
         mainFunctions.deselectObject();//Make sure nothing is selected when the next turn starts.
         activeTeam = team;
-        GetComponent<StatusWindow>().displayGeneralInfo();//Adapt the GUI for the active team       
+        GetComponent<StatusWindow>().displayGeneralInfo();//Update the GUI for the active team       
         activateUnits(team);       
         setFogOfWar(activeTeam);//Set fog of war for this team.
 
@@ -62,7 +56,7 @@ public class TurnManager : MonoBehaviour
         GetComponent<StatusWindow>().displayGeneralInfo();  
     }
 
-    //Setup all the units of a team so they have a turn, can move and fire.
+    //Sets all the units of a team so they have a turn, can move and fire.
     public void activateUnits(Team teamToActivate)
     {
         for (int i = 0; i < teamToActivate.myUnits.Count; i++)
@@ -94,6 +88,10 @@ public class TurnManager : MonoBehaviour
     {
         activeTeam = team;
     }
+    public Team getActiveTeam()
+    {
+        return activeTeam;
+    }
 
     //Gets the next team in the succesion.
     public Team getNextTeam()
@@ -114,9 +112,9 @@ public class TurnManager : MonoBehaviour
         roundCounter++;
         if (roundCounter == GetComponent<MasterClass>().container.battleDuration && GetComponent<MasterClass>().container.battleDuration > 4)//Minimum for the duration of the battle is 5 rounds, if below this winning condition will never trigger.
         {
-            //TODO: If the maximum amount of rounds has passed, check who won the game. (Depending on the occupied properties)
-
             //TODO: decide if more than two teams are playing and then only remove the defeated team from the map.
+
+            //TODO: If the maximum amount of rounds has passed, check who won the game. (Depending on the occupied properties)
             GetComponent<LevelLoader>().loadGameFinishedScreenWithDelay();
         }
         setWeather();
@@ -133,30 +131,12 @@ public class TurnManager : MonoBehaviour
     //Defines the order in wich the teams have their turns. (TODO: find a better way to solve this...)
     public void setupRandomSuccession()
     {
-        int counter = 0;
-        List<Team> allTeams = new List<Team>();
-        //Fill all teams in a list...
-        for(int i = 0; i < teamManager.getSuperTeamList().Count; i++)
+        List<Team> tempList = new List<Team>(teamManager.getTeams());         
+        while(tempList.Count > 0)
         {
-            for(int j = 0; j < teamManager.getSuperTeamList()[i].Count; j++)
-            {
-                allTeams.Add(teamManager.getSuperTeamList()[i][j]);
-            }
-        }
-        //...and randomly pick teams from this list       
-        while (succession.Count < allTeams.Count)
-        {
-            int randomPick = Random.Range(0, allTeams.Count);
-            if (!succession.Contains(allTeams[randomPick]))
-            {
-                succession.Add(allTeams[randomPick]);
-            }
-            counter++;
-            if (counter > 1000)
-            {
-                Debug.Log("TeamManager: Too many attempts to create a random succession!");
-                break;
-            }
+            int randomPick = Random.Range(0, tempList.Count);
+            succession.Add(tempList[randomPick]);
+            tempList.Remove(tempList[randomPick]);
         }
     }
 
@@ -199,33 +179,19 @@ public class TurnManager : MonoBehaviour
 
     //Count the properties of all the teams and the team with the most wins.
     //TODO: !WORKING
-    public void findTeamWithMostProperties()
+    public Team getTeamWithMostProperties()
     {
-        //Create a list to hold the super teams overall held properties.
-        List<int> countingList = new List<int>();
-        List<Team> teamList = new List<Team>();//To keep track of wich team has 
-        int maxProperties = 0;
-        int winnerTeamIndex = 0;
-        for(int i = 0; i < teamManager.getSuperTeamList().Count; i++)
-        {            
-            for(int j = 0; j < teamManager.getSuperTeamList()[i].Count; j++)
-            {
-
-                countingList[i] += teamManager.getSuperTeamList()[i][j].ownedProperties.Count;//Add the amount of a teams properties to the super team amount.
-                teamList.Add(teamManager.getSuperTeamList()[i][j]);
-            }
-        }
-        //Find the team with the most properties
-        for(int i = 0; i < countingList.Count; i++)
+        Team winner = new Team();
+        int highestPropertyCount = 0;
+        for (int i = 0; i < teamManager.getTeams().Count; i++)
         {
-            if(countingList[i] > maxProperties)
+            int propertyCount = teamManager.getTeams()[i].getOwnedProperties().Count;
+            if(propertyCount > highestPropertyCount)
             {
-                maxProperties = countingList[i];
-                winnerTeamIndex = i;
+                highestPropertyCount = propertyCount;
+                winner = teamManager.getTeams()[i];
             }
         }
-        //Finally set the winning teams in the container to the list of teams that made it
-
-
+        return winner;
     }
 }

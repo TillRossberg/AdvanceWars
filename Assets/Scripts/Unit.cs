@@ -137,8 +137,8 @@ public class Unit : MonoBehaviour
                 move = false;
                 rotate = true;
             }
-        //Debug.DrawRay(this.transform.position, this.transform.forward * 2);
-        //Debug.DrawLine(this.transform.position, target, Color.green);
+            //Debug.DrawRay(this.transform.position, this.transform.forward * 2);
+            //Debug.DrawLine(this.transform.position, target, Color.green);
         }
     }
 
@@ -840,7 +840,7 @@ public class Unit : MonoBehaviour
     //If the forward vector of the unit aligns with the vector from the unit to the target, we finished the rotation.
     private bool rotationComplete()
     {
-        if ( Vector3.Angle(this.transform.forward, lookingDirection) < 1)
+        if ( Vector3.Angle(this.transform.forward, lookingDirection) < 1 )
         {
             return true;
         }
