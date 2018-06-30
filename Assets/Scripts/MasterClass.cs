@@ -12,7 +12,7 @@ public class MasterClass : MonoBehaviour
 
 	// Use this for initialization
 	void Start ()
-    {        
+    {
         container = getContainer();
         GetComponent<TurnManager>().init();
         GetComponent<MapCreator>().init();

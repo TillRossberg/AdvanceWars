@@ -16,8 +16,7 @@ public class Database : MonoBehaviour
     public List<Sprite> unitThumbs = new List<Sprite>();
     public List<Mesh> meshes = new List<Mesh>();
 
-    // Use this for initialization
-    void Start ()
+    public void init()
     {
         weatherNames = System.Enum.GetNames(typeof(weather)).ToList<string>();
     }
@@ -25,6 +24,11 @@ public class Database : MonoBehaviour
     public Material getTeamMaterial(int value)
     {
         return teamMaterials[value];
+    }
+
+    public List<Color> getTeamColors()
+    {
+        return teamColors;
     }
 
     public Color getTeamColor(int value)
@@ -48,13 +52,13 @@ public class Database : MonoBehaviour
     }
 
     //Returns a list with the names of weather types.
-    public List<string> getWeatherOptions()
+    public List<string> getWeatherNames()
     {
         return weatherNames;
     }
 
     //Returns a list with the names of available levels.
-    public List<string> getLevels()
+    public List<string> getLevelNames()
     {
         return levelNames;        
     }

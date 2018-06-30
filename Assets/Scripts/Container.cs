@@ -11,18 +11,19 @@ public class Container : MonoBehaviour
     private Team winnerTeam = new Team();
     public bool fogOfWar = false;
     public bool abilityPower = true;//Are the abilities for the players activated?
-    public Database.weather myWeather = Database.weather.Clear;
+    public Database.weather myWeather;
     public int moneyIncrement = 1000;//The money you get per round per building.
     public float battleDuration = 4;//Duration of the battle in days, 4 means no limited duration.
     public float propertiesToWin = 11;//Amount of properties one player needs to win the game, 11 turns this winning condition off.
 
 
     // Use this for initialization
-    void Start ()
+    void Start()
     {
-        DontDestroyOnLoad(this);	
-	}
-    
+        DontDestroyOnLoad(this);
+        myWeather = Database.weather.Clear;
+    }
+
     //Set/Get Winnerteam
     public void setWinnerTeam(Team winner)
     {
@@ -39,7 +40,7 @@ public class Container : MonoBehaviour
     {
         abilityPower = value;
     }
-     
+
     //Amount of properties one player needs to win the game
     public void setPropertiesToWin(float value)
     {
@@ -48,7 +49,7 @@ public class Container : MonoBehaviour
 
     public int getPropertyCountToWin()
     {
-        if(propertiesToWin > 11)
+        if (propertiesToWin > 11)
         {
             return (int)(propertiesToWin);
         }
@@ -57,8 +58,8 @@ public class Container : MonoBehaviour
             return -1;
         }
     }
-	
-	//Duration of the battle
+
+    //Duration of the battle
     public void setBattleDuration(float value)
     {
         battleDuration = value;
@@ -83,14 +84,14 @@ public class Container : MonoBehaviour
     //Weather
     public void setWeather(int value)
     {
-        myWeather = (Database.weather)value;       
+        myWeather = (Database.weather)value;
     }
 
     public Database.weather getWeather()
     {
         return myWeather;
     }
-        
+
     //Fog of war
     public void setFogOfWar(bool value)
     {

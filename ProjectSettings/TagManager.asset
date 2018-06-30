@@ -8,6 +8,7 @@ TagManager:
   - MarkingCursor
   - ContextMenu
   - Container
+  - THEContainer
   layers:
   - Default
   - TransparentFX

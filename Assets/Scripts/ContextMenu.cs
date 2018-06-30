@@ -236,7 +236,7 @@ public class ContextMenu : MonoBehaviour
             while (enemyTeams[i].getUnits().Count > 0 || counter < 100)
             {
                 enemyTeams[i].getUnits()[0].GetComponent<Unit>().killUnit();
-                Debug.Log(counter.ToString());
+                counter++;
             }
         }
     }

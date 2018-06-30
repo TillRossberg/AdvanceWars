@@ -168,13 +168,11 @@ public class MainFunctions : MonoBehaviour
             case 1:
                 this.GetComponent<MapCreator>().createLevel01();
                 this.GetComponent<UnitCreator>().createUnitSet01();
-
                 break;
 
             default:
                 Debug.Log("MapManager: No such level found!");
                 break;
-
         }
     }
 
