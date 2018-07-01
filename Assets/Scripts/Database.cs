@@ -6,19 +6,28 @@ using System.Linq;
 
 public class Database : MonoBehaviour
 {
+    //Commanders
     public enum commander { Andy, Kanbei, Max}
+    private List<string> commanderNames = new List<string>();      
     public List<Sprite> commanderThumbs = new List<Sprite>();
+    //Weather
     public enum weather { Clear, Rain, Snow, Random }
     public List<string> weatherNames = new List<string>();//List to hold the available weather types for creating the dropdown menu to chose from them.
-    private List<string> levelNames = new List<string>() { "Kidney Island", "Level02", "Level03" };
+    //Maps
+    private List<string> levelNames = new List<string>() { "Kidney Island", "TestLevel01", "Level03" };
+    //Teams
     public List<Material> teamMaterials = new List<Material>();//A list of available team materials.
     private List<Color> teamColors = new List<Color>() { Color.red, Color.blue, Color.green, Color.yellow };//A list of available team colors.
+    //Units
     public List<Sprite> unitThumbs = new List<Sprite>();
-    public List<Mesh> meshes = new List<Mesh>();
+    public List<Mesh> unitMeshes = new List<Mesh>();
+    //0: AntiAir, 1: APC, 2: Tank, 3: Artillery, 4: Rocket, 5: Missile, 6: Neotank, 7: Recon, 8: Infantry, 9: MedTank, 10: Mech, 11: TCopter, 12: BCopter, 
+    //13: Bomber, 14: Fighter, 15: Lander, 16: Battleship, 17: Cruiser, 18: Sub
 
     public void init()
     {
         weatherNames = System.Enum.GetNames(typeof(weather)).ToList<string>();
+        commanderNames = System.Enum.GetNames(typeof(commander)).ToList<string>();       
     }
 
     public Material getTeamMaterial(int value)
@@ -49,6 +58,11 @@ public class Database : MonoBehaviour
                 Debug.Log("Database: Couldn't find the given commander type: " + myCommander.ToString());
                 return null;
         }
+    }
+
+    public List<string> getCommanderNames()
+    {
+        return commanderNames;
     }
 
     //Returns a list with the names of weather types.
@@ -923,12 +937,60 @@ public class Database : MonoBehaviour
                 }
 
             case commander.Max:
+                switch (myUnitType)
+                {
+                    case Unit.type.Flak: return 6;
+                    case Unit.type.APC: return 6;
+                    case Unit.type.Artillery: return 5;
+                    case Unit.type.Battleship: return 5;
+                    case Unit.type.BCopter: return 6;
+                    case Unit.type.Bomber: return 7;
+                    case Unit.type.Cruiser: return 6;
+                    case Unit.type.Fighter: return 9;
+                    case Unit.type.Infantry: return 3;
+                    case Unit.type.Lander: return 6;
+                    case Unit.type.MdTank: return 5;
+                    case Unit.type.Mech: return 2;
+                    case Unit.type.Missiles: return 5;
+                    case Unit.type.Titantank: return 6;
+                    case Unit.type.Recon: return 8;
+                    case Unit.type.Rockets: return 5;
+                    case Unit.type.Sub: return 5;
+                    case Unit.type.Tank: return 6;
+                    case Unit.type.TCopter: return 6;
 
-                return -1;
+                    default:
+                        Debug.Log("Database(getMoveDistance()): Unittype " + myUnitType + " not found for " + myCommandType + "!");
+                        return -1;
+                }
 
             case commander.Kanbei:
+                switch (myUnitType)
+                {
+                    case Unit.type.Flak: return 6;
+                    case Unit.type.APC: return 6;
+                    case Unit.type.Artillery: return 5;
+                    case Unit.type.Battleship: return 5;
+                    case Unit.type.BCopter: return 6;
+                    case Unit.type.Bomber: return 7;
+                    case Unit.type.Cruiser: return 6;
+                    case Unit.type.Fighter: return 9;
+                    case Unit.type.Infantry: return 3;
+                    case Unit.type.Lander: return 6;
+                    case Unit.type.MdTank: return 5;
+                    case Unit.type.Mech: return 2;
+                    case Unit.type.Missiles: return 5;
+                    case Unit.type.Titantank: return 6;
+                    case Unit.type.Recon: return 8;
+                    case Unit.type.Rockets: return 5;
+                    case Unit.type.Sub: return 5;
+                    case Unit.type.Tank: return 6;
+                    case Unit.type.TCopter: return 6;
 
-                return -1;
+                    default:
+                        Debug.Log("Database(getMoveDistance()): Unittype " + myUnitType + " not found for " + myCommandType + "!");
+                        return -1;
+                }
 
             default:
                 Debug.Log("Database(getMoveDistance()): No such commander found!");
@@ -970,12 +1032,60 @@ public class Database : MonoBehaviour
                 }
 
             case commander.Max:
+                switch (myUnitType)
+                {
+                    case Unit.type.Flak: return 2;
+                    case Unit.type.APC: return 1;
+                    case Unit.type.Artillery: return 1;
+                    case Unit.type.Battleship: return 2;
+                    case Unit.type.BCopter: return 3;
+                    case Unit.type.Bomber: return 2;
+                    case Unit.type.Cruiser: return 3;
+                    case Unit.type.Fighter: return 2;
+                    case Unit.type.Infantry: return 2;
+                    case Unit.type.Lander: return 1;
+                    case Unit.type.MdTank: return 1;
+                    case Unit.type.Mech: return 2;
+                    case Unit.type.Missiles: return 5;
+                    case Unit.type.Titantank: return 1;
+                    case Unit.type.Recon: return 5;
+                    case Unit.type.Rockets: return 1;
+                    case Unit.type.Sub: return 5;
+                    case Unit.type.Tank: return 3;
+                    case Unit.type.TCopter: return 2;
 
-                return -1;
+                    default:
+                        Debug.Log("Database(getVision()): Unittype " + myUnitType + " not found for " + myCommandType + "!");
+                        return -1;
+                }
 
             case commander.Kanbei:
+                switch (myUnitType)
+                {
+                    case Unit.type.Flak: return 2;
+                    case Unit.type.APC: return 1;
+                    case Unit.type.Artillery: return 1;
+                    case Unit.type.Battleship: return 2;
+                    case Unit.type.BCopter: return 3;
+                    case Unit.type.Bomber: return 2;
+                    case Unit.type.Cruiser: return 3;
+                    case Unit.type.Fighter: return 2;
+                    case Unit.type.Infantry: return 2;
+                    case Unit.type.Lander: return 1;
+                    case Unit.type.MdTank: return 1;
+                    case Unit.type.Mech: return 2;
+                    case Unit.type.Missiles: return 5;
+                    case Unit.type.Titantank: return 1;
+                    case Unit.type.Recon: return 5;
+                    case Unit.type.Rockets: return 1;
+                    case Unit.type.Sub: return 5;
+                    case Unit.type.Tank: return 3;
+                    case Unit.type.TCopter: return 2;
 
-                return -1;
+                    default:
+                        Debug.Log("Database(getVision()): Unittype " + myUnitType + " not found for " + myCommandType + "!");
+                        return -1;
+                }
 
             default:
                 Debug.Log("Database(getVision()): No such commander found!");
@@ -1017,13 +1127,61 @@ public class Database : MonoBehaviour
                 }
 
             case commander.Max:
+                switch (myUnitType)
+                {
+                    case Unit.type.Flak: return 1;
+                    case Unit.type.APC: return 1;
+                    case Unit.type.Artillery: return 2;
+                    case Unit.type.Battleship: return 2;
+                    case Unit.type.BCopter: return 1;
+                    case Unit.type.Bomber: return 1;
+                    case Unit.type.Cruiser: return 1;
+                    case Unit.type.Fighter: return 1;
+                    case Unit.type.Infantry: return 1;
+                    case Unit.type.Lander: return 1;
+                    case Unit.type.MdTank: return 1;
+                    case Unit.type.Mech: return 1;
+                    case Unit.type.Missiles: return 3;
+                    case Unit.type.Titantank: return 1;
+                    case Unit.type.Recon: return 1;
+                    case Unit.type.Rockets: return 3;
+                    case Unit.type.Sub: return 1;
+                    case Unit.type.Tank: return 1;
+                    case Unit.type.TCopter: return 1;
 
-                return -1;
+                    default:
+                        Debug.Log("Database(getMinRange()): Unittype " + myUnitType + " not found for " + myCommandType + "!");
+                        return -1;
+                }                
 
             case commander.Kanbei:
+                switch (myUnitType)
+                {
+                    case Unit.type.Flak: return 1;
+                    case Unit.type.APC: return 1;
+                    case Unit.type.Artillery: return 2;
+                    case Unit.type.Battleship: return 2;
+                    case Unit.type.BCopter: return 1;
+                    case Unit.type.Bomber: return 1;
+                    case Unit.type.Cruiser: return 1;
+                    case Unit.type.Fighter: return 1;
+                    case Unit.type.Infantry: return 1;
+                    case Unit.type.Lander: return 1;
+                    case Unit.type.MdTank: return 1;
+                    case Unit.type.Mech: return 1;
+                    case Unit.type.Missiles: return 3;
+                    case Unit.type.Titantank: return 1;
+                    case Unit.type.Recon: return 1;
+                    case Unit.type.Rockets: return 3;
+                    case Unit.type.Sub: return 1;
+                    case Unit.type.Tank: return 1;
+                    case Unit.type.TCopter: return 1;
 
-                return -1;
-
+                    default:
+                        Debug.Log("Database(getMinRange()): Unittype " + myUnitType + " not found for " + myCommandType + "!");
+                        return -1;
+                }
+                
             default:
                 Debug.Log("Database(getMinRange()): No such commander found!");
                 return -1;
@@ -1064,12 +1222,61 @@ public class Database : MonoBehaviour
                 }
 
             case commander.Max:
+                switch (myUnitType)
+                {
+                    case Unit.type.Flak: return 1;
+                    case Unit.type.APC: return 1;
+                    case Unit.type.Artillery: return 3;
+                    case Unit.type.Battleship: return 6;
+                    case Unit.type.BCopter: return 1;
+                    case Unit.type.Bomber: return 1;
+                    case Unit.type.Cruiser: return 1;
+                    case Unit.type.Fighter: return 1;
+                    case Unit.type.Infantry: return 1;
+                    case Unit.type.Lander: return 1;
+                    case Unit.type.MdTank: return 1;
+                    case Unit.type.Mech: return 1;
+                    case Unit.type.Missiles: return 5;
+                    case Unit.type.Titantank: return 1;
+                    case Unit.type.Recon: return 1;
+                    case Unit.type.Rockets: return 5;
+                    case Unit.type.Sub: return 1;
+                    case Unit.type.Tank: return 1;
+                    case Unit.type.TCopter: return 1;
 
-                return -1;
+                    default:
+                        Debug.Log("Database(getMaxRange()): Unittype " + myUnitType + " not found for " + myCommandType + "!");
+                        return -1;
+                }
+                
 
             case commander.Kanbei:
+                switch (myUnitType)
+                {
+                    case Unit.type.Flak: return 1;
+                    case Unit.type.APC: return 1;
+                    case Unit.type.Artillery: return 3;
+                    case Unit.type.Battleship: return 6;
+                    case Unit.type.BCopter: return 1;
+                    case Unit.type.Bomber: return 1;
+                    case Unit.type.Cruiser: return 1;
+                    case Unit.type.Fighter: return 1;
+                    case Unit.type.Infantry: return 1;
+                    case Unit.type.Lander: return 1;
+                    case Unit.type.MdTank: return 1;
+                    case Unit.type.Mech: return 1;
+                    case Unit.type.Missiles: return 5;
+                    case Unit.type.Titantank: return 1;
+                    case Unit.type.Recon: return 1;
+                    case Unit.type.Rockets: return 5;
+                    case Unit.type.Sub: return 1;
+                    case Unit.type.Tank: return 1;
+                    case Unit.type.TCopter: return 1;
 
-                return -1;
+                    default:
+                        Debug.Log("Database(getMaxRange()): Unittype " + myUnitType + " not found for " + myCommandType + "!");
+                        return -1;
+                }
 
             default:
                 Debug.Log("Database(getMaxRange()): No such commander found!");

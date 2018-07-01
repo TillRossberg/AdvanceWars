@@ -168,6 +168,13 @@ public class Tile: MonoBehaviour
         this.transform.Find("Building").GetComponent<MeshRenderer>().materials = tempMats;
     }
 
+    public void setColor(Color color)
+    {
+        Material[] tempMats = this.transform.Find("Building").GetComponent<MeshRenderer>().materials;
+        tempMats[0].color = color;
+        this.transform.Find("Building").GetComponent<MeshRenderer>().materials = tempMats;
+    }
+
     //Returns the movement cost for a certain movement type.
     public int getMovementCost(Unit.moveType myMoveType)
     {

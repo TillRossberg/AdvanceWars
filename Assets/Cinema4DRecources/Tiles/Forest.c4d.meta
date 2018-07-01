@@ -1,0 +1,261 @@
+fileFormatVersion: 2
+guid: 7aea121261562654eaf81b37b64811d8
+timeCreated: 1530410249
+licenseType: Free
+ModelImporter:
+  serializedVersion: 22
+  fileIDToRecycleName:
+    100000: Baum
+    100002: Baum_1
+    100004: Baum_2
+    100006: Baum_3
+    100008: Baum_4
+    100010: Baum_5
+    100012: Baum_6
+    100014: //RootNode
+    100016: Forest_Mesh
+    100018: Stamm
+    100020: Stamm_2
+    100022: Stamm_3
+    100024: Stamm_4
+    100026: Stamm_5
+    100028: Stamm_6
+    100030: Stamm_7
+    100032: Wipfel1
+    100034: Wipfel1_2
+    100036: Wipfel1_3
+    100038: Wipfel1_4
+    100040: Wipfel1_5
+    100042: Wipfel1_6
+    100044: Wipfel1_7
+    100046: Wipfel2
+    100048: Wipfel2_2
+    100050: Wipfel2_3
+    100052: Wipfel2_4
+    100054: Wipfel2_5
+    100056: Wipfel2_6
+    100058: Wipfel2_7
+    100060: Wipfel3
+    100062: Wipfel3_2
+    100064: Wipfel3_3
+    100066: Wipfel3_4
+    100068: Wipfel3_5
+    100070: Wipfel3_6
+    100072: Wipfel3_7
+    400000: Baum
+    400002: Baum_1
+    400004: Baum_2
+    400006: Baum_3
+    400008: Baum_4
+    400010: Baum_5
+    400012: Baum_6
+    400014: //RootNode
+    400016: Forest_Mesh
+    400018: Stamm
+    400020: Stamm_2
+    400022: Stamm_3
+    400024: Stamm_4
+    400026: Stamm_5
+    400028: Stamm_6
+    400030: Stamm_7
+    400032: Wipfel1
+    400034: Wipfel1_2
+    400036: Wipfel1_3
+    400038: Wipfel1_4
+    400040: Wipfel1_5
+    400042: Wipfel1_6
+    400044: Wipfel1_7
+    400046: Wipfel2
+    400048: Wipfel2_2
+    400050: Wipfel2_3
+    400052: Wipfel2_4
+    400054: Wipfel2_5
+    400056: Wipfel2_6
+    400058: Wipfel2_7
+    400060: Wipfel3
+    400062: Wipfel3_2
+    400064: Wipfel3_3
+    400066: Wipfel3_4
+    400068: Wipfel3_5
+    400070: Wipfel3_6
+    400072: Wipfel3_7
+    2300000: Forest_Mesh
+    2300002: Stamm
+    2300004: Stamm_2
+    2300006: Stamm_3
+    2300008: Stamm_4
+    2300010: Stamm_5
+    2300012: Stamm_6
+    2300014: Stamm_7
+    2300016: Wipfel1
+    2300018: Wipfel1_2
+    2300020: Wipfel1_3
+    2300022: Wipfel1_4
+    2300024: Wipfel1_5
+    2300026: Wipfel1_6
+    2300028: Wipfel1_7
+    2300030: Wipfel2
+    2300032: Wipfel2_2
+    2300034: Wipfel2_3
+    2300036: Wipfel2_4
+    2300038: Wipfel2_5
+    2300040: Wipfel2_6
+    2300042: Wipfel2_7
+    2300044: Wipfel3
+    2300046: Wipfel3_2
+    2300048: Wipfel3_3
+    2300050: Wipfel3_4
+    2300052: Wipfel3_5
+    2300054: Wipfel3_6
+    2300056: Wipfel3_7
+    3300000: Forest_Mesh
+    3300002: Stamm
+    3300004: Stamm_2
+    3300006: Stamm_3
+    3300008: Stamm_4
+    3300010: Stamm_5
+    3300012: Stamm_6
+    3300014: Stamm_7
+    3300016: Wipfel1
+    3300018: Wipfel1_2
+    3300020: Wipfel1_3
+    3300022: Wipfel1_4
+    3300024: Wipfel1_5
+    3300026: Wipfel1_6
+    3300028: Wipfel1_7
+    3300030: Wipfel2
+    3300032: Wipfel2_2
+    3300034: Wipfel2_3
+    3300036: Wipfel2_4
+    3300038: Wipfel2_5
+    3300040: Wipfel2_6
+    3300042: Wipfel2_7
+    3300044: Wipfel3
+    3300046: Wipfel3_2
+    3300048: Wipfel3_3
+    3300050: Wipfel3_4
+    3300052: Wipfel3_5
+    3300054: Wipfel3_6
+    3300056: Wipfel3_7
+    4300000: Wipfel1
+    4300002: Wipfel2
+    4300004: Wipfel3
+    4300006: Stamm
+    4300008: Wipfel1_2
+    4300010: Wipfel2_2
+    4300012: Wipfel3_2
+    4300014: Stamm_2
+    4300016: Wipfel1_3
+    4300018: Wipfel2_3
+    4300020: Wipfel3_3
+    4300022: Stamm_3
+    4300024: Wipfel1_4
+    4300026: Wipfel2_4
+    4300028: Wipfel3_4
+    4300030: Stamm_4
+    4300032: Wipfel1_5
+    4300034: Wipfel2_5
+    4300036: Wipfel3_5
+    4300038: Stamm_5
+    4300040: Wipfel1_6
+    4300042: Wipfel2_6
+    4300044: Wipfel3_6
+    4300046: Stamm_6
+    4300048: Wipfel1_7
+    4300050: Wipfel2_7
+    4300052: Wipfel3_7
+    4300054: Stamm_7
+    4300056: Forest_Mesh
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Baumrinde_Mat
+    second: {fileID: 2100000, guid: 952edb1a67f9e5149b3125ad54e12a45, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Baumwipfel_Mat
+    second: {fileID: 2100000, guid: b47eed07e6542c34f972e7ada92ca636, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Plain_Mat
+    second: {fileID: 2100000, guid: c917505cce3655e44a8722c93df55746, type: 2}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 0
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 0
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

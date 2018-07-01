@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Team : ScriptableObject
 {
-    public string playerName;
+    public string teamName;
     public Sprite playerPic;
     public Database.commander teamCommander;
     public List<Transform> myUnits = new List<Transform>();
@@ -25,13 +25,14 @@ public class Team : ScriptableObject
     public int unitsBuiltCounter = 0;//Counts the overall created units.
     public int unitsKilledCounter = 0;//Counts how many unit this team destroyed.
 
+    
+
     //Add an unit to the team, set its color to the teamcolor and pass information about the own team and the enemy team to the unit.
     public void addUnit(Transform unitToAdd)
     {
         myUnits.Add(unitToAdd);
         unitToAdd.GetComponent<Unit>().myTeam = this;
-        unitToAdd.GetComponent<Unit>().enemyTeams = enemyTeams;
-        unitToAdd.GetComponentInChildren<MeshRenderer>().material = teamMaterial;
+        unitToAdd.GetComponent<Unit>().enemyTeams = enemyTeams;        
         incUnitsBuilt(unitToAdd.GetComponent<Unit>().myUnitType);
     }     
     
@@ -212,10 +213,11 @@ public class Team : ScriptableObject
     {
         teamCommander = myCommander;
     }
+
     public Database.commander getTeamCommander()
     {
         return teamCommander;
-    }
+    }  
 
     //Add enemy team, but only if it is not already in the list and it is not THIS team.
     public void addEnemyTeam(Team possibleEnemy)
@@ -255,11 +257,11 @@ public class Team : ScriptableObject
 
     public void setPlayerName(string name)
     {
-        playerName = name;
+        teamName = name;
     }
     public string getPlayerName()
     {
-        return playerName;
+        return teamName;
     }
 
     public void setMoney(int amount)
@@ -294,6 +296,26 @@ public class Team : ScriptableObject
     public List<int> getUnitsBuilt()
     {
         return unitsBuilt;
+    }
+
+    public void setTeamColor(Color color)
+    {
+        teamColor = color;
+    }
+
+    public Color getTeamColor()
+    {
+        return teamColor;
+    }
+
+    public void setTeamName(string name)
+    {
+        teamName = name;
+    }
+
+    public string getTeamName()
+    {
+        return teamName;
     }
     
 }

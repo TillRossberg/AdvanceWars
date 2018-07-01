@@ -14,14 +14,15 @@ public class MasterClass : MonoBehaviour
 	void Start ()
     {
         container = getContainer();
-        GetComponent<TurnManager>().init();
         GetComponent<MapCreator>().init();
-        GetComponent<TeamManager>().initTeams();
-        GetComponent<TurnManager>().actualWeather = container.getWeather();
-        GetComponent<MainFunctions>().loadLevel(0);
-        GetComponent<TurnManager>().initSuccession();
+        //GetComponent<TeamManager>().initTeams();
+        GetComponent<TeamManager>().initTeamsFromContainer();
+        GetComponent<MainFunctions>().loadLevel(container.getNextLevelIndex());
+        //GetComponent<TurnManager>().currentWeather = container.getWeather();
+        GetComponent<TurnManager>().init();
+        //GetComponent<TurnManager>().initSuccession();
+        //GetComponent<TurnManager>().setFogOfWar(GetComponent<TurnManager>().activeTeam);
         GetComponent<StatusWindow>().displayGeneralInfo();
-        GetComponent<TurnManager>().setFogOfWar(GetComponent<TurnManager>().activeTeam);
     }
 	
 	// Update is called once per frame
@@ -40,7 +41,9 @@ public class MasterClass : MonoBehaviour
         else
         {
             Debug.Log("MasterClass: No container found, loading default container!");
-            return  Instantiate(containerPrefab).GetComponent<Container>();           
+            Container container = Instantiate(containerPrefab).GetComponent<Container>();
+            container.initTestContainer01();
+            return container;
         }
     }
 }

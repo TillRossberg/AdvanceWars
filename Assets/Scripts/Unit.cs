@@ -30,7 +30,7 @@ public class Unit : MonoBehaviour
 
     //Required data structures
     GameObject myLevelManager;
-    private List<List<Transform>> graphMatrix = new List<List<Transform>>();
+    public List<List<Transform>> graphMatrix;
     MapCreator graph;
     //Tilestuff
 	public Transform reachableTilePrefab;
@@ -725,8 +725,9 @@ public class Unit : MonoBehaviour
     
     //Calculates the visible area of this unit depending on its vision range and marks the visible tiles in the graph.
     public void calcVisibleArea()
-    {        
-        if(myLevelManager.GetComponent<MasterClass>().container.fogOfWar)
+    {
+        Debug.Log("calcing vision for" + this.name);
+        if (myLevelManager.GetComponent<MasterClass>().container.fogOfWar)
         {
             graph.getTile(xPos, yPos).setVisible(true);//Mark own position as visible.
             for (int i = 1; i <= visionRange; i++)

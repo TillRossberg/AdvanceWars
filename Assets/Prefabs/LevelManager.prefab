@@ -333,33 +333,18 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  meshes:
-  - {fileID: 4300000, guid: a302dc3963dc71e448c61998ee512e21, type: 3}
-  - {fileID: 4300000, guid: 803818718f03f32468a945e599bcc83c, type: 3}
-  - {fileID: 4300000, guid: a5c48badeb12db64bb54f2e058cba64d, type: 3}
-  - {fileID: 4300000, guid: fa07a0751d858104aacc0d64725b53c2, type: 3}
-  - {fileID: 4300000, guid: ae21ce0c239109f4ab6dafab94126cf4, type: 3}
-  - {fileID: 4300000, guid: 7309d3d7f3cf217449ce0cc24e3d6fd0, type: 3}
-  - {fileID: 4300000, guid: 9665cc5e8af2c8649ae3aff829c43343, type: 3}
-  - {fileID: 4300000, guid: d4aefd3abd6464740b978258e3e7a6bb, type: 3}
+  unitMeshes:
   - {fileID: 4300002, guid: 4067cfa7b0f758e40b7388eb7c71c1fa, type: 3}
+  - {fileID: 4300000, guid: 9665cc5e8af2c8649ae3aff829c43343, type: 3}
+  - {fileID: 4300000, guid: a302dc3963dc71e448c61998ee512e21, type: 3}
+  - {fileID: 4300000, guid: d4aefd3abd6464740b978258e3e7a6bb, type: 3}
+  - {fileID: 4300000, guid: 803818718f03f32468a945e599bcc83c, type: 3}
   - {fileID: 0}
   - {fileID: 0}
+  - {fileID: 4300000, guid: 7309d3d7f3cf217449ce0cc24e3d6fd0, type: 3}
+  - {fileID: 4300000, guid: fa07a0751d858104aacc0d64725b53c2, type: 3}
+  - {fileID: 4300000, guid: a5c48badeb12db64bb54f2e058cba64d, type: 3}
+  - {fileID: 4300000, guid: ae21ce0c239109f4ab6dafab94126cf4, type: 3}
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -423,7 +408,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2051f6a2643704f4cb2cc7d305d32f62, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  explosion01: {fileID: 8300000, guid: 5e7a63be8def7014eab8f2ed32374709, type: 3}
+  explosion01Sound: {fileID: 8300000, guid: 5e7a63be8def7014eab8f2ed32374709, type: 3}
+  clickSound: {fileID: 8300000, guid: b3b0958d1a5fca74fa11221a0eab2d78, type: 3}
+  music: []
+  player: {fileID: 0}
+  backgroundMusicPlayer: {fileID: 0}
 --- !u!114 &114402233676396574
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -436,7 +425,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   activeTeam: {fileID: 0}
-  actualWeather: 0
+  currentWeather: 0
   roundCounter: 1
   succession: []
 --- !u!114 &114436963180333558

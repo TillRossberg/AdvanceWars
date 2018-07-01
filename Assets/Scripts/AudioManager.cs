@@ -13,7 +13,7 @@ public class AudioManager : MonoBehaviour
     public void init()
     {
         initBackgroundMusic(0);
-        playBackGroundMusic(true);
+        //playBackGroundMusic(true);
     }
 
     public void playSoundAt(string soundName, int x, int y)

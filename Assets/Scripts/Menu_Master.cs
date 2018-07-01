@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
-public class Menu__Master : MonoBehaviour
+public class Menu_Master : MonoBehaviour
 {
     //Data structures
     private Container container;

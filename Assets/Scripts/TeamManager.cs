@@ -27,6 +27,33 @@ public class TeamManager : MonoBehaviour
         GameObject.FindGameObjectWithTag("Container").GetComponent<Container>().setTeams(teams);
     }
 
+    public void initTeamsFromContainer()
+    {
+        Container container = GetComponent<MasterClass>().getContainer();
+        teams = container.getTeams();
+        Team team1 = teams[0];
+        Team team2 = teams[1];
+        //Team 1
+        team1.addEnemyTeam(team2);
+        team1.setAllUnitsAvailable();
+        team1.name = team1.getTeamName();
+        team1.teamMaterial = GetComponent<Database>().getTeamMaterial(2);        
+        //Create empty game object in wich we will store the units for the team later.
+        GameObject emptyGameObject = new GameObject();
+        emptyGameObject.name = team1.name;
+        emptyGameObject.transform.SetParent(this.transform);
+
+        //Team 2
+        team2.addEnemyTeam(team1);
+        team2.setAllUnitsAvailable();
+        team2.name = team2.getTeamName();
+        team2.teamMaterial = GetComponent<Database>().getTeamMaterial(2);
+        //Create empty game object in wich we will store the units for the team later.
+        emptyGameObject = new GameObject();
+        emptyGameObject.name = team2.name;
+        emptyGameObject.transform.SetParent(this.transform);
+    }
+
     //Create a team with a name and a color from the teamColors list and add it to the teams list.
     public void createTeam(string myTeamName, int colorNumber)
     {
@@ -68,6 +95,10 @@ public class TeamManager : MonoBehaviour
         return null;
     }
 
+    public Team getTeam(int index)
+    {
+        return teams[index];
+    }
     //Returns all teams
     public List<Team> getTeams()
     {
@@ -90,6 +121,7 @@ public class TeamManager : MonoBehaviour
             tile.owningTeam = newOwner;
             //Set the color of the property to the occupying team color.
             tile.setMaterial(newOwner.teamMaterial);
+            tile.setColor(newOwner.getTeamColor());
             //Add the tile to the new owners properties.
             newOwner.ownedProperties.Add(tile);
             //If you occupy the enemies HQ, you win the game.
@@ -97,12 +129,14 @@ public class TeamManager : MonoBehaviour
             if(tile.myTileType == Tile.type.HQ && GetComponent<TurnManager>().roundCounter > 1)
             {
                 //TODO: decide if more than two teams are playing and then only remove the defeated team from the map.
+                //TODO: winning animationstuff
                 GetComponent<LevelLoader>().loadGameFinishedScreenWithDelay();
             }
             //If you reach the necessary amount of properties you also win the game.
             if(newOwner.ownedProperties.Count == GetComponent<MasterClass>().container.getPropertyCountToWin())
             {
                 //TODO: decide if more than two teams are playing and then only remove the defeated team from the map.
+                //TODO: winning animationstuff
                 GetComponent<LevelLoader>().loadGameFinishedScreenWithDelay();
             }
         }

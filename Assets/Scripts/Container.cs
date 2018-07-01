@@ -6,22 +6,75 @@ using UnityEngine;
 
 public class Container : MonoBehaviour
 {
-    public int nextLevelToLoad = 0;
-    public List<Team> teams = new List<Team>();
-    private Team winnerTeam = new Team();
-    public bool fogOfWar = false;
-    public bool abilityPower = true;//Are the abilities for the players activated?
+    public int nextLevelToLoad;
+    public List<Team> teams;
+    private Team winnerTeam;
+    public bool fogOfWar;
+    public bool abilityPower;//Are the abilities for the players activated?
     public Database.weather myWeather;
-    public int moneyIncrement = 1000;//The money you get per round per building.
-    public float battleDuration = 4;//Duration of the battle in days, 4 means no limited duration.
+    public int moneyIncrement;//The money you get per round per building.
+    public float battleDuration;//Duration of the battle in days, 4 means no limited duration.
     public float propertiesToWin = 11;//Amount of properties one player needs to win the game, 11 turns this winning condition off.
 
 
     // Use this for initialization
     void Start()
     {
-        DontDestroyOnLoad(this);
+        //Initialize fields
+        nextLevelToLoad = 0;
+        teams = new List<Team>();
+        abilityPower = true;
+        moneyIncrement = 1000;
+        battleDuration = 4;
+        propertiesToWin = 11;
         myWeather = Database.weather.Clear;
+        initTeams(2);
+
+        DontDestroyOnLoad(this);
+    }
+
+//Teams
+    public void setTeamParameters(int teamIndex, Database.commander teamCommander, Color teamColor)
+    {
+
+    }
+
+    //Init the list of the teams.
+    public void initTeams(int count)
+    {
+        teams.Clear();
+        for (int i = 0; i < count; i++)
+        {
+            Team team = ScriptableObject.CreateInstance("Team") as Team;            
+            teams.Add(team);
+        }
+        teams[1].setTeamCommander(Database.commander.Max);
+    }
+
+    //Get/Set the general for the chosen team. (Currently only two opposing teams are possible.)
+    public void setCommanderPlayerOne(int index)
+    {
+        teams[0].setTeamCommander((Database.commander)index);
+    }
+    public void setCommanderPlayerTwo(int index)
+    {
+        teams[1].setTeamCommander((Database.commander)index);
+    }
+    public Database.commander getTeamCommander(int teamIndex)
+    {
+        return teams[teamIndex].getTeamCommander();
+    }
+
+    //Teamcolor
+    public void setTeamColor(int teamIndex, Color color)
+    {
+        teams[teamIndex].setTeamColor(color);
+    }
+
+    //Teamname
+    public void setTeamName(int teamIndex, string name)
+    {
+        teams[teamIndex].setTeamName(name);
     }
 
     //Set/Get Winnerteam
@@ -35,6 +88,17 @@ public class Container : MonoBehaviour
         return winnerTeam;
     }
 
+    public void setTeams(List<Team> teams)
+    {
+        this.teams = teams;
+    }
+
+    public List<Team> getTeams()
+    {
+        return teams;
+    }
+
+//Multiplayer Options
     //Ability
     public void setAbility(bool value)
     {
@@ -109,19 +173,23 @@ public class Container : MonoBehaviour
         nextLevelToLoad = value;
     }
 
-    public int getNextLevel()
+    public int getNextLevelIndex()
     {
         return nextLevelToLoad;
     }
 
-    //Teams
-    public void setTeams(List<Team> teams)
+    public void initTestContainer01()
     {
-        this.teams = teams;
+        setNextLevel(2);
+        myWeather = Database.weather.Clear;
+        initTeams(2);
+        setCommanderPlayerOne(0);
+        setCommanderPlayerTwo(2);
+        setTeamColor(0, Color.red);
+        setTeamColor(1, Color.blue);
+        setTeamName(0, "Team Andy");
+        setTeamName(1, "Team Max");
+        setFogOfWar(true);
     }
 
-    public List<Team> getTeams()
-    {
-        return teams;
-    }
 }

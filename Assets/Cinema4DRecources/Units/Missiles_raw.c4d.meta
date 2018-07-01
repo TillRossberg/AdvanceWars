@@ -1,0 +1,177 @@
+fileFormatVersion: 2
+guid: aa4efd027d75c6e4f902f4b69ba4af3c
+timeCreated: 1530410263
+licenseType: Free
+ModelImporter:
+  serializedVersion: 22
+  fileIDToRecycleName:
+    100000: "Deckfl\xE4che_1"
+    100002: "Deckfl\xE4che_2"
+    100004: Extrudieren
+    100006: //RootNode
+    100008: Rad
+    100010: Rad_1
+    100012: Rad_2
+    100014: Rad_3
+    100016: Rad_4
+    100018: Rad_5
+    100020: "Satellitensch\xFCssel"
+    100022: "W\xFCrfel"
+    100024: "W\xFCrfel_1"
+    100026: Zylinder
+    100028: Zylinder_1
+    100030: Zylinder_2
+    100032: Zylinder_3
+    400000: "Deckfl\xE4che_1"
+    400002: "Deckfl\xE4che_2"
+    400004: Extrudieren
+    400006: //RootNode
+    400008: Rad
+    400010: Rad_1
+    400012: Rad_2
+    400014: Rad_3
+    400016: Rad_4
+    400018: Rad_5
+    400020: "Satellitensch\xFCssel"
+    400022: "W\xFCrfel"
+    400024: "W\xFCrfel_1"
+    400026: Zylinder
+    400028: Zylinder_1
+    400030: Zylinder_2
+    400032: Zylinder_3
+    2300000: "Deckfl\xE4che_1"
+    2300002: "Deckfl\xE4che_2"
+    2300004: Extrudieren
+    2300006: Rad
+    2300008: Rad_1
+    2300010: Rad_2
+    2300012: Rad_3
+    2300014: Rad_4
+    2300016: Rad_5
+    2300018: "Satellitensch\xFCssel"
+    2300020: "W\xFCrfel"
+    2300022: "W\xFCrfel_1"
+    2300024: Zylinder
+    2300026: Zylinder_1
+    2300028: Zylinder_2
+    2300030: Zylinder_3
+    3300000: "Deckfl\xE4che_1"
+    3300002: "Deckfl\xE4che_2"
+    3300004: Extrudieren
+    3300006: Rad
+    3300008: Rad_1
+    3300010: Rad_2
+    3300012: Rad_3
+    3300014: Rad_4
+    3300016: Rad_5
+    3300018: "Satellitensch\xFCssel"
+    3300020: "W\xFCrfel"
+    3300022: "W\xFCrfel_1"
+    3300024: Zylinder
+    3300026: Zylinder_1
+    3300028: Zylinder_2
+    3300030: Zylinder_3
+    4300000: Zylinder_3
+    4300002: "Satellitensch\xFCssel"
+    4300004: Zylinder_2
+    4300006: Zylinder_1
+    4300008: "W\xFCrfel"
+    4300010: Zylinder
+    4300012: Rad_2
+    4300014: Rad_1
+    4300016: Rad
+    4300018: Rad_5
+    4300020: Rad_4
+    4300022: Rad_3
+    4300024: Extrudieren
+    4300026: "Deckfl\xE4che_1"
+    4300028: "Deckfl\xE4che_2"
+    4300030: "W\xFCrfel_1"
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: No Name
+    second: {fileID: 2100000, guid: aadbce294b1bd44419fd65c2ac89a821, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Plain_Mat
+    second: {fileID: 2100000, guid: 605ec15b423bb1a40b6ecf62884a4229, type: 2}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 0
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 0
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -8,7 +8,7 @@ public class TurnManager : MonoBehaviour
     TeamManager teamManager;
 
     public Team activeTeam;
-    public Database.weather actualWeather;
+    public Database.weather currentWeather;
     public int roundCounter = 1;//A round has passed, when all teams had their turn.
 
     //Succession
@@ -19,15 +19,18 @@ public class TurnManager : MonoBehaviour
     {
         mainFunctions = GetComponent<MainFunctions>();
         teamManager = GetComponent<TeamManager>();
+        currentWeather = GetComponent<MasterClass>().getContainer().getWeather();
+        initSuccession();
+        setFogOfWar(activeTeam);
     }      
 
     //Start turn
-    public void startTurn(Team team)
+    public void startTurn()
     {
         mainFunctions.deselectObject();//Make sure nothing is selected when the next turn starts.
-        activeTeam = team;
+        activeTeam = getNextTeam();
         GetComponent<StatusWindow>().displayGeneralInfo();//Update the GUI for the active team       
-        activateUnits(team);       
+        activateUnits(activeTeam);       
         setFogOfWar(activeTeam);//Set fog of war for this team.
 
         //Subtract fuel.
@@ -44,9 +47,10 @@ public class TurnManager : MonoBehaviour
     //End turn
     public void endTurn()
     {
+        Debug.Log("Ending turn");
         deactivateUnits(activeTeam);
         GetComponent<MapCreator>().resetFogOfWar();
-        startTurn(getNextTeam());
+        startTurn();
     }
 
     //Give money for each property the team owns. 
@@ -149,12 +153,12 @@ public class TurnManager : MonoBehaviour
         }
         else
         {
-            actualWeather = GetComponent<MasterClass>().container.getWeather();
+            currentWeather = GetComponent<MasterClass>().container.getWeather();
         }
     }
     public Database.weather getWeather()
     {
-        return actualWeather;
+        return currentWeather;
     }
 
     //Each unit of the given team calculates its visiblity and marks the tiles it can see. (Only if fog of war was activated in the options)
@@ -163,6 +167,7 @@ public class TurnManager : MonoBehaviour
     {
         if(GetComponent<MasterClass>().container.fogOfWar)
         {
+            Debug.Log("Setting fog of war!");
             GetComponent<MapCreator>().resetFogOfWar();//Reset all tiles to invisible.            
             for(int i = 0; i < team.myUnits.Count; i++)
             {

@@ -9,7 +9,7 @@ public class MapCreator : MonoBehaviour
     Database database;
 
     //General
-    private List<List<Transform>> myGraph = new List<List<Transform>>();
+    private List<List<Transform>> myGraph;
 
 
     //Graphic elements
@@ -44,7 +44,7 @@ public class MapCreator : MonoBehaviour
 
     public enum GraphicType { plain_Normal, plain_Water, plain_WaterCorner, forest_Normal, road_Normal, road_Bridge, road_Curve, road_Crossing, road_TPart, road_Deadend,
                               mountain_Normal, property_HQ, property_City, property_Facility, property_Airport, property_Port, sea_Normal, reef_Normal  };
-    public List<Transform> tilePrefabs = new List<Transform>(); // 0 = plain, 1 = forest, 2 = road, 3 = mountain, 4 = river, 5 = shoal, 6 = sea, 7 = reef, 8 = property, 9 = port
+    public List<Transform> tilePrefabs; // 0 = plain, 1 = forest, 2 = road, 3 = mountain, 4 = river, 5 = shoal, 6 = sea, 7 = reef, 8 = property, 9 = port
 
     //Thumbnails
     public Sprite plainThumb;
@@ -53,14 +53,23 @@ public class MapCreator : MonoBehaviour
     public Sprite mountainThumb;
 
     //Stuff i dont know where to put else
-    private float tileHeight = -0.07f;
-    private float scalingFactor = 100;
+    private float tileHeight;
+    private float scalingFactor;
 
 
-	//Graph
-	public int gridHeight = 3;
-	public int gridWidth = 3;
-    
+    //Graph
+    public int gridHeight;
+    public int gridWidth;
+
+    private void Start()
+    {
+        myGraph = new List<List<Transform>>();
+        tilePrefabs = new List<Transform>();
+        tileHeight = -0.07f;
+        scalingFactor = 100;
+        gridHeight = 3;
+        gridWidth = 3;
+    }
     public void init()
     {
         database = GetComponent<Database>();       
@@ -284,11 +293,218 @@ public class MapCreator : MonoBehaviour
         findNeighbors();
     }
 
-    public void createLevel01()
+    public void createTestLevel01()
     {
         createEmptyGraph(12, 12, Tile.type.Plain);
         changeTile(3, 5, 0, Tile.type.Forest);
         
+        findNeighbors();
+    }
+
+    public void createLevel_TheRiver()
+    {
+        createEmptyGraph(25,13, Tile.type.Plain);
+
+        //Mountains
+        //left
+        changeTile(0, 0, 0, Tile.type.Mountain);
+        changeTile(1, 0, 0, Tile.type.Mountain);
+        changeTile(2, 0, 0, Tile.type.Mountain);
+        changeTile(2, 1, 0, Tile.type.Mountain);
+        changeTile(2, 2, 0, Tile.type.Mountain);
+        changeTile(3, 2, 0, Tile.type.Mountain);
+        changeTile(4, 2, 0, Tile.type.Mountain);
+        changeTile(4, 3, 0, Tile.type.Mountain);
+        changeTile(4, 5, 0, Tile.type.Mountain);
+        changeTile(4, 6, 0, Tile.type.Mountain);
+        changeTile(4, 7, 0, Tile.type.Mountain);
+        changeTile(4, 9, 0, Tile.type.Mountain);
+        changeTile(4, 10, 0, Tile.type.Mountain);
+        changeTile(3, 10, 0, Tile.type.Mountain);
+        changeTile(2, 10, 0, Tile.type.Mountain);
+        changeTile(2, 11, 0, Tile.type.Mountain);
+        changeTile(2, 12, 0, Tile.type.Mountain);
+        changeTile(1, 12, 0, Tile.type.Mountain);
+        changeTile(0, 12, 0, Tile.type.Mountain);
+        changeTile(5, 5, 0, Tile.type.Mountain);
+        changeTile(5, 6, 0, Tile.type.Mountain);
+        changeTile(5, 7, 0, Tile.type.Mountain);
+        changeTile(6, 7, 0, Tile.type.Mountain);
+        //right
+        changeTile(22, 0, 0, Tile.type.Mountain);
+        changeTile(23, 0, 0, Tile.type.Mountain);
+        changeTile(24, 0, 0, Tile.type.Mountain);
+        changeTile(22, 1, 0, Tile.type.Mountain);
+        changeTile(22, 2, 0, Tile.type.Mountain);
+        changeTile(20, 2, 0, Tile.type.Mountain);
+        changeTile(21, 2, 0, Tile.type.Mountain);
+        changeTile(20, 3, 0, Tile.type.Mountain);
+        changeTile(20, 5, 0, Tile.type.Mountain);
+        changeTile(20, 6, 0, Tile.type.Mountain);
+        changeTile(20, 7, 0, Tile.type.Mountain);
+        changeTile(20, 9, 0, Tile.type.Mountain);
+        changeTile(20, 10, 0, Tile.type.Mountain);
+        changeTile(21, 10, 0, Tile.type.Mountain);
+        changeTile(22, 10, 0, Tile.type.Mountain);
+        changeTile(22, 11, 0, Tile.type.Mountain);
+        changeTile(22, 12, 0, Tile.type.Mountain);
+        changeTile(23, 12, 0, Tile.type.Mountain);
+        changeTile(24, 12, 0, Tile.type.Mountain);
+        changeTile(19, 5, 0, Tile.type.Mountain);
+        changeTile(19, 6, 0, Tile.type.Mountain);
+        changeTile(19, 7, 0, Tile.type.Mountain);
+        changeTile(18, 5, 0, Tile.type.Mountain);
+
+        //River
+        for (int i = 0; i < 13; i++)
+        {
+            changeTile(12, i, 0, Tile.type.Sea);
+        }
+
+        //Roads
+        for (int i = 2; i < 23; i++)
+        {
+            changeTile(i, 8, 0, Tile.type.RoadStraight);
+            changeTile(i, 4, 0, Tile.type.RoadStraight);
+        }
+
+        changeTile(1, 4, 90, Tile.type.RoadCurve);
+        changeTile(1, 8, 180, Tile.type.RoadCurve);
+        changeTile(23, 8, 270, Tile.type.RoadCurve);
+        changeTile(23, 4, 0, Tile.type.RoadCurve);
+
+        changeTile(1, 5, 90, Tile.type.RoadStraight);
+        changeTile(1, 6, 90, Tile.type.RoadStraight);
+        changeTile(1, 7, 90, Tile.type.RoadStraight);
+        changeTile(23, 5, 90, Tile.type.RoadStraight);
+        changeTile(23, 6, 90, Tile.type.RoadStraight);
+        changeTile(23, 7, 90, Tile.type.RoadStraight);
+
+        //Woods
+        //left
+        changeTile(0, 1, 0, Tile.type.Forest);
+        changeTile(0, 2, 0, Tile.type.Forest);
+        changeTile(0, 10, 0, Tile.type.Forest);
+        changeTile(0, 11, 0, Tile.type.Forest);
+        changeTile(1, 1, 0, Tile.type.Forest);
+        changeTile(1, 11, 0, Tile.type.Forest);
+        changeTile(4, 1, 0, Tile.type.Forest);
+        changeTile(4, 11, 0, Tile.type.Forest);
+        changeTile(4, 12, 0, Tile.type.Forest);
+        changeTile(3, 11, 0, Tile.type.Forest);
+        changeTile(3, 12, 0, Tile.type.Forest);
+        changeTile(5, 0, 0, Tile.type.Forest);
+        changeTile(5, 1, 0, Tile.type.Forest);
+        changeTile(5, 2, 0, Tile.type.Forest);
+        changeTile(5, 10, 0, Tile.type.Forest);
+        changeTile(5, 11, 0, Tile.type.Forest);
+        changeTile(5, 12, 0, Tile.type.Forest);
+        changeTile(6, 0, 0, Tile.type.Forest);
+        changeTile(6, 5, 0, Tile.type.Forest);
+        changeTile(6, 6, 0, Tile.type.Forest);
+        changeTile(6, 11, 0, Tile.type.Forest);
+        changeTile(7, 5, 0, Tile.type.Forest);
+        changeTile(7, 6, 0, Tile.type.Forest);
+        changeTile(8, 0, 0, Tile.type.Forest);
+        changeTile(8, 5, 0, Tile.type.Forest);
+        changeTile(8, 6, 0, Tile.type.Forest);
+        changeTile(8, 7, 0, Tile.type.Forest);
+        changeTile(9, 6, 0, Tile.type.Forest);
+        changeTile(10, 0, 0, Tile.type.Forest);
+        changeTile(11, 0, 0, Tile.type.Forest);
+        changeTile(11, 1, 0, Tile.type.Forest);
+        changeTile(10, 12, 0, Tile.type.Forest);
+        changeTile(11, 11, 0, Tile.type.Forest);
+        changeTile(11, 12, 0, Tile.type.Forest);
+        //right
+        changeTile(13, 0, 0, Tile.type.Forest);
+        changeTile(13, 1, 0, Tile.type.Forest);
+        changeTile(13, 11, 0, Tile.type.Forest);
+        changeTile(13, 12, 0, Tile.type.Forest);
+        changeTile(14, 0, 0, Tile.type.Forest);
+        changeTile(14, 12, 0, Tile.type.Forest);
+        changeTile(15, 6, 0, Tile.type.Forest);
+        changeTile(16, 5, 0, Tile.type.Forest);
+        changeTile(16, 6, 0, Tile.type.Forest);
+        changeTile(16, 7, 0, Tile.type.Forest);
+        changeTile(16, 12, 0, Tile.type.Forest);
+        changeTile(17, 6, 0, Tile.type.Forest);
+        changeTile(17, 7, 0, Tile.type.Forest);
+        changeTile(18, 1, 0, Tile.type.Forest);
+        changeTile(18, 6, 0, Tile.type.Forest);
+        changeTile(18, 7, 0, Tile.type.Forest);
+        changeTile(18, 12, 0, Tile.type.Forest);
+        changeTile(19, 0, 0, Tile.type.Forest);
+        changeTile(19, 1, 0, Tile.type.Forest);
+        changeTile(19, 2, 0, Tile.type.Forest);
+        changeTile(19, 10, 0, Tile.type.Forest);
+        changeTile(19, 11, 0, Tile.type.Forest);
+        changeTile(19, 12, 0, Tile.type.Forest);
+        changeTile(20, 0, 0, Tile.type.Forest);
+        changeTile(20, 1, 0, Tile.type.Forest);
+        changeTile(20, 11, 0, Tile.type.Forest);
+        changeTile(21, 0, 0, Tile.type.Forest);
+        changeTile(21, 1, 0, Tile.type.Forest);
+        changeTile(23, 1, 0, Tile.type.Forest);
+        changeTile(24, 1, 0, Tile.type.Forest);
+        changeTile(24, 2, 0, Tile.type.Forest);
+        changeTile(24, 1, 0, Tile.type.Forest);
+        changeTile(24, 2, 0, Tile.type.Forest);
+        changeTile(24, 10, 0, Tile.type.Forest);
+        changeTile(24, 11, 0, Tile.type.Forest);
+
+        //Properties
+        //left
+        changeTile(0, 6, 0, Tile.type.HQ);
+        changeTile(0, 4, 0, Tile.type.Facility);
+        changeTile(0, 8, 0, Tile.type.Facility);
+        changeTile(10, 6, 0, Tile.type.Facility);
+        changeTile(1, 3, 0, Tile.type.City);
+        changeTile(1, 9, 0, Tile.type.City);
+        changeTile(2, 5, 0, Tile.type.City);
+        changeTile(2, 7, 0, Tile.type.City);
+        changeTile(7, 2, 0, Tile.type.City);
+        changeTile(7, 10, 0, Tile.type.City);
+        changeTile(10, 2, 0, Tile.type.City);
+        changeTile(10, 10, 0, Tile.type.City);
+
+
+        //right
+        changeTile(24, 6, 0, Tile.type.HQ);
+        changeTile(14, 6, 0, Tile.type.Facility);
+        changeTile(24, 4, 0, Tile.type.Facility);
+        changeTile(24, 8, 0, Tile.type.Facility);
+        changeTile(14, 2, 0, Tile.type.City);
+        changeTile(14, 10, 0, Tile.type.City);
+        changeTile(17, 2, 0, Tile.type.City);
+        changeTile(17, 10, 0, Tile.type.City);
+        changeTile(22, 5, 0, Tile.type.City);
+        changeTile(22, 7, 0, Tile.type.City);
+        changeTile(23, 3, 0, Tile.type.City);
+        changeTile(23, 9, 0, Tile.type.City);
+
+        //Occupation
+        Team team1 = this.GetComponent<TeamManager>().getTeam(0);
+        this.GetComponent<TeamManager>().occupyProperty(team1, getTile(0, 4));
+        this.GetComponent<TeamManager>().occupyProperty(team1, getTile(0, 6));
+        this.GetComponent<TeamManager>().occupyProperty(team1, getTile(0, 8));
+        this.GetComponent<TeamManager>().occupyProperty(team1, getTile(2, 5));
+        this.GetComponent<TeamManager>().occupyProperty(team1, getTile(2, 7));
+        this.GetComponent<TeamManager>().occupyProperty(team1, getTile(1, 3));
+        this.GetComponent<TeamManager>().occupyProperty(team1, getTile(1, 9));
+
+
+        Team team2 = this.GetComponent<TeamManager>().getTeam(1);
+        this.GetComponent<TeamManager>().occupyProperty(team2, getTile(24, 4));
+        this.GetComponent<TeamManager>().occupyProperty(team2, getTile(24, 6));
+        this.GetComponent<TeamManager>().occupyProperty(team2, getTile(24, 8));
+        this.GetComponent<TeamManager>().occupyProperty(team2, getTile(22, 5));
+        this.GetComponent<TeamManager>().occupyProperty(team2, getTile(22, 7));
+        this.GetComponent<TeamManager>().occupyProperty(team2, getTile(23, 3));
+        this.GetComponent<TeamManager>().occupyProperty(team2, getTile(23, 9));
+
+
+
         findNeighbors();
     }
 
@@ -546,6 +762,7 @@ public class MapCreator : MonoBehaviour
 
         findNeighbors();
     }
+    
 
     //Accesses the tileProperties of a tile by the given position.
     public Tile getTile(int x, int y)

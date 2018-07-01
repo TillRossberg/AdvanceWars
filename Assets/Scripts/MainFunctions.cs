@@ -166,8 +166,13 @@ public class MainFunctions : MonoBehaviour
                 break;
 
             case 1:
-                this.GetComponent<MapCreator>().createLevel01();
-                this.GetComponent<UnitCreator>().createUnitSet01();
+                this.GetComponent<MapCreator>().createTestLevel01();
+                this.GetComponent<UnitCreator>().createUnitTestSet01();
+                break;
+
+            case 2:
+                this.GetComponent<MapCreator>().createLevel_TheRiver();
+                this.GetComponent<UnitCreator>().createUnitSet_TheRiver();
                 break;
 
             default:
