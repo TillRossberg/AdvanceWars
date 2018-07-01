@@ -6,7 +6,7 @@ using UnityEngine;
 public class TeamManager : MonoBehaviour
 {
     //General 
-    public List<Team> teams = new List<Team>();   
+    public List<Team> teams; 
     
     //Initiate the teams for this game with the info from the container. Define wich units they can build, wich teams are enemies and whos commander.
     //TODO: get the actual values from the container

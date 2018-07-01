@@ -47,7 +47,6 @@ public class TurnManager : MonoBehaviour
     //End turn
     public void endTurn()
     {
-        Debug.Log("Ending turn");
         deactivateUnits(activeTeam);
         GetComponent<MapCreator>().resetFogOfWar();
         startTurn();
@@ -167,7 +166,6 @@ public class TurnManager : MonoBehaviour
     {
         if(GetComponent<MasterClass>().container.fogOfWar)
         {
-            Debug.Log("Setting fog of war!");
             GetComponent<MapCreator>().resetFogOfWar();//Reset all tiles to invisible.            
             for(int i = 0; i < team.myUnits.Count; i++)
             {

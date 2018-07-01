@@ -124,16 +124,15 @@ public class Unit : MonoBehaviour
                     {
                         wait();
                         myLevelManager.GetComponent<ContextMenu>().showExclamationMark(xPos, yPos); //Show exclamation mark.
-                        //Stop move sound.
-                        //Play interruption sound
+                        //TODO: Stop move sound.
+                        //TODO: Play interruption sound
                     }
-                    Debug.Log("Reached last way point!");                    
                 }
                 target = wayPointList[wayPointIndex];
                 lookingDirection = (wayPointList[wayPointIndex] - transform.position).normalized;//Vector from our position to the target
                 endRotation = Quaternion.LookRotation(lookingDirection);//The actual rotation we need to look at the target.  
-                //Stop move sound.
-                //Play rotation sound.
+                //TODO: Stop move sound.
+                //TODO: Play rotation sound.
                 move = false;
                 rotate = true;
             }
@@ -277,12 +276,19 @@ public class Unit : MonoBehaviour
         //Remove unit from team list
         myTeam.myUnits.Remove(this.transform);
         //If this was the last unit of the player the game is lost.
-        if(myTeam.myUnits.Count <= 0)
+        if (myTeam.myUnits.Count <= 0)
         {
+            myLevelManager.GetComponent<MasterClass>().container.setTeams(myLevelManager.GetComponent<TeamManager>().getTeams());
             myLevelManager.GetComponent<LevelLoader>().loadGameFinishedScreenWithDelay();//This has a short delay, so the player sees how the last unit is destroyed.
         }
         //Finally delete the unit.
         Destroy(this.gameObject);
+    }
+
+    public void killUnitDelayed()
+    {
+        float delay = Random.Range(1.1f, 2.5f);
+        Invoke("killUnit", delay);
     }
 
     //Move the unit to a field and align it so it faces away, from where it came.
@@ -726,7 +732,6 @@ public class Unit : MonoBehaviour
     //Calculates the visible area of this unit depending on its vision range and marks the visible tiles in the graph.
     public void calcVisibleArea()
     {
-        Debug.Log("calcing vision for" + this.name);
         if (myLevelManager.GetComponent<MasterClass>().container.fogOfWar)
         {
             graph.getTile(xPos, yPos).setVisible(true);//Mark own position as visible.

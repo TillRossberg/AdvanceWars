@@ -221,23 +221,15 @@ public class ContextMenu : MonoBehaviour
 
     public void killAllEnemies()
     {
+
         List<Team> enemyTeams = GameObject.FindGameObjectWithTag("LevelManager").GetComponent<TurnManager>().getActiveTeam().getEnemyTeams();
         for (int i = 0; i < enemyTeams.Count; i++)
         {
-            //for (int j = 0; i < enemyTeams[i].getUnits().Count; j++)
-            //{
-            //    enemyTeams[i].getUnits()[j].GetComponent<Unit>().killUnit();
-            //}
-            //foreach (Transform unit in enemyTeams[i].getUnits())
-            //{
-            //    unit.GetComponent<Unit>().killUnit();
-            //}
-            int counter = 0;
-            while (enemyTeams[i].getUnits().Count > 0 || counter < 100)
+            for (int j = 0; j < enemyTeams[i].getUnits().Count; j++)
             {
-                enemyTeams[i].getUnits()[0].GetComponent<Unit>().killUnit();
-                counter++;
-            }
+                Unit unit = enemyTeams[i].getUnits()[j].GetComponent<Unit>();
+                unit.killUnitDelayed();
+            }            
         }
     }
 }

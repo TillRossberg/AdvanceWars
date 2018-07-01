@@ -53,7 +53,7 @@ public class Statistics : MonoBehaviour
 
     public void setStatisticsPanelValues(RectTransform panel, Team team)
     {
-        panel.Find("PlayerPic").GetComponent<Image>().sprite = team.getPlayerPic();
+        panel.Find("PlayerPic").GetComponent<Image>().sprite = GetComponent<Database>().getCommanderThumb(team.getTeamCommander());
         panel.Find("KillCountText").GetComponent<Text>().text = team.getUnitsKilledCount().ToString();
         panel.Find("UnitsBuiltText").GetComponent<Text>().text = "Units built: " + team.getUnitsBuiltCounter().ToString();
     }
@@ -69,7 +69,7 @@ public class Statistics : MonoBehaviour
         }
         else
         {
-            Debug.Log("MasterClass: No container found, loading default container!");
+            Debug.Log("Statistics: No container found, loading default container!");
             return Instantiate(containerPrefab).GetComponent<Container>();
         }
     }

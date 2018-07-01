@@ -9,10 +9,7 @@ public class UnitCreator : MonoBehaviour
     private MapCreator myGraph;
     public Transform unitPrefab;
     Database database;
-
-    //Graphics
     
-
     //Teamcolors
     public Material redColor;
     public Material blueColor;
@@ -57,7 +54,6 @@ public class UnitCreator : MonoBehaviour
     {
         Team team1 = GetComponent<TeamManager>().getTeam(0);
         Team team2 = GetComponent<TeamManager>().getTeam(1);
-
     }
 
     public void createUnitSet_TheRiver()
@@ -69,6 +65,9 @@ public class UnitCreator : MonoBehaviour
         createUnit(Unit.type.Infantry, team1, 5, 8, Unit.facingDirection.East);
         createUnit(Unit.type.Infantry, team1, 11, 4, Unit.facingDirection.East);
         createUnit(Unit.type.Infantry, team1, 11, 8, Unit.facingDirection.East);
+
+        createUnit(Unit.type.Infantry, team1, 23, 7, Unit.facingDirection.East);
+
         createUnit(Unit.type.APC, team1, 1, 6, Unit.facingDirection.East);
         createUnit(Unit.type.Rockets, team1, 3, 6, Unit.facingDirection.East);
         createUnit(Unit.type.Recon, team1, 11, 6, Unit.facingDirection.East);
@@ -83,12 +82,7 @@ public class UnitCreator : MonoBehaviour
         createUnit(Unit.type.Rockets, team2, 21, 6, Unit.facingDirection.West);
         createUnit(Unit.type.APC, team2, 23, 6, Unit.facingDirection.West);
         createUnit(Unit.type.Recon, team2, 13, 6, Unit.facingDirection.West);
-    }
-
-    private void setUnit()
-    {
-
-    }
+    }    
 
     //Create a unit for the given team, position and rotation.
     public void createUnit(Unit.type myUnitType, Team team,  int x, int y, Unit.facingDirection myFacingDirection)
