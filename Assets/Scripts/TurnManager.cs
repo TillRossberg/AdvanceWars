@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class TurnManager : MonoBehaviour
 {
-    MainFunctions mainFunctions;
-    TeamManager teamManager;
+    private Manager _manager;
+    private GameFunctions _gameFunctions;
+    private TeamManager _teamManager;
 
     public Team activeTeam;
     public Database.weather currentWeather;
@@ -17,21 +18,22 @@ public class TurnManager : MonoBehaviour
     
     public void init()
     {
-        mainFunctions = GetComponent<MainFunctions>();
-        teamManager = GetComponent<TeamManager>();
-        currentWeather = GetComponent<MasterClass>().getContainer().getWeather();
+        _manager = GetComponent<Manager>();
+        _gameFunctions = _manager.getGameFunctions();
+        _teamManager = _manager.getTeamManager();
+        currentWeather = _manager.getContainer().getWeather();
         initSuccession();
-        setFogOfWar(activeTeam);
+        updateFogOfWar(activeTeam);
     }      
 
     //Start turn
     public void startTurn()
     {
-        mainFunctions.deselectObject();//Make sure nothing is selected when the next turn starts.
+        _gameFunctions.deselectObject();//Make sure nothing is selected when the next turn starts.
         activeTeam = getNextTeam();
-        GetComponent<StatusWindow>().displayGeneralInfo();//Update the GUI for the active team       
+        _manager.getStatusWindow().displayGeneralInfo();//Update the GUI for the active team       
         activateUnits(activeTeam);       
-        setFogOfWar(activeTeam);//Set fog of war for this team.
+        updateFogOfWar(activeTeam);//Set fog of war for this team.
 
         //Subtract fuel.
 
@@ -48,15 +50,15 @@ public class TurnManager : MonoBehaviour
     public void endTurn()
     {
         deactivateUnits(activeTeam);
-        GetComponent<MapCreator>().resetFogOfWar();
+        _manager.getMapCreator().resetFogOfWar();
         startTurn();
     }
 
     //Give money for each property the team owns. 
     public void giveMoney(Team team)
     {
-        team.money += team.ownedProperties.Count * GetComponent<MasterClass>().container.getMoneyIncrement();
-        GetComponent<StatusWindow>().displayGeneralInfo();  
+        team.money += team.ownedProperties.Count * _manager.getContainer().getMoneyIncrement();
+        _manager.getStatusWindow().displayGeneralInfo();  
     }
 
     //Sets all the units of a team so they have a turn, can move and fire.
@@ -113,12 +115,12 @@ public class TurnManager : MonoBehaviour
     public void endRound()
     {
         roundCounter++;
-        if (roundCounter == GetComponent<MasterClass>().container.battleDuration && GetComponent<MasterClass>().container.battleDuration > 4)//Minimum for the duration of the battle is 5 rounds, if below this winning condition will never trigger.
+        if (roundCounter == _manager.getContainer().battleDuration && _manager.getContainer().battleDuration > 4)//Minimum for the duration of the battle is 5 rounds, if below this winning condition will never trigger.
         {
             //TODO: decide if more than two teams are playing and then only remove the defeated team from the map.
 
             //TODO: If the maximum amount of rounds has passed, check who won the game. (Depending on the occupied properties)
-            GetComponent<LevelLoader>().loadGameFinishedScreenWithDelay();
+            _manager.getSceneLoader().loadGameFinishedScreenWithDelay();
         }
         setWeather();
     }
@@ -134,7 +136,7 @@ public class TurnManager : MonoBehaviour
     //Defines the order in wich the teams have their turns. (TODO: find a better way to solve this...)
     public void setupRandomSuccession()
     {
-        List<Team> tempList = new List<Team>(teamManager.getTeams());         
+        List<Team> tempList = new List<Team>(_teamManager.getTeams());         
         while(tempList.Count > 0)
         {
             int randomPick = Random.Range(0, tempList.Count);
@@ -146,13 +148,13 @@ public class TurnManager : MonoBehaviour
     //Sets the weather for the next day, if random weather was selcted. Otherwise simply take the preset weather.
     public void setWeather()
     {
-        if (GetComponent<MasterClass>().container.getWeather() == Database.weather.Random)
+        if(_manager.getContainer().getWeather() == Database.weather.Random)
         {
             //TODO: randomly chose a weather
         }
         else
         {
-            currentWeather = GetComponent<MasterClass>().container.getWeather();
+            currentWeather = _manager.getContainer().getWeather();
         }
     }
     public Database.weather getWeather()
@@ -162,11 +164,11 @@ public class TurnManager : MonoBehaviour
 
     //Each unit of the given team calculates its visiblity and marks the tiles it can see. (Only if fog of war was activated in the options)
     //Then the graph sets the visibility of what the team can see and what not. Owned properties always have vision.
-    public void setFogOfWar(Team team)
+    public void updateFogOfWar(Team team)
     {
-        if(GetComponent<MasterClass>().container.fogOfWar)
+        if(_manager.getContainer().fogOfWar)
         {
-            GetComponent<MapCreator>().resetFogOfWar();//Reset all tiles to invisible.            
+            _manager.getMapCreator().resetFogOfWar();//Reset all tiles to invisible.            
             for(int i = 0; i < team.myUnits.Count; i++)
             {
                 team.myUnits[i].GetComponent<Unit>().calcVisibleArea();
@@ -175,24 +177,23 @@ public class TurnManager : MonoBehaviour
             {
                 team.ownedProperties[i].setVisible(true);
             }
-
-            GetComponent<MapCreator>().setVisibility();
+            _manager.getMapCreator().setVisibility();
         }
     }
 
     //Count the properties of all the teams and the team with the most wins.
-    //TODO: !WORKING
+    //TODO: !WORKING (try to solve this with only two teams first)
     public Team getTeamWithMostProperties()
     {
         Team winner = new Team();
         int highestPropertyCount = 0;
-        for (int i = 0; i < teamManager.getTeams().Count; i++)
+        for (int i = 0; i < _teamManager.getTeams().Count; i++)
         {
-            int propertyCount = teamManager.getTeams()[i].getOwnedProperties().Count;
+            int propertyCount = _teamManager.getTeams()[i].getOwnedProperties().Count;
             if(propertyCount > highestPropertyCount)
             {
                 highestPropertyCount = propertyCount;
-                winner = teamManager.getTeams()[i];
+                winner = _teamManager.getTeams()[i];
             }
         }
         return winner;

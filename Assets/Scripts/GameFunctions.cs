@@ -4,14 +4,15 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public class MainFunctions : MonoBehaviour
+public class GameFunctions : MonoBehaviour
 {
     //Data structures
-    TeamManager teamManager;
+    private TeamManager _teamManager;
+    private Manager _manager;
 
     //Selectstuff
-    public Tile selectedTile;
-    public Unit selectedUnit;
+    private Tile selectedTile;
+    private Unit selectedUnit;
 
     //States    
     //These bools should help to decide if we selected a unit or a tile.
@@ -25,14 +26,14 @@ public class MainFunctions : MonoBehaviour
     //Gfx
     public Transform markingCursor;
 
-	// Use this for initialization
-	void Start ()
-    {       
-        teamManager = GetComponent<TeamManager>();
+    public void init()
+    {
+        _manager = this.GetComponent<Manager>();
+        _teamManager = _manager.getTeamManager();        
     }
-	
-	// Update is called once per frame
-	void Update ()
+
+    // Update is called once per frame
+    void Update ()
     {
         rightMouseClick();
 	}
@@ -46,9 +47,9 @@ public class MainFunctions : MonoBehaviour
             {
                 deselectObject();
             }
-            if(this.GetComponent<Menu_BuyUnits>().isOpened)
+            if(_manager.getBuyMenu().isOpened)
             {
-                this.GetComponent<Menu_BuyUnits>().closeMenu();
+                _manager.getBuyMenu().closeMenu();
             }
         }
     }
@@ -80,35 +81,35 @@ public class MainFunctions : MonoBehaviour
         selectedUnit = myUnit;//Handover the object.
         selectedUnit.isSelected = true;
         isUnit = true;
-        this.GetComponent<ContextMenu>().closeMenu();//Make sure the menu is not visible, when you click on a unit.
+        _manager.getContextMenu().closeMenu();//Make sure the menu is not visible, when you click on a unit.
         createMarkingCursor(selectedUnit);//Draw a marking cursor
-        this.GetComponent<StatusWindow>().showStatus(true);//Show Unit status
+        _manager.getStatusWindow().showStatus(true);//Show Unit status
 
         //The logic that draws an arrow, that shows where the unit can go.
-        Tile tileTheUnitStandsOn = this.GetComponent<MapCreator>().getGraph()[selectedUnit.xPos][selectedUnit.yPos].GetComponent<Tile>();
-        this.GetComponent<ArrowBuilder>().init(tileTheUnitStandsOn, selectedUnit.moveDist);
+        Tile tileTheUnitStandsOn = _manager.getMapCreator().getGraph()[selectedUnit.xPos][selectedUnit.yPos].GetComponent<Tile>();
+        _manager.getArrowBuilder().init(tileTheUnitStandsOn, selectedUnit.moveDist);
     }
     //Select a tile.
     public void selectTile(Tile myObject)
     {
         deselectObject();//Previous selected object out!
         selectedTile = myObject.GetComponent<Tile>(); ;//Handover the tile.
-        this.GetComponent<ContextMenu>().closeMenu();//Make sure the menu is not visible, when you click on a tile.
+        _manager.getContextMenu().closeMenu();//Make sure the menu is not visible, when you click on a tile.
         selectedTile.isSelected = true;
         isTile = true;
         //Decide wich menu to open.
         //Facility
-        if (myObject.myTileType == Tile.type.Facility) { this.GetComponent<Menu_BuyUnits>().openMenu(1); }
+        if (myObject.myTileType == Tile.type.Facility) { _manager.getBuyMenu().openMenu(1); }
         else
         //Airport
-        if (myObject.myTileType == Tile.type.Airport) { this.GetComponent<Menu_BuyUnits>().openMenu(2); }
+        if (myObject.myTileType == Tile.type.Airport) { _manager.getBuyMenu().openMenu(2); }
         else
         //Harbor
-        if (myObject.myTileType == Tile.type.Port) { this.GetComponent<Menu_BuyUnits>().openMenu(3); }
+        if (myObject.myTileType == Tile.type.Port) { _manager.getBuyMenu().openMenu(3); }
         else
         {
             //Open menu with info button about the tile.
-            this.GetComponent<ContextMenu>().openContextMenu(selectedTile.xPos, selectedTile.yPos, 5);
+            _manager.getContextMenu().openContextMenu(selectedTile.xPos, selectedTile.yPos, 5);
         }
         //Create marking cursor
         Instantiate(markingCursor, new Vector3(selectedTile.transform.position.x, -0.1f, selectedTile.transform.position.z), Quaternion.identity, this.transform);
@@ -125,8 +126,8 @@ public class MainFunctions : MonoBehaviour
             deselectUnit();
         }
         deleteMarkingCursor();
-        this.gameObject.GetComponent<ContextMenu>().closeMenu();//Hide context menu
-        this.GetComponent<StatusWindow>().showStatus(false);
+        _manager.getContextMenu().closeMenu();//Hide context menu
+        _manager.getStatusWindow().showStatus(false);
         activateNormalMode();
     }
     //Deselect a Unit.
@@ -141,16 +142,16 @@ public class MainFunctions : MonoBehaviour
         }
         selectedUnit.isSelected = false;//Deselect Unit
         selectedUnit.resetBattleInformation();//Reset the attackableTiles-list and the attackableUnits-list.
-        this.GetComponent<MapCreator>().resetReachableTiles();//Resets all tiles to not reachable
-        this.GetComponent<MapCreator>().resetAttackableTiles();//Resets all tiles to not attackable
-        this.GetComponent<ArrowBuilder>().resetAll();//Resets the movement arrow.        
+        _manager.getMapCreator().resetReachableTiles();//Resets all tiles to not reachable
+        _manager.getMapCreator().resetAttackableTiles();//Resets all tiles to not attackable
+        _manager.getArrowBuilder().resetAll();//Resets the movement arrow.        
         isUnit = false;
         selectedUnit = null;
     }
     //Deselect a Tile.
     public void deselectTile()
     {
-        selectedTile.GetComponent<Tile>().isSelected = false;
+        selectedTile.isSelected = false;
         isTile = false;
         selectedTile = null;
     }
@@ -161,18 +162,18 @@ public class MainFunctions : MonoBehaviour
         switch (value)
         {
             case 0:
-                this.GetComponent<MapCreator>().createLevel00();
-                this.GetComponent<UnitCreator>().createUnitSet00();
+                _manager.getMapCreator().createLevel00();
+                _manager.getUnitCreator().createUnitSet00();
                 break;
 
             case 1:
-                this.GetComponent<MapCreator>().createTestLevel01();
-                this.GetComponent<UnitCreator>().createUnitTestSet01();
+                _manager.getMapCreator().createTestLevel01();
+                _manager.getUnitCreator().createUnitTestSet01();
                 break;
 
             case 2:
-                this.GetComponent<MapCreator>().createLevel_TheRiver();
-                this.GetComponent<UnitCreator>().createUnitSet_TheRiver();
+                _manager.getMapCreator().createLevel_TheRiver();
+                _manager.getUnitCreator().createUnitSet_TheRiver();
                 break;
 
             default:
@@ -195,5 +196,21 @@ public class MainFunctions : MonoBehaviour
     public void createMarkingCursor(Unit myUnit)
     {
         Instantiate(markingCursor, new Vector3(myUnit.transform.position.x, myUnit.transform.position.y - 0.2f, myUnit.transform.position.z), Quaternion.identity, myUnit.transform);
+    }
+
+    //Getter and Setter
+    public void setSelectedTile(Tile tile)
+    {
+        selectedTile = tile;
+    }
+
+    public Tile getSelectedTile()
+    {
+        return selectedTile;
+    }
+      
+    public Unit getSelectedUnit()
+    {
+        return selectedUnit;
     }
 }

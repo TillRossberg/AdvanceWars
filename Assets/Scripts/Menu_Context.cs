@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ContextMenu : MonoBehaviour
+public class Menu_Context : MonoBehaviour
 {
+    private Manager _manager;
     private int height = 1;//Heigth above the playground.
-    public Canvas contextMenu;//Graphics
+    public RectTransform contextMenu;//Graphics
     public RectTransform waitButton;
     public RectTransform fireButton;
     public RectTransform rangeButton;
@@ -26,8 +27,13 @@ public class ContextMenu : MonoBehaviour
 	void Start ()
     {
         //contextMenu = GameObject.FindGameObjectWithTag("ContextMenu").GetComponent<Canvas>();
-        contextMenu.gameObject.SetActive(false);
 	}
+
+    public void init()
+    {
+        _manager = GameObject.FindGameObjectWithTag("LevelManager").GetComponent<Manager>();
+        contextMenu.gameObject.SetActive(false);
+    }
 	
 	// Update is called once per frame
 	void Update ()
@@ -63,76 +69,76 @@ public class ContextMenu : MonoBehaviour
     }
     
     //Activate the fire mode, show the enemies that can be attacked and close the menu.
-    public void fireButtonPressed()
+    public void Button_Fire()
     {
-        this.GetComponent<MainFunctions>().activateFireMode();
-        this.GetComponent<MapCreator>().showReachableTiles(false);
-        this.GetComponent<MainFunctions>().selectedUnit.showAttackableEnemies();
+        _manager.getGameFunctions().activateFireMode();
+        _manager.getMapCreator().showReachableTiles(false);
+        _manager.getGameFunctions().getSelectedUnit().showAttackableEnemies();
         closeMenu();
     }
 
     //Wait here and perform no actions.
-    public void waitButtonPressed()
+    public void Button_Wait()
     {
-        this.GetComponent<MainFunctions>().selectedUnit.wait();         
+        _manager.getGameFunctions().getSelectedUnit().wait();         
     }
 
     //Perform the occupy action on a property.
-    public void occupyButtonPressed()
+    public void Button_Occupy()
     {
         Debug.Log("Occupying...");
-        Unit selectedUnit = this.GetComponent<MainFunctions>().selectedUnit;
+        Unit selectedUnit = _manager.getGameFunctions().getSelectedUnit();
         selectedUnit.moveUnitTo(clickedHereX, clickedHereY);
-        this.GetComponent<MapCreator>().getTile(selectedUnit.xPos, selectedUnit.yPos).occupy(selectedUnit.getHealthAsInt());//The take over action.
+        _manager.getMapCreator().getTile(selectedUnit.xPos, selectedUnit.yPos).occupy(selectedUnit.getHealthAsInt());//The take over action.
         selectedUnit.canFire = false;
         selectedUnit.hasTurn = false;
-        this.GetComponent<TurnManager>().setFogOfWar(selectedUnit.myTeam);
-        this.GetComponent<MainFunctions>().deselectObject();
+        _manager.getTurnManager().updateFogOfWar(selectedUnit.myTeam);
+        _manager.getGameFunctions().deselectObject();
     }
 
     //Switch the visiblity of the attackable tiles of the unit.
-    public void rangeButtonPressed()
+    public void Button_Range()
     {
         if (showAttackableTiles)
         {
-            this.GetComponent<MapCreator>().showAttackableTiles(false);
+            _manager.getMapCreator().showAttackableTiles(false);
             showAttackableTiles = false;
         }
         else
         {
             //For direct attack
-            if (this.GetComponent<MainFunctions>().selectedUnit.directAttack)
+            if (_manager.getGameFunctions().getSelectedUnit().directAttack)
             {
-                this.GetComponent<MapCreator>().showAttackableTiles(true);
+                _manager.getMapCreator().showAttackableTiles(true);
                 showAttackableTiles = true;
             }
             //For range attack
-            if (this.GetComponent<MainFunctions>().selectedUnit.rangeAttack)
+            if (_manager.getGameFunctions().getSelectedUnit().rangeAttack)
             {
-                this.GetComponent<MapCreator>().showAttackableTiles(true);
+                _manager.getMapCreator().showAttackableTiles(true);
                 showAttackableTiles = true;
             }
         }
     }
 
     //End the turn for the active player and proceed to the next player in the succession.
-    public void endTurnButtonPressed()
+    public void Button_EndTurn()
     {
-        GetComponent<TurnManager>().endTurn();
+        _manager.getTurnManager().endTurn();
     }
 
-    public void testFunction()
+    public void Button_TestFunction()
     {
         Debug.Log("--Testing--");
-        for (int i = 0; i < this.GetComponent<TeamManager>().getTeams().Count; i++)
+        for (int i = 0; i < _manager.getTeamManager().getTeams().Count; i++)
         {
-            Debug.Log(this.GetComponent<TeamManager>().getTeams()[i]);
+            Debug.Log(_manager.getTeamManager().getTeams()[i]);
         }
     }
    
 
     //Show the tile info.
-    public void tileInfoButtonPressed()
+    public void Button_TileInfo()
     {
 
     }
@@ -154,31 +160,23 @@ public class ContextMenu : MonoBehaviour
             case 0:
                 deactivateAllButtons();
                 waitButton.gameObject.SetActive(true);
-                waitButton.anchoredPosition = new Vector3(-418, 184, 0);
                 rangeButton.gameObject.SetActive(true);
-                rangeButton.anchoredPosition = new Vector3(-418, 140, 0);
                 break;
 
             //Fire button & wait button & range button
             case 1:
                 deactivateAllButtons();
                 fireButton.gameObject.SetActive(true);
-                fireButton.anchoredPosition = new Vector3(-418, 184, 0);
                 waitButton.gameObject.SetActive(true);
-                waitButton.anchoredPosition = new Vector3(-418, 161, 0);
                 rangeButton.gameObject.SetActive(true);
-                rangeButton.anchoredPosition = new Vector3(-418, 140, 0);
                 break;
 
             //Wait button & occupy button & range button
             case 2:
                 deactivateAllButtons();
                 waitButton.gameObject.SetActive(true);
-                waitButton.anchoredPosition = new Vector3(-418, 184, 0);
                 rangeButton.gameObject.SetActive(true);
-                rangeButton.anchoredPosition = new Vector3(-418, 161, 0);
                 occupyButton.gameObject.SetActive(true);
-                occupyButton.anchoredPosition = new Vector3(-418, 140, 0);
 
                 break;
 
@@ -186,21 +184,15 @@ public class ContextMenu : MonoBehaviour
             case 3:
                 deactivateAllButtons();
                 fireButton.gameObject.SetActive(true);
-                fireButton.anchoredPosition = new Vector3(-418, 184, 0);
                 waitButton.gameObject.SetActive(true);
-                waitButton.anchoredPosition = new Vector3(-418, 161, 0);
                 rangeButton.gameObject.SetActive(true);
-                rangeButton.anchoredPosition = new Vector3(-418, 140, 0);
                 occupyButton.gameObject.SetActive(true);
-                occupyButton.anchoredPosition = new Vector3(-418, 119, 0);
                 break;
 
             //Infobutton about a tile
             case 5:
                 deactivateAllButtons();
-                tileInfoButton.anchoredPosition = new Vector3(-418, 184, 0);
                 tileInfoButton.gameObject.SetActive(true);
-
                 break;
 
             default:
@@ -221,8 +213,7 @@ public class ContextMenu : MonoBehaviour
 
     public void killAllEnemies()
     {
-
-        List<Team> enemyTeams = GameObject.FindGameObjectWithTag("LevelManager").GetComponent<TurnManager>().getActiveTeam().getEnemyTeams();
+        List<Team> enemyTeams = _manager.getTurnManager().getActiveTeam().getEnemyTeams();
         for (int i = 0; i < enemyTeams.Count; i++)
         {
             for (int j = 0; j < enemyTeams[i].getUnits().Count; j++)

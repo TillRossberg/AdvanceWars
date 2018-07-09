@@ -29,7 +29,7 @@ public class TeamManager : MonoBehaviour
 
     public void initTeamsFromContainer()
     {
-        Container container = GetComponent<MasterClass>().getContainer();
+        Container container = GetComponent<Manager>().getContainer();
         teams = container.getTeams();
         Team team1 = teams[0];
         Team team2 = teams[1];
@@ -130,14 +130,14 @@ public class TeamManager : MonoBehaviour
             {
                 //TODO: decide if more than two teams are playing and then only remove the defeated team from the map.
                 //TODO: winning animationstuff
-                GetComponent<LevelLoader>().loadGameFinishedScreenWithDelay();
+                GetComponent<SceneLoader>().loadGameFinishedScreenWithDelay();
             }
             //If you reach the necessary amount of properties you also win the game.
-            if(newOwner.ownedProperties.Count == GetComponent<MasterClass>().container.getPropertyCountToWin())
+            if(newOwner.ownedProperties.Count == GetComponent<Manager>().container.getPropertyCountToWin())
             {
                 //TODO: decide if more than two teams are playing and then only remove the defeated team from the map.
                 //TODO: winning animationstuff
-                GetComponent<LevelLoader>().loadGameFinishedScreenWithDelay();
+                GetComponent<SceneLoader>().loadGameFinishedScreenWithDelay();
             }
         }
         else

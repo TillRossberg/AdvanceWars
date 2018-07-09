@@ -61,12 +61,12 @@ public class Tile: MonoBehaviour
     {
         //myLevelManager.GetComponent<AnimController>().boom(xPos, yPos);
         //Actions are only perfomed, if no menu is opened.
-        if (!myLevelManager.GetComponent<ContextMenu>().isOpened && !myLevelManager.GetComponent<Menu_BuyUnits>().isOpened)
+        if (!myLevelManager.GetComponent<Manager>().getContextMenu().isOpened && !myLevelManager.GetComponent<Manager>().getBuyMenu().isOpened)
         {            
             //Move mode
-            if(myLevelManager.GetComponent<MainFunctions>().moveMode)
+            if(myLevelManager.GetComponent<GameFunctions>().moveMode)
             {
-                Unit selectedUnit = myLevelManager.GetComponent<MainFunctions>().selectedUnit.GetComponent<Unit>();
+                Unit selectedUnit = myLevelManager.GetComponent<GameFunctions>().getSelectedUnit().GetComponent<Unit>();
                 if((isPartOfArrowPath && unitStandingHere == null) || (isPartOfArrowPath && !isVisible))
                 {
                     //Move to the position and try to find units that can be attacked.
@@ -75,9 +75,7 @@ public class Tile: MonoBehaviour
                     selectedUnit.findAttackableEnemies();
                     //Delete the reachable tiles and the movement arrow.
                     myLevelManager.GetComponent<MapCreator>().resetReachableTiles();
-                    myLevelManager.GetComponent<ArrowBuilder>().resetAll();
-
-                    
+                    myLevelManager.GetComponent<ArrowBuilder>().resetAll();                    
                 }
                 else
                 //Even in move mode, you can still click on buildings.
@@ -85,21 +83,21 @@ public class Tile: MonoBehaviour
                 if (unitStandingHere == null)
                 {
                     //...select the tile.
-                    myLevelManager.GetComponent<MainFunctions>().selectTile(this);         
+                    myLevelManager.GetComponent<GameFunctions>().selectTile(this);         
                 }
             }
             //Normal mode
-            if(myLevelManager.GetComponent<MainFunctions>().normalMode)
+            if(myLevelManager.GetComponent<GameFunctions>().normalMode)
             {
                 //If no unit stands here...
                 if (unitStandingHere == null)
                 {
                     //...select the tile.
-                    myLevelManager.GetComponent<MainFunctions>().selectTile(this);
+                    myLevelManager.GetComponent<GameFunctions>().selectTile(this);
                 }                
             }
             //Fire mode
-            if(myLevelManager.GetComponent<MainFunctions>().fireMode)
+            if(myLevelManager.GetComponent<GameFunctions>().fireMode)
             {
 
             }
@@ -109,13 +107,12 @@ public class Tile: MonoBehaviour
     private void OnMouseEnter()
     {
         //Actions are only perfomed, if the menu is not opened.
-        if (!myLevelManager.GetComponent<ContextMenu>().isOpened && myLevelManager.GetComponent<MainFunctions>().moveMode)
+        if (!myLevelManager.GetComponent<Manager>().getContextMenu().isOpened && myLevelManager.GetComponent<GameFunctions>().moveMode)
         {
             //Draws an Arrow on the tile, if it is reachable
             if (isReachable && !isPartOfArrowPath )
             {
                 myLevelManager.GetComponent<ArrowBuilder>().createArrowPath(this);
-            
             }
             //If you go back, make the arrow smaller.
             if (isPartOfArrowPath)
@@ -213,7 +210,7 @@ public class Tile: MonoBehaviour
         {
             takeOverCounter = 0;
             //TODO: play some animation for a successful take over.
-            myLevelManager.GetComponent<TeamManager>().occupyProperty(myLevelManager.GetComponent<MainFunctions>().selectedUnit.myTeam, this);            
+            myLevelManager.GetComponent<TeamManager>().occupyProperty(myLevelManager.GetComponent<GameFunctions>().getSelectedUnit().myTeam, this);            
         }
     }
 

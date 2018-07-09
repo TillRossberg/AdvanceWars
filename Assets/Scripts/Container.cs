@@ -191,5 +191,4 @@ public class Container : MonoBehaviour
         setTeamName(1, "Team Max");
         setFogOfWar(true);
     }
-
 }

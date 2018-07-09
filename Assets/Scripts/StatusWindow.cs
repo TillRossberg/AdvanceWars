@@ -6,9 +6,15 @@ using UnityEngine.UI;
 
 public class StatusWindow : MonoBehaviour
 {
-    public Canvas statusWindow;
+    //References
+    private Manager _manager;
+    public Image commanderThumbnail;
+    public Image commanderFrame;
+    public Text activeTeam;
+    public Text money;
+    public Text roundNr;
 
-    GameObject unitStatusWindow;
+    //Fields
     Image unitThumb;
     Text unitName;
     Text health;
@@ -17,65 +23,51 @@ public class StatusWindow : MonoBehaviour
     Text tileName;
     Image tileThumb;
     Text cover;
-
-    public Image commanderThumbnail;
-    public Image commanderFrame;
-    public Text activeTeam;
-    public Text money;
-    public Text roundNr;
     
-	// Use this for initialization
-	void Start ()
+    public void init()
     {
+        _manager = GameObject.FindGameObjectWithTag("LevelManager").GetComponent<Manager>();
         //Get the graphic elements for the unit status window
-        unitStatusWindow = GameObject.Find("Unit_Status");
-        unitThumb = GameObject.Find("Unit_Status/Thumbnail_Unit").GetComponent<Image>();
-        unitName = GameObject.Find("Unit_Status/Text_Unit_Name").GetComponent<Text>();
-        health = GameObject.Find("Unit_Status/Text_Health").GetComponent<Text>();
-        ammo = GameObject.Find("Unit_Status/Text_Ammo").GetComponent<Text>();
-        fuel = GameObject.Find("Unit_Status/Text_Fuel").GetComponent<Text>();
-        tileName = GameObject.Find("Unit_Status/Text_tileName").GetComponent<Text>();
-        tileThumb = GameObject.Find("Unit_Status/Thumbnail_Tile").GetComponent<Image>();
-        cover = GameObject.Find("Unit_Status/Text_Cover").GetComponent<Text>();
-
-
-        //(DOESNT WORK!!)Get the graphic elements for the general info 
-        //commanderThumbnail = GameObject.Find("CommanderThumbnail").GetComponent<Image>();
-        //team = GameObject.Find("ActiveTeam_Text").GetComponent<Text>();
-        //money = GameObject.Find("Money_Text").GetComponent<Text>();
-        //roundNr = GameObject.Find("RoundNr_Text").GetComponent<Text>();
-
-        unitStatusWindow.SetActive(false);
+        unitThumb = this.transform.Find("Unit_Status/Thumbnail_Unit").GetComponent<Image>();
+        unitName = this.transform.Find("Unit_Status/Text_Unit_Name").GetComponent<Text>();
+        health = this.transform.Find("Unit_Status/Text_Health").GetComponent<Text>();
+        ammo = this.transform.Find("Unit_Status/Text_Ammo").GetComponent<Text>();
+        fuel = this.transform.Find("Unit_Status/Text_Fuel").GetComponent<Text>();
+        tileName = this.transform.Find("Unit_Status/Text_tileName").GetComponent<Text>();
+        tileThumb = this.transform.Find("Unit_Status/Thumbnail_Tile").GetComponent<Image>();
+        cover = this.transform.Find("Unit_Status/Text_Cover").GetComponent<Text>();
+        
+        this.gameObject.SetActive(false);        
     }
-	
+
     //De-/activates the status window for the selected unit.
     public void showStatus(bool value)
     {
         if(value)
         {
             resetStatus();
-            unitStatusWindow.SetActive(value);
-            Unit myUnit = this.GetComponent<MainFunctions>().selectedUnit;
-            int myCover = this.GetComponent<MapCreator>().getTile(myUnit.xPos, myUnit.yPos).cover;
-            string tileName = this.GetComponent<MapCreator>().getTile(myUnit.xPos, myUnit.yPos).terrainName;
-            Sprite tileThumb = this.GetComponent<MapCreator>().getTile(myUnit.xPos, myUnit.yPos).thumbnail;
+            this.gameObject.SetActive(value);
+            Unit myUnit = _manager.getGameFunctions().getSelectedUnit();
+            int myCover = _manager.getMapCreator().getTile(myUnit.xPos, myUnit.yPos).cover;
+            string tileName = _manager.getMapCreator().getTile(myUnit.xPos, myUnit.yPos).terrainName;
+            Sprite tileThumb = _manager.getMapCreator().getTile(myUnit.xPos, myUnit.yPos).thumbnail;
             changeStatus(myUnit.unitName, myUnit.thumbNail, myUnit.health, myUnit.ammo, myUnit.fuel, tileName, tileThumb, myCover);
         }
         else
         {
             resetStatus();
-            unitStatusWindow.SetActive(value);
+            this.gameObject.SetActive(value);
         } 
     }
 
     //Displays the active team, its money, the round number and update the thumbnail for the active commander.
     public void displayGeneralInfo()
     {
-        TurnManager turnManager = GetComponent<TurnManager>();
+        TurnManager turnManager = _manager.getTurnManager();
         this.activeTeam.text = "Team: " + turnManager.activeTeam.name;
         this.money.text = "$: " + turnManager.activeTeam.money.ToString();
         this.roundNr.text = "Round: " + turnManager.roundCounter.ToString();
-        this.commanderThumbnail.sprite = GetComponent<Database>().getCommanderThumb(turnManager.activeTeam.getTeamCommander());
+        this.commanderThumbnail.sprite = _manager.getDatabase().getCommanderThumb(turnManager.activeTeam.getTeamCommander());
         this.commanderFrame.color = turnManager.activeTeam.teamColor;
     }
 
@@ -104,9 +96,10 @@ public class StatusWindow : MonoBehaviour
     //Updates the cover value to the given coordinates.
     public void updateCover(int x, int y)
     {
-        int newCover = this.GetComponent<MapCreator>().getTile(x, y).cover;
-        string newTileName = this.GetComponent<MapCreator>().getTile(x, y).terrainName;
-        Sprite newThumb = this.GetComponent<MapCreator>().getTile(x, y).thumbnail;
+        Tile _tile = _manager.getMapCreator().getTile(x, y);
+        int newCover = _tile.cover;
+        string newTileName = _tile.terrainName;
+        Sprite newThumb = _tile.thumbnail;
 
         this.cover.text = newCover.ToString();
         this.tileName.text = newTileName;
@@ -138,8 +131,4 @@ public class StatusWindow : MonoBehaviour
     {
         commanderThumbnail.sprite = newThumb;
     }
-
-  
-
-
 }

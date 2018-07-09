@@ -358,7 +358,7 @@ public class ArrowBuilder : MonoBehaviour
     //Tests if there is an enemy on the arrow path and shortens the path, so we are stopping directly before the enemy.
     public void checkForInterruption()
     {
-        List<Team> enemyTeams = GetComponent<MainFunctions>().selectedUnit.myTeam.getEnemyTeams();
+        List<Team> enemyTeams = GetComponent<GameFunctions>().getSelectedUnit().myTeam.getEnemyTeams();
         for (int i = 0; i < arrowPath.Count; i++)
         {
             for (int j = 0; j < enemyTeams.Count; j++)
@@ -374,8 +374,8 @@ public class ArrowBuilder : MonoBehaviour
                         arrowPath[k].getTile().isPartOfArrowPath = false;
                     }
                     arrowPath.RemoveRange(i, arrowPath.Count - i);
-                    GetComponent<MainFunctions>().selectedUnit.setIsInterrupted(true);
-                    GetComponent<MainFunctions>().selectedUnit.setCanFire(false);
+                    GetComponent<GameFunctions>().getSelectedUnit().setIsInterrupted(true);
+                    GetComponent<GameFunctions>().getSelectedUnit().setCanFire(false);
                     break;
                 }              
             }

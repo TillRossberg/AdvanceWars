@@ -6,16 +6,15 @@ using UnityEngine.UI;
 
 public class Menu_BuyUnits : MonoBehaviour
 {
-    List<Unit> availableUnits = new List<Unit>();
-    public Canvas unitProductionWindow;
-    public Transform facilityCanvas;
-    public Transform harborCanvas;
-    public Transform airportCanvas;
+    //Required data structures
+    private Transform _levelManager;
+    //References
+    public RectTransform buyMenu;
+    public Transform facilityPanel;
+    public Transform harborPanel;
+    public Transform airPortPanel;
     public RectTransform buyTankButton;
     public RectTransform buyRocketsButton;
-    int xPos;
-    int yPos;
-    public bool isOpened = false;
 
     //Details window
     public GameObject detailsWindow;
@@ -24,27 +23,34 @@ public class Menu_BuyUnits : MonoBehaviour
     public Text vision;
     public Text fuel;
     public Text ammunition;
+    //Fields
+    List<Unit> availableUnits = new List<Unit>();
+    int xPos;
+    int yPos;
+    public bool isOpened = false;
+
 
     // Use this for initialization
     void Start ()
     {
         //Find required references.
-        facilityCanvas = unitProductionWindow.transform.Find("Facility");
-        harborCanvas = unitProductionWindow.transform.Find("Harbor");
-        airportCanvas = unitProductionWindow.transform.Find("Airport");
+        _levelManager = GameObject.FindGameObjectWithTag("LevelManager").transform;
+        facilityPanel = buyMenu.transform.Find("Facility");
+        harborPanel = buyMenu.transform.Find("Harbor");
+        airPortPanel = buyMenu.transform.Find("Airport");
         //Deactivate all
-        facilityCanvas.gameObject.SetActive(false);
-        harborCanvas.gameObject.SetActive(false);
-        airportCanvas.gameObject.SetActive(false);
+        facilityPanel.gameObject.SetActive(false);
+        harborPanel.gameObject.SetActive(false);
+        airPortPanel.gameObject.SetActive(false);
         detailsWindow.gameObject.SetActive(false);
-        unitProductionWindow.gameObject.SetActive(false);
+        buyMenu.gameObject.SetActive(false);
 	}
 	
     //Open the menu either for a facility, a harbor or an airport.
     public void openMenu(int index)
     {
         //Get the position of the tile we selected, so we can place the new unit there.
-        Tile selectedTile = this.GetComponent<MainFunctions>().selectedTile;
+        Tile selectedTile = _levelManager.GetComponent<GameFunctions>().getSelectedTile();
         setProductionPosition(selectedTile.xPos, selectedTile.yPos);
         //Get the team that has turn now, so we know for whom we create the new unit.
 
@@ -55,8 +61,8 @@ public class Menu_BuyUnits : MonoBehaviour
         {
             //Facility
             case 1:
-                unitProductionWindow.gameObject.SetActive(true);
-                facilityCanvas.gameObject.SetActive(true);
+                buyMenu.gameObject.SetActive(true);
+                facilityPanel.gameObject.SetActive(true);
                 isOpened = true;
 
                 break;
@@ -77,10 +83,10 @@ public class Menu_BuyUnits : MonoBehaviour
     //Close buttons
     public void closeMenu()
     {
-        facilityCanvas.gameObject.SetActive(false);
-        harborCanvas.gameObject.SetActive(false);
-        airportCanvas.gameObject.SetActive(false);
-        unitProductionWindow.gameObject.SetActive(false);
+        facilityPanel.gameObject.SetActive(false);
+        harborPanel.gameObject.SetActive(false);
+        airPortPanel.gameObject.SetActive(false);
+        buyMenu.gameObject.SetActive(false);
 
         isOpened = false;
     }

@@ -5,18 +5,24 @@ using UnityEngine;
 
 public class Unit : MonoBehaviour 
 {
+    //References
+    private Manager _manager;
+    private List<List<Transform>> _graphMatrix;
+    private MapCreator _mapCreator;
+	public Transform reachableTilePrefab;
+    public Transform attackableTilePrefab;
+
+    //Fields
 	//General
 	public string unitName;
     public Sprite thumbNail;
-    public bool hasTurn = false;//The unit is ready for action.
-    public bool hasMoved = true;//States if the unit has already moved this turn.
-    public bool canFire = false;//Some units can't fire after they have moved.
-    private bool isInterrupted = false;//If we move through terrain that is covered by fog of war, we can be interrupted by an invisible enemy unit that is on our arrowpath.
-    public bool directAttack = false;
-    public bool rangeAttack = false;
     public Team myTeam;
     public List<Team> enemyTeams = new List<Team>();
-    public bool isSelected = false;
+    public type myUnitType; 
+    public enum type { Flak, APC, Tank, Artillery, Rockets, Missiles, Titantank, Recon, Infantry, MdTank, Mech, TCopter, BCopter, Bomber, Fighter, Lander, Battleship, Cruiser, Sub, Pipe };
+    public moveType myMoveType;
+    public enum moveType {Foot, Mech, Treads, Wheels, Lander, Ship, Air};
+    //Position stuff
     public int xPos;
     public int yPos;
     public int rotation;
@@ -28,13 +34,16 @@ public class Unit : MonoBehaviour
     public Unit.facingDirection preDirection;
     private int counter = 0;//Counts the iterations of the calcReachableArea algorithm.
 
-    //Required data structures
-    GameObject myLevelManager;
-    public List<List<Transform>> graphMatrix;
-    MapCreator graph;
+    //States
+    public bool hasTurn = false;//The unit is ready for action.
+    public bool hasMoved = true;//States if the unit has already moved this turn.
+    public bool canFire = false;//Some units can't fire after they have moved.
+    private bool isInterrupted = false;//If we move through terrain that is covered by fog of war, we can be interrupted by an invisible enemy unit that is on our arrowpath.
+    public bool directAttack = false;
+    public bool rangeAttack = false;
+    public bool isSelected = false;
+
     //Tilestuff
-	public Transform reachableTilePrefab;
-    public Transform attackableTilePrefab;
     public List<Tile> attackableTiles = new List<Tile>();
     public List<Unit> attackableUnits = new List<Unit>();
     public List<Tile> reachableTiles = new List<Tile>();
@@ -52,11 +61,6 @@ public class Unit : MonoBehaviour
     public int maxRange;
     public int cost;
 
-    public type myUnitType; 
-    public enum type { Flak, APC, Tank, Artillery, Rockets, Missiles, Titantank, Recon, Infantry, MdTank, Mech, TCopter, BCopter, Bomber, Fighter, Lander, Battleship, Cruiser, Sub, Pipe };
-    public moveType myMoveType;
-    public enum moveType {Foot, Mech, Treads, Wheels, Lander, Ship, Air};
-
     //Animationstuff
     Vector3 target;
     List<Vector3> wayPointList = new List<Vector3>();
@@ -68,18 +72,17 @@ public class Unit : MonoBehaviour
     private Quaternion startRotation;
     private Quaternion endRotation;
     private Vector3 lookingDirection;
-
+    //States
     private bool move = false;
     private bool rotate = false;
     private bool isMoving = false;
 
-    // Use this for initialization
-    void Awake () 
-	{
-		myLevelManager = GameObject.FindGameObjectWithTag ("LevelManager");
-        graphMatrix = myLevelManager.GetComponent<MapCreator>().getGraph();
-        graph = myLevelManager.GetComponent<MapCreator>();
-        healthText = this.transform.Find("Lifepoints").GetComponent<TextMesh>();
+    public void init()
+    {
+		_manager = GameObject.FindGameObjectWithTag ("LevelManager").GetComponent<Manager>();
+        _graphMatrix = _manager.GetComponent<MapCreator>().getGraph();
+        _mapCreator = _manager.GetComponent<MapCreator>();
+        healthText = this.transform.Find("Lifepoints").GetComponent<TextMesh>();        
     }
 
     public void Update()
@@ -123,7 +126,7 @@ public class Unit : MonoBehaviour
                     if (isInterrupted)
                     {
                         wait();
-                        myLevelManager.GetComponent<ContextMenu>().showExclamationMark(xPos, yPos); //Show exclamation mark.
+                        _manager.GetComponent<Manager>().getContextMenu().showExclamationMark(xPos, yPos); //Show exclamation mark.
                         //TODO: Stop move sound.
                         //TODO: Play interruption sound
                     }
@@ -144,67 +147,67 @@ public class Unit : MonoBehaviour
     private void OnMouseDown()
     {
         //If normal mode is activated.
-        if (myLevelManager.GetComponent<MainFunctions>().normalMode && !myLevelManager.GetComponent<Menu_BuyUnits>().isOpened && hasTurn)
+        if (_manager.getGameFunctions().normalMode && !_manager.getBuyMenu().isOpened && hasTurn)
         {               
-            //Einheit als ausgewählt markieren.
-            myLevelManager.GetComponent<MainFunctions>().selectUnit(this);
+            //Select unit
+            _manager.getGameFunctions().selectUnit(this);
             //Calculate reachable area and instantiate the graphics for the tiles.
             counter = 0;
             calcReachableArea(this.xPos, this.yPos, moveDist, myMoveType, null);
             //Debug.Log("Reachable iterations: " + counter);
-            myLevelManager.GetComponent<MapCreator>().createReachableTiles();
+            _manager.getMapCreator().createReachableTiles();
             //Calculate attackable area, instantiate the graphics for the tiles and store the attackable units in a list.
             findAttackableTiles();
-            myLevelManager.GetComponent<MapCreator>().createAttackableTiles();
-            myLevelManager.GetComponent<MapCreator>().showAttackableTiles(false);
+            _manager.getMapCreator().createAttackableTiles();
+            _manager.getMapCreator().showAttackableTiles(false);
             findAttackableEnemies();
             
             calcVisibleArea();
-            myLevelManager.GetComponent<MainFunctions>().activateMoveMode();
+            _manager.getGameFunctions().activateMoveMode();
             
         }
         else
         //If move mode is activated
-        if (myLevelManager.GetComponent<MainFunctions>().moveMode)
+        if (_manager.getGameFunctions().moveMode)
         {
             if (isSelected)
             {
                 //Decide if the menu with firebutton and wait button is opened ...
-                if (myLevelManager.GetComponent<MainFunctions>().selectedUnit.attackableUnits.Count > 0)
+                if (_manager.getGameFunctions().getSelectedUnit().attackableUnits.Count > 0)
                 {
-                    //If the selected unit is infantry/mech and this tile is a neutral/enemy property also load the 'occupy button'.
-                    if (graphMatrix[xPos][yPos].GetComponent<Tile>().isOccupyable(this))
+                    //...if the selected unit is infantry/mech and this tile is a neutral/enemy property also load the 'occupy button'.
+                    if (_graphMatrix[xPos][yPos].GetComponent<Tile>().isOccupyable(this))
                     {
-                        myLevelManager.GetComponent<ContextMenu>().openContextMenu(xPos, yPos, 3);
+                        _manager.getContextMenu().openContextMenu(xPos, yPos, 3);
                     }
                     else
                     {
-                        myLevelManager.GetComponent<ContextMenu>().openContextMenu(xPos, yPos, 1);
+                        _manager.getContextMenu().openContextMenu(xPos, yPos, 1);
                     }
                 }
                 //...OR if only the wait button is to display.
                 else
                 {
                     //If the selected unit is infantry/mech and this tile is a neutral/enemy property also load the 'occupy button'.
-                    if (graphMatrix[xPos][yPos].GetComponent<Tile>().isOccupyable(this))
+                    if (_graphMatrix[xPos][yPos].GetComponent<Tile>().isOccupyable(this))
                     {
-                        myLevelManager.GetComponent<ContextMenu>().openContextMenu(xPos, yPos, 2);
+                        _manager.getContextMenu().openContextMenu(xPos, yPos, 2);
                     }
                     else
                     {
-                        myLevelManager.GetComponent<ContextMenu>().openContextMenu(xPos, yPos, 0);
+                        _manager.getContextMenu().openContextMenu(xPos, yPos, 0);
                     }
                 }               
             }
         }
         else
         //If fire mode is activated.
-        if(myLevelManager.GetComponent<MainFunctions>().fireMode)
+        if(_manager.getGameFunctions().fireMode)
         {
             //Select unit, that is attackable and pass it to the fight function.
-            if(graphMatrix[xPos][yPos].GetComponent<Tile>().isAttackable)
+            if(_graphMatrix[xPos][yPos].GetComponent<Tile>().isAttackable)
             {
-                Unit attacker = myLevelManager.GetComponent<MainFunctions>().selectedUnit;
+                Unit attacker = _manager.getGameFunctions().getSelectedUnit();
                 Unit defender = this;
                 //Align the units to face each other.
                 alignUnit(attacker.xPos, attacker.yPos);
@@ -213,8 +216,8 @@ public class Unit : MonoBehaviour
                 displayHealth(true);
                 attacker.displayHealth(true);
 
-                myLevelManager.GetComponent<BattleMode>().fight(attacker, defender);//Battle
-                myLevelManager.GetComponent<MainFunctions>().deselectObject();//Deselect the current unit                
+                _manager.getBattleMode().fight(attacker, defender);//Battle
+                _manager.getGameFunctions().deselectObject();//Deselect the current unit                
             }
         }
     }
@@ -224,8 +227,8 @@ public class Unit : MonoBehaviour
     {
         canFire = false;
         hasTurn = false;
-        myLevelManager.GetComponent<TurnManager>().setFogOfWar(myTeam);
-        myLevelManager.GetComponent<MainFunctions>().deselectObject();
+        _manager.getTurnManager().updateFogOfWar(myTeam);
+        _manager.getGameFunctions().deselectObject();
     }
 
     public void subtractHealth(int healthToSubtract)
@@ -270,16 +273,16 @@ public class Unit : MonoBehaviour
     public void killUnit()
     {
         //Set the unit standing on this tile as null.
-        graphMatrix[xPos][yPos].GetComponent<Tile>().clearUnitHere();
+        _graphMatrix[xPos][yPos].GetComponent<Tile>().clearUnitHere();
         //Boom
-        myLevelManager.GetComponent<AnimController>().boom(xPos,yPos);
+        _manager.getAnimationController().boom(xPos,yPos);
         //Remove unit from team list
         myTeam.myUnits.Remove(this.transform);
         //If this was the last unit of the player the game is lost.
         if (myTeam.myUnits.Count <= 0)
         {
-            myLevelManager.GetComponent<MasterClass>().container.setTeams(myLevelManager.GetComponent<TeamManager>().getTeams());
-            myLevelManager.GetComponent<LevelLoader>().loadGameFinishedScreenWithDelay();//This has a short delay, so the player sees how the last unit is destroyed.
+            _manager.container.setTeams(_manager.GetComponent<TeamManager>().getTeams());
+            _manager.getSceneLoader().loadGameFinishedScreenWithDelay();//This has a short delay, so the player sees how the last unit is destroyed.
         }
         //Finally delete the unit.
         Destroy(this.gameObject);
@@ -295,58 +298,55 @@ public class Unit : MonoBehaviour
     public void moveUnitTo(int newX, int newY)
     {
         //Only if we drew at least one arrow Path, we should be able move.
-        if (myLevelManager.GetComponent<ArrowBuilder>().getArrowPath().Count > 1)
+        if (_manager.getArrowBuilder().getArrowPath().Count > 1)
         {
             //If a possible path was found, go to the desired position.
-            myLevelManager.GetComponent<ArrowBuilder>().checkForInterruption();//Check for interruption with enemies and make the tile before the interruption the last of the arrow path!
-            wayPointList = myLevelManager.GetComponent<ArrowBuilder>().createMovementPath();
+            _manager.getArrowBuilder().checkForInterruption();//Check for interruption with enemies and make the tile before the interruption the last of the arrow path!
+            wayPointList = _manager.getArrowBuilder().createMovementPath();
             target = wayPointList[wayPointIndex];//Set the first target for the movement.
             lookingDirection = (wayPointList[wayPointIndex] - transform.position).normalized;//Vector from our position to the target
             startRotation = Quaternion.LookRotation(this.transform.position);
             endRotation = Quaternion.LookRotation(lookingDirection);//The actual rotation we need to look at the target
             isMoving = true; //Init the sequencer in the update function...
             rotate = true;//...and start rotating towards the first waypoint.
-
-            //Reset the unitStandingHere property of the old tile to null
-            graphMatrix[xPos][yPos].GetComponent<Tile>().clearUnitHere();
-            //Reset the take over counter
-            graphMatrix[xPos][yPos].GetComponent<Tile>().resetTakeOverCounter();
+            _graphMatrix[xPos][yPos].GetComponent<Tile>().clearUnitHere();//Reset the unitStandingHere property of the old tile to null
+            _graphMatrix[xPos][yPos].GetComponent<Tile>().resetTakeOverCounter();//Reset the take over counter
             //Remember the last position and rotation of the unit. (For resetting purposes.)
             preDirection = myFacingDirection;
             prePosX = this.xPos;
             prePosY = this.yPos;
-            //Set xPos and yPos to the new position.
+            //Set xPos and yPos to the new position.            
             this.xPos = (int)(wayPointList[wayPointList.Count - 1].x);
             this.yPos = (int)(wayPointList[wayPointList.Count - 1].z);
-            graphMatrix[xPos][yPos].GetComponent<Tile>().setUnitHere(this.transform);//Inform the new tile, that a unit is standing on it.
-            myLevelManager.GetComponent<StatusWindow>().updateCover(xPos, yPos);//When you move the unit, you should see the new cover for the tile it will stand on.
+            _graphMatrix[xPos][yPos].GetComponent<Tile>().setUnitHere(this.transform);//Inform the new tile, that a unit is standing on it.
+            _manager.getStatusWindow().updateCover(xPos, yPos);//When you move the unit, you should see the new cover for the tile it will stand on.
             displayHealth(false);//While moving we dont want to see the health.
             hasMoved = true;
         }
     }
 
-    //Resets the position and rotation of the unit to where it was before. (If we click the right mouse button or close the menu after we moved it somewhere.)
+    //Resets the position and rotation of the unit to where it was before. (If we click the right mouse button or close the menu after we successfully moved it somewhere.)
     public void resetPosition()
     {
-        graphMatrix[xPos][yPos].GetComponent<Tile>().clearUnitHere();//Reset the unitStandingHere property of the tile, we went to, to null
+        _graphMatrix[xPos][yPos].GetComponent<Tile>().clearUnitHere();//Reset the unitStandingHere property of the tile, we went to, to null
         //Set the position and rotation of the unit to where it was before
         this.transform.position = new Vector3(prePosX, 0, prePosY);
         this.xPos = prePosX;
         this.yPos = prePosY;
         rotateUnit(preDirection);
         wayPointIndex = 1;
-        myLevelManager.GetComponent<StatusWindow>().updateCover(xPos, yPos);//When the unit moves back, the display of the cover should be set to the old tile.
-        graphMatrix[prePosX][prePosX].GetComponent<Tile>().setUnitHere(this.transform);//Inform the old tile, that we are back.
+        _manager.getStatusWindow().updateCover(xPos, yPos);//When the unit moves back, the display of the cover should be set to the old tile.
+        _graphMatrix[prePosX][prePosX].GetComponent<Tile>().setUnitHere(this.transform);//Inform the old tile, that we are back.
         displayHealth(true);//Repostition the health indicator.       
         hasMoved = false;
     }
 
     //Aligns the unit so it faces the direction of the given coordinates. 
+    //TODO: add alignment for range units
     public void alignUnit(int targetX, int targetY)
     {
         if(directAttack)
         {
-            //For direct attack only!
             //Face right
             if(this.xPos < targetX && this.yPos == targetY)
             {
@@ -367,7 +367,6 @@ public class Unit : MonoBehaviour
             {            
                 rotateUnit(Unit.facingDirection.South);
             }
-
         }
         if(rangeAttack)
         {
@@ -456,64 +455,64 @@ public class Unit : MonoBehaviour
                 //Straight
                 if (xPos - 2 - i > -1)
                 {
-                    graphMatrix[xPos - 2 - i][yPos].GetComponent<Tile>().isAttackable = true;
-                    attackableTiles.Add(graphMatrix[xPos - 2 - i][yPos].GetComponent<Tile>());
+                    _graphMatrix[xPos - 2 - i][yPos].GetComponent<Tile>().isAttackable = true;
+                    attackableTiles.Add(_graphMatrix[xPos - 2 - i][yPos].GetComponent<Tile>());
                 }
                 //Down
                 if (xPos - 1 - i > -1 && yPos - 1 > -1)
                 {
-                    graphMatrix[xPos - 1 - i][yPos - 1].GetComponent<Tile>().isAttackable = true;
-                    attackableTiles.Add(graphMatrix[xPos - 1 - i][yPos - 1].GetComponent<Tile>());
+                    _graphMatrix[xPos - 1 - i][yPos - 1].GetComponent<Tile>().isAttackable = true;
+                    attackableTiles.Add(_graphMatrix[xPos - 1 - i][yPos - 1].GetComponent<Tile>());
                 }
                 //Up
-                if (xPos - 1 - i > -1 && yPos + 1 < graphMatrix[0].Count)
+                if (xPos - 1 - i > -1 && yPos + 1 < _graphMatrix[0].Count)
                 {
-                    graphMatrix[xPos - 1 - i][yPos + 1].GetComponent<Tile>().isAttackable = true;
-                    attackableTiles.Add(graphMatrix[xPos - 1 - i][yPos + 1].GetComponent<Tile>());
+                    _graphMatrix[xPos - 1 - i][yPos + 1].GetComponent<Tile>().isAttackable = true;
+                    attackableTiles.Add(_graphMatrix[xPos - 1 - i][yPos + 1].GetComponent<Tile>());
                 }
             }
             //Right
             for (int i = 1; i < 4; i++)
             {
                 //Straight
-                if (xPos + 2 + i < graphMatrix.Count)
+                if (xPos + 2 + i < _graphMatrix.Count)
                 {
-                    graphMatrix[xPos + 2 + i][yPos].GetComponent<Tile>().isAttackable = true;
-                    attackableTiles.Add(graphMatrix[xPos + 2 + i][yPos].GetComponent<Tile>());
+                    _graphMatrix[xPos + 2 + i][yPos].GetComponent<Tile>().isAttackable = true;
+                    attackableTiles.Add(_graphMatrix[xPos + 2 + i][yPos].GetComponent<Tile>());
                 }
                 //Down
-                if (xPos + 1 + i < graphMatrix.Count && yPos - 1 > -1)
+                if (xPos + 1 + i < _graphMatrix.Count && yPos - 1 > -1)
                 {
-                    graphMatrix[xPos + 1 + i][yPos - 1].GetComponent<Tile>().isAttackable = true;
-                    attackableTiles.Add(graphMatrix[xPos + 1 + i][yPos - 1].GetComponent<Tile>());
+                    _graphMatrix[xPos + 1 + i][yPos - 1].GetComponent<Tile>().isAttackable = true;
+                    attackableTiles.Add(_graphMatrix[xPos + 1 + i][yPos - 1].GetComponent<Tile>());
                 }
                 //Up
-                if (xPos + 1 + i < graphMatrix.Count && yPos + 1 < graphMatrix[0].Count)
+                if (xPos + 1 + i < _graphMatrix.Count && yPos + 1 < _graphMatrix[0].Count)
                 {
-                    graphMatrix[xPos + 1 + i][yPos + 1].GetComponent<Tile>().isAttackable = true;
-                    attackableTiles.Add(graphMatrix[xPos + 1 + i][yPos + 1].GetComponent<Tile>());
+                    _graphMatrix[xPos + 1 + i][yPos + 1].GetComponent<Tile>().isAttackable = true;
+                    attackableTiles.Add(_graphMatrix[xPos + 1 + i][yPos + 1].GetComponent<Tile>());
                 }
             }
             //Top
             for (int i = 1; i < 4; i++)
             {
                 //Straight
-                if (yPos + 2 + i < graphMatrix[0].Count)
+                if (yPos + 2 + i < _graphMatrix[0].Count)
                 {
-                    graphMatrix[xPos][yPos + 2 + i].GetComponent<Tile>().isAttackable = true;
-                    attackableTiles.Add(graphMatrix[xPos][yPos + 2 + i].GetComponent<Tile>());
+                    _graphMatrix[xPos][yPos + 2 + i].GetComponent<Tile>().isAttackable = true;
+                    attackableTiles.Add(_graphMatrix[xPos][yPos + 2 + i].GetComponent<Tile>());
                 }
                 //Left
-                if (yPos + 1 + i < graphMatrix[0].Count && xPos - 1 > -1)
+                if (yPos + 1 + i < _graphMatrix[0].Count && xPos - 1 > -1)
                 {
-                    graphMatrix[xPos - 1][yPos + 1 + i].GetComponent<Tile>().isAttackable = true;
-                    attackableTiles.Add(graphMatrix[xPos - 1][yPos + 1 + i].GetComponent<Tile>());
+                    _graphMatrix[xPos - 1][yPos + 1 + i].GetComponent<Tile>().isAttackable = true;
+                    attackableTiles.Add(_graphMatrix[xPos - 1][yPos + 1 + i].GetComponent<Tile>());
                 }
                 //Right
-                if (yPos + 1 + i < graphMatrix[0].Count && xPos + 1 < graphMatrix.Count)
+                if (yPos + 1 + i < _graphMatrix[0].Count && xPos + 1 < _graphMatrix.Count)
                 {
-                    graphMatrix[xPos + 1][yPos + 1 + i].GetComponent<Tile>().isAttackable = true;
-                    attackableTiles.Add(graphMatrix[xPos + 1][yPos + 1 + i].GetComponent<Tile>());
+                    _graphMatrix[xPos + 1][yPos + 1 + i].GetComponent<Tile>().isAttackable = true;
+                    attackableTiles.Add(_graphMatrix[xPos + 1][yPos + 1 + i].GetComponent<Tile>());
                 }
             }
             //Bottom
@@ -522,20 +521,20 @@ public class Unit : MonoBehaviour
                 //Straight
                 if (yPos - 2 - i > -1)
                 {
-                    graphMatrix[xPos][yPos - 2 - i].GetComponent<Tile>().isAttackable = true;
-                    attackableTiles.Add(graphMatrix[xPos][yPos - 2 - i].GetComponent<Tile>());
+                    _graphMatrix[xPos][yPos - 2 - i].GetComponent<Tile>().isAttackable = true;
+                    attackableTiles.Add(_graphMatrix[xPos][yPos - 2 - i].GetComponent<Tile>());
                 }
                 //Left
                 if (yPos - 1 - i > -1 && xPos - 1 > 0)
                 {
-                    graphMatrix[xPos - 1][yPos - 1 - i].GetComponent<Tile>().isAttackable = true;
-                    attackableTiles.Add(graphMatrix[xPos - 1][yPos - 1 - i].GetComponent<Tile>());
+                    _graphMatrix[xPos - 1][yPos - 1 - i].GetComponent<Tile>().isAttackable = true;
+                    attackableTiles.Add(_graphMatrix[xPos - 1][yPos - 1 - i].GetComponent<Tile>());
                 }
                 //Right
-                if (yPos - 1 - i > -1 && xPos + 1 < graphMatrix.Count)
+                if (yPos - 1 - i > -1 && xPos + 1 < _graphMatrix.Count)
                 {
-                    graphMatrix[xPos + 1][yPos - 1 - i].GetComponent<Tile>().isAttackable = true;
-                    attackableTiles.Add(graphMatrix[xPos + 1][yPos - 1 - i].GetComponent<Tile>());
+                    _graphMatrix[xPos + 1][yPos - 1 - i].GetComponent<Tile>().isAttackable = true;
+                    attackableTiles.Add(_graphMatrix[xPos + 1][yPos - 1 - i].GetComponent<Tile>());
                 }
             }
 
@@ -543,67 +542,67 @@ public class Unit : MonoBehaviour
             //Lower left
             if (xPos - 2 > -1 && yPos - 2 > -1)
             {
-                graphMatrix[xPos - 2][yPos - 2].GetComponent<Tile>().isAttackable = true;
-                attackableTiles.Add(graphMatrix[xPos - 2][yPos - 2].GetComponent<Tile>());
+                _graphMatrix[xPos - 2][yPos - 2].GetComponent<Tile>().isAttackable = true;
+                attackableTiles.Add(_graphMatrix[xPos - 2][yPos - 2].GetComponent<Tile>());
             }
             if (xPos - 3 > -1 && yPos - 2 > -1)
             {
-                graphMatrix[xPos - 3][yPos - 2].GetComponent<Tile>().isAttackable = true;
-                attackableTiles.Add(graphMatrix[xPos - 3][yPos - 2].GetComponent<Tile>());
+                _graphMatrix[xPos - 3][yPos - 2].GetComponent<Tile>().isAttackable = true;
+                attackableTiles.Add(_graphMatrix[xPos - 3][yPos - 2].GetComponent<Tile>());
             }
             if (xPos - 2 > -1 && yPos - 3 > -1)
             {
-                graphMatrix[xPos - 2][yPos - 3].GetComponent<Tile>().isAttackable = true;
-                attackableTiles.Add(graphMatrix[xPos - 2][yPos - 3].GetComponent<Tile>());
+                _graphMatrix[xPos - 2][yPos - 3].GetComponent<Tile>().isAttackable = true;
+                attackableTiles.Add(_graphMatrix[xPos - 2][yPos - 3].GetComponent<Tile>());
             }
 
             //Upper left
-            if (xPos - 2 > -1 && yPos + 2 < graphMatrix[0].Count)
+            if (xPos - 2 > -1 && yPos + 2 < _graphMatrix[0].Count)
             {
-                graphMatrix[xPos - 2][yPos + 2].GetComponent<Tile>().isAttackable = true;
-                attackableTiles.Add(graphMatrix[xPos - 2][yPos + 2].GetComponent<Tile>());
+                _graphMatrix[xPos - 2][yPos + 2].GetComponent<Tile>().isAttackable = true;
+                attackableTiles.Add(_graphMatrix[xPos - 2][yPos + 2].GetComponent<Tile>());
             }
-            if (xPos - 3 > -1 && yPos + 2 < graphMatrix[0].Count)
+            if (xPos - 3 > -1 && yPos + 2 < _graphMatrix[0].Count)
             {
-                graphMatrix[xPos - 3][yPos + 2].GetComponent<Tile>().isAttackable = true;
-                attackableTiles.Add(graphMatrix[xPos - 3][yPos + 2].GetComponent<Tile>());
+                _graphMatrix[xPos - 3][yPos + 2].GetComponent<Tile>().isAttackable = true;
+                attackableTiles.Add(_graphMatrix[xPos - 3][yPos + 2].GetComponent<Tile>());
             }
-            if (xPos - 2 > -1 && yPos + 3 < graphMatrix[0].Count)
+            if (xPos - 2 > -1 && yPos + 3 < _graphMatrix[0].Count)
             {
-                graphMatrix[xPos - 2][yPos + 3].GetComponent<Tile>().isAttackable = true;
-                attackableTiles.Add(graphMatrix[xPos - 2][yPos + 3].GetComponent<Tile>());
+                _graphMatrix[xPos - 2][yPos + 3].GetComponent<Tile>().isAttackable = true;
+                attackableTiles.Add(_graphMatrix[xPos - 2][yPos + 3].GetComponent<Tile>());
             }
             //Upper right
-            if (xPos + 2 < graphMatrix.Count && yPos + 2 < graphMatrix[0].Count)
+            if (xPos + 2 < _graphMatrix.Count && yPos + 2 < _graphMatrix[0].Count)
             {
-                graphMatrix[xPos + 2][yPos + 2].GetComponent<Tile>().isAttackable = true;
-                attackableTiles.Add(graphMatrix[xPos + 2][yPos + 2].GetComponent<Tile>());
+                _graphMatrix[xPos + 2][yPos + 2].GetComponent<Tile>().isAttackable = true;
+                attackableTiles.Add(_graphMatrix[xPos + 2][yPos + 2].GetComponent<Tile>());
             }
-            if (xPos + 3 < graphMatrix.Count && yPos + 2 < graphMatrix[0].Count)
+            if (xPos + 3 < _graphMatrix.Count && yPos + 2 < _graphMatrix[0].Count)
             {
-                graphMatrix[xPos + 3][yPos + 2].GetComponent<Tile>().isAttackable = true;
-                attackableTiles.Add(graphMatrix[xPos + 3][yPos + 2].GetComponent<Tile>());
+                _graphMatrix[xPos + 3][yPos + 2].GetComponent<Tile>().isAttackable = true;
+                attackableTiles.Add(_graphMatrix[xPos + 3][yPos + 2].GetComponent<Tile>());
             }
-            if (xPos + 2 < graphMatrix.Count && yPos + 3 < graphMatrix[0].Count)
+            if (xPos + 2 < _graphMatrix.Count && yPos + 3 < _graphMatrix[0].Count)
             {
-                graphMatrix[xPos + 2][yPos + 3].GetComponent<Tile>().isAttackable = true;
-                attackableTiles.Add(graphMatrix[xPos + 2][yPos + 3].GetComponent<Tile>());
+                _graphMatrix[xPos + 2][yPos + 3].GetComponent<Tile>().isAttackable = true;
+                attackableTiles.Add(_graphMatrix[xPos + 2][yPos + 3].GetComponent<Tile>());
             }
             //Lower right
-            if (xPos + 2 < graphMatrix.Count && yPos - 2 > -1)
+            if (xPos + 2 < _graphMatrix.Count && yPos - 2 > -1)
             {
-                graphMatrix[xPos + 2][yPos - 2].GetComponent<Tile>().isAttackable = true;
-                attackableTiles.Add(graphMatrix[xPos + 2][yPos - 2].GetComponent<Tile>());
+                _graphMatrix[xPos + 2][yPos - 2].GetComponent<Tile>().isAttackable = true;
+                attackableTiles.Add(_graphMatrix[xPos + 2][yPos - 2].GetComponent<Tile>());
             }
-            if (xPos + 3 < graphMatrix.Count && yPos - 2 > -1)
+            if (xPos + 3 < _graphMatrix.Count && yPos - 2 > -1)
             {
-                graphMatrix[xPos + 3][yPos - 2].GetComponent<Tile>().isAttackable = true;
-                attackableTiles.Add(graphMatrix[xPos + 3][yPos - 2].GetComponent<Tile>());
+                _graphMatrix[xPos + 3][yPos - 2].GetComponent<Tile>().isAttackable = true;
+                attackableTiles.Add(_graphMatrix[xPos + 3][yPos - 2].GetComponent<Tile>());
             }
-            if (xPos + 2 < graphMatrix.Count && yPos - 3 > -1)
+            if (xPos + 2 < _graphMatrix.Count && yPos - 3 > -1)
             {
-                graphMatrix[xPos + 2][yPos - 3].GetComponent<Tile>().isAttackable = true;
-                attackableTiles.Add(graphMatrix[xPos + 2][yPos - 3].GetComponent<Tile>());
+                _graphMatrix[xPos + 2][yPos - 3].GetComponent<Tile>().isAttackable = true;
+                attackableTiles.Add(_graphMatrix[xPos + 2][yPos - 3].GetComponent<Tile>());
             }
 
         }
@@ -615,26 +614,26 @@ public class Unit : MonoBehaviour
         //Left
         if (xPos > 0)
         {
-            graphMatrix[xPos - 1][yPos].GetComponent<Tile>().isAttackable = true;
-            attackableTiles.Add(graphMatrix[xPos - 1][yPos].GetComponent<Tile>());
+            _graphMatrix[xPos - 1][yPos].GetComponent<Tile>().isAttackable = true;
+            attackableTiles.Add(_graphMatrix[xPos - 1][yPos].GetComponent<Tile>());
         }
         //Right
-        if (xPos < graphMatrix.Count - 1)
+        if (xPos < _graphMatrix.Count - 1)
         {
-            graphMatrix[xPos + 1][yPos].GetComponent<Tile>().isAttackable = true;
-            attackableTiles.Add(graphMatrix[xPos + 1][yPos].GetComponent<Tile>());
+            _graphMatrix[xPos + 1][yPos].GetComponent<Tile>().isAttackable = true;
+            attackableTiles.Add(_graphMatrix[xPos + 1][yPos].GetComponent<Tile>());
         }
         //Top
         if (yPos > 0)
         {
-            graphMatrix[xPos][yPos - 1].GetComponent<Tile>().isAttackable = true;
-            attackableTiles.Add(graphMatrix[xPos][yPos - 1].GetComponent<Tile>());
+            _graphMatrix[xPos][yPos - 1].GetComponent<Tile>().isAttackable = true;
+            attackableTiles.Add(_graphMatrix[xPos][yPos - 1].GetComponent<Tile>());
         }
         //Bottom
-        if (yPos < graphMatrix[0].Count - 1)
+        if (yPos < _graphMatrix[0].Count - 1)
         {
-            graphMatrix[xPos][yPos + 1].GetComponent<Tile>().isAttackable = true;
-            attackableTiles.Add(graphMatrix[xPos][yPos + 1].GetComponent<Tile>());
+            _graphMatrix[xPos][yPos + 1].GetComponent<Tile>().isAttackable = true;
+            attackableTiles.Add(_graphMatrix[xPos][yPos + 1].GetComponent<Tile>());
         }
     }
 
@@ -648,7 +647,6 @@ public class Unit : MonoBehaviour
             {
                 //Only if the unit on the tile is in the opposite team add it to the attackableUnits list.
                 if(isEnemyHere(attackableTiles[i]))
-                //if((this.teamBlue && attackableTiles[i].unitStandingHere.teamRed) || (this.teamRed && attackableTiles[i].unitStandingHere.teamBlue))
                 {
                     attackableUnits.Add(attackableTiles[i].unitStandingHere.GetComponent<Unit>());
                 }
@@ -666,7 +664,7 @@ public class Unit : MonoBehaviour
             {
                 for(int j = 0; j < myTeam.enemyTeams[i].myUnits.Count; j++)
                 {
-                    if(myTeam.enemyTeams[i].myUnits[j] != null)//Entries of the teamUnits list can be empty! (Destroying an item in a list doesnt fill the gaps!)
+                    if(myTeam.enemyTeams[i].myUnits[j] != null)//Entries of the teamUnits list could be empty! (Destroying an item in a list doesnt fill the gaps!)
                     {
                         if(myTeam.enemyTeams[i].myUnits[j].GetComponent<Unit>() == possibleEnemy)
                         {
@@ -684,7 +682,7 @@ public class Unit : MonoBehaviour
     {
         for(int i = 0; i < attackableUnits.Count; i++)
         {
-            myLevelManager.GetComponent<MainFunctions>().createMarkingCursor(attackableUnits[i]);
+            _manager.getGameFunctions().createMarkingCursor(attackableUnits[i]);
         }
     }
 
@@ -705,7 +703,7 @@ public class Unit : MonoBehaviour
     private void calcReachableArea(int x, int y, int movementPoints, moveType myMoveType, Tile cameFromTile)
     {
         counter++;
-        Tile tile = graphMatrix[x][y].gameObject.GetComponent<Tile>();
+        Tile tile = _graphMatrix[x][y].gameObject.GetComponent<Tile>();
 
         movementPoints = movementPoints - tile.getMovementCost(myMoveType);
 
@@ -732,9 +730,9 @@ public class Unit : MonoBehaviour
     //Calculates the visible area of this unit depending on its vision range and marks the visible tiles in the graph.
     public void calcVisibleArea()
     {
-        if (myLevelManager.GetComponent<MasterClass>().container.fogOfWar)
+        if (_manager.getContainer().fogOfWar)
         {
-            graph.getTile(xPos, yPos).setVisible(true);//Mark own position as visible.
+            _mapCreator.getTile(xPos, yPos).setVisible(true);//Mark own position as visible.
             for (int i = 1; i <= visionRange; i++)
             {
                 //Left
@@ -742,28 +740,28 @@ public class Unit : MonoBehaviour
                 int yTest = this.yPos;
                 if (xTest >= 0)
                 {
-                    if ((i < 2) || (graph.getTile(xTest, yTest).myTileType != Tile.type.Forest))
+                    if ((i < 2) || (_mapCreator.getTile(xTest, yTest).myTileType != Tile.type.Forest))
                     {
-                        graph.getTile(xTest, yTest).setVisible(true);
+                        _mapCreator.getTile(xTest, yTest).setVisible(true);
                     }                
                     for(int j = 1; j <= visionRange - i; j++)
                     {
                         //...and up.
                         yTest = this.yPos + j;
-                        if(yTest < graph.getGraph()[0].Count)
+                        if(yTest < _mapCreator.getGraph()[0].Count)
                         {
-                            if (graph.getTile(xTest, yTest).myTileType != Tile.type.Forest)
+                            if (_mapCreator.getTile(xTest, yTest).myTileType != Tile.type.Forest)
                             {
-                                graph.getTile(xTest, yTest).setVisible(true);
+                                _mapCreator.getTile(xTest, yTest).setVisible(true);
                             }
                         }
                         //...and down.
                         yTest = this.yPos - j;
                         if (yTest >= 0)
                         {
-                            if (graph.getTile(xTest, yTest).myTileType != Tile.type.Forest)
+                            if (_mapCreator.getTile(xTest, yTest).myTileType != Tile.type.Forest)
                             {
-                                graph.getTile(xTest, yTest).setVisible(true);
+                                _mapCreator.getTile(xTest, yTest).setVisible(true);
                             }
                         }
                     }                
@@ -771,30 +769,30 @@ public class Unit : MonoBehaviour
                 //Right
                 xTest = this.xPos + i;
                 yTest = this.yPos;
-                if (xTest < graph.getGraph().Count)
+                if (xTest < _mapCreator.getGraph().Count)
                 {
-                    if ((i < 2) || (graph.getTile(xTest, yTest).myTileType != Tile.type.Forest))
+                    if ((i < 2) || (_mapCreator.getTile(xTest, yTest).myTileType != Tile.type.Forest))
                     {
-                        graph.getTile(xTest, yTest).setVisible(true);
+                        _mapCreator.getTile(xTest, yTest).setVisible(true);
                     }
                     for (int j = 1; j <= visionRange - i; j++)
                     {
                         //...and up.
                         yTest = this.yPos + j;
-                        if (yTest < graph.getGraph()[0].Count)
+                        if (yTest < _mapCreator.getGraph()[0].Count)
                         {
-                            if (graph.getTile(xTest, yTest).myTileType != Tile.type.Forest)
+                            if (_mapCreator.getTile(xTest, yTest).myTileType != Tile.type.Forest)
                             {
-                                graph.getTile(xTest, yTest).setVisible(true);
+                                _mapCreator.getTile(xTest, yTest).setVisible(true);
                             }
                         }
                         //...and down.
                         yTest = this.yPos - j;
                         if (yTest >= 0)
                         {
-                            if (graph.getTile(xTest, yTest).myTileType != Tile.type.Forest)
+                            if (_mapCreator.getTile(xTest, yTest).myTileType != Tile.type.Forest)
                             {
-                                graph.getTile(xTest, yTest).setVisible(true);
+                                _mapCreator.getTile(xTest, yTest).setVisible(true);
                             }
                         }
                     }
@@ -806,20 +804,20 @@ public class Unit : MonoBehaviour
             //Up
             int xTest = this.xPos;
             int yTest = this.yPos + i;
-            if(yTest < graph.getGraph()[0].Count)
+            if(yTest < _mapCreator.getGraph()[0].Count)
             {
-                if ((i < 2) || (graph.getTile(xTest, yTest).myTileType != Tile.type.Forest))
+                if ((i < 2) || (_mapCreator.getTile(xTest, yTest).myTileType != Tile.type.Forest))
                 {
-                    graph.getTile(xTest, yTest).setVisible(true);
+                    _mapCreator.getTile(xTest, yTest).setVisible(true);
                 }
             }
             //Down
             yTest = this.yPos - i;
             if (yTest >= 0)
             {
-                if ((i < 2) || (graph.getTile(xTest, yTest).myTileType != Tile.type.Forest))
+                if ((i < 2) || (_mapCreator.getTile(xTest, yTest).myTileType != Tile.type.Forest))
                 {
-                    graph.getTile(xTest, yTest).setVisible(true);
+                    _mapCreator.getTile(xTest, yTest).setVisible(true);
                 }
             }
         }
@@ -828,7 +826,7 @@ public class Unit : MonoBehaviour
     //Returns the actual health of the unit downsized to ten and as int.
     public int getHealthAsInt()
     {
-        Debug.Log(Mathf.RoundToInt(health / 10));
+        //Debug.Log(Mathf.RoundToInt(health / 10));
         return Mathf.RoundToInt(health/10);
     }
 
@@ -863,26 +861,26 @@ public class Unit : MonoBehaviour
         if (attackableUnits.Count > 0)
         {
             //If the selected unit is infantry/mech and this tile is a neutral/enemy property also load the 'occupy button'.
-            if (graphMatrix[xPos][yPos].GetComponent<Tile>().isOccupyable(this))
+            if (_graphMatrix[xPos][yPos].GetComponent<Tile>().isOccupyable(this))
             {
-                myLevelManager.GetComponent<ContextMenu>().openContextMenu(xPos, yPos, 3);
+                _manager.getContextMenu().openContextMenu(xPos, yPos, 3);
             }
             else
             {
-                myLevelManager.GetComponent<ContextMenu>().openContextMenu(xPos, yPos, 1);
+                _manager.getContextMenu().openContextMenu(xPos, yPos, 1);
             }
         }
         //...OR if only the wait button is to display.
         else
         {
             //If the selected unit is infantry/mech and this tile is a neutral/enemy property also load the 'occupy button'.
-            if (graphMatrix[xPos][yPos].GetComponent<Tile>().isOccupyable(this))
+            if (_graphMatrix[xPos][yPos].GetComponent<Tile>().isOccupyable(this))
             {
-                myLevelManager.GetComponent<ContextMenu>().openContextMenu(xPos, yPos, 2);
+                _manager.getContextMenu().openContextMenu(xPos, yPos, 2);
             }
             else
             {
-                myLevelManager.GetComponent<ContextMenu>().openContextMenu(xPos, yPos, 0);
+                _manager.getContextMenu().openContextMenu(xPos, yPos, 0);
             }
         }
     }

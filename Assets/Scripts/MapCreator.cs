@@ -830,7 +830,7 @@ public class MapCreator : MonoBehaviour
     //Draws the tiles, that can be reached by the unit.
     public void createReachableTiles()
     {
-        if (this.GetComponent<MainFunctions>().selectedUnit.reachableTiles.Count == 0)
+        if (this.GetComponent<GameFunctions>().getSelectedUnit().reachableTiles.Count == 0)
         {
             for (int i = 0; i < myGraph.Count; i++)
             {
@@ -838,7 +838,7 @@ public class MapCreator : MonoBehaviour
                 {
                     if (myGraph[i][j].gameObject.GetComponent<Tile>().isReachable)
                     {
-                        Instantiate(reachableTile, new Vector3(i, 0, j), Quaternion.identity, this.GetComponent<MainFunctions>().selectedUnit.transform.Find("reachableArea"));
+                        Instantiate(reachableTile, new Vector3(i, 0, j), Quaternion.identity, this.GetComponent<GameFunctions>().getSelectedUnit().transform.Find("reachableArea"));
                     }
                 }
             }
@@ -854,7 +854,7 @@ public class MapCreator : MonoBehaviour
             {
                 if (myGraph[i][j].GetComponent<Tile>().isAttackable)
                 {
-                    Instantiate(attackableTile, new Vector3(i, 0.1f, j), Quaternion.identity, this.GetComponent<MainFunctions>().selectedUnit.transform.Find("attackableTiles"));
+                    Instantiate(attackableTile, new Vector3(i, 0.1f, j), Quaternion.identity, this.GetComponent<GameFunctions>().getSelectedUnit().transform.Find("attackableTiles"));
                 }
             }
         }
@@ -896,27 +896,27 @@ public class MapCreator : MonoBehaviour
     //Sets the reachable tiles to active or inactive, so they are visible or not.
     public void showReachableTiles(bool value)
     {
-        for (int i = 0; i < this.GetComponent<MainFunctions>().selectedUnit.transform.Find("reachableArea").transform.childCount; i++)
+        for (int i = 0; i < this.GetComponent<GameFunctions>().getSelectedUnit().transform.Find("reachableArea").transform.childCount; i++)
         {
-            this.GetComponent<MainFunctions>().selectedUnit.transform.Find("reachableArea").GetChild(i).gameObject.SetActive(value);
+            this.GetComponent<GameFunctions>().getSelectedUnit().transform.Find("reachableArea").GetChild(i).gameObject.SetActive(value);
         }
-        this.GetComponent<ContextMenu>().showReachableTiles = value;//Inform the context menu, if the tiles are visible or not.
+        this.GetComponent<Manager>().getContextMenu().showReachableTiles = value;//Inform the context menu, if the tiles are visible or not.
     }
 
     //Sets the attackable tiles to active or inactive, so they are visible or not.
     public void showAttackableTiles(bool value)
     {
-        for (int i = 0; i < this.GetComponent<MainFunctions>().selectedUnit.transform.Find("attackableTiles").transform.childCount; i++)
+        for (int i = 0; i < this.GetComponent<GameFunctions>().getSelectedUnit().transform.Find("attackableTiles").transform.childCount; i++)
         {
-            this.GetComponent<MainFunctions>().selectedUnit.transform.Find("attackableTiles").GetChild(i).gameObject.SetActive(value);
+            this.GetComponent<GameFunctions>().getSelectedUnit().transform.Find("attackableTiles").GetChild(i).gameObject.SetActive(value);
         }
-        this.GetComponent<ContextMenu>().showAttackableTiles = value;//Inform the context menu, if the tiles are visible or not.
+        this.GetComponent<Manager>().getContextMenu().showAttackableTiles = value;//Inform the context menu, if the tiles are visible or not.
     }
 
     //Resets the visiblity value of each tile to invisible.
     public void resetFogOfWar()
     {
-        if(GetComponent<MasterClass>().container.fogOfWar)
+        if(GetComponent<Manager>().container.fogOfWar)
         {
             for (int i = 0; i < myGraph.Count; i++)
             {
@@ -931,9 +931,9 @@ public class MapCreator : MonoBehaviour
     //Reset the reachable bool on all tiles to false and delete the blue fields.
     public void resetReachableTiles()
     {
-        for (int i = 0; i < this.GetComponent<MainFunctions>().selectedUnit.transform.Find("reachableArea").transform.childCount; i++)
+        for (int i = 0; i < this.GetComponent<GameFunctions>().getSelectedUnit().transform.Find("reachableArea").transform.childCount; i++)
         {
-            Destroy(this.GetComponent<MainFunctions>().selectedUnit.transform.Find("reachableArea").GetChild(i).gameObject);
+            Destroy(this.GetComponent<GameFunctions>().getSelectedUnit().transform.Find("reachableArea").GetChild(i).gameObject);
         }
 
         for (int i = 0; i < myGraph.Count; i++)
@@ -943,16 +943,16 @@ public class MapCreator : MonoBehaviour
                 myGraph[i][j].GetComponent<Tile>().isReachable = false;
             }
         }
-        this.GetComponent<MainFunctions>().selectedUnit.reachableTiles.Clear();
-        this.GetComponent<ContextMenu>().showReachableTiles = false;
+        this.GetComponent<GameFunctions>().getSelectedUnit().reachableTiles.Clear();
+        this.GetComponent<Manager>().getContextMenu().showReachableTiles = false;
     }
 
     //Reset the isAttackable bool on all tiles to false and delete the red fields.
     public void resetAttackableTiles()
     {
-        for (int i = 0; i < this.GetComponent<MainFunctions>().selectedUnit.transform.Find("attackableTiles").transform.childCount; i++)
+        for (int i = 0; i < this.GetComponent<GameFunctions>().getSelectedUnit().transform.Find("attackableTiles").transform.childCount; i++)
         {
-            Destroy(this.GetComponent<MainFunctions>().selectedUnit.transform.Find("attackableTiles").GetChild(i).gameObject);
+            Destroy(this.GetComponent<GameFunctions>().getSelectedUnit().transform.Find("attackableTiles").GetChild(i).gameObject);
         }
 
         for (int i = 0; i < myGraph.Count; i++)
@@ -962,8 +962,8 @@ public class MapCreator : MonoBehaviour
                 myGraph[i][j].GetComponent<Tile>().isAttackable = false;
             }
         }
-        this.GetComponent<MainFunctions>().selectedUnit.attackableTiles.Clear();
-        this.GetComponent<ContextMenu>().showAttackableTiles = false;
+        this.GetComponent<GameFunctions>().getSelectedUnit().attackableTiles.Clear();
+        this.GetComponent<Manager>().getContextMenu().showAttackableTiles = false;
     }
 
     

@@ -90,6 +90,7 @@ public class UnitCreator : MonoBehaviour
         //Create the Unit
         Transform unitTransform = Instantiate(unitPrefab, new Vector3(x, 0, y), Quaternion.Euler(0, 90, 0), this.transform.Find(team.name));
         Unit unit = unitTransform.GetComponent<Unit>();
+        unit.init();
         unit.rotateUnit(myFacingDirection);
         myGraph.getGraph()[x][y].GetComponent<Tile>().setUnitHere(unitTransform);//Pass the unit to the tile it stands on
         setPosition(unit, x, y);

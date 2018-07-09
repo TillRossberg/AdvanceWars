@@ -6,6 +6,7 @@ public class AudioManager : MonoBehaviour
 {
     public AudioClip explosion01Sound;
     public AudioClip clickSound;
+    public AudioClip nopeSound;
     public List<AudioClip> music = new List<AudioClip>();
     public AudioSource player;
     public AudioSource backgroundMusicPlayer;
