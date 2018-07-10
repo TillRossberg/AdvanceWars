@@ -7,7 +7,7 @@ using UnityEngine;
 public class Tile: MonoBehaviour
 {
     //Required Structures
-    GameObject myLevelManager;
+    private Manager _manager;
 
 	//General
 	public string terrainName;
@@ -54,19 +54,22 @@ public class Tile: MonoBehaviour
 	// Use this for initialization
 	void Awake () 
 	{
-        myLevelManager = GameObject.FindGameObjectWithTag("LevelManager");
+        _manager = GameObject.FindGameObjectWithTag("LevelManager").GetComponent<Manager>();
+    }
+    public void init()
+    {
     }
 
     private void OnMouseDown()
     {
         //myLevelManager.GetComponent<AnimController>().boom(xPos, yPos);
         //Actions are only perfomed, if no menu is opened.
-        if (!myLevelManager.GetComponent<Manager>().getContextMenu().isOpened && !myLevelManager.GetComponent<Manager>().getBuyMenu().isOpened)
+        if (!_manager.getContextMenu().isOpened && !_manager.getBuyMenu().isOpened)
         {            
             //Move mode
-            if(myLevelManager.GetComponent<GameFunctions>().moveMode)
+            if(_manager.getGameFunctions().moveMode)
             {
-                Unit selectedUnit = myLevelManager.GetComponent<GameFunctions>().getSelectedUnit().GetComponent<Unit>();
+                Unit selectedUnit = _manager.getGameFunctions().getSelectedUnit().GetComponent<Unit>();
                 if((isPartOfArrowPath && unitStandingHere == null) || (isPartOfArrowPath && !isVisible))
                 {
                     //Move to the position and try to find units that can be attacked.
@@ -74,8 +77,8 @@ public class Tile: MonoBehaviour
                     selectedUnit.findAttackableTiles();
                     selectedUnit.findAttackableEnemies();
                     //Delete the reachable tiles and the movement arrow.
-                    myLevelManager.GetComponent<MapCreator>().resetReachableTiles();
-                    myLevelManager.GetComponent<ArrowBuilder>().resetAll();                    
+                    _manager.getMapCreator().resetReachableTiles();
+                    _manager.getArrowBuilder().resetAll();                    
                 }
                 else
                 //Even in move mode, you can still click on buildings.
@@ -83,21 +86,21 @@ public class Tile: MonoBehaviour
                 if (unitStandingHere == null)
                 {
                     //...select the tile.
-                    myLevelManager.GetComponent<GameFunctions>().selectTile(this);         
+                    _manager.getGameFunctions().selectTile(this);         
                 }
             }
             //Normal mode
-            if(myLevelManager.GetComponent<GameFunctions>().normalMode)
+            if(_manager.getGameFunctions().normalMode)
             {
                 //If no unit stands here...
                 if (unitStandingHere == null)
                 {
                     //...select the tile.
-                    myLevelManager.GetComponent<GameFunctions>().selectTile(this);
+                    _manager.getGameFunctions().selectTile(this);
                 }                
             }
             //Fire mode
-            if(myLevelManager.GetComponent<GameFunctions>().fireMode)
+            if(_manager.getGameFunctions().fireMode)
             {
 
             }
@@ -107,22 +110,22 @@ public class Tile: MonoBehaviour
     private void OnMouseEnter()
     {
         //Actions are only perfomed, if the menu is not opened.
-        if (!myLevelManager.GetComponent<Manager>().getContextMenu().isOpened && myLevelManager.GetComponent<GameFunctions>().moveMode)
+        if (!_manager.getContextMenu().isOpened && _manager.getGameFunctions().moveMode)
         {
             //Draws an Arrow on the tile, if it is reachable
             if (isReachable && !isPartOfArrowPath )
             {
-                myLevelManager.GetComponent<ArrowBuilder>().createArrowPath(this);
+                _manager.getArrowBuilder().createArrowPath(this);
             }
             //If you go back, make the arrow smaller.
             if (isPartOfArrowPath)
             {
-                myLevelManager.GetComponent<ArrowBuilder>().tryToGoBack(this);
+                _manager.getArrowBuilder().tryToGoBack(this);
                 
                 //Resets the arrowPath if you hover over the unit again. (If this is the tile the unit stands on and an arrow has been drawn.)
-                if (this == myLevelManager.GetComponent<ArrowBuilder>().getArrowPath()[0].getTile() && myLevelManager.GetComponent<ArrowBuilder>().getArrowPath().Count > 2)
+                if (this == _manager.getArrowBuilder().getArrowPath()[0].getTile() && _manager.getArrowBuilder().getArrowPath().Count > 2)
                 {
-                    myLevelManager.GetComponent<ArrowBuilder>().resetArrowPath();
+                    _manager.getArrowBuilder().resetArrowPath();
                 }
             }
 
@@ -130,7 +133,7 @@ public class Tile: MonoBehaviour
     }
 
     //Check if a unit can occupy this tile
-    //TODO: Check if the owning team is part of our teamteam.
+    //TODO: Check if the owning team is part of our teamteam. (much later)
     public bool isOccupyable(Unit unit)
     {
         if ((owningTeam != unit.myTeam)
@@ -210,7 +213,7 @@ public class Tile: MonoBehaviour
         {
             takeOverCounter = 0;
             //TODO: play some animation for a successful take over.
-            myLevelManager.GetComponent<TeamManager>().occupyProperty(myLevelManager.GetComponent<GameFunctions>().getSelectedUnit().myTeam, this);            
+            _manager.getTeamManager().occupyProperty(_manager.getGameFunctions().getSelectedUnit().myTeam, this);            
         }
     }
 

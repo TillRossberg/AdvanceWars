@@ -281,7 +281,7 @@ public class Unit : MonoBehaviour
         //If this was the last unit of the player the game is lost.
         if (myTeam.myUnits.Count <= 0)
         {
-            _manager.container.setTeams(_manager.GetComponent<TeamManager>().getTeams());
+            _manager.container.setTeams(_manager.GetComponent<Manager_Team>().getTeams());
             _manager.getSceneLoader().loadGameFinishedScreenWithDelay();//This has a short delay, so the player sees how the last unit is destroyed.
         }
         //Finally delete the unit.
@@ -446,6 +446,7 @@ public class Unit : MonoBehaviour
             findAttackableTileForDirectAttack();
         }
         //TODO: Try to find a cool mathematical solution, not just BRUTE FORCE!
+        //TODO: not yet depending on min/max range
         if(rangeAttack)
         {
             //Try to mark the tiles, the unit can attack and add them to the list.

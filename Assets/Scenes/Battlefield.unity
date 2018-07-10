@@ -1590,7 +1590,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 484808823}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -427.1515, y: 187.74403, z: 0}
+  m_LocalPosition: {x: -428.407, y: 188.39827, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 703494513}
@@ -2170,7 +2170,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 703494512}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.000030517578, y: 0.000061035156, z: 0}
+  m_LocalPosition: {x: 0, y: 0.000061035156, z: 0}
   m_LocalScale: {x: 0.11252664, y: 0.11252664, z: 0.11252664}
   m_Children: []
   m_Father: {fileID: 484808824}
@@ -3676,7 +3676,7 @@ MonoBehaviour:
   statusWindow: {fileID: 1415955355}
   teamManager: {fileID: 1168905630}
   audioManager: {fileID: 1168905628}
-  mainFunctions: {fileID: 1130033954}
+  gameFunctions: {fileID: 1130033954}
   unitCreator: {fileID: 1168905633}
   turnManager: {fileID: 1168905634}
   battleMode: {fileID: 1168905631}
@@ -4365,7 +4365,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1708890780}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 509.5, y: 286.5, z: 0}
+  m_LocalPosition: {x: 511, y: 287.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 484808824}
@@ -4390,7 +4390,7 @@ GameObject:
   - component: {fileID: 1415955357}
   - component: {fileID: 1415955356}
   m_Layer: 5
-  m_Name: StatusWindow
+  m_Name: Panel_UnitStatus
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

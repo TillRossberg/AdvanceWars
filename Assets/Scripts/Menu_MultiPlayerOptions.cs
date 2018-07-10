@@ -29,7 +29,7 @@ public class Menu_MultiPlayerOptions : MonoBehaviour
     public void init(Transform sceneManager)
     {        
         this.SceneManager = sceneManager;
-        container = sceneManager.GetComponent<Menu_Master>().getContainer();
+        container = sceneManager.GetComponent<Manager_MainMenu>().getContainer();
         initDropdownMenus();
     }
 

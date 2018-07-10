@@ -6,9 +6,10 @@ using UnityEngine.UI;
 public class UnitCreator : MonoBehaviour
 {
     //Required data structures   
-    private MapCreator myGraph;
+    private Manager _manager;
+    private MapCreator _mapCreator;
+    private Database _database;
     public Transform unitPrefab;
-    Database database;
     
     //Teamcolors
     public Material redColor;
@@ -17,14 +18,19 @@ public class UnitCreator : MonoBehaviour
     // Use this for initialization
     void Start ()
     {		
-        myGraph = this.GetComponent<MapCreator>();
-        database = this.GetComponent<Database>();
+    }
+
+    public void init()
+    {
+        _manager = GetComponent<Manager>();
+        _mapCreator = this.GetComponent<MapCreator>();
+        _database = this.GetComponent<Database>();
     }
 	
 	public void createUnitSet00()
     {
-        Team teamRed = this.GetComponent<TeamManager>().getTeam("TeamRed");
-        Team teamBlue = this.GetComponent<TeamManager>().getTeam("TeamBlue");
+        Team teamRed = _manager.getTeamManager().getTeam("TeamRed");
+        Team teamBlue = _manager.getTeamManager().getTeam("TeamBlue");
         createUnit(Unit.type.Tank, teamRed, 5, 8, Unit.facingDirection.West);
         createUnit(Unit.type.Infantry, teamRed, 5, 7, Unit.facingDirection.West);
         createUnit(Unit.type.Infantry, teamRed, 13, 8, Unit.facingDirection.West);
@@ -43,8 +49,8 @@ public class UnitCreator : MonoBehaviour
 
     public void createUnitTestSet01()
     {
-        Team team1 = GetComponent<TeamManager>().getTeam(0);
-        Team team2 = GetComponent<TeamManager>().getTeam(1);
+        Team team1 = _manager.getTeamManager().getTeam(0);
+        Team team2 = _manager.getTeamManager().getTeam(1);
         createUnit(Unit.type.Tank, team1, 1, 1, Unit.facingDirection.East);
         createUnit(Unit.type.Tank, team1, 1, 2, Unit.facingDirection.West);
         createUnit(Unit.type.Tank, team2, 5, 2 , Unit.facingDirection.North);
@@ -52,13 +58,13 @@ public class UnitCreator : MonoBehaviour
     }
     public void createMultiPlayerUnits()
     {
-        Team team1 = GetComponent<TeamManager>().getTeam(0);
-        Team team2 = GetComponent<TeamManager>().getTeam(1);
+        Team team1 = _manager.getTeamManager().getTeam(0);
+        Team team2 = _manager.getTeamManager().getTeam(1);
     }
 
     public void createUnitSet_TheRiver()
     {
-        Team team1 = GetComponent<TeamManager>().getTeam(0);
+        Team team1 = _manager.getTeamManager().getTeam(0);
         createUnit(Unit.type.Tank, team1, 3, 4, Unit.facingDirection.East);
         createUnit(Unit.type.Tank, team1, 3, 8, Unit.facingDirection.East);
         createUnit(Unit.type.Infantry, team1, 5, 4, Unit.facingDirection.East);
@@ -72,7 +78,7 @@ public class UnitCreator : MonoBehaviour
         createUnit(Unit.type.Rockets, team1, 3, 6, Unit.facingDirection.East);
         createUnit(Unit.type.Recon, team1, 11, 6, Unit.facingDirection.East);
 
-        Team team2 = GetComponent<TeamManager>().getTeam(1);
+        Team team2 = _manager.getTeamManager().getTeam(1);
         createUnit(Unit.type.Tank, team2, 21, 4, Unit.facingDirection.West);
         createUnit(Unit.type.Tank, team2, 21, 8, Unit.facingDirection.West);
         createUnit(Unit.type.Infantry, team2, 13, 4, Unit.facingDirection.West);
@@ -92,19 +98,19 @@ public class UnitCreator : MonoBehaviour
         Unit unit = unitTransform.GetComponent<Unit>();
         unit.init();
         unit.rotateUnit(myFacingDirection);
-        myGraph.getGraph()[x][y].GetComponent<Tile>().setUnitHere(unitTransform);//Pass the unit to the tile it stands on
+        _mapCreator.getGraph()[x][y].GetComponent<Tile>().setUnitHere(unitTransform);//Pass the unit to the tile it stands on
         setPosition(unit, x, y);
         unit.myUnitType = myUnitType;
         setUnitProperties(unit, myUnitType, team.getTeamCommander());
-        unit.GetComponentInChildren<MeshRenderer>().material = GetComponent<Database>().getTeamMaterial(2);
+        unit.GetComponentInChildren<MeshRenderer>().material = _manager.getDatabase().getTeamMaterial(2);
         unit.GetComponentInChildren<MeshRenderer>().material.color = team.getTeamColor();
-        this.GetComponent<TeamManager>().addUnit(unitTransform, team);//Add to the correct team list.
+        this.GetComponent<Manager_Team>().addUnit(unitTransform, team);//Add to the correct team list.
 
         switch(myUnitType)
         {
             case Unit.type.Infantry:
-                unit.setThumbnail(database.unitThumbs[0]);
-                unitTransform.GetComponentInChildren<MeshFilter>().mesh = database.unitMeshes[8];  
+                unit.setThumbnail(_database.unitThumbs[0]);
+                unitTransform.GetComponentInChildren<MeshFilter>().mesh = _database.unitMeshes[8];  
                 
                 unit.unitName = "Infantry";
                 unitTransform.name = "Infantry" + unit.myTeam.unitsBuiltCounter;  
@@ -115,8 +121,8 @@ public class UnitCreator : MonoBehaviour
                 break;
 
             case Unit.type.Mech:                
-                unit.setThumbnail(database.unitThumbs[0]);
-                unitTransform.GetComponentInChildren<MeshFilter>().mesh = database.unitMeshes[10];
+                unit.setThumbnail(_database.unitThumbs[0]);
+                unitTransform.GetComponentInChildren<MeshFilter>().mesh = _database.unitMeshes[10];
 
                 unit.unitName = "Mech";
                 unitTransform.name = "Mech" + unit.myTeam.unitsBuiltCounter;
@@ -126,8 +132,8 @@ public class UnitCreator : MonoBehaviour
                 break;
 
             case Unit.type.Recon:                
-                unit.setThumbnail(database.unitThumbs[0]);
-                unitTransform.GetComponentInChildren<MeshFilter>().mesh = database.unitMeshes[7];
+                unit.setThumbnail(_database.unitThumbs[0]);
+                unitTransform.GetComponentInChildren<MeshFilter>().mesh = _database.unitMeshes[7];
 
                 unit.unitName = "Recon";
                 unitTransform.name = "Recon" + unit.myTeam.unitsBuiltCounter;
@@ -137,8 +143,8 @@ public class UnitCreator : MonoBehaviour
                 break;
 
             case Unit.type.APC:
-                unit.setThumbnail(database.unitThumbs[0]);
-                unitTransform.GetComponentInChildren<MeshFilter>().mesh = database.unitMeshes[1];
+                unit.setThumbnail(_database.unitThumbs[0]);
+                unitTransform.GetComponentInChildren<MeshFilter>().mesh = _database.unitMeshes[1];
 
                 unit.unitName = "APC";
                 unitTransform.name = "APC" + unit.myTeam.unitsBuiltCounter;
@@ -148,8 +154,8 @@ public class UnitCreator : MonoBehaviour
                 break;
 
             case Unit.type.Artillery:
-                unit.setThumbnail(database.unitThumbs[0]);
-                unitTransform.GetComponentInChildren<MeshFilter>().mesh = database.unitMeshes[3];
+                unit.setThumbnail(_database.unitThumbs[0]);
+                unitTransform.GetComponentInChildren<MeshFilter>().mesh = _database.unitMeshes[3];
 
                 unit.unitName = "Artillery";
                 unitTransform.name = "Artillery" + unit.myTeam.unitsBuiltCounter;
@@ -159,8 +165,8 @@ public class UnitCreator : MonoBehaviour
                 break;
 
             case Unit.type.Flak:
-                unit.setThumbnail(database.unitThumbs[0]);
-                unitTransform.GetComponentInChildren<MeshFilter>().mesh = database.unitMeshes[0];
+                unit.setThumbnail(_database.unitThumbs[0]);
+                unitTransform.GetComponentInChildren<MeshFilter>().mesh = _database.unitMeshes[0];
 
                 unit.unitName = "Flak";
                 unitTransform.name = "Flak" + unit.myTeam.unitsBuiltCounter;
@@ -170,8 +176,8 @@ public class UnitCreator : MonoBehaviour
                 break;
 
             case Unit.type.Tank:
-                unit.setThumbnail(database.unitThumbs[0]);
-                unitTransform.GetComponentInChildren<MeshFilter>().mesh = database.unitMeshes[2];
+                unit.setThumbnail(_database.unitThumbs[0]);
+                unitTransform.GetComponentInChildren<MeshFilter>().mesh = _database.unitMeshes[2];
 
                 unit.unitName = "Tank";
                 unitTransform.name = "Tank" + unit.myTeam.unitsBuiltCounter;
@@ -181,8 +187,8 @@ public class UnitCreator : MonoBehaviour
                 break;
 
             case Unit.type.MdTank:
-                unit.setThumbnail(database.unitThumbs[0]);
-                unitTransform.GetComponentInChildren<MeshFilter>().mesh = database.unitMeshes[9];
+                unit.setThumbnail(_database.unitThumbs[0]);
+                unitTransform.GetComponentInChildren<MeshFilter>().mesh = _database.unitMeshes[9];
 
                 unit.unitName = "Medium Tank";
                 unitTransform.name = "Medium Tank" + unit.myTeam.unitsBuiltCounter;
@@ -192,8 +198,8 @@ public class UnitCreator : MonoBehaviour
                 break;
 
             case Unit.type.Rockets:
-                unit.setThumbnail(database.unitThumbs[1]);
-                unitTransform.GetComponentInChildren<MeshFilter>().mesh = database.unitMeshes[4];
+                unit.setThumbnail(_database.unitThumbs[1]);
+                unitTransform.GetComponentInChildren<MeshFilter>().mesh = _database.unitMeshes[4];
 
                 unit.unitName = "Rockets";
                 unitTransform.name = "Rockets" + unit.myTeam.unitsBuiltCounter;
@@ -219,14 +225,14 @@ public class UnitCreator : MonoBehaviour
     //Sets the properties for a given unit depending on the commander and the unittype.
     public void setUnitProperties(Unit unit, Unit.type myUnitType, Database.commander myCommanderType)
     {
-        unit.maxAmmo = database.getAmmo(myUnitType, myCommanderType);
+        unit.maxAmmo = _database.getAmmo(myUnitType, myCommanderType);
         unit.ammo = unit.maxAmmo;
-        unit.maxFuel = database.getMaxFuel(myUnitType, myCommanderType);
+        unit.maxFuel = _database.getMaxFuel(myUnitType, myCommanderType);
         unit.fuel = unit.maxFuel;
-        unit.moveDist = database.getMoveDistance(myUnitType, myCommanderType);
-        unit.visionRange = database.getVision(myUnitType, myCommanderType);
-        unit.minRange = database.getMinRange(myUnitType, myCommanderType);
-        unit.maxRange = database.getMaxRange(myUnitType, myCommanderType);
-        unit.cost = database.getCost(myUnitType, myCommanderType);
+        unit.moveDist = _database.getMoveDistance(myUnitType, myCommanderType);
+        unit.visionRange = _database.getVision(myUnitType, myCommanderType);
+        unit.minRange = _database.getMinRange(myUnitType, myCommanderType);
+        unit.maxRange = _database.getMaxRange(myUnitType, myCommanderType);
+        unit.cost = _database.getCost(myUnitType, myCommanderType);
     }
 }

@@ -147,6 +147,7 @@ public class Team : ScriptableObject
         }
         else
         {
+            //TODO: if the funds are insufficient, grey out the button. This else case should never be reached.
             Debug.Log("Team: You have insufficient funds!");
         }
     }

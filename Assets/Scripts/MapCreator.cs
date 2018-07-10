@@ -105,7 +105,7 @@ public class MapCreator : MonoBehaviour
         tile.myTileType = myTileType;
         tile.xPos = (int)(tileTransform.position.x);
         tile.yPos = (int)(tileTransform.position.z);
-        setMovementCost(tile, GetComponent<TurnManager>().getWeather());
+        setMovementCost(tile, GetComponent<Manager_Turn>().getWeather());
 
         //Create the graphic element for the fog of war and make it invisible.
         tile.fogOfWar = Instantiate(fogOfWarTile, new Vector3(tile.xPos, 0.5f, tile.yPos), Quaternion.identity, this.transform.Find("Tiles").Find("FogOfWar"));
@@ -116,6 +116,7 @@ public class MapCreator : MonoBehaviour
         tileTransform.name = tile.terrainName + " at X: " + tile.xPos + " Y: " + tile.yPos;
     }
 
+    //TODO: refactor! this is ugly
     //Create a tile using position, angle and name to specify its properties.
     public Transform createTile(Tile.type myTileType, int x, int y, int angle)
     {
@@ -127,6 +128,7 @@ public class MapCreator : MonoBehaviour
                 //Create tile
                 tileTransform = Instantiate(plainPrefab, new Vector3(x, tileHeight, y), Quaternion.Euler(new Vector3(0, angle, 0)));
                 tile = tileTransform.GetComponent<Tile>();
+                
                 setDefaultValues(tileTransform, myTileType);
 
                 //Individual values.
@@ -484,24 +486,24 @@ public class MapCreator : MonoBehaviour
         changeTile(23, 9, 0, Tile.type.City);
 
         //Occupation
-        Team team1 = this.GetComponent<TeamManager>().getTeam(0);
-        this.GetComponent<TeamManager>().occupyProperty(team1, getTile(0, 4));
-        this.GetComponent<TeamManager>().occupyProperty(team1, getTile(0, 6));
-        this.GetComponent<TeamManager>().occupyProperty(team1, getTile(0, 8));
-        this.GetComponent<TeamManager>().occupyProperty(team1, getTile(2, 5));
-        this.GetComponent<TeamManager>().occupyProperty(team1, getTile(2, 7));
-        this.GetComponent<TeamManager>().occupyProperty(team1, getTile(1, 3));
-        this.GetComponent<TeamManager>().occupyProperty(team1, getTile(1, 9));
+        Team team1 = this.GetComponent<Manager_Team>().getTeam(0);
+        this.GetComponent<Manager_Team>().occupyProperty(team1, getTile(0, 4));
+        this.GetComponent<Manager_Team>().occupyProperty(team1, getTile(0, 6));
+        this.GetComponent<Manager_Team>().occupyProperty(team1, getTile(0, 8));
+        this.GetComponent<Manager_Team>().occupyProperty(team1, getTile(2, 5));
+        this.GetComponent<Manager_Team>().occupyProperty(team1, getTile(2, 7));
+        this.GetComponent<Manager_Team>().occupyProperty(team1, getTile(1, 3));
+        this.GetComponent<Manager_Team>().occupyProperty(team1, getTile(1, 9));
 
 
-        Team team2 = this.GetComponent<TeamManager>().getTeam(1);
-        this.GetComponent<TeamManager>().occupyProperty(team2, getTile(24, 4));
-        this.GetComponent<TeamManager>().occupyProperty(team2, getTile(24, 6));
-        this.GetComponent<TeamManager>().occupyProperty(team2, getTile(24, 8));
-        this.GetComponent<TeamManager>().occupyProperty(team2, getTile(22, 5));
-        this.GetComponent<TeamManager>().occupyProperty(team2, getTile(22, 7));
-        this.GetComponent<TeamManager>().occupyProperty(team2, getTile(23, 3));
-        this.GetComponent<TeamManager>().occupyProperty(team2, getTile(23, 9));
+        Team team2 = this.GetComponent<Manager_Team>().getTeam(1);
+        this.GetComponent<Manager_Team>().occupyProperty(team2, getTile(24, 4));
+        this.GetComponent<Manager_Team>().occupyProperty(team2, getTile(24, 6));
+        this.GetComponent<Manager_Team>().occupyProperty(team2, getTile(24, 8));
+        this.GetComponent<Manager_Team>().occupyProperty(team2, getTile(22, 5));
+        this.GetComponent<Manager_Team>().occupyProperty(team2, getTile(22, 7));
+        this.GetComponent<Manager_Team>().occupyProperty(team2, getTile(23, 3));
+        this.GetComponent<Manager_Team>().occupyProperty(team2, getTile(23, 9));
 
 
 
@@ -733,32 +735,32 @@ public class MapCreator : MonoBehaviour
 
 
         //Team red properties
-        Team teamRed = this.GetComponent<TeamManager>().getTeam("TeamRed");
-        this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(1,4));
-        this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(1,6));
-        this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(1,7));
-        this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(1,8));
-        this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(1,10));
-        this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(2,4));
-        this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(2,7));
-        this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(2,10));
-        this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(3,8));
-        this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(6,5));
-        this.GetComponent<TeamManager>().occupyProperty(teamRed, getTile(6,7));
+        Team teamRed = this.GetComponent<Manager_Team>().getTeam("TeamRed");
+        this.GetComponent<Manager_Team>().occupyProperty(teamRed, getTile(1,4));
+        this.GetComponent<Manager_Team>().occupyProperty(teamRed, getTile(1,6));
+        this.GetComponent<Manager_Team>().occupyProperty(teamRed, getTile(1,7));
+        this.GetComponent<Manager_Team>().occupyProperty(teamRed, getTile(1,8));
+        this.GetComponent<Manager_Team>().occupyProperty(teamRed, getTile(1,10));
+        this.GetComponent<Manager_Team>().occupyProperty(teamRed, getTile(2,4));
+        this.GetComponent<Manager_Team>().occupyProperty(teamRed, getTile(2,7));
+        this.GetComponent<Manager_Team>().occupyProperty(teamRed, getTile(2,10));
+        this.GetComponent<Manager_Team>().occupyProperty(teamRed, getTile(3,8));
+        this.GetComponent<Manager_Team>().occupyProperty(teamRed, getTile(6,5));
+        this.GetComponent<Manager_Team>().occupyProperty(teamRed, getTile(6,7));
 
         //Team blue properties
-        Team teamBlue = this.GetComponent<TeamManager>().getTeam("TeamBlue");
-        this.GetComponent<TeamManager>().occupyProperty(teamBlue, getTile(9,5));
-        this.GetComponent<TeamManager>().occupyProperty(teamBlue, getTile(9,7));
-        this.GetComponent<TeamManager>().occupyProperty(teamBlue, getTile(12,8));
-        this.GetComponent<TeamManager>().occupyProperty(teamBlue, getTile(13,4));
-        this.GetComponent<TeamManager>().occupyProperty(teamBlue, getTile(13,7));
-        this.GetComponent<TeamManager>().occupyProperty(teamBlue, getTile(13,10));
-        this.GetComponent<TeamManager>().occupyProperty(teamBlue, getTile(14,4));
-        this.GetComponent<TeamManager>().occupyProperty(teamBlue, getTile(14,6));
-        this.GetComponent<TeamManager>().occupyProperty(teamBlue, getTile(14,7));
-        this.GetComponent<TeamManager>().occupyProperty(teamBlue, getTile(14,8));
-        this.GetComponent<TeamManager>().occupyProperty(teamBlue, getTile(14,10));
+        Team teamBlue = this.GetComponent<Manager_Team>().getTeam("TeamBlue");
+        this.GetComponent<Manager_Team>().occupyProperty(teamBlue, getTile(9,5));
+        this.GetComponent<Manager_Team>().occupyProperty(teamBlue, getTile(9,7));
+        this.GetComponent<Manager_Team>().occupyProperty(teamBlue, getTile(12,8));
+        this.GetComponent<Manager_Team>().occupyProperty(teamBlue, getTile(13,4));
+        this.GetComponent<Manager_Team>().occupyProperty(teamBlue, getTile(13,7));
+        this.GetComponent<Manager_Team>().occupyProperty(teamBlue, getTile(13,10));
+        this.GetComponent<Manager_Team>().occupyProperty(teamBlue, getTile(14,4));
+        this.GetComponent<Manager_Team>().occupyProperty(teamBlue, getTile(14,6));
+        this.GetComponent<Manager_Team>().occupyProperty(teamBlue, getTile(14,7));
+        this.GetComponent<Manager_Team>().occupyProperty(teamBlue, getTile(14,8));
+        this.GetComponent<Manager_Team>().occupyProperty(teamBlue, getTile(14,10));
 
         findNeighbors();
     }

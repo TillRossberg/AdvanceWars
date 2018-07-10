@@ -28,10 +28,8 @@ public class Menu_BuyUnits : MonoBehaviour
     int xPos;
     int yPos;
     public bool isOpened = false;
-
-
-    // Use this for initialization
-    void Start ()
+        
+    public void init()
     {
         //Find required references.
         _levelManager = GameObject.FindGameObjectWithTag("LevelManager").transform;
@@ -44,7 +42,7 @@ public class Menu_BuyUnits : MonoBehaviour
         airPortPanel.gameObject.SetActive(false);
         detailsWindow.gameObject.SetActive(false);
         buyMenu.gameObject.SetActive(false);
-	}
+    }
 	
     //Open the menu either for a facility, a harbor or an airport.
     public void openMenu(int index)
@@ -114,14 +112,37 @@ public class Menu_BuyUnits : MonoBehaviour
     //TODO: make the units created face the HQ of the enemy
     public void buyTankButtonPressed()
     {
-        this.GetComponent<UnitCreator>().createUnit(Unit.type.Tank, GetComponent<TurnManager>().activeTeam, xPos, yPos, Unit.facingDirection.East);
+        this.GetComponent<UnitCreator>().createUnit(Unit.type.Tank, GetComponent<Manager_Turn>().activeTeam, xPos, yPos, Unit.facingDirection.East);
         closeMenu();
     }
 
     public void buyRocketsButtonPressed()
     {
-        this.GetComponent<UnitCreator>().createUnit(Unit.type.Rockets, GetComponent<TurnManager>().activeTeam, xPos, yPos, Unit.facingDirection.East);
+        this.GetComponent<UnitCreator>().createUnit(Unit.type.Rockets, GetComponent<Manager_Turn>().activeTeam, xPos, yPos, Unit.facingDirection.East);
         closeMenu();
+    }
+
+    public void Button_Buy(int index)
+    {
+        switch (index)
+        {
+            //Tank
+            case 0:
+                this.GetComponent<UnitCreator>().createUnit(Unit.type.Tank, GetComponent<Manager_Turn>().activeTeam, xPos, yPos, Unit.facingDirection.East);
+                closeMenu();
+                break;
+            //Rockets
+            case 1:
+                this.GetComponent<UnitCreator>().createUnit(Unit.type.Rockets, GetComponent<Manager_Turn>().activeTeam, xPos, yPos, Unit.facingDirection.East);
+                closeMenu();
+                break;
+            case 2:
+                break;
+            case 3:
+                break;
+            default:
+                break;
+        }
     }
 
     //Detail buttons

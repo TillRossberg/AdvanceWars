@@ -7,7 +7,7 @@ using UnityEngine;
 public class GameFunctions : MonoBehaviour
 {
     //Data structures
-    private TeamManager _teamManager;
+    private Manager_Team _teamManager;
     private Manager _manager;
 
     //Selectstuff

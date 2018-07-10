@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class StatusWindow : MonoBehaviour
+public class Panel_UnitStatus : MonoBehaviour
 {
     //References
     private Manager _manager;
@@ -63,7 +63,7 @@ public class StatusWindow : MonoBehaviour
     //Displays the active team, its money, the round number and update the thumbnail for the active commander.
     public void displayGeneralInfo()
     {
-        TurnManager turnManager = _manager.getTurnManager();
+        Manager_Turn turnManager = _manager.getTurnManager();
         this.activeTeam.text = "Team: " + turnManager.activeTeam.name;
         this.money.text = "$: " + turnManager.activeTeam.money.ToString();
         this.roundNr.text = "Round: " + turnManager.roundCounter.ToString();

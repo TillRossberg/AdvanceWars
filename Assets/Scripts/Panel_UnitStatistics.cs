@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class StatisticsUnitPanel : MonoBehaviour
+public class Panel_UnitStatistics : MonoBehaviour
 {
     public Image unitThumb;
     public Text unitsBuiltText;

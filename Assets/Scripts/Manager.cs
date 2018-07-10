@@ -15,11 +15,11 @@ public class Manager : MonoBehaviour
     public RectTransform buyMenu;
     public RectTransform contextMenu;
     public RectTransform statusWindow;
-    public TeamManager teamManager;
+    public Manager_Team teamManager;
     public AudioManager audioManager;
-    public GameFunctions mainFunctions;
+    public GameFunctions gameFunctions;
     public UnitCreator unitCreator;
-    public TurnManager turnManager;
+    public Manager_Turn turnManager;
     public BattleMode battleMode;
     public MapCreator mapCreator;
     public ArrowBuilder arrowBuilder;
@@ -31,11 +31,15 @@ public class Manager : MonoBehaviour
 	// Use this for initialization
 	void Start ()
     {
-        container = getContainer();
+        initContainer();
+        unitCreator.init();
+        teamManager.init();
+        battleMode.init();
+        getBuyMenu().init();
         mapCreator.init();
-        mainFunctions.init();
+        gameFunctions.init();
         teamManager.initTeamsFromContainer();
-        mainFunctions.loadLevel(container.getNextLevelIndex());
+        gameFunctions.loadLevel(container.getNextLevelIndex());
         turnManager.init();
         getContextMenu().init();
         getStatusWindow().init();
@@ -48,20 +52,25 @@ public class Manager : MonoBehaviour
 		
 	}
 
-    //Check if the data container with a game setup created in the main menu is existing and return it. If not, we create a default container.
-    public Container getContainer()
+    private void initContainer()
     {
         if (GameObject.FindWithTag("Container") != null)
         {
-            return  GameObject.FindWithTag("Container").GetComponent<Container>();
+            this.container = GameObject.FindWithTag("Container").GetComponent<Container>();
         }
         else
         {
             Debug.Log("MasterClass: No container found, loading default container!");
             Container container = Instantiate(containerPrefab).GetComponent<Container>();
             container.initTestContainer01();
-            return container;
+            this.container = container;
         }
+    }
+
+    //Check if the data container with a game setup created in the main menu is existing and return it. If not, we create a default container.
+    public Container getContainer()
+    {
+        return container;
     }
 
     public Canvas getCanvas()
@@ -80,12 +89,12 @@ public class Manager : MonoBehaviour
             
     }
 
-    public StatusWindow getStatusWindow()
+    public Panel_UnitStatus getStatusWindow()
     {
-        return statusWindow.GetComponent<StatusWindow>();
+        return statusWindow.GetComponent<Panel_UnitStatus>();
     }
 
-    public TeamManager getTeamManager()
+    public Manager_Team getTeamManager()
     {
         return teamManager;
     }
@@ -97,7 +106,7 @@ public class Manager : MonoBehaviour
 
     public GameFunctions getGameFunctions()
     {
-        return mainFunctions;
+        return gameFunctions;
     }
 
     public UnitCreator getUnitCreator()
@@ -105,7 +114,7 @@ public class Manager : MonoBehaviour
         return unitCreator;
     }
 
-    public TurnManager getTurnManager()
+    public Manager_Turn getTurnManager()
     {
         return turnManager;
     }

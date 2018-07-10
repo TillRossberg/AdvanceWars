@@ -4,14 +4,22 @@ using UnityEngine;
 
 public class BattleMode : MonoBehaviour
 {
+    //References
+    private Manager _manager;
+    //Fields
     List<float> coverRatings = new List<float>() { 0.9f, 0.85f,0.8f,0.7f,0.5f}; 
-	
+
+    public void init()
+    {
+		_manager = GameObject.FindGameObjectWithTag ("LevelManager").GetComponent<Manager>();
+    }
+
     //Lets two units battle!! The fun part :)
     public void fight(Unit attacker, Unit defender)
     {
         //Get the tiles the Units are standing on.
-        Tile attackerTile = this.GetComponent<MapCreator>().getTile(attacker.xPos, attacker.yPos);
-        Tile defenderTile = this.GetComponent<MapCreator>().getTile(defender.xPos, defender.yPos);
+        Tile attackerTile = _manager.getMapCreator().getTile(attacker.xPos, attacker.yPos);
+        Tile defenderTile = _manager.getMapCreator().getTile(defender.xPos, defender.yPos);
         //1. the attacker shoots.
         int attackerDamage = calcDamage(attacker, defender, defenderTile);
         Debug.Log("Attacker: " + attacker.name +  " damage: " + attackerDamage);
@@ -41,7 +49,7 @@ public class BattleMode : MonoBehaviour
     public int calcDamage(Unit attacker, Unit defender, Tile defendingTile)
     {
         float Damage;//Damage that will be inflicted.
-        int BaseDamage = GetComponent<Database>().getBaseDamage(attacker.myUnitType, defender.myUnitType);//Base damage of the unit. (Depends on the unit it fights against.)
+        int BaseDamage = _manager.getDatabase().getBaseDamage(attacker.myUnitType, defender.myUnitType);//Base damage of the unit. (Depends on the unit it fights against.)
         if(BaseDamage > 0)
         {
             float dmgModifierAttacker = 100; // Attacking CO attack value.(Will vary later ^^)
@@ -59,7 +67,5 @@ public class BattleMode : MonoBehaviour
             Debug.Log("BattleMode: Invalid base damage, i.e. can't attack this unit!");
             return 0;
         }
-    }
-
-    
+    }    
 }

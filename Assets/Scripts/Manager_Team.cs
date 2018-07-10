@@ -3,11 +3,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TeamManager : MonoBehaviour
+public class Manager_Team : MonoBehaviour
 {
+    //References
+    private Manager _manager;
     //General 
     public List<Team> teams; 
     
+    public void init()
+    {
+        _manager = GetComponent<Manager>();
+    }
+
     //Initiate the teams for this game with the info from the container. Define wich units they can build, wich teams are enemies and whos commander.
     //TODO: get the actual values from the container
     public void initTeams()
@@ -18,8 +25,8 @@ public class TeamManager : MonoBehaviour
         getTeam("TeamRed").setPlayerPic(GetComponent<Database>().getCommanderThumb(Database.commander.Andy));
         getTeam("TeamBlue").setPlayerName("Zwulf");
         getTeam("TeamBlue").setPlayerPic(GetComponent<Database>().getCommanderThumb(Database.commander.Max));
-        getTeam("TeamRed").addEnemyTeam(this.GetComponent<TeamManager>().getTeam("TeamBlue"));
-        getTeam("TeamBlue").addEnemyTeam(this.GetComponent<TeamManager>().getTeam("TeamRed"));
+        getTeam("TeamRed").addEnemyTeam(this.GetComponent<Manager_Team>().getTeam("TeamBlue"));
+        getTeam("TeamBlue").addEnemyTeam(this.GetComponent<Manager_Team>().getTeam("TeamRed"));
         getTeam("TeamBlue").setAllUnitsAvailable();
         getTeam("TeamRed").setAllUnitsAvailable();
         getTeam("TeamBlue").setTeamCommander(Database.commander.Max);
@@ -27,9 +34,10 @@ public class TeamManager : MonoBehaviour
         GameObject.FindGameObjectWithTag("Container").GetComponent<Container>().setTeams(teams);
     }
 
+    //TODO: expand this to generate a varying amount of teams...much, much later
     public void initTeamsFromContainer()
     {
-        Container container = GetComponent<Manager>().getContainer();
+        Container container = _manager.getContainer();
         teams = container.getTeams();
         Team team1 = teams[0];
         Team team2 = teams[1];
@@ -37,7 +45,7 @@ public class TeamManager : MonoBehaviour
         team1.addEnemyTeam(team2);
         team1.setAllUnitsAvailable();
         team1.name = team1.getTeamName();
-        team1.teamMaterial = GetComponent<Database>().getTeamMaterial(2);        
+        team1.teamMaterial = _manager.getDatabase().getTeamMaterial(2);        
         //Create empty game object in wich we will store the units for the team later.
         GameObject emptyGameObject = new GameObject();
         emptyGameObject.name = team1.name;
@@ -47,7 +55,7 @@ public class TeamManager : MonoBehaviour
         team2.addEnemyTeam(team1);
         team2.setAllUnitsAvailable();
         team2.name = team2.getTeamName();
-        team2.teamMaterial = GetComponent<Database>().getTeamMaterial(2);
+        team2.teamMaterial = _manager.getDatabase().getTeamMaterial(2);
         //Create empty game object in wich we will store the units for the team later.
         emptyGameObject = new GameObject();
         emptyGameObject.name = team2.name;
@@ -59,9 +67,8 @@ public class TeamManager : MonoBehaviour
     {
         Team team = ScriptableObject.CreateInstance("Team") as Team;
         team.name = myTeamName;
-        team.teamMaterial = GetComponent<Database>().getTeamMaterial(colorNumber);
-        team.teamColor = GetComponent<Database>().getTeamColor(colorNumber);
-        //TODO: Maybe move this into setup teams       
+        team.teamMaterial = _manager.getDatabase().getTeamMaterial(colorNumber);
+        team.teamColor = _manager.getDatabase().getTeamColor(colorNumber);
         teams.Add(team);
         //Create empty game object in wich we will store the units for the team later.
         GameObject emptyGameObject = new GameObject();
@@ -126,25 +133,24 @@ public class TeamManager : MonoBehaviour
             newOwner.ownedProperties.Add(tile);
             //If you occupy the enemies HQ, you win the game.
             //TODO: find a better place for this
-            if(tile.myTileType == Tile.type.HQ && GetComponent<TurnManager>().roundCounter > 1)
+            if(tile.myTileType == Tile.type.HQ && _manager.getTurnManager().roundCounter > 1)
             {
                 //TODO: decide if more than two teams are playing and then only remove the defeated team from the map.
                 //TODO: winning animationstuff
-                GetComponent<SceneLoader>().loadGameFinishedScreenWithDelay();
+                _manager.getSceneLoader().loadGameFinishedScreenWithDelay();
             }
             //If you reach the necessary amount of properties you also win the game.
-            if(newOwner.ownedProperties.Count == GetComponent<Manager>().container.getPropertyCountToWin())
+            //!WORKING
+            if(newOwner.ownedProperties.Count == _manager.getContainer().getPropertyCountToWin())
             {
                 //TODO: decide if more than two teams are playing and then only remove the defeated team from the map.
                 //TODO: winning animationstuff
-                GetComponent<SceneLoader>().loadGameFinishedScreenWithDelay();
+                _manager.getSceneLoader().loadGameFinishedScreenWithDelay();
             }
         }
         else
         {
             Debug.Log("TeamManager: Given tile (X:" + tile.xPos + " Y:" + tile.yPos + ") is not a property!");
         }
-    }
-
-    
+    }    
 }

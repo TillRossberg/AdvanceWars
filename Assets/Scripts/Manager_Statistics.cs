@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Statistics : MonoBehaviour
+public class Manager_Statistics : MonoBehaviour
 {
     private Database _database;
     public RectTransform statisticsPanelPrefab;
@@ -48,7 +48,7 @@ public class Statistics : MonoBehaviour
         RectTransform newStatisticsPanel = Instantiate(statisticsPanelPrefab, canvas.transform);
         newStatisticsPanel.localPosition = anchor.localPosition;
         setStatisticsPanelValues(newStatisticsPanel, team);
-        newStatisticsPanel.GetComponent<StatisticsPanel>().createUnitBuiltPanels(team);
+        newStatisticsPanel.GetComponent<Panel_Statistics>().createUnitBuiltPanels(team);
     }
 
     public void setStatisticsPanelValues(RectTransform panel, Team team)

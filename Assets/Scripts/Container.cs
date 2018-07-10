@@ -33,7 +33,7 @@ public class Container : MonoBehaviour
         DontDestroyOnLoad(this);
     }
 
-//Teams
+    //Teams
     public void setTeamParameters(int teamIndex, Database.commander teamCommander, Color teamColor)
     {
 
@@ -82,7 +82,6 @@ public class Container : MonoBehaviour
     {
         winnerTeam = winner;
     }
-
     public Team getWinnerTeam()
     {
         return winnerTeam;
@@ -92,13 +91,11 @@ public class Container : MonoBehaviour
     {
         this.teams = teams;
     }
-
     public List<Team> getTeams()
     {
         return teams;
     }
 
-//Multiplayer Options
     //Ability
     public void setAbility(bool value)
     {
@@ -110,7 +107,6 @@ public class Container : MonoBehaviour
     {
         propertiesToWin = value;
     }
-
     public int getPropertyCountToWin()
     {
         if (propertiesToWin > 11)
@@ -128,7 +124,6 @@ public class Container : MonoBehaviour
     {
         battleDuration = value;
     }
-
     public int getBattleDuration()
     {
         return (int)(battleDuration);
@@ -139,7 +134,6 @@ public class Container : MonoBehaviour
     {
         moneyIncrement = value;
     }
-
     public int getMoneyIncrement()
     {
         return moneyIncrement;
@@ -150,7 +144,6 @@ public class Container : MonoBehaviour
     {
         myWeather = (Database.weather)value;
     }
-
     public Database.weather getWeather()
     {
         return myWeather;
@@ -161,7 +154,6 @@ public class Container : MonoBehaviour
     {
         fogOfWar = value;
     }
-
     public bool getFogOfWar()
     {
         return fogOfWar;
@@ -172,7 +164,6 @@ public class Container : MonoBehaviour
     {
         nextLevelToLoad = value;
     }
-
     public int getNextLevelIndex()
     {
         return nextLevelToLoad;

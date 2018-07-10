@@ -14,7 +14,7 @@ public class Database : MonoBehaviour
     public enum weather { Clear, Rain, Snow, Random }
     public List<string> weatherNames = new List<string>();//List to hold the available weather types for creating the dropdown menu to chose from them.
     //Maps
-    private List<string> levelNames = new List<string>() { "Kidney Island", "TestLevel01", "Level03" };
+    private List<string> levelNames = new List<string>() { "Kidney Island", "TestLevel01", "The River" };
     //Teams
     public List<Material> teamMaterials = new List<Material>();//A list of available team materials.
     private List<Color> teamColors = new List<Color>() { Color.red, Color.blue, Color.green, Color.yellow };//A list of available team colors.
@@ -1226,8 +1226,8 @@ public class Database : MonoBehaviour
                 {
                     case Unit.type.Flak: return 1;
                     case Unit.type.APC: return 1;
-                    case Unit.type.Artillery: return 3;
-                    case Unit.type.Battleship: return 6;
+                    case Unit.type.Artillery: return 2;
+                    case Unit.type.Battleship: return 5;
                     case Unit.type.BCopter: return 1;
                     case Unit.type.Bomber: return 1;
                     case Unit.type.Cruiser: return 1;
@@ -1236,10 +1236,10 @@ public class Database : MonoBehaviour
                     case Unit.type.Lander: return 1;
                     case Unit.type.MdTank: return 1;
                     case Unit.type.Mech: return 1;
-                    case Unit.type.Missiles: return 5;
+                    case Unit.type.Missiles: return 4;
                     case Unit.type.Titantank: return 1;
                     case Unit.type.Recon: return 1;
-                    case Unit.type.Rockets: return 5;
+                    case Unit.type.Rockets: return 4;
                     case Unit.type.Sub: return 1;
                     case Unit.type.Tank: return 1;
                     case Unit.type.TCopter: return 1;
@@ -1410,7 +1410,7 @@ public class Database : MonoBehaviour
 
     }
 
-    //Returns the base damage of the attacking unit against the defending unit.
+    //Returns the base damage of the attacking unit against the defending unit. (0 means this unit cant attack, e.g. infatry vs bomber)
     public int getBaseDamage(Unit.type attackingUnit, Unit.type defendingUnit)
     {
         switch (attackingUnit)
@@ -1420,7 +1420,24 @@ public class Database : MonoBehaviour
                 {
                     case Unit.type.Infantry: return 55;
                     case Unit.type.Mech: return 45;
-
+                    case Unit.type.Flak: return 5;
+                    case Unit.type.APC: return 14;
+                    case Unit.type.Tank: return 5;
+                    case Unit.type.Artillery: return 15;
+                    case Unit.type.Rockets: return 25;
+                    case Unit.type.Missiles: return 25;
+                    case Unit.type.Titantank: return 1;
+                    case Unit.type.Recon: return 12;
+                    case Unit.type.MdTank: return 1;
+                    case Unit.type.TCopter: return 30;
+                    case Unit.type.BCopter: return 7;
+                    case Unit.type.Bomber: return 0;
+                    case Unit.type.Fighter: return 0;
+                    case Unit.type.Lander: return 0;
+                    case Unit.type.Battleship: return 0;
+                    case Unit.type.Cruiser: return 0;
+                    case Unit.type.Sub: return 0;
+                    case Unit.type.Pipe: return 0;
                     default:
                         Debug.Log("BattleMode: Invalid unit type for defending unit!");
                         return -1;

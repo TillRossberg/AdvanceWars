@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TurnManager : MonoBehaviour
+public class Manager_Turn : MonoBehaviour
 {
     private Manager _manager;
     private GameFunctions _gameFunctions;
-    private TeamManager _teamManager;
+    private Manager_Team _teamManager;
 
     public Team activeTeam;
     public Database.weather currentWeather;
