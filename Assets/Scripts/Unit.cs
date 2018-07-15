@@ -643,15 +643,15 @@ public class Unit : MonoBehaviour
         attackableUnits.Clear();
         for(int i = 0; i < attackableTiles.Count; i++)
         {
-            if(attackableTiles[i].unitStandingHere != null)
+            if(attackableTiles[i].getUnitHere() != null)
             {
                 //Only if the unit on the tile is in the opposite team add it to the attackableUnits list.
                 if(isEnemyHere(attackableTiles[i]))
                 {
                     //Only if this unit is able to attack the other unit, put it into the list of attackable units.
-                    if(_manager.getDatabase().getBaseDamage(myUnitType, attackableTiles[i].getUnitHere().myUnitType) > 0)
+                    if(_manager.getDatabase().getBaseDamage(myUnitType, attackableTiles[i].getUnitHere().GetComponent<Unit>().myUnitType) > 0)
                     {
-                        attackableUnits.Add(attackableTiles[i].unitStandingHere.GetComponent<Unit>());
+                        attackableUnits.Add(attackableTiles[i].getUnitHere().GetComponent<Unit>());
                     }
                 }
             }
@@ -660,9 +660,9 @@ public class Unit : MonoBehaviour
     //Checks if an enemy is standing on this tile.
     public bool isEnemyHere(Tile tile)
     {
-        if(tile.unitStandingHere != null && tile.getVisibility())
+        if(tile.getUnitHere() != null && tile.getVisibility())
         {
-            Unit possibleEnemy = tile.unitStandingHere.GetComponent<Unit>();            
+            Unit possibleEnemy = tile.getUnitHere().GetComponent<Unit>();            
             for(int i = 0; i < myTeam.enemyTeams.Count; i++)
             {
                 for(int j = 0; j < myTeam.enemyTeams[i].myUnits.Count; j++)

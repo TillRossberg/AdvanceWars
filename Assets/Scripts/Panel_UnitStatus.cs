@@ -64,11 +64,11 @@ public class Panel_UnitStatus : MonoBehaviour
     public void displayGeneralInfo()
     {
         Manager_Turn turnManager = _manager.getTurnManager();
-        this.activeTeam.text = "Team: " + turnManager.activeTeam.name;
-        this.money.text = "$: " + turnManager.activeTeam.money.ToString();
+        this.activeTeam.text = "Team: " + turnManager.getActiveTeam().name;
+        this.money.text = "$: " + turnManager.getActiveTeam().money.ToString();
         this.roundNr.text = "Round: " + turnManager.roundCounter.ToString();
-        this.commanderThumbnail.sprite = _manager.getDatabase().getCommanderThumb(turnManager.activeTeam.getTeamCommander());
-        this.commanderFrame.color = turnManager.activeTeam.teamColor;
+        this.commanderThumbnail.sprite = _manager.getDatabase().getCommanderThumb(turnManager.getActiveTeam().getTeamCommander());
+        this.commanderFrame.color = turnManager.getActiveTeam().teamColor;
     }
 
     public void changeStatus(string unitName, Sprite unitThumb, int health, int ammo, int fuel, string terrainName, Sprite tileThumb, int cover)

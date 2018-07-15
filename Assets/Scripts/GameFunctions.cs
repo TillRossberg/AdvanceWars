@@ -75,10 +75,10 @@ public class GameFunctions : MonoBehaviour
     }
 
     //Select an unit.
-    public void selectUnit(Unit myUnit)
+    public void selectUnit(Unit unitToSelect)
     {
         deselectObject(); //Previous selected object out!
-        selectedUnit = myUnit;//Handover the object.
+        selectedUnit = unitToSelect;//Handover the object.
         selectedUnit.isSelected = true;
         isUnit = true;
         _manager.getContextMenu().closeMenu();//Make sure the menu is not visible, when you click on a unit.

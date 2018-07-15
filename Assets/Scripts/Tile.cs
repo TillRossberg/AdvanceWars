@@ -15,7 +15,7 @@ public class Tile: MonoBehaviour
 	public int xPos;
 	public int yPos;
 	public int rotation;
-    public Transform unitStandingHere = null;
+    private Transform unitStandingHere = null;
 
     //Tile types
     public enum type  { Road , Plain, RoadStraight, RoadCurve, RoadBridge, Mountain, Forest, Sea, Shoal, Reef, Port, Facility, Airport, City, HQ, River};
@@ -128,7 +128,6 @@ public class Tile: MonoBehaviour
                     _manager.getArrowBuilder().resetArrowPath();
                 }
             }
-
         }
     }
 
@@ -154,11 +153,18 @@ public class Tile: MonoBehaviour
         unitStandingHere = unit;
     }
 
-    public Unit getUnitHere()
+    public Transform getUnitHere()
     {
-        return unitStandingHere.GetComponent<Unit>();
+        if(unitStandingHere != null)
+        {
+            return unitStandingHere;
+        }
+        else
+        {
+            return null;
+        }
     }
-
+    
     //If a unit moves on or dies, clear the unit that was standing on this tile
     public void clearUnitHere()
     {

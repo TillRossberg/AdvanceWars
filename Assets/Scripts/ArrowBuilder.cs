@@ -363,7 +363,7 @@ public class ArrowBuilder : MonoBehaviour
         {
             for (int j = 0; j < enemyTeams.Count; j++)
             {
-                if(enemyTeams[j].myUnits.Contains(arrowPath[i].getTile().unitStandingHere))
+                if(enemyTeams[j].myUnits.Contains(arrowPath[i].getTile().getUnitHere().transform))
                 {
                     for (int k = i ; k < arrowPath.Count; k++)
                     {

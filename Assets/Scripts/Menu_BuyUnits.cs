@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class Menu_BuyUnits : MonoBehaviour
 {
     //Required data structures
-    private Transform _levelManager;
+    private Manager _manager;
     //References
     public RectTransform buyMenu;
     public Transform facilityPanel;
@@ -32,7 +32,7 @@ public class Menu_BuyUnits : MonoBehaviour
     public void init()
     {
         //Find required references.
-        _levelManager = GameObject.FindGameObjectWithTag("LevelManager").transform;
+        _manager = GameObject.FindGameObjectWithTag("LevelManager").transform.GetComponent<Manager>();
         facilityPanel = buyMenu.transform.Find("Facility");
         harborPanel = buyMenu.transform.Find("Harbor");
         airPortPanel = buyMenu.transform.Find("Airport");
@@ -48,7 +48,7 @@ public class Menu_BuyUnits : MonoBehaviour
     public void openMenu(int index)
     {
         //Get the position of the tile we selected, so we can place the new unit there.
-        Tile selectedTile = _levelManager.GetComponent<GameFunctions>().getSelectedTile();
+        Tile selectedTile = _manager.GetComponent<GameFunctions>().getSelectedTile();
         setProductionPosition(selectedTile.xPos, selectedTile.yPos);
         //Get the team that has turn now, so we know for whom we create the new unit.
 
@@ -108,32 +108,19 @@ public class Menu_BuyUnits : MonoBehaviour
         availableUnits = newUnitList;
     }
 
-    //Buy buttons
-    //TODO: make the units created face the HQ of the enemy
-    public void buyTankButtonPressed()
-    {
-        this.GetComponent<UnitCreator>().createUnit(Unit.type.Tank, GetComponent<Manager_Turn>().activeTeam, xPos, yPos, Unit.facingDirection.East);
-        closeMenu();
-    }
-
-    public void buyRocketsButtonPressed()
-    {
-        this.GetComponent<UnitCreator>().createUnit(Unit.type.Rockets, GetComponent<Manager_Turn>().activeTeam, xPos, yPos, Unit.facingDirection.East);
-        closeMenu();
-    }
-
+  
     public void Button_Buy(int index)
     {
         switch (index)
         {
             //Tank
             case 0:
-                this.GetComponent<UnitCreator>().createUnit(Unit.type.Tank, GetComponent<Manager_Turn>().activeTeam, xPos, yPos, Unit.facingDirection.East);
+                this.GetComponent<UnitCreator>().createUnit(Unit.type.Tank, _manager.getTurnManager().getActiveTeam(), xPos, yPos, Unit.facingDirection.East);
                 closeMenu();
                 break;
             //Rockets
             case 1:
-                this.GetComponent<UnitCreator>().createUnit(Unit.type.Rockets, GetComponent<Manager_Turn>().activeTeam, xPos, yPos, Unit.facingDirection.East);
+                this.GetComponent<UnitCreator>().createUnit(Unit.type.Rockets, _manager.getTurnManager().getActiveTeam(), xPos, yPos, Unit.facingDirection.East);
                 closeMenu();
                 break;
             case 2:

@@ -318,5 +318,17 @@ public class Team : ScriptableObject
     {
         return teamName;
     }
+
+    public bool isInMyTeam(Unit unitToTest)
+    {
+        if(myUnits.Contains(unitToTest.transform))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
     
 }

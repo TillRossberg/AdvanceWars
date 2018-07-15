@@ -888,22 +888,22 @@ public class MapCreator : MonoBehaviour
                 {
                     myGraph[i][j].GetComponent<Tile>().fogOfWar.gameObject.SetActive(false);
                     //Check if a unit is standing on this tile and make it visible.
-                    if (myGraph[i][j].GetComponent<Tile>().unitStandingHere != null)
+                    if (getTile(i,j).getUnitHere() != null)
                     {
-                        myGraph[i][j].GetComponent<Tile>().unitStandingHere.Find("Mesh").GetComponent<MeshRenderer>().enabled = true;
-                        myGraph[i][j].GetComponent<Tile>().unitStandingHere.Find("Lifepoints").GetComponent<MeshRenderer>().enabled = true;
-                        myGraph[i][j].GetComponent<Tile>().unitStandingHere.GetComponent<BoxCollider>().enabled = true;
+                        getTile(i, j).getUnitHere().Find("Mesh").GetComponent<MeshRenderer>().enabled = true;
+                        getTile(i, j).getUnitHere().Find("Lifepoints").GetComponent<MeshRenderer>().enabled = true;
+                        getTile(i, j).getUnitHere().GetComponent<BoxCollider>().enabled = true;
                     }
                 }
                 else
                 {
                     myGraph[i][j].GetComponent<Tile>().fogOfWar.gameObject.SetActive(true);
                     //Check if a unit is standing on this tile and make it invisible.
-                    if (myGraph[i][j].GetComponent<Tile>().unitStandingHere != null)
+                    if (getTile(i, j).getUnitHere() != null)
                     {
-                        myGraph[i][j].GetComponent<Tile>().unitStandingHere.Find("Mesh").GetComponent<MeshRenderer>().enabled = false;
-                        myGraph[i][j].GetComponent<Tile>().unitStandingHere.Find("Lifepoints").GetComponent<MeshRenderer>().enabled = false;//Also set the mesh that indicates the lifepoints to invisible.
-                        myGraph[i][j].GetComponent<Tile>().unitStandingHere.GetComponent<BoxCollider>().enabled = false;//Collider needs to be deactivated, so we cannot indicate by clicking if there is a unit.
+                        getTile(i, j).getUnitHere().Find("Mesh").GetComponent<MeshRenderer>().enabled = false;
+                        getTile(i, j).getUnitHere().Find("Lifepoints").GetComponent<MeshRenderer>().enabled = false;//Also set the mesh that indicates the lifepoints to invisible.
+                        getTile(i, j).getUnitHere().GetComponent<BoxCollider>().enabled = false;//Collider needs to be deactivated, so we cannot indicate by clicking if there is a unit.
                     }
                 }
             }

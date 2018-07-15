@@ -8,7 +8,7 @@ public class Manager_Turn : MonoBehaviour
     private GameFunctions _gameFunctions;
     private Manager_Team _teamManager;
 
-    public Team activeTeam;
+    private Team activeTeam;
     public Database.weather currentWeather;
     public int roundCounter = 1;//A round has passed, when all teams had their turn.
 
