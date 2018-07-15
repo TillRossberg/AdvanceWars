@@ -1590,7 +1590,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 484808823}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -428.407, y: 188.39827, z: 0}
+  m_LocalPosition: {x: -426.3145, y: 187.4169, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 703494513}
@@ -2170,7 +2170,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 703494512}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.000061035156, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.11252664, y: 0.11252664, z: 0.11252664}
   m_Children: []
   m_Father: {fileID: 484808824}
@@ -3685,6 +3685,8 @@ MonoBehaviour:
   dataBase: {fileID: 1168905627}
   animationController: {fileID: 1168905629}
   sceneLoader: {fileID: 1168905625}
+  newMarkingCursorPrefab: {fileID: 4057320834466880, guid: 27c5f909de6d9e94f87395e405bed8f1,
+    type: 2}
 --- !u!4 &1168905638
 Transform:
   m_ObjectHideFlags: 0
@@ -4365,7 +4367,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1708890780}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 511, y: 287.5, z: 0}
+  m_LocalPosition: {x: 508.5, y: 286, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 484808824}

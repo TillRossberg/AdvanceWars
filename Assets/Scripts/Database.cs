@@ -1431,16 +1431,16 @@ public class Database : MonoBehaviour
                     case Unit.type.MdTank: return 1;
                     case Unit.type.TCopter: return 30;
                     case Unit.type.BCopter: return 7;
-                    case Unit.type.Bomber: return 0;
-                    case Unit.type.Fighter: return 0;
-                    case Unit.type.Lander: return 0;
-                    case Unit.type.Battleship: return 0;
-                    case Unit.type.Cruiser: return 0;
-                    case Unit.type.Sub: return 0;
-                    case Unit.type.Pipe: return 0;
+                    case Unit.type.Bomber: return -1;
+                    case Unit.type.Fighter: return -1;
+                    case Unit.type.Lander: return -1;
+                    case Unit.type.Battleship: return -1;
+                    case Unit.type.Cruiser: return -1;
+                    case Unit.type.Sub: return -1;
+                    case Unit.type.Pipe: return -1;
                     default:
                         Debug.Log("BattleMode: Invalid unit type for defending unit!");
-                        return -1;
+                        return -2;
                 }
 
             case Unit.type.Tank:
@@ -1469,9 +1469,8 @@ public class Database : MonoBehaviour
 
                     default:
                         Debug.Log("BattleMode: Invalid unit type for defending unit!");
-                        return -1;
+                        return -2;
                 }
-
             case Unit.type.MdTank:
                 switch (defendingUnit)
                 {
@@ -1498,10 +1497,8 @@ public class Database : MonoBehaviour
 
                     default:
                         Debug.Log("BattleMode: Invalid unit type for defending unit!");
-                        return -1;
+                        return -2;
                 }
-
-
             case Unit.type.Rockets:
                 switch (defendingUnit)
                 {
@@ -1528,9 +1525,356 @@ public class Database : MonoBehaviour
 
                     default:
                         Debug.Log("BattleMode: Invalid unit type for defending unit!");
-                        return -1;
+                        return -2;
                 }
+            case Unit.type.Flak:
+                switch (defendingUnit)
+                {
+                    case Unit.type.Infantry: return 105;
+                    case Unit.type.Mech: return 105;
+                    case Unit.type.Recon: return 60;
+                    case Unit.type.Tank: return 25;
+                    case Unit.type.MdTank: return 10;
+                    case Unit.type.Titantank: return 5;
+                    case Unit.type.APC: return 50;
+                    case Unit.type.Artillery: return 50;
+                    case Unit.type.Rockets: return 55;
+                    case Unit.type.Flak: return 45;
+                    case Unit.type.Missiles: return 55;
+                    case Unit.type.BCopter: return 120;
+                    case Unit.type.TCopter: return 120;
+                    case Unit.type.Fighter: return 65;
+                    case Unit.type.Bomber: return 75;
+                    case Unit.type.Battleship: return -1;
+                    case Unit.type.Lander: return -1;
+                    case Unit.type.Cruiser: return -1;
+                    case Unit.type.Sub: return -1;
+                    case Unit.type.Pipe: return 10;
 
+                    default:
+                        Debug.Log("BattleMode: Invalid unit type for defending unit!");
+                        return -2;
+                }                
+            case Unit.type.APC:
+                Debug.Log("Database: getBaseDamage: APC cannot attack!");
+                return -2;                
+            case Unit.type.Artillery:
+                switch (defendingUnit)
+                {
+                    case Unit.type.Infantry: return 90;
+                    case Unit.type.Mech: return 85;
+                    case Unit.type.Recon: return 80;
+                    case Unit.type.Tank: return 70;
+                    case Unit.type.MdTank: return 45;
+                    case Unit.type.Titantank: return 40;
+                    case Unit.type.APC: return 70;
+                    case Unit.type.Artillery: return 75;
+                    case Unit.type.Rockets: return 80;
+                    case Unit.type.Flak: return 75;
+                    case Unit.type.Missiles: return 80;
+                    case Unit.type.BCopter: return -1;
+                    case Unit.type.TCopter: return -1;
+                    case Unit.type.Fighter: return -1;
+                    case Unit.type.Bomber: return -1;
+                    case Unit.type.Battleship: return 40;
+                    case Unit.type.Lander: return 55;
+                    case Unit.type.Cruiser: return 65;
+                    case Unit.type.Sub: return 60;
+                    case Unit.type.Pipe: return 45;
+
+                    default:
+                        Debug.Log("BattleMode: Invalid unit type for defending unit!");
+                        return -2;
+                }                
+            case Unit.type.Missiles:
+                switch (defendingUnit)
+                {
+                    case Unit.type.Infantry: return-1;
+                    case Unit.type.Mech: return -1;
+                    case Unit.type.Recon: return -1;
+                    case Unit.type.Tank: return -1;
+                    case Unit.type.MdTank: return -1;
+                    case Unit.type.Titantank: return -1;
+                    case Unit.type.APC: return -1;
+                    case Unit.type.Artillery: return -1;
+                    case Unit.type.Rockets: return -1;
+                    case Unit.type.Flak: return -1;
+                    case Unit.type.Missiles: return -1;
+                    case Unit.type.BCopter: return 120;
+                    case Unit.type.TCopter: return 120;
+                    case Unit.type.Fighter: return 100;
+                    case Unit.type.Bomber: return 100;
+                    case Unit.type.Battleship: return -1;
+                    case Unit.type.Lander: return -1;
+                    case Unit.type.Cruiser: return -1;
+                    case Unit.type.Sub: return -1;
+                    case Unit.type.Pipe: return -1;
+
+                    default:
+                        Debug.Log("BattleMode: Invalid unit type for defending unit!");
+                        return -2;
+                }
+            case Unit.type.Titantank:
+                switch (defendingUnit)
+                {
+                    case Unit.type.Infantry: return 125;
+                    case Unit.type.Mech: return 115;
+                    case Unit.type.Recon: return 125;
+                    case Unit.type.Tank: return 105;
+                    case Unit.type.MdTank: return 75;
+                    case Unit.type.Titantank: return 55;
+                    case Unit.type.APC: return 125;
+                    case Unit.type.Artillery: return 115;
+                    case Unit.type.Rockets: return 125; 
+                    case Unit.type.Flak: return 115;
+                    case Unit.type.Missiles: return 125;
+                    case Unit.type.BCopter: return 22;
+                    case Unit.type.TCopter: return 55;
+                    case Unit.type.Fighter: return -1;
+                    case Unit.type.Bomber: return -1;
+                    case Unit.type.Battleship: return 15;
+                    case Unit.type.Lander: return 40;
+                    case Unit.type.Cruiser: return 50;
+                    case Unit.type.Sub: return 15;
+                    case Unit.type.Pipe: return 75;
+
+                    default:
+                        Debug.Log("BattleMode: Invalid unit type for defending unit!");
+                        return -2;
+                }                
+            case Unit.type.Recon:
+                switch (defendingUnit)
+                {
+                    case Unit.type.Infantry: return 70;
+                    case Unit.type.Mech: return 65;
+                    case Unit.type.Recon: return 35;
+                    case Unit.type.Tank: return 6;
+                    case Unit.type.MdTank: return 1;
+                    case Unit.type.Titantank: return 1;
+                    case Unit.type.APC: return 45;
+                    case Unit.type.Artillery: return 45;
+                    case Unit.type.Rockets: return 55;
+                    case Unit.type.Flak: return 4;
+                    case Unit.type.Missiles: return 28;
+                    case Unit.type.BCopter: return 10;
+                    case Unit.type.TCopter: return 35; 
+                    case Unit.type.Fighter: return -1;
+                    case Unit.type.Bomber: return -1;
+                    case Unit.type.Battleship: return -1;
+                    case Unit.type.Lander: return -1;
+                    case Unit.type.Cruiser: return -1;
+                    case Unit.type.Sub: return -1;
+                    case Unit.type.Pipe: return 1;
+
+                    default:
+                        Debug.Log("BattleMode: Invalid unit type for defending unit!");
+                        return -2;
+                }
+            case Unit.type.Mech:
+                switch (defendingUnit)
+                {
+                    case Unit.type.Infantry: return 65;
+                    case Unit.type.Mech: return 55;
+                    case Unit.type.Recon: return 85;
+                    case Unit.type.Tank: return 55;
+                    case Unit.type.MdTank: return 15;
+                    case Unit.type.Titantank: return 15;
+                    case Unit.type.APC: return 75;
+                    case Unit.type.Artillery: return 70;
+                    case Unit.type.Rockets: return 85;
+                    case Unit.type.Flak: return 65;
+                    case Unit.type.Missiles: return 85;
+                    case Unit.type.BCopter: return 9;
+                    case Unit.type.TCopter: return 35;
+                    case Unit.type.Fighter: return -1;
+                    case Unit.type.Bomber: return -1;
+                    case Unit.type.Battleship: return -1;
+                    case Unit.type.Lander: return -1;
+                    case Unit.type.Cruiser: return -1;
+                    case Unit.type.Sub: return -1;
+                    case Unit.type.Pipe: return 15;
+
+                    default:
+                        Debug.Log("BattleMode: Invalid unit type for defending unit!");
+                        return -2;
+                }
+            case Unit.type.TCopter:
+                Debug.Log("Database: getBaseDamage: TCopter cannot attack!");
+                return -2;
+            case Unit.type.BCopter:
+                switch (defendingUnit)
+                {
+                    case Unit.type.Infantry: return 75;
+                    case Unit.type.Mech: return 75;
+                    case Unit.type.Recon: return 55;
+                    case Unit.type.Tank: return 55;
+                    case Unit.type.MdTank: return 25;
+                    case Unit.type.Titantank: return 20;
+                    case Unit.type.APC: return 60;
+                    case Unit.type.Artillery: return 65;
+                    case Unit.type.Rockets: return 65;
+                    case Unit.type.Flak: return 25;
+                    case Unit.type.Missiles: return 65;
+                    case Unit.type.BCopter: return 65;
+                    case Unit.type.TCopter: return 95;
+                    case Unit.type.Fighter: return -1;
+                    case Unit.type.Bomber: return -1;
+                    case Unit.type.Battleship: return 25;
+                    case Unit.type.Lander: return 25;
+                    case Unit.type.Cruiser: return 55;
+                    case Unit.type.Sub: return 25;
+                    case Unit.type.Pipe: return 25;
+
+                    default:
+                        Debug.Log("BattleMode: Invalid unit type for defending unit!");
+                        return -2;
+                }                
+            case Unit.type.Bomber:
+                switch (defendingUnit)
+                {
+                    case Unit.type.Infantry: return 110;
+                    case Unit.type.Mech: return 110;
+                    case Unit.type.Recon: return 105;
+                    case Unit.type.Tank: return 105;
+                    case Unit.type.MdTank: return 95;
+                    case Unit.type.Titantank: return 90;
+                    case Unit.type.APC: return 105;
+                    case Unit.type.Artillery: return 105;
+                    case Unit.type.Rockets: return 105;
+                    case Unit.type.Flak: return 95;
+                    case Unit.type.Missiles: return 105;
+                    case Unit.type.BCopter: return -1;
+                    case Unit.type.TCopter: return -1;
+                    case Unit.type.Fighter: return -1;
+                    case Unit.type.Bomber: return -1;
+                    case Unit.type.Battleship: return 75;
+                    case Unit.type.Lander: return 95;
+                    case Unit.type.Cruiser: return 85;
+                    case Unit.type.Sub: return 95;
+                    case Unit.type.Pipe: return 95;
+
+                    default:
+                        Debug.Log("BattleMode: Invalid unit type for defending unit!");
+                        return -2;
+                }               
+            case Unit.type.Fighter:
+                switch (defendingUnit)
+                {
+                    case Unit.type.Infantry: return -1;
+                    case Unit.type.Mech: return -1;
+                    case Unit.type.Recon: return -1;
+                    case Unit.type.Tank: return -1;
+                    case Unit.type.MdTank: return -1;
+                    case Unit.type.Titantank: return -1;
+                    case Unit.type.APC: return -1;
+                    case Unit.type.Artillery: return -1;
+                    case Unit.type.Rockets: return -1;
+                    case Unit.type.Flak: return -1;
+                    case Unit.type.Missiles: return -1;
+                    case Unit.type.BCopter: return 100;
+                    case Unit.type.TCopter: return 100;
+                    case Unit.type.Fighter: return 55;
+                    case Unit.type.Bomber: return 100;
+                    case Unit.type.Battleship: return -1;
+                    case Unit.type.Lander: return -1;
+                    case Unit.type.Cruiser: return -1;
+                    case Unit.type.Sub: return -1;
+                    case Unit.type.Pipe: return -1;
+
+                    default:
+                        Debug.Log("BattleMode: Invalid unit type for defending unit!");
+                        return -2;
+                }
+            case Unit.type.Lander:
+                Debug.Log("Database: getBaseDamage: TCopter cannot attack!");
+                return -2;
+            case Unit.type.Battleship:
+                switch (defendingUnit)
+                {
+                    case Unit.type.Infantry: return 95;
+                    case Unit.type.Mech: return 90;
+                    case Unit.type.Recon: return 90;
+                    case Unit.type.Tank: return 80;
+                    case Unit.type.MdTank: return 55;
+                    case Unit.type.Titantank: return 50;
+                    case Unit.type.APC: return 80;
+                    case Unit.type.Artillery: return 80;
+                    case Unit.type.Rockets: return 85;
+                    case Unit.type.Flak: return 85;
+                    case Unit.type.Missiles: return 90;
+                    case Unit.type.BCopter: return -1;
+                    case Unit.type.TCopter: return -1;
+                    case Unit.type.Fighter: return -1;
+                    case Unit.type.Bomber: return -1;
+                    case Unit.type.Battleship: return 50;
+                    case Unit.type.Lander: return 95;
+                    case Unit.type.Cruiser: return 95;
+                    case Unit.type.Sub: return 95;
+                    case Unit.type.Pipe: return 55;
+
+                    default:
+                        Debug.Log("BattleMode: Invalid unit type for defending unit!");
+                        return -2;
+                }
+            case Unit.type.Cruiser:
+                switch (defendingUnit)
+                {
+                    case Unit.type.Infantry: return -1;
+                    case Unit.type.Mech: return -1;
+                    case Unit.type.Recon: return -1;
+                    case Unit.type.Tank: return -1;
+                    case Unit.type.MdTank: return -1;
+                    case Unit.type.Titantank: return -1;
+                    case Unit.type.APC: return -1;
+                    case Unit.type.Artillery: return -1;
+                    case Unit.type.Rockets: return -1;
+                    case Unit.type.Flak: return -1;
+                    case Unit.type.Missiles: return -1;
+                    case Unit.type.BCopter: return 115;
+                    case Unit.type.TCopter: return 115;
+                    case Unit.type.Fighter: return 55;
+                    case Unit.type.Bomber: return 65;
+                    case Unit.type.Battleship: return -1;
+                    case Unit.type.Lander: return -1;
+                    case Unit.type.Cruiser: return -1;
+                    case Unit.type.Sub: return 90;
+                    case Unit.type.Pipe: return -1;
+
+                    default:
+                        Debug.Log("BattleMode: Invalid unit type for defending unit!");
+                        return -2;
+                }
+            case Unit.type.Sub:
+                switch (defendingUnit)
+                {
+                    case Unit.type.Infantry: return -1;
+                    case Unit.type.Mech: return -1;
+                    case Unit.type.Recon: return -1;
+                    case Unit.type.Tank: return -1;
+                    case Unit.type.MdTank: return -1;
+                    case Unit.type.Titantank: return -1;
+                    case Unit.type.APC: return -1;
+                    case Unit.type.Artillery: return -1;
+                    case Unit.type.Rockets: return -1;
+                    case Unit.type.Flak: return -1;
+                    case Unit.type.Missiles: return -1;
+                    case Unit.type.BCopter: return -1;
+                    case Unit.type.TCopter: return -1;
+                    case Unit.type.Fighter: return -1;
+                    case Unit.type.Bomber: return -1;
+                    case Unit.type.Battleship: return 55;
+                    case Unit.type.Lander: return 95;
+                    case Unit.type.Cruiser: return 25;
+                    case Unit.type.Sub: return 55;
+                    case Unit.type.Pipe: return -2;
+
+                    default:
+                        Debug.Log("BattleMode: Invalid unit type for defending unit!");
+                        return -2;
+                }
+            case Unit.type.Pipe:
+                Debug.Log("Database: getBaseDamage: TCopter cannot attack!");
+                return -2;
             default:
                 Debug.Log("BattleMode: Invalid unit type for attacking unit!");
                 return -1;

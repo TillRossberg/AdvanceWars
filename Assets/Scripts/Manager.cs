@@ -26,7 +26,11 @@ public class Manager : MonoBehaviour
     public Database dataBase;
     public AnimController animationController;
     public SceneLoader sceneLoader;
+    //Prefabs
+    public Transform newMarkingCursorPrefab;
 
+    //Fields
+    private Transform cursor;
 
 	// Use this for initialization
 	void Start ()
@@ -44,6 +48,7 @@ public class Manager : MonoBehaviour
         getContextMenu().init();
         getStatusWindow().init();
         getStatusWindow().displayGeneralInfo();
+        cursor = createNewMarkingCursor(15, 7);
     }
 	
 	// Update is called once per frame
@@ -52,6 +57,14 @@ public class Manager : MonoBehaviour
 		
 	}
 
+    private Transform createNewMarkingCursor(int x, int y)
+    {
+        Transform newCursor = Instantiate(newMarkingCursorPrefab, this.transform);
+        newCursor.GetComponent<Controller_MarkingCursor>().init(x,y);        
+        return newCursor;
+    }
+
+    //Check if the data container with a game setup created in the main menu is existing and return it. If not, we create a default container.
     private void initContainer()
     {
         if (GameObject.FindWithTag("Container") != null)
@@ -66,8 +79,11 @@ public class Manager : MonoBehaviour
             this.container = container;
         }
     }
+    public Controller_MarkingCursor getCursor()
+    {
+        return cursor.GetComponent<Controller_MarkingCursor>();
+    }
 
-    //Check if the data container with a game setup created in the main menu is existing and return it. If not, we create a default container.
     public Container getContainer()
     {
         return container;

@@ -154,6 +154,11 @@ public class Tile: MonoBehaviour
         unitStandingHere = unit;
     }
 
+    public Unit getUnitHere()
+    {
+        return unitStandingHere.GetComponent<Unit>();
+    }
+
     //If a unit moves on or dies, clear the unit that was standing on this tile
     public void clearUnitHere()
     {

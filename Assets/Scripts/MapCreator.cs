@@ -6,7 +6,7 @@ using UnityEngine;
 public class MapCreator : MonoBehaviour
 {
     //Required data structures
-    Database database;
+    Database _database;
 
     //General
     private List<List<Transform>> myGraph;
@@ -72,7 +72,7 @@ public class MapCreator : MonoBehaviour
     }
     public void init()
     {
-        database = GetComponent<Database>();       
+        _database = GetComponent<Database>();       
     }
 
     //Create an empty Graph of plain tiles.
@@ -95,7 +95,22 @@ public class MapCreator : MonoBehaviour
         Destroy(myGraph[x][y].gameObject);
         myGraph[x][y] = createTile(myTileType, x, y, angle);
     }
+    public void teset()
+    {
+        Debug.Log("adf");
+    }
 
+    public bool isInsideGraph(int x, int y)
+    {
+        if (x < 0 || y < 0 || x >= myGraph.Count || y >= myGraph[0].Count)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
     //Sets the default values for a tile.
     private void setDefaultValues(Transform tileTransform, Tile.type myTileType)
     {
@@ -117,7 +132,7 @@ public class MapCreator : MonoBehaviour
     }
 
     //TODO: refactor! this is ugly
-    //Create a tile using position, angle and name to specify its properties.
+    //Create a tile using position, angle and type to specify its properties.
     public Transform createTile(Tile.type myTileType, int x, int y, int angle)
     {
         Transform tileTransform;
@@ -242,13 +257,13 @@ public class MapCreator : MonoBehaviour
     //Sets the cost of movement for the tile depending on the type of the tile, weather and the movement type of a unit.
     public void setMovementCost(Tile tile, Database.weather myWeather)
     {
-        tile.footCost = database.getMovementCost(tile.myTileType, Unit.moveType.Foot, myWeather);
-        tile.mechCost = database.getMovementCost(tile.myTileType, Unit.moveType.Mech, myWeather);
-        tile.treadsCost = database.getMovementCost(tile.myTileType, Unit.moveType.Treads, myWeather);
-        tile.wheelsCost = database.getMovementCost(tile.myTileType, Unit.moveType.Wheels, myWeather);
-        tile.landerCost = database.getMovementCost(tile.myTileType, Unit.moveType.Lander, myWeather);
-        tile.shipCost = database.getMovementCost(tile.myTileType, Unit.moveType.Ship, myWeather);
-        tile.airCost = database.getMovementCost(tile.myTileType, Unit.moveType.Air, myWeather);
+        tile.footCost = _database.getMovementCost(tile.myTileType, Unit.moveType.Foot, myWeather);
+        tile.mechCost = _database.getMovementCost(tile.myTileType, Unit.moveType.Mech, myWeather);
+        tile.treadsCost = _database.getMovementCost(tile.myTileType, Unit.moveType.Treads, myWeather);
+        tile.wheelsCost = _database.getMovementCost(tile.myTileType, Unit.moveType.Wheels, myWeather);
+        tile.landerCost = _database.getMovementCost(tile.myTileType, Unit.moveType.Lander, myWeather);
+        tile.shipCost = _database.getMovementCost(tile.myTileType, Unit.moveType.Ship, myWeather);
+        tile.airCost = _database.getMovementCost(tile.myTileType, Unit.moveType.Air, myWeather);
     }
 
     //Change the weather and with it the movement costs of all tiles.

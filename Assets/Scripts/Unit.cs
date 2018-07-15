@@ -637,7 +637,6 @@ public class Unit : MonoBehaviour
             attackableTiles.Add(_graphMatrix[xPos][yPos + 1].GetComponent<Tile>());
         }
     }
-
     //Checks the attackable tiles for enemies.
     public void findAttackableEnemies()
     {
@@ -649,12 +648,15 @@ public class Unit : MonoBehaviour
                 //Only if the unit on the tile is in the opposite team add it to the attackableUnits list.
                 if(isEnemyHere(attackableTiles[i]))
                 {
-                    attackableUnits.Add(attackableTiles[i].unitStandingHere.GetComponent<Unit>());
+                    //Only if this unit is able to attack the other unit, put it into the list of attackable units.
+                    if(_manager.getDatabase().getBaseDamage(myUnitType, attackableTiles[i].getUnitHere().myUnitType) > 0)
+                    {
+                        attackableUnits.Add(attackableTiles[i].unitStandingHere.GetComponent<Unit>());
+                    }
                 }
             }
         }
     }
-
     //Checks if an enemy is standing on this tile.
     public bool isEnemyHere(Tile tile)
     {

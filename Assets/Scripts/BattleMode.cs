@@ -52,15 +52,15 @@ public class BattleMode : MonoBehaviour
         int BaseDamage = _manager.getDatabase().getBaseDamage(attacker.myUnitType, defender.myUnitType);//Base damage of the unit. (Depends on the unit it fights against.)
         if(BaseDamage > 0)
         {
-            float dmgModifierAttacker = 100; // Attacking CO attack value.(Will vary later ^^)
+            float dmgModifierAttacker = 1; // Attacking CO attack value.(Will vary later ^^)
             int RandomNumber = Random.Range(0, 10); //Random number between 0-9 to vary the damage.
             int AttackerHP = attacker.health; //Attacker HP
-            float dmgModifierDefender = 100; // Defending CO attack value.(Will vary later ^^)
+            float dmgModifierDefender = 1; // Defending CO attack value.(Will vary later ^^)
             float dmgReductionCover = coverRatings[defendingTile.cover]; //Defending terrain stars.    
             float DefenderHp = defender.health; //HP of the defender.
 
             Debug.Log("Damage = (BaseDamage:" + BaseDamage + " + RandomNumber:" + RandomNumber + ") * AttackerHp/100:" + AttackerHP / 100 + " * dmgReductionCover:" + dmgReductionCover);
-            return (int)(Damage = (BaseDamage + RandomNumber) * AttackerHP / 100 * dmgReductionCover);
+            return (int)(Damage = (BaseDamage + RandomNumber) * AttackerHP / 100 * dmgReductionCover * dmgModifierAttacker * dmgModifierDefender);
         }
         else
         {
