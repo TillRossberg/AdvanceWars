@@ -21,25 +21,13 @@ public class Menu_Context : MonoBehaviour
 
     public bool showAttackableTiles = false;
     public bool showReachableTiles = false;
-
-
-	// Use this for initialization
-	void Start ()
-    {
-        //contextMenu = GameObject.FindGameObjectWithTag("ContextMenu").GetComponent<Canvas>();
-	}
-
+    
     public void init()
     {
         _manager = GameObject.FindGameObjectWithTag("LevelManager").GetComponent<Manager>();
         contextMenu.gameObject.SetActive(false);
     }
 	
-	// Update is called once per frame
-	void Update ()
-    {
-		
-	}
 
     //Opens the specific context menu at the given position.
     public void openContextMenu(int x, int y, int menuType)

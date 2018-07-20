@@ -863,7 +863,7 @@ public class MapCreator : MonoBehaviour
     }
 
     //Creates the graphics for the tiles, that can be attacked by the unit.
-    public void createAttackableTiles()
+    public void createAttackableTilesGfx()
     {
         for (int i = 0; i < myGraph.Count; i++)
         {
@@ -921,6 +921,7 @@ public class MapCreator : MonoBehaviour
     }
 
     //Sets the attackable tiles to active or inactive, so they are visible or not.
+    //TODO: remove this as soon as it is not needed anymore...
     public void showAttackableTiles(bool value)
     {
         for (int i = 0; i < this.GetComponent<GameFunctions>().getSelectedUnit().transform.Find("attackableTiles").transform.childCount; i++)

@@ -221,6 +221,7 @@ public class ArrowBuilder : MonoBehaviour
     {
         momMovementPoints = maxMovementPoints;
         ArrowPart startTile = arrowPath[0];
+        //TODO: is this really neccessary?
         for(int i = 1; i < arrowPath.Count; i++)
         {
             Destroy(arrowPath[i].myArrowPart.gameObject);
@@ -252,11 +253,18 @@ public class ArrowBuilder : MonoBehaviour
     
     
     //If you hover with the mouse over the predecessor of the arrow, the arrow should become smaller.
-    public void tryToGoBack(Tile myTileproperties)
+    public void tryToGoBack(Tile tile)
     {       
         if(arrowPath.Count > 1)//Dont't touch the first entry, because that's the tile where the unit stands on.
         {
-            if(arrowPath[arrowPath.Count - 2].getTile() == myTileproperties)//If you hover over the predecessor tile, start deleting.
+            //Reset the arrow path if you touch the starting tile.
+            if(arrowPath[0].getTile() == tile)
+            {
+                resetArrowPath();
+            }
+            else
+            //If you touch the predecessor shorten the path by one.
+            if (arrowPath[arrowPath.Count - 2].getTile() == tile)
             {                           
                 momMovementPoints++;//If you go back, you have more movement points available.
                 //Delete last entry of the arrow path, because that is the arrowhead.
@@ -269,11 +277,13 @@ public class ArrowBuilder : MonoBehaviour
                 {
                     //Replace predecessor entry (always is a straight/curve part, can never be an arrowhead!) with an arrowhead.
                     Tile predecessor = arrowPath[arrowPath.Count - 2].getTile();
-                    ArrowPart newArrowHead = calcArrowDirection(myTileproperties, predecessor);
+                    ArrowPart newArrowHead = calcArrowDirection(tile, predecessor);
                     arrowPath[arrowPath.Count - 1].replaceArrowGraphic(newArrowHead.myArrowPart);               
                 }
-            }            
-        }     
+            }       
+            //If you touch any of the reachable tiles, the shortest path to this tile will be calculated.
+            //TODO: calculate shortest path to this tile... will follow if A* is implemented
+        }           
     }
         
     //Calculates a direct path from the arrow path. I.e.: combine arrow parts that are in a straight line to be just one checkpoint for the movement.

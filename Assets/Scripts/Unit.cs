@@ -159,7 +159,7 @@ public class Unit : MonoBehaviour
             //Calculate attackable area, instantiate the graphics for the tiles and store the attackable units in a list.
             //TODO: no need to do this here
             findAttackableTiles();
-            _manager.getMapCreator().createAttackableTiles();
+            _manager.getMapCreator().createAttackableTilesGfx();
             _manager.getMapCreator().showAttackableTiles(false);
             findAttackableEnemies();
             
@@ -239,6 +239,15 @@ public class Unit : MonoBehaviour
         if(health <= 0)
         {
             killUnit();
+        }
+    }
+
+    //Displays the tiles the unit can attack.
+    public void displayAttackableTiles(bool value)
+    {
+        for (int i = 0; i < attackableTiles.Count; i++)
+        {
+            attackableTiles[i].gameObject.SetActive(value);
         }
     }
 

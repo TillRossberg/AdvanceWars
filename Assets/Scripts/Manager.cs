@@ -35,8 +35,8 @@ public class Manager : MonoBehaviour
 	// Use this for initialization
 	void Start ()
     {
-        int xStart = 15;
-        int yStart = 7;
+        int xStart = 12;
+        int yStart = 6;
         initContainer();
         unitCreator.init();
         teamManager.init();

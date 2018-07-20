@@ -12,7 +12,7 @@ public class GameFunctions : MonoBehaviour
 
     //Selectstuff
     private Tile selectedTile;
-    private Unit selectedUnit;
+    public Unit selectedUnit;
 
     //States    
     //These bools should help to decide if we selected a unit or a tile.
@@ -75,6 +75,19 @@ public class GameFunctions : MonoBehaviour
         //The logic that draws an arrow, that shows where the unit can go.
         Tile tileTheUnitStandsOn = _manager.getMapCreator().getGraph()[selectedUnit.xPos][selectedUnit.yPos].GetComponent<Tile>();
         _manager.getArrowBuilder().init(tileTheUnitStandsOn, selectedUnit.moveDist);
+    }
+
+    public void selectEnemyUnit(Unit enemyToSelect)
+    {
+        deselectObject(); //Previous selected object out!
+        selectedUnit = enemyToSelect;//Handover the object.
+        selectedUnit.isSelected = true;
+        isUnit = true;
+        _manager.getContextMenu().closeMenu();//Make sure the menu is not visible, when you click on a unit.
+        _manager.getStatusWindow().showStatus(true);//Show Unit status
+        enemyToSelect.findAttackableTiles();
+        _manager.getMapCreator().createAttackableTilesGfx();
+
     }
     //Select a tile.
     public void selectTile(Tile myObject)

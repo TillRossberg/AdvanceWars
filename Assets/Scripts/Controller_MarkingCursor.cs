@@ -31,11 +31,7 @@ public class Controller_MarkingCursor : MonoBehaviour
             if(!vertAxisInUse)
             {
                 vertAxisInUse = true;
-                if (_mapCreator.isInsideGraph(xGraph, yGraph + 1))
-                {
-                    goTo(xGraph, yGraph + 1);
-                    _manager.getStatusWindow().updateStatusPanel(xGraph, yGraph);
-                }
+                goTo(xGraph, yGraph + 1);                    
                 resetAxisInUseDelayed();
             }
         }
@@ -45,11 +41,7 @@ public class Controller_MarkingCursor : MonoBehaviour
             if (!vertAxisInUse)
             {
                 vertAxisInUse = true;
-                if (_mapCreator.isInsideGraph(xGraph, yGraph - 1))
-                {
-                    goTo(xGraph, yGraph - 1);
-                    _manager.getStatusWindow().updateStatusPanel(xGraph, yGraph);
-                }
+                goTo(xGraph, yGraph - 1);
                 resetAxisInUseDelayed();
             }
         }
@@ -59,11 +51,7 @@ public class Controller_MarkingCursor : MonoBehaviour
             if (!horAxisInUse)
             {
                 horAxisInUse = true;
-                if (_mapCreator.isInsideGraph(xGraph - 1, yGraph))
-                {
-                    goTo(xGraph - 1, yGraph);
-                    _manager.getStatusWindow().updateStatusPanel(xGraph, yGraph);
-                }
+                goTo(xGraph - 1, yGraph);
                 resetAxisInUseDelayed();
             }
         }
@@ -72,24 +60,21 @@ public class Controller_MarkingCursor : MonoBehaviour
         {
             if (!horAxisInUse)
             {
-                horAxisInUse = true;
-                if (_mapCreator.isInsideGraph(xGraph + 1, yGraph))
-                {
-                    goTo(xGraph + 1, yGraph);
-                    _manager.getStatusWindow().updateStatusPanel(xGraph, yGraph);
-                }
+                horAxisInUse = true;                
+                goTo(xGraph + 1, yGraph);                
                 resetAxisInUseDelayed();
             }
         }
         //Selection
-        if(Input.GetButtonDown("Fire1"))
+        if(Input.GetButtonDown("Fire1") || Input.GetButtonDown("Jump"))
         {
+            Unit unitHere;
             switch (_manager.getGameFunctions().getCurrentMode())
             {
                 case GameFunctions.mode.normal:
                     if (_mapCreator.getTile(xGraph, yGraph).getUnitHere() != null)
                     {
-                        Unit unitHere = _mapCreator.getTile(xGraph, yGraph).getUnitHere().GetComponent<Unit>();
+                         unitHere = _mapCreator.getTile(xGraph, yGraph).getUnitHere().GetComponent<Unit>();
                         //Select own unit
                         if (_manager.getTurnManager().getActiveTeam().isInMyTeam(unitHere))
                         {
@@ -102,12 +87,50 @@ public class Controller_MarkingCursor : MonoBehaviour
                             _manager.getGameFunctions().setCurrentMode(GameFunctions.mode.move);
                         }
                         //Show range of enemy unit
+                        else
+                        {
+                            _manager.getGameFunctions().selectEnemyUnit(unitHere);
+                            unitHere.displayAttackableTiles(true);
+                        }
 
                     }
                     break;
                 case GameFunctions.mode.fire:
                     break;
                 case GameFunctions.mode.move:
+                    if (_mapCreator.getTile(xGraph, yGraph).getUnitHere() != null)
+                    {
+                        unitHere = _mapCreator.getTile(xGraph, yGraph).getUnitHere().GetComponent<Unit>();
+                        if (unitHere.isSelected)
+                        {
+                            //Decide if the menu with firebutton and wait button is opened ...
+                            if (_manager.getGameFunctions().getSelectedUnit().attackableUnits.Count > 0)
+                            {
+                                //...if the selected unit is infantry/mech and this tile is a neutral/enemy property also load the 'occupy button'.
+                                if (_graphMatrix[xPos][yPos].GetComponent<Tile>().isOccupyable(this))
+                                {
+                                    _manager.getContextMenu().openContextMenu(xPos, yPos, 3);
+                                }
+                                else
+                                {
+                                    _manager.getContextMenu().openContextMenu(xPos, yPos, 1);
+                                }
+                            }
+                            //...OR if only the wait button is to display.
+                            else
+                            {
+                                //If the selected unit is infantry/mech and this tile is a neutral/enemy property also load the 'occupy button'.
+                                if (_graphMatrix[xPos][yPos].GetComponent<Tile>().isOccupyable(this))
+                                {
+                                    _manager.getContextMenu().openContextMenu(xPos, yPos, 2);
+                                }
+                                else
+                                {
+                                    _manager.getContextMenu().openContextMenu(xPos, yPos, 0);
+                                }
+                            }
+                        }
+                    }
                     break;
                 case GameFunctions.mode.menu:
                     break;
@@ -124,11 +147,52 @@ public class Controller_MarkingCursor : MonoBehaviour
 
     private void goTo(int x, int y)
     {
+        if(_manager.getMapCreator().isInsideGraph(x,y))
+        {
+            switch (_manager.getGameFunctions().getCurrentMode())
+            {
+                case GameFunctions.mode.normal:
+                    setCursorsPosition(x, y);
+                    break;
+                case GameFunctions.mode.fire:
+                    //cycle through the attackable enemies
+                    break;
+                case GameFunctions.mode.move:
+                    //Draws an Arrow on the tile, if it is reachable
+                    Tile tile = _manager.getMapCreator().getTile(x, y);
+                    if (tile.isReachable && !tile.isPartOfArrowPath)
+                    {
+                        //We wont move outside the bounds of the reachable area.
+                        setCursorsPosition(x, y);
+
+                        _manager.getArrowBuilder().createArrowPath(tile);
+                    }
+                    //If you go back, make the arrow smaller.
+                    if (tile.isPartOfArrowPath)
+                    {
+                        //We wont move outside the bounds of the reachable area.
+                        setCursorsPosition(x, y);
+                        _manager.getStatusWindow().updateStatusPanel(x, y);
+                        _manager.getArrowBuilder().tryToGoBack(tile);
+                    }
+                    break;
+                case GameFunctions.mode.menu:
+                    //navigate menu
+                    break;
+                default:
+                    Debug.Log("Controller_MarkingCursor: goTo: mode not implemented yet!");
+                    break;
+            }
+        }
+    }
+
+    private void setCursorsPosition(int x, int y)
+    {
         this.transform.position = new Vector3(_mapCreator.getTile(x, y).transform.position.x, 0, _mapCreator.getTile(x, y).transform.position.z);
         xGraph = x;
         yGraph = y;
+        _manager.getStatusWindow().updateStatusPanel(x, y);
     }
-    
     private void resetAxisInUse()
     {
         horAxisInUse = false;
