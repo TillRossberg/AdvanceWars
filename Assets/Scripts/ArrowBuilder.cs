@@ -361,23 +361,26 @@ public class ArrowBuilder : MonoBehaviour
         List<Team> enemyTeams = GetComponent<GameFunctions>().getSelectedUnit().myTeam.getEnemyTeams();
         for (int i = 0; i < arrowPath.Count; i++)
         {
-            for (int j = 0; j < enemyTeams.Count; j++)
+            if(arrowPath[i].getTile().getUnitHere() != null)
             {
-                if(enemyTeams[j].myUnits.Contains(arrowPath[i].getTile().getUnitHere().transform))
+                for (int j = 0; j < enemyTeams.Count; j++)
                 {
-                    for (int k = i ; k < arrowPath.Count; k++)
+                    if(enemyTeams[j].myUnits.Contains(arrowPath[i].getTile().getUnitHere().transform))
                     {
-                        if (arrowPath[k].myArrowPart != null)
+                        for (int k = i ; k < arrowPath.Count; k++)
                         {
-                            Destroy(arrowPath[k].myArrowPart.gameObject);
+                            if (arrowPath[k].myArrowPart != null)
+                            {
+                                Destroy(arrowPath[k].myArrowPart.gameObject);
+                            }
+                            arrowPath[k].getTile().isPartOfArrowPath = false;
                         }
-                        arrowPath[k].getTile().isPartOfArrowPath = false;
-                    }
-                    arrowPath.RemoveRange(i, arrowPath.Count - i);
-                    GetComponent<GameFunctions>().getSelectedUnit().setIsInterrupted(true);
-                    GetComponent<GameFunctions>().getSelectedUnit().setCanFire(false);
-                    break;
-                }              
+                        arrowPath.RemoveRange(i, arrowPath.Count - i);
+                        GetComponent<GameFunctions>().getSelectedUnit().setIsInterrupted(true);
+                        GetComponent<GameFunctions>().getSelectedUnit().setCanFire(false);
+                        break;
+                    }              
+                }
             }
         }
     }

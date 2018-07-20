@@ -67,7 +67,7 @@ public class Tile: MonoBehaviour
         if (!_manager.getContextMenu().isOpened && !_manager.getBuyMenu().isOpened)
         {            
             //Move mode
-            if(_manager.getGameFunctions().moveMode)
+            if(_manager.getGameFunctions().getCurrentMode() == GameFunctions.mode.move)
             {
                 Unit selectedUnit = _manager.getGameFunctions().getSelectedUnit().GetComponent<Unit>();
                 if((isPartOfArrowPath && unitStandingHere == null) || (isPartOfArrowPath && !isVisible))
@@ -90,7 +90,7 @@ public class Tile: MonoBehaviour
                 }
             }
             //Normal mode
-            if(_manager.getGameFunctions().normalMode)
+            if(_manager.getGameFunctions().getCurrentMode() == GameFunctions.mode.normal)
             {
                 //If no unit stands here...
                 if (unitStandingHere == null)
@@ -100,7 +100,7 @@ public class Tile: MonoBehaviour
                 }                
             }
             //Fire mode
-            if(_manager.getGameFunctions().fireMode)
+            if(_manager.getGameFunctions().getCurrentMode() == GameFunctions.mode.fire)
             {
 
             }
@@ -110,7 +110,7 @@ public class Tile: MonoBehaviour
     private void OnMouseEnter()
     {
         //Actions are only perfomed, if the menu is not opened.
-        if (!_manager.getContextMenu().isOpened && _manager.getGameFunctions().moveMode)
+        if (!_manager.getContextMenu().isOpened && _manager.getGameFunctions().getCurrentMode() == GameFunctions.mode.move)
         {
             //Draws an Arrow on the tile, if it is reachable
             if (isReachable && !isPartOfArrowPath )
@@ -154,15 +154,8 @@ public class Tile: MonoBehaviour
     }
 
     public Transform getUnitHere()
-    {
-        if(unitStandingHere != null)
-        {
-            return unitStandingHere;
-        }
-        else
-        {
-            return null;
-        }
+    {        
+        return unitStandingHere;      
     }
     
     //If a unit moves on or dies, clear the unit that was standing on this tile

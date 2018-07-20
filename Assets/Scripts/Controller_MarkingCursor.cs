@@ -34,6 +34,7 @@ public class Controller_MarkingCursor : MonoBehaviour
                 if (_mapCreator.isInsideGraph(xGraph, yGraph + 1))
                 {
                     goTo(xGraph, yGraph + 1);
+                    _manager.getStatusWindow().updateStatusPanel(xGraph, yGraph);
                 }
                 resetAxisInUseDelayed();
             }
@@ -47,6 +48,7 @@ public class Controller_MarkingCursor : MonoBehaviour
                 if (_mapCreator.isInsideGraph(xGraph, yGraph - 1))
                 {
                     goTo(xGraph, yGraph - 1);
+                    _manager.getStatusWindow().updateStatusPanel(xGraph, yGraph);
                 }
                 resetAxisInUseDelayed();
             }
@@ -60,6 +62,7 @@ public class Controller_MarkingCursor : MonoBehaviour
                 if (_mapCreator.isInsideGraph(xGraph - 1, yGraph))
                 {
                     goTo(xGraph - 1, yGraph);
+                    _manager.getStatusWindow().updateStatusPanel(xGraph, yGraph);
                 }
                 resetAxisInUseDelayed();
             }
@@ -73,6 +76,7 @@ public class Controller_MarkingCursor : MonoBehaviour
                 if (_mapCreator.isInsideGraph(xGraph + 1, yGraph))
                 {
                     goTo(xGraph + 1, yGraph);
+                    _manager.getStatusWindow().updateStatusPanel(xGraph, yGraph);
                 }
                 resetAxisInUseDelayed();
             }
@@ -80,16 +84,33 @@ public class Controller_MarkingCursor : MonoBehaviour
         //Selection
         if(Input.GetButtonDown("Fire1"))
         {
-            if(_mapCreator.getTile(xGraph, yGraph).getUnitHere() != null)
+            switch (_manager.getGameFunctions().getCurrentMode())
             {
-                Unit unitHere = _mapCreator.getTile(xGraph, yGraph).getUnitHere().GetComponent<Unit>();
-                //Select own unit
-                if (_manager.getTurnManager().getActiveTeam().isInMyTeam(unitHere))
-                {
-                    _manager.getGameFunctions().selectUnit(unitHere);
-                }
-                //Show range of enemy unit
+                case GameFunctions.mode.normal:
+                    if (_mapCreator.getTile(xGraph, yGraph).getUnitHere() != null)
+                    {
+                        Unit unitHere = _mapCreator.getTile(xGraph, yGraph).getUnitHere().GetComponent<Unit>();
+                        //Select own unit
+                        if (_manager.getTurnManager().getActiveTeam().isInMyTeam(unitHere))
+                        {
+                            _manager.getGameFunctions().selectUnit(unitHere);
+                            //Calculate reachable area and instantiate the graphics for the tiles.
+                            unitHere.calcReachableArea(xGraph, yGraph, unitHere.moveDist, unitHere.myMoveType, null);
+                            //Debug.Log("Reachable iterations: " + counter);
+                            _manager.getMapCreator().createReachableTiles();
+                            unitHere.calcVisibleArea();
+                            _manager.getGameFunctions().setCurrentMode(GameFunctions.mode.move);
+                        }
+                        //Show range of enemy unit
 
+                    }
+                    break;
+                case GameFunctions.mode.fire:
+                    break;
+                case GameFunctions.mode.move:
+                    break;
+                case GameFunctions.mode.menu:
+                    break;
             }
         }
 

@@ -35,6 +35,8 @@ public class Manager : MonoBehaviour
 	// Use this for initialization
 	void Start ()
     {
+        int xStart = 15;
+        int yStart = 7;
         initContainer();
         unitCreator.init();
         teamManager.init();
@@ -47,8 +49,9 @@ public class Manager : MonoBehaviour
         turnManager.init();
         getContextMenu().init();
         getStatusWindow().init();
-        getStatusWindow().displayGeneralInfo();
-        cursor = createNewMarkingCursor(15, 7);
+        getStatusWindow().displayCommanderInfo();
+        cursor = createNewMarkingCursor(xStart, yStart);
+        getStatusWindow().updateStatusPanel(xStart, yStart);
     }
 	
 	// Update is called once per frame

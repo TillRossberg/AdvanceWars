@@ -36,8 +36,6 @@ public class Panel_UnitStatus : MonoBehaviour
         tileName = this.transform.Find("Unit_Status/Text_tileName").GetComponent<Text>();
         tileThumb = this.transform.Find("Unit_Status/Thumbnail_Tile").GetComponent<Image>();
         cover = this.transform.Find("Unit_Status/Text_Cover").GetComponent<Text>();
-        
-        this.gameObject.SetActive(false);        
     }
 
     //De-/activates the status window for the selected unit.
@@ -60,8 +58,18 @@ public class Panel_UnitStatus : MonoBehaviour
         } 
     }
 
+    public void updateStatusPanel(int x, int y)
+    {
+        resetStatus();
+        updateCover(x, y);
+        if(_manager.getMapCreator().getTile(x,y).getUnitHere() != null)
+        {
+            updateUnitInfo(x, y);
+        }       
+    }
+
     //Displays the active team, its money, the round number and update the thumbnail for the active commander.
-    public void displayGeneralInfo()
+    public void displayCommanderInfo()
     {
         Manager_Turn turnManager = _manager.getTurnManager();
         this.activeTeam.text = "Team: " + turnManager.getActiveTeam().name;
@@ -92,7 +100,16 @@ public class Panel_UnitStatus : MonoBehaviour
         this.tileName.text = "nono";
         this.cover.text = "-1";
     }
-
+    //Displays the unit info and updates it.
+    public void updateUnitInfo(int x, int y)
+    {
+        Unit unit = _manager.getMapCreator().getTile(x, y).getUnitHere().GetComponent<Unit>();
+        this.unitName.text = unit.unitName;
+        this.unitThumb.sprite = unit.thumbNail;
+        this.health.text = getRoundedHealth(unit.health).ToString();
+        this.ammo.text = unit.ammo.ToString();
+        this.fuel.text = unit.fuel.ToString();       
+    }
     //Updates the cover value to the given coordinates.
     public void updateCover(int x, int y)
     {

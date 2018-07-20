@@ -31,7 +31,7 @@ public class Manager_Turn : MonoBehaviour
     {
         _gameFunctions.deselectObject();//Make sure nothing is selected when the next turn starts.
         activeTeam = getNextTeam();
-        _manager.getStatusWindow().displayGeneralInfo();//Update the GUI for the active team       
+        _manager.getStatusWindow().displayCommanderInfo();//Update the GUI for the active team       
         activateUnits(activeTeam);       
         updateFogOfWar(activeTeam);//Set fog of war for this team.
 
@@ -58,7 +58,7 @@ public class Manager_Turn : MonoBehaviour
     public void giveMoney(Team team)
     {
         team.money += team.ownedProperties.Count * _manager.getContainer().getMoneyIncrement();
-        _manager.getStatusWindow().displayGeneralInfo();  
+        _manager.getStatusWindow().displayCommanderInfo();  
     }
 
     //Sets all the units of a team so they have a turn, can move and fire.

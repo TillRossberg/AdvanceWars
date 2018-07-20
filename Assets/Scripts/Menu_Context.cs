@@ -71,7 +71,7 @@ public class Menu_Context : MonoBehaviour
     //Activate the fire mode, show the enemies that can be attacked and close the menu.
     public void Button_Fire()
     {
-        _manager.getGameFunctions().activateFireMode();
+        _manager.getGameFunctions().setCurrentMode(GameFunctions.mode.fire);
         _manager.getMapCreator().showReachableTiles(false);
         _manager.getGameFunctions().getSelectedUnit().showAttackableEnemies();
         closeMenu();

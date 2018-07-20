@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class GameFunctions : MonoBehaviour
 {
-    //Data structures
+    //References
     private Manager_Team _teamManager;
     private Manager _manager;
 
@@ -16,12 +16,10 @@ public class GameFunctions : MonoBehaviour
 
     //States    
     //These bools should help to decide if we selected a unit or a tile.
+    public enum mode { normal, fire, move, menu};
+    private mode currentMode;
     bool isTile = false;
-    bool isUnit = false;
-
-    public bool normalMode = true;
-    public bool fireMode = false;
-    public bool moveMode = false;
+    bool isUnit = false;  
     
     //Gfx
     public Transform markingCursor;
@@ -53,25 +51,14 @@ public class GameFunctions : MonoBehaviour
             }
         }
     }
-    
-    //Toggle between the modes
-    public void activateNormalMode()
+   
+    public mode getCurrentMode()
     {
-        fireMode = false;
-        moveMode = false;
-        normalMode = true;
+        return currentMode;
     }
-    public void activateFireMode()
+    public void setCurrentMode(mode mode)
     {
-        moveMode = false;
-        normalMode = false;
-        fireMode = true;
-    }
-    public void activateMoveMode()
-    {
-        normalMode = false;
-        fireMode = false;
-        moveMode = true;
+        currentMode = mode;
     }
 
     //Select an unit.
@@ -128,7 +115,7 @@ public class GameFunctions : MonoBehaviour
         deleteMarkingCursor();
         _manager.getContextMenu().closeMenu();//Hide context menu
         _manager.getStatusWindow().showStatus(false);
-        activateNormalMode();
+        setCurrentMode(mode.normal);
     }
     //Deselect a Unit.
     public void deselectUnit()

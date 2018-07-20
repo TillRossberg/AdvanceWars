@@ -147,7 +147,7 @@ public class Unit : MonoBehaviour
     private void OnMouseDown()
     {
         //If normal mode is activated.
-        if (_manager.getGameFunctions().normalMode && !_manager.getBuyMenu().isOpened && hasTurn)
+        if (_manager.getGameFunctions().getCurrentMode() == GameFunctions.mode.normal && !_manager.getBuyMenu().isOpened && hasTurn)
         {               
             //Select unit
             _manager.getGameFunctions().selectUnit(this);
@@ -157,18 +157,19 @@ public class Unit : MonoBehaviour
             //Debug.Log("Reachable iterations: " + counter);
             _manager.getMapCreator().createReachableTiles();
             //Calculate attackable area, instantiate the graphics for the tiles and store the attackable units in a list.
+            //TODO: no need to do this here
             findAttackableTiles();
             _manager.getMapCreator().createAttackableTiles();
             _manager.getMapCreator().showAttackableTiles(false);
             findAttackableEnemies();
             
             calcVisibleArea();
-            _manager.getGameFunctions().activateMoveMode();
+            _manager.getGameFunctions().setCurrentMode(GameFunctions.mode.move);
             
         }
         else
         //If move mode is activated
-        if (_manager.getGameFunctions().moveMode)
+        if (_manager.getGameFunctions().getCurrentMode() == GameFunctions.mode.move)
         {
             if (isSelected)
             {
@@ -202,7 +203,7 @@ public class Unit : MonoBehaviour
         }
         else
         //If fire mode is activated.
-        if(_manager.getGameFunctions().fireMode)
+        if(_manager.getGameFunctions().getCurrentMode() == GameFunctions.mode.fire)
         {
             //Select unit, that is attackable and pass it to the fight function.
             if(_graphMatrix[xPos][yPos].GetComponent<Tile>().isAttackable)
@@ -703,7 +704,7 @@ public class Unit : MonoBehaviour
     }
 
     //Calculate how far you can move from a certain position depending on your movement points.
-    private void calcReachableArea(int x, int y, int movementPoints, moveType myMoveType, Tile cameFromTile)
+    public void calcReachableArea(int x, int y, int movementPoints, moveType myMoveType, Tile cameFromTile)
     {
         counter++;
         Tile tile = _graphMatrix[x][y].gameObject.GetComponent<Tile>();
