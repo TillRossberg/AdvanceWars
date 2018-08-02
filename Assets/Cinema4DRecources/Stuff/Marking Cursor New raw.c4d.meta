@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: c0d8f651eecc262429c062a40758efc1
-timeCreated: 1531667158
+guid: c77db6ac2eee64741a5dbef3435fdb1b
+timeCreated: 1533232985
 licenseType: Free
 ModelImporter:
   serializedVersion: 22
@@ -12,12 +12,8 @@ ModelImporter:
     400002: Symmetrie
     400004: "W\xFCrfel_3"
     2300000: "W\xFCrfel_3"
-    2300002: //RootNode
     3300000: "W\xFCrfel_3"
-    3300002: //RootNode
     4300000: "W\xFCrfel_3"
-    4300002: Cursor
-    9500000: //RootNode
   externalObjects:
   - first:
       type: UnityEngine:Material
@@ -95,7 +91,7 @@ ModelImporter:
     hasExtraRoot: 0
     skeletonHasParents: 1
   lastHumanDescriptionAvatarSource: {instanceID: 0}
-  animationType: 2
+  animationType: 0
   humanoidOversampling: 1
   additionalBone: 0
   userData: 

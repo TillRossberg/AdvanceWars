@@ -2,10 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 public class Menu_Context : MonoBehaviour
 {
+    //References
     private Manager _manager;
+    public EventSystem eventSystem;
+
     private int height = 1;//Heigth above the playground.
     public RectTransform contextMenu;//Graphics
     public RectTransform waitButton;
@@ -16,8 +20,6 @@ public class Menu_Context : MonoBehaviour
     public RectTransform occupyButton;
     public Transform exclamationMark;
     public bool isOpened = false;
-    public int clickedHereX;
-    public int clickedHereY;
 
     public bool showAttackableTiles = false;
     public bool showReachableTiles = false;
@@ -30,14 +32,47 @@ public class Menu_Context : MonoBehaviour
 	
 
     //Opens the specific context menu at the given position.
-    public void openContextMenu(int x, int y, int menuType)
+    public void openContextMenu(int menuType)
     {
+        _manager.getGameFunctions().setCurrentMode(GameFunctions.mode.menu);
+        eventSystem.SetSelectedGameObject(null);
+        Invoke("highlightFirstMenuButton", 0.1f);
         contextMenu.gameObject.SetActive(true);
         setMenuType(menuType);
         isOpened = true;
         //Store where the user clicked on, for dynamic positioning.
-        clickedHereX = x;
-        clickedHereY = y;
+    }
+
+
+    public void openContextMenu(int xPos, int yPos)
+    {
+        Unit unitHere = _manager.getMapCreator().getTile(xPos, yPos).getUnitHere().GetComponent<Unit>();
+        //Decide if the menu with firebutton and wait button is opened ...
+        if (_manager.getGameFunctions().getSelectedUnit().attackableUnits.Count > 0)
+        {
+            //...if the selected unit is infantry/mech and this tile is a neutral/enemy property also load the 'occupy button'.
+            if (_manager.getMapCreator().getTile(xPos, yPos).isOccupyable(unitHere))
+            {
+               openContextMenu(3);
+            }
+            else
+            {
+                openContextMenu(1);
+            }
+        }
+        //...OR if only the wait button is to display.
+        else
+        {
+            //If the selected unit is infantry/mech and this tile is a neutral/enemy property also load the 'occupy button'.
+            if (_manager.getMapCreator().getTile(xPos, yPos).isOccupyable(unitHere))
+            {
+                openContextMenu(2);
+            }
+            else
+            {
+                openContextMenu(0);
+            }
+        }
     }
 
     //Postitions the context menu, where it is not visible.
@@ -45,8 +80,6 @@ public class Menu_Context : MonoBehaviour
     {
         deactivateAllButtons();
         contextMenu.gameObject.SetActive(false);
-        clickedHereX = 0;
-        clickedHereY = 0;
     }
 
     //Close the menu.
@@ -69,6 +102,7 @@ public class Menu_Context : MonoBehaviour
     public void Button_Wait()
     {
         _manager.getGameFunctions().getSelectedUnit().wait();         
+        _manager.getGameFunctions().setCurrentMode(GameFunctions.mode.normal);
     }
 
     //Perform the occupy action on a property.
@@ -76,7 +110,6 @@ public class Menu_Context : MonoBehaviour
     {
         Debug.Log("Occupying...");
         Unit selectedUnit = _manager.getGameFunctions().getSelectedUnit();
-        selectedUnit.moveUnitTo(clickedHereX, clickedHereY);
         _manager.getMapCreator().getTile(selectedUnit.xPos, selectedUnit.yPos).occupy(selectedUnit.getHealthAsInt());//The take over action.
         selectedUnit.canFire = false;
         selectedUnit.hasTurn = false;
@@ -139,7 +172,6 @@ public class Menu_Context : MonoBehaviour
     }
 
     //Activates the different menu types.
-    //TODO: Make the positions generic!
     public void setMenuType(int menuType)
     {
         switch(menuType)
@@ -210,5 +242,23 @@ public class Menu_Context : MonoBehaviour
                 unit.killUnitDelayed();
             }            
         }
+    }
+
+    public Transform getFirstActiveButton()
+    {
+        Transform buttons = GameObject.Find("Buttons").transform;
+        foreach (Transform child in buttons)
+        {
+            if(child.gameObject.activeSelf)
+            {
+                return child;                
+            }            
+        }
+        Debug.Log("menu cotext: getfirstactivebutton: no active button found!");
+        return null;
+    }
+    private void highlightFirstMenuButton()
+    {
+        eventSystem.SetSelectedGameObject(getFirstActiveButton().gameObject);
     }
 }

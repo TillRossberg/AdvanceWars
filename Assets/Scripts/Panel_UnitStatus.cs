@@ -62,7 +62,7 @@ public class Panel_UnitStatus : MonoBehaviour
     {
         resetStatus();
         updateCover(x, y);
-        if(_manager.getMapCreator().getTile(x,y).getUnitHere() != null)
+        if(_manager.getMapCreator().getTile(x,y).getUnitHere() != null && _manager.getMapCreator().getTile(x, y).isVisible)
         {
             updateUnitInfo(x, y);
         }       

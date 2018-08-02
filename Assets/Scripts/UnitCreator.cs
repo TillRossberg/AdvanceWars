@@ -29,22 +29,22 @@ public class UnitCreator : MonoBehaviour
 	
 	public void createUnitSet00()
     {
-        Team teamRed = _manager.getTeamManager().getTeam("TeamRed");
-        Team teamBlue = _manager.getTeamManager().getTeam("TeamBlue");
-        createUnit(Unit.type.Tank, teamRed, 5, 8, Unit.facingDirection.West);
-        createUnit(Unit.type.Infantry, teamRed, 5, 7, Unit.facingDirection.West);
-        createUnit(Unit.type.Infantry, teamRed, 13, 8, Unit.facingDirection.West);
-        createUnit(Unit.type.Mech, teamRed, 5, 6, Unit.facingDirection.West);
-        createUnit(Unit.type.Recon, teamRed, 5, 5, Unit.facingDirection.West);
-        createUnit(Unit.type.APC, teamRed, 4, 5, Unit.facingDirection.West);
-        createUnit(Unit.type.Artillery, teamRed, 3, 5, Unit.facingDirection.West);
-        createUnit(Unit.type.Flak, teamRed, 2, 5, Unit.facingDirection.West);
-        createUnit(Unit.type.Rockets, teamRed, 6, 6, Unit.facingDirection.West);
-        createUnit(Unit.type.MdTank, teamRed, 6, 9, Unit.facingDirection.West);
+        Team team1 = _manager.getTeamManager().getTeam(0);
+        Team team2 = _manager.getTeamManager().getTeam(1);
+        createUnit(Unit.type.Tank, team1, 5, 8, Unit.facingDirection.West);
+        createUnit(Unit.type.Infantry, team1, 5, 7, Unit.facingDirection.West);
+        createUnit(Unit.type.Infantry, team1, 13, 8, Unit.facingDirection.West);
+        createUnit(Unit.type.Mech, team1, 5, 6, Unit.facingDirection.West);
+        createUnit(Unit.type.Recon, team1, 5, 5, Unit.facingDirection.West);
+        createUnit(Unit.type.APC, team1, 4, 5, Unit.facingDirection.West);
+        createUnit(Unit.type.Artillery, team1, 3, 5, Unit.facingDirection.West);
+        createUnit(Unit.type.Flak, team1, 2, 5, Unit.facingDirection.West);
+        createUnit(Unit.type.Rockets, team1, 6, 6, Unit.facingDirection.West);
+        createUnit(Unit.type.MdTank, team1, 6, 9, Unit.facingDirection.West);
 
-        createUnit(Unit.type.Tank, teamBlue, 10, 8, Unit.facingDirection.East);
-        createUnit(Unit.type.Rockets, teamBlue, 9, 6, Unit.facingDirection.East);
-        createUnit(Unit.type.Infantry, teamBlue, 9, 9, Unit.facingDirection.East);
+        createUnit(Unit.type.Tank, team2, 10, 8, Unit.facingDirection.East);
+        createUnit(Unit.type.Rockets, team2, 9, 6, Unit.facingDirection.East);
+        createUnit(Unit.type.Infantry, team2, 9, 9, Unit.facingDirection.East);
     }
 
     public void createUnitTestSet01()

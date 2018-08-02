@@ -27,10 +27,9 @@ public class Manager : MonoBehaviour
     public AnimController animationController;
     public SceneLoader sceneLoader;
     //Prefabs
-    public Transform newMarkingCursorPrefab;
+    public Transform cursor;
 
     //Fields
-    private Transform cursor;
 
 	// Use this for initialization
 	void Start ()
@@ -50,7 +49,7 @@ public class Manager : MonoBehaviour
         getContextMenu().init();
         getStatusWindow().init();
         getStatusWindow().displayCommanderInfo();
-        cursor = createNewMarkingCursor(xStart, yStart);
+        cursor.GetComponent<Controller_MarkingCursor>().setCursorsPosition(13, 7);
         getStatusWindow().updateStatusPanel(xStart, yStart);
     }
 	
@@ -62,7 +61,7 @@ public class Manager : MonoBehaviour
 
     private Transform createNewMarkingCursor(int x, int y)
     {
-        Transform newCursor = Instantiate(newMarkingCursorPrefab, this.transform);
+        Transform newCursor = Instantiate(cursor, this.transform);
         newCursor.GetComponent<Controller_MarkingCursor>().init(x,y);        
         return newCursor;
     }

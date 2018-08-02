@@ -17,7 +17,7 @@ public class GameFunctions : MonoBehaviour
     //States    
     //These bools should help to decide if we selected a unit or a tile.
     public enum mode { normal, fire, move, menu};
-    private mode currentMode;
+    public mode currentMode;
     bool isTile = false;
     bool isUnit = false;  
     
@@ -109,7 +109,7 @@ public class GameFunctions : MonoBehaviour
         else
         {
             //Open menu with info button about the tile.
-            _manager.getContextMenu().openContextMenu(selectedTile.xPos, selectedTile.yPos, 5);
+            _manager.getContextMenu().openContextMenu(5);
         }
         //Create marking cursor
         Instantiate(markingCursor, new Vector3(selectedTile.transform.position.x, -0.1f, selectedTile.transform.position.z), Quaternion.identity, this.transform);
@@ -162,6 +162,7 @@ public class GameFunctions : MonoBehaviour
         switch (value)
         {
             case 0:
+                _manager.getContainer().initTestContainer01();
                 _manager.getMapCreator().createLevel00();
                 _manager.getUnitCreator().createUnitSet00();
                 break;

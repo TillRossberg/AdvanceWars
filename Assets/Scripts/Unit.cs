@@ -171,35 +171,35 @@ public class Unit : MonoBehaviour
         //If move mode is activated
         if (_manager.getGameFunctions().getCurrentMode() == GameFunctions.mode.move)
         {
-            if (isSelected)
-            {
-                //Decide if the menu with firebutton and wait button is opened ...
-                if (_manager.getGameFunctions().getSelectedUnit().attackableUnits.Count > 0)
-                {
-                    //...if the selected unit is infantry/mech and this tile is a neutral/enemy property also load the 'occupy button'.
-                    if (_graphMatrix[xPos][yPos].GetComponent<Tile>().isOccupyable(this))
-                    {
-                        _manager.getContextMenu().openContextMenu(xPos, yPos, 3);
-                    }
-                    else
-                    {
-                        _manager.getContextMenu().openContextMenu(xPos, yPos, 1);
-                    }
-                }
-                //...OR if only the wait button is to display.
-                else
-                {
-                    //If the selected unit is infantry/mech and this tile is a neutral/enemy property also load the 'occupy button'.
-                    if (_graphMatrix[xPos][yPos].GetComponent<Tile>().isOccupyable(this))
-                    {
-                        _manager.getContextMenu().openContextMenu(xPos, yPos, 2);
-                    }
-                    else
-                    {
-                        _manager.getContextMenu().openContextMenu(xPos, yPos, 0);
-                    }
-                }               
-            }
+            //if (isSelected)
+            //{
+            //    //Decide if the menu with firebutton and wait button is opened ...
+            //    if (_manager.getGameFunctions().getSelectedUnit().attackableUnits.Count > 0)
+            //    {
+            //        //...if the selected unit is infantry/mech and this tile is a neutral/enemy property also load the 'occupy button'.
+            //        if (_graphMatrix[xPos][yPos].GetComponent<Tile>().isOccupyable(this))
+            //        {
+            //            _manager.getContextMenu().openContextMenu(3);
+            //        }
+            //        else
+            //        {
+            //            _manager.getContextMenu().openContextMenu(1);
+            //        }
+            //    }
+            //    //...OR if only the wait button is to display.
+            //    else
+            //    {
+            //        //If the selected unit is infantry/mech and this tile is a neutral/enemy property also load the 'occupy button'.
+            //        if (_graphMatrix[xPos][yPos].GetComponent<Tile>().isOccupyable(this))
+            //        {
+            //            _manager.getContextMenu().openContextMenu(2);
+            //        }
+            //        else
+            //        {
+            //            _manager.getContextMenu().openContextMenu(0);
+            //        }
+            //    }               
+            //}
         }
         else
         //If fire mode is activated.
@@ -319,8 +319,8 @@ public class Unit : MonoBehaviour
             endRotation = Quaternion.LookRotation(lookingDirection);//The actual rotation we need to look at the target
             isMoving = true; //Init the sequencer in the update function...
             rotate = true;//...and start rotating towards the first waypoint.
-            _graphMatrix[xPos][yPos].GetComponent<Tile>().clearUnitHere();//Reset the unitStandingHere property of the old tile to null
-            _graphMatrix[xPos][yPos].GetComponent<Tile>().resetTakeOverCounter();//Reset the take over counter
+            _mapCreator.getTile(xPos,yPos).clearUnitHere();//Reset the unitStandingHere property of the old tile to null
+            _mapCreator.getTile(xPos, yPos).resetTakeOverCounter();//Reset the take over counter
             //Remember the last position and rotation of the unit. (For resetting purposes.)
             preDirection = myFacingDirection;
             prePosX = this.xPos;
@@ -328,9 +328,14 @@ public class Unit : MonoBehaviour
             //Set xPos and yPos to the new position.            
             this.xPos = (int)(wayPointList[wayPointList.Count - 1].x);
             this.yPos = (int)(wayPointList[wayPointList.Count - 1].z);
-            _graphMatrix[xPos][yPos].GetComponent<Tile>().setUnitHere(this.transform);//Inform the new tile, that a unit is standing on it.
+            _mapCreator.getTile(xPos, yPos).setUnitHere(this.transform);//Inform the new tile, that a unit is standing on it.
             _manager.getStatusWindow().updateCover(xPos, yPos);//When you move the unit, you should see the new cover for the tile it will stand on.
             displayHealth(false);//While moving we dont want to see the health.
+            findAttackableTiles();
+            findAttackableEnemies();
+            //Delete the reachable tiles and the movement arrow.
+            _manager.getMapCreator().resetReachableTiles();
+            _manager.getArrowBuilder().resetAll();
             hasMoved = true;
         }
     }
@@ -338,7 +343,7 @@ public class Unit : MonoBehaviour
     //Resets the position and rotation of the unit to where it was before. (If we click the right mouse button or close the menu after we successfully moved it somewhere.)
     public void resetPosition()
     {
-        _graphMatrix[xPos][yPos].GetComponent<Tile>().clearUnitHere();//Reset the unitStandingHere property of the tile, we went to, to null
+        _mapCreator.getTile(xPos, yPos).clearUnitHere();//Reset the unitStandingHere property of the tile, we went to, to null
         //Set the position and rotation of the unit to where it was before
         this.transform.position = new Vector3(prePosX, 0, prePosY);
         this.xPos = prePosX;
@@ -346,7 +351,7 @@ public class Unit : MonoBehaviour
         rotateUnit(preDirection);
         wayPointIndex = 1;
         _manager.getStatusWindow().updateCover(xPos, yPos);//When the unit moves back, the display of the cover should be set to the old tile.
-        _graphMatrix[prePosX][prePosX].GetComponent<Tile>().setUnitHere(this.transform);//Inform the old tile, that we are back.
+        _mapCreator.getTile(xPos, yPos).setUnitHere(this.transform);//Inform the old tile, that we are back.
         displayHealth(true);//Repostition the health indicator.       
         hasMoved = false;
     }
@@ -876,11 +881,11 @@ public class Unit : MonoBehaviour
             //If the selected unit is infantry/mech and this tile is a neutral/enemy property also load the 'occupy button'.
             if (_graphMatrix[xPos][yPos].GetComponent<Tile>().isOccupyable(this))
             {
-                _manager.getContextMenu().openContextMenu(xPos, yPos, 3);
+                _manager.getContextMenu().openContextMenu(3);
             }
             else
             {
-                _manager.getContextMenu().openContextMenu(xPos, yPos, 1);
+                _manager.getContextMenu().openContextMenu(1);
             }
         }
         //...OR if only the wait button is to display.
@@ -889,11 +894,11 @@ public class Unit : MonoBehaviour
             //If the selected unit is infantry/mech and this tile is a neutral/enemy property also load the 'occupy button'.
             if (_graphMatrix[xPos][yPos].GetComponent<Tile>().isOccupyable(this))
             {
-                _manager.getContextMenu().openContextMenu(xPos, yPos, 2);
+                _manager.getContextMenu().openContextMenu(2);
             }
             else
             {
-                _manager.getContextMenu().openContextMenu(xPos, yPos, 0);
+                _manager.getContextMenu().openContextMenu(0);
             }
         }
     }
@@ -924,5 +929,10 @@ public class Unit : MonoBehaviour
     public bool getCanFire()
     {
         return canFire;
+    }
+
+    public bool getHasMoved()
+    {
+        return hasMoved;
     }
 }

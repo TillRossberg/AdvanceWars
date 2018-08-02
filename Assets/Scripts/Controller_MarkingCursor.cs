@@ -1,25 +1,31 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class Controller_MarkingCursor : MonoBehaviour
 {
     //References
     public Manager _manager;
     public MapCreator _mapCreator;
+
+    public EventSystem eventSystem;
+    public GameObject selectedObject;
     //Fields
     private float inputDelay = 0.145f;
     private bool horAxisInUse;
     private bool vertAxisInUse;
-    private int xGraph = 0;
-    private int yGraph = 0;
+    private int xPos = 0;
+    private int yPos = 0;
+    private bool buttonSelected = false;
+    //
 
     public void init(int x, int y)
     {
         _manager = GameObject.FindGameObjectWithTag("LevelManager").GetComponent<Manager>();
         _mapCreator = _manager.getMapCreator();
-        xGraph = x;
-        yGraph = y;
+        xPos = x;
+        yPos = y;
         this.transform.position = new Vector3(x, 0, y);
     }
 
@@ -31,7 +37,7 @@ public class Controller_MarkingCursor : MonoBehaviour
             if(!vertAxisInUse)
             {
                 vertAxisInUse = true;
-                goTo(xGraph, yGraph + 1);                    
+                goTo(xPos, yPos + 1);                    
                 resetAxisInUseDelayed();
             }
         }
@@ -41,7 +47,7 @@ public class Controller_MarkingCursor : MonoBehaviour
             if (!vertAxisInUse)
             {
                 vertAxisInUse = true;
-                goTo(xGraph, yGraph - 1);
+                goTo(xPos, yPos - 1);
                 resetAxisInUseDelayed();
             }
         }
@@ -51,7 +57,7 @@ public class Controller_MarkingCursor : MonoBehaviour
             if (!horAxisInUse)
             {
                 horAxisInUse = true;
-                goTo(xGraph - 1, yGraph);
+                goTo(xPos - 1, yPos);
                 resetAxisInUseDelayed();
             }
         }
@@ -61,7 +67,7 @@ public class Controller_MarkingCursor : MonoBehaviour
             if (!horAxisInUse)
             {
                 horAxisInUse = true;                
-                goTo(xGraph + 1, yGraph);                
+                goTo(xPos + 1, yPos);                
                 resetAxisInUseDelayed();
             }
         }
@@ -72,22 +78,27 @@ public class Controller_MarkingCursor : MonoBehaviour
             switch (_manager.getGameFunctions().getCurrentMode())
             {
                 case GameFunctions.mode.normal:
-                    if (_mapCreator.getTile(xGraph, yGraph).getUnitHere() != null)
+                    if (_mapCreator.getTile(xPos, yPos).getUnitHere() != null)
                     {
-                         unitHere = _mapCreator.getTile(xGraph, yGraph).getUnitHere().GetComponent<Unit>();
+                         unitHere = _mapCreator.getTile(xPos, yPos).getUnitHere().GetComponent<Unit>();
                         //Select own unit
-                        if (_manager.getTurnManager().getActiveTeam().isInMyTeam(unitHere))
+                        if (_manager.getTurnManager().getActiveTeam().isInMyTeam(unitHere) && !unitHere.getHasMoved())
                         {
                             _manager.getGameFunctions().selectUnit(unitHere);
                             //Calculate reachable area and instantiate the graphics for the tiles.
-                            unitHere.calcReachableArea(xGraph, yGraph, unitHere.moveDist, unitHere.myMoveType, null);
+                            unitHere.calcReachableArea(xPos, yPos, unitHere.moveDist, unitHere.myMoveType, null);
                             //Debug.Log("Reachable iterations: " + counter);
                             _manager.getMapCreator().createReachableTiles();
                             unitHere.calcVisibleArea();
+                            //displayCursorGfx(false); will be activated when tha a* allows us to draw a movement arrow to any given spot
                             _manager.getGameFunctions().setCurrentMode(GameFunctions.mode.move);
                         }
-                        //Show range of enemy unit
                         else
+                        {
+                            //Play dörp sound, unit has aleady moved
+                        }
+                        //Show range of enemy unit
+                        if(!_manager.getTurnManager().getActiveTeam().isInMyTeam(unitHere))
                         {
                             _manager.getGameFunctions().selectEnemyUnit(unitHere);
                             unitHere.displayAttackableTiles(true);
@@ -98,41 +109,34 @@ public class Controller_MarkingCursor : MonoBehaviour
                 case GameFunctions.mode.fire:
                     break;
                 case GameFunctions.mode.move:
-                    if (_mapCreator.getTile(xGraph, yGraph).getUnitHere() != null)
+                    if (_mapCreator.getTile(xPos, yPos).getUnitHere() != null)
                     {
-                        unitHere = _mapCreator.getTile(xGraph, yGraph).getUnitHere().GetComponent<Unit>();
-                        if (unitHere.isSelected)
+                        unitHere = _mapCreator.getTile(xPos, yPos).getUnitHere().GetComponent<Unit>();
+                        if (unitHere.isSelected)//If you click on yourself.
                         {
-                            //Decide if the menu with firebutton and wait button is opened ...
-                            if (_manager.getGameFunctions().getSelectedUnit().attackableUnits.Count > 0)
-                            {
-                                //...if the selected unit is infantry/mech and this tile is a neutral/enemy property also load the 'occupy button'.
-                                if (_graphMatrix[xPos][yPos].GetComponent<Tile>().isOccupyable(this))
-                                {
-                                    _manager.getContextMenu().openContextMenu(xPos, yPos, 3);
-                                }
-                                else
-                                {
-                                    _manager.getContextMenu().openContextMenu(xPos, yPos, 1);
-                                }
-                            }
-                            //...OR if only the wait button is to display.
-                            else
-                            {
-                                //If the selected unit is infantry/mech and this tile is a neutral/enemy property also load the 'occupy button'.
-                                if (_graphMatrix[xPos][yPos].GetComponent<Tile>().isOccupyable(this))
-                                {
-                                    _manager.getContextMenu().openContextMenu(xPos, yPos, 2);
-                                }
-                                else
-                                {
-                                    _manager.getContextMenu().openContextMenu(xPos, yPos, 0);
-                                }
-                            }
+                            _manager.getContextMenu().openContextMenu(xPos, yPos);
                         }
+                        else if(_manager.getTurnManager().getActiveTeam().isInMyTeam(unitHere))//If you click on a friendly unit
+                        {
+                            //Try to unite units
+                        }
+                        else//If you click on an enemy.
+                        {
+                            //Play dörp sound, you cant go there
+                        }
+                    }
+                    else
+                    {
+                        Unit selectedUnit = _manager.getGameFunctions().getSelectedUnit();
+                        //Go here...
+                        selectedUnit.moveUnitTo(xPos, yPos);
+                       
+                        //...and open the context menu
+                        _manager.getContextMenu().openContextMenu(xPos, yPos);
                     }
                     break;
                 case GameFunctions.mode.menu:
+                    Debug.Log("Menu mode");
                     break;
             }
         }
@@ -141,6 +145,8 @@ public class Controller_MarkingCursor : MonoBehaviour
         if (Input.GetButtonDown("Cancel"))
         {
             Debug.Log("Cancel");
+            //displayCursorGfx(true);reactivate later
+            buttonSelected = false;
             _manager.getGameFunctions().deselectObject();
         }
     }
@@ -164,7 +170,6 @@ public class Controller_MarkingCursor : MonoBehaviour
                     {
                         //We wont move outside the bounds of the reachable area.
                         setCursorsPosition(x, y);
-
                         _manager.getArrowBuilder().createArrowPath(tile);
                     }
                     //If you go back, make the arrow smaller.
@@ -177,6 +182,7 @@ public class Controller_MarkingCursor : MonoBehaviour
                     }
                     break;
                 case GameFunctions.mode.menu:
+                    
                     //navigate menu
                     break;
                 default:
@@ -185,12 +191,13 @@ public class Controller_MarkingCursor : MonoBehaviour
             }
         }
     }
+    
 
-    private void setCursorsPosition(int x, int y)
+    public void setCursorsPosition(int x, int y)
     {
         this.transform.position = new Vector3(_mapCreator.getTile(x, y).transform.position.x, 0, _mapCreator.getTile(x, y).transform.position.z);
-        xGraph = x;
-        yGraph = y;
+        xPos = x;
+        yPos = y;
         _manager.getStatusWindow().updateStatusPanel(x, y);
     }
     private void resetAxisInUse()
@@ -202,5 +209,10 @@ public class Controller_MarkingCursor : MonoBehaviour
     private void resetAxisInUseDelayed()
     {
         Invoke("resetAxisInUse", inputDelay);
+    }
+
+    private void displayCursorGfx(bool value)
+    {
+        this.GetComponent<MeshRenderer>().enabled = value;
     }
 }

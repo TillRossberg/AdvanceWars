@@ -15,7 +15,7 @@ public class Tile: MonoBehaviour
 	public int xPos;
 	public int yPos;
 	public int rotation;
-    private Transform unitStandingHere = null;
+    public Transform unitStandingHere = null;
 
     //Tile types
     public enum type  { Road , Plain, RoadStraight, RoadCurve, RoadBridge, Mountain, Forest, Sea, Shoal, Reef, Port, Facility, Airport, City, HQ, River};
@@ -64,8 +64,7 @@ public class Tile: MonoBehaviour
     {
         //myLevelManager.GetComponent<AnimController>().boom(xPos, yPos);
         //Actions are only perfomed, if no menu is opened.
-        if (!_manager.getContextMenu().isOpened && !_manager.getBuyMenu().isOpened)
-        {            
+                 
             //Move mode
             if(_manager.getGameFunctions().getCurrentMode() == GameFunctions.mode.move)
             {
@@ -80,31 +79,9 @@ public class Tile: MonoBehaviour
                     _manager.getMapCreator().resetReachableTiles();
                     _manager.getArrowBuilder().resetAll();                    
                 }
-                else
-                //Even in move mode, you can still click on buildings.
-                //If no unit stands here...
-                if (unitStandingHere == null)
-                {
-                    //...select the tile.
-                    _manager.getGameFunctions().selectTile(this);         
-                }
-            }
-            //Normal mode
-            if(_manager.getGameFunctions().getCurrentMode() == GameFunctions.mode.normal)
-            {
-                //If no unit stands here...
-                if (unitStandingHere == null)
-                {
-                    //...select the tile.
-                    _manager.getGameFunctions().selectTile(this);
-                }                
-            }
-            //Fire mode
-            if(_manager.getGameFunctions().getCurrentMode() == GameFunctions.mode.fire)
-            {
-
-            }
-        }
+            }       
+   
+        
     }    
 
     private void OnMouseEnter()
