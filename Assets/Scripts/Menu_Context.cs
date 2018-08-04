@@ -21,8 +21,8 @@ public class Menu_Context : MonoBehaviour
     public Transform exclamationMark;
     public bool isOpened = false;
 
-    public bool showAttackableTiles = false;
-    public bool showReachableTiles = false;
+    public bool showingAttackableTiles = false;
+    public bool showingReachableTiles = false;
     
     public void init()
     {
@@ -36,7 +36,7 @@ public class Menu_Context : MonoBehaviour
     {
         _manager.getGameFunctions().setCurrentMode(GameFunctions.mode.menu);
         eventSystem.SetSelectedGameObject(null);
-        Invoke("highlightFirstMenuButton", 0.1f);
+        Invoke("highlightFirstMenuButton", 0.01f);
         contextMenu.gameObject.SetActive(true);
         setMenuType(menuType);
         isOpened = true;
@@ -44,11 +44,11 @@ public class Menu_Context : MonoBehaviour
     }
 
 
-    public void openContextMenu(int xPos, int yPos)
+    public void open(int xPos, int yPos)
     {
         Unit unitHere = _manager.getMapCreator().getTile(xPos, yPos).getUnitHere().GetComponent<Unit>();
         //Decide if the menu with firebutton and wait button is opened ...
-        if (_manager.getGameFunctions().getSelectedUnit().attackableUnits.Count > 0)
+        if (_manager.getGameFunctions().getSelectedUnit().attackableUnits.Count > 0 && _manager.getGameFunctions().getSelectedUnit().canFire)
         {
             //...if the selected unit is infantry/mech and this tile is a neutral/enemy property also load the 'occupy button'.
             if (_manager.getMapCreator().getTile(xPos, yPos).isOccupyable(unitHere))
@@ -87,14 +87,27 @@ public class Menu_Context : MonoBehaviour
     {
         resetContextMenu();
         isOpened = false;
+        showingAttackableTiles = false;
     }
     
     //Activate the fire mode, show the enemies that can be attacked and close the menu.
     public void Button_Fire()
     {
+        Invoke("Button_FireDelayed", 0.01f);//Unity is a bit too fast :)
+    }
+
+    private void Button_FireDelayed()
+    {
         _manager.getGameFunctions().setCurrentMode(GameFunctions.mode.fire);
         _manager.getMapCreator().showReachableTiles(false);
         _manager.getGameFunctions().getSelectedUnit().showAttackableEnemies();
+        //Set cursor gfx to attack 
+        _manager.getCursor().setCursorGfx(1);
+        //Set cursor position to the first attackable unit
+        int x = _manager.getGameFunctions().getSelectedUnit().attackableUnits[0].xPos;
+        int y = _manager.getGameFunctions().getSelectedUnit().attackableUnits[0].yPos;
+        _manager.getCursor().setCursorPosition(x, y);
+
         closeMenu();
     }
 
@@ -102,7 +115,6 @@ public class Menu_Context : MonoBehaviour
     public void Button_Wait()
     {
         _manager.getGameFunctions().getSelectedUnit().wait();         
-        _manager.getGameFunctions().setCurrentMode(GameFunctions.mode.normal);
     }
 
     //Perform the occupy action on a property.
@@ -117,28 +129,23 @@ public class Menu_Context : MonoBehaviour
         _manager.getGameFunctions().deselectObject();
     }
 
-    //Switch the visiblity of the attackable tiles of the unit.
+    //Toggle the visiblity of the attackable tiles of the unit.
     public void Button_Range()
     {
-        if (showAttackableTiles)
+        //if(_manager.getGameFunctions().getSelectedUnit().transform.Find("attackableTiles").transform.childCount < 1)
+        //{
+        //    Debug.Log("attackable tiles empty");
+        //    _manager.getGameFunctions().getSelectedUnit().createAttackableTiles();
+        //}
+        if (!showingAttackableTiles)
         {
-            _manager.getMapCreator().showAttackableTiles(false);
-            showAttackableTiles = false;
+            _manager.getGameFunctions().getSelectedUnit().displayAttackableTiles(true);
+            showingAttackableTiles = true;
         }
         else
         {
-            //For direct attack
-            if (_manager.getGameFunctions().getSelectedUnit().directAttack)
-            {
-                _manager.getMapCreator().showAttackableTiles(true);
-                showAttackableTiles = true;
-            }
-            //For range attack
-            if (_manager.getGameFunctions().getSelectedUnit().rangeAttack)
-            {
-                _manager.getMapCreator().showAttackableTiles(true);
-                showAttackableTiles = true;
-            }
+            _manager.getGameFunctions().getSelectedUnit().displayAttackableTiles(false);
+            showingAttackableTiles = false;           
         }
     }
 

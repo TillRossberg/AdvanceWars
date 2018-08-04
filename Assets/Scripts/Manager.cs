@@ -49,7 +49,7 @@ public class Manager : MonoBehaviour
         getContextMenu().init();
         getStatusWindow().init();
         getStatusWindow().displayCommanderInfo();
-        cursor.GetComponent<Controller_MarkingCursor>().setCursorsPosition(13, 7);
+        cursor.GetComponent<Controller_MarkingCursor>().setCursorPosition(13, 7);
         getStatusWindow().updateStatusPanel(xStart, yStart);
     }
 	

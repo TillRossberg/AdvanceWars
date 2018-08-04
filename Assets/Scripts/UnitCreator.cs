@@ -76,7 +76,8 @@ public class UnitCreator : MonoBehaviour
 
         createUnit(Unit.type.APC, team1, 1, 6, Unit.facingDirection.East);
         createUnit(Unit.type.Rockets, team1, 3, 6, Unit.facingDirection.East);
-        createUnit(Unit.type.Recon, team1, 11, 6, Unit.facingDirection.East);
+        createUnit(Unit.type.Rockets, team1, 11, 6, Unit.facingDirection.East);
+        createUnit(Unit.type.Recon, team1, 16, 5, Unit.facingDirection.East);
 
         Team team2 = _manager.getTeamManager().getTeam(1);
         createUnit(Unit.type.Tank, team2, 21, 4, Unit.facingDirection.West);
@@ -87,7 +88,8 @@ public class UnitCreator : MonoBehaviour
         createUnit(Unit.type.Infantry, team2, 19, 8, Unit.facingDirection.West);
         createUnit(Unit.type.Rockets, team2, 21, 6, Unit.facingDirection.West);
         createUnit(Unit.type.APC, team2, 23, 6, Unit.facingDirection.West);
-        createUnit(Unit.type.Recon, team2, 13, 6, Unit.facingDirection.West);
+        createUnit(Unit.type.Rockets, team2, 13, 6, Unit.facingDirection.West);
+        createUnit(Unit.type.Recon, team2, 14, 5, Unit.facingDirection.West);
     }    
 
     //Create a unit for the given team, position and rotation.
@@ -97,14 +99,21 @@ public class UnitCreator : MonoBehaviour
         Transform unitTransform = Instantiate(unitPrefab, new Vector3(x, 0, y), Quaternion.Euler(0, 90, 0), this.transform.Find(team.name));
         Unit unit = unitTransform.GetComponent<Unit>();
         unit.init();
+        //Position and rotation
         unit.rotateUnit(myFacingDirection);
-        _mapCreator.getGraph()[x][y].GetComponent<Tile>().setUnitHere(unitTransform);//Pass the unit to the tile it stands on
-        setPosition(unit, x, y);
-        unit.myUnitType = myUnitType;
-        setUnitProperties(unit, myUnitType, team.getTeamCommander());
-        unit.GetComponentInChildren<MeshRenderer>().material = _manager.getDatabase().getTeamMaterial(2);
-        unit.GetComponentInChildren<MeshRenderer>().material.color = team.getTeamColor();
+        unit.xPos = x;
+        unit.yPos = y;
+        //If the unit hasn't moved yet, it needs to know a position for resetting purposes.
+        unit.prePosX = x;
+        unit.prePosY = y;
+        unit.preDirection = myFacingDirection;
+        //Properties
+        setUnitProperties(unit, myUnitType, team.getTeamCommander());        
+        unit.GetComponentInChildren<MeshRenderer>().material = _manager.getDatabase().getTeamMaterial(2);//TODO: various vehicle mats go here
+        unit.GetComponentInChildren<MeshRenderer>().material.color = team.getTeamColor();//Set teamcolor
+
         this.GetComponent<Manager_Team>().addUnit(unitTransform, team);//Add to the correct team list.
+        _mapCreator.getGraph()[x][y].GetComponent<Tile>().setUnitHere(unitTransform);//Pass the unit to the tile it stands on
 
         switch(myUnitType)
         {
@@ -213,18 +222,12 @@ public class UnitCreator : MonoBehaviour
             break;
 
         }
-    }
-
-    //Sets the rotation and position for a given unit.
-    public void setPosition(Unit unit, int x, int y)
-    {
-        unit.xPos = x;
-        unit.yPos = y;
-    }
+    }    
 
     //Sets the properties for a given unit depending on the commander and the unittype.
     public void setUnitProperties(Unit unit, Unit.type myUnitType, Database.commander myCommanderType)
     {
+        unit.myUnitType = myUnitType;
         unit.maxAmmo = _database.getAmmo(myUnitType, myCommanderType);
         unit.ammo = unit.maxAmmo;
         unit.maxFuel = _database.getMaxFuel(myUnitType, myCommanderType);

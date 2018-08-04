@@ -36,9 +36,9 @@ public class Unit : MonoBehaviour
 
     //States
     public bool hasTurn = false;//The unit is ready for action.
-    public bool hasMoved = true;//States if the unit has already moved this turn.
+    public bool canMove = false;//States if the unit has already moved this turn.
     public bool canFire = false;//Some units can't fire after they have moved.
-    private bool isInterrupted = false;//If we move through terrain that is covered by fog of war, we can be interrupted by an invisible enemy unit that is on our arrowpath.
+    public bool isInterrupted = false;//If we move through terrain that is covered by fog of war, we can be interrupted by an invisible enemy unit that is on our arrowpath.
     public bool directAttack = false;
     public bool rangeAttack = false;
     public bool isSelected = false;
@@ -75,7 +75,7 @@ public class Unit : MonoBehaviour
     //States
     private bool move = false;
     private bool rotate = false;
-    private bool isMoving = false;
+    private bool animationRunning = false;
 
     public void init()
     {
@@ -88,7 +88,7 @@ public class Unit : MonoBehaviour
     public void Update()
     {
         //Rotate the unit towards a point the move it to this point, then get the next point and so on.
-        if (isMoving)
+        if (animationRunning)
         {
             if (move)
             {
@@ -108,21 +108,25 @@ public class Unit : MonoBehaviour
             {
                 rotate = false;
                 move = true;
-                //Stop rotation sound.
-                //Play move sound.
+                //TODO: Stop rotation sound.
+                //TODO: Play move sound.
             }
 
             if (wayPointReached(wayPointList[wayPointIndex]) && move)
             {
                 //Debug.Log("Reached waypoint: " + wayPointIndex);
                 wayPointIndex++;
-                if (wayPointIndex >= wayPointList.Count)//Start from the beginning again.
+                if (wayPointIndex >= wayPointList.Count)
                 {
-                    isMoving = false;                   
+                    animationRunning = false;                   
                     wayPointIndex = 1;
                     displayHealth(true);
                     setFacingDirection(this.transform.rotation.eulerAngles.y);
-                    choseAMenuType();
+
+                    if(!isInterrupted)
+                    {
+                        _manager.getContextMenu().open(this.xPos, this.yPos);
+                    }
                     if (isInterrupted)
                     {
                         wait();
@@ -149,22 +153,21 @@ public class Unit : MonoBehaviour
         //If normal mode is activated.
         if (_manager.getGameFunctions().getCurrentMode() == GameFunctions.mode.normal && !_manager.getBuyMenu().isOpened && hasTurn)
         {               
-            //Select unit
-            _manager.getGameFunctions().selectUnit(this);
-            //Calculate reachable area and instantiate the graphics for the tiles.
-            counter = 0;
-            calcReachableArea(this.xPos, this.yPos, moveDist, myMoveType, null);
-            //Debug.Log("Reachable iterations: " + counter);
-            _manager.getMapCreator().createReachableTiles();
-            //Calculate attackable area, instantiate the graphics for the tiles and store the attackable units in a list.
-            //TODO: no need to do this here
-            findAttackableTiles();
-            _manager.getMapCreator().createAttackableTilesGfx();
-            _manager.getMapCreator().showAttackableTiles(false);
-            findAttackableEnemies();
+            ////Select unit
+            //_manager.getGameFunctions().selectUnit(this);
+            ////Calculate reachable area and instantiate the graphics for the tiles.
+            //counter = 0;
+            //calcReachableArea(this.xPos, this.yPos, moveDist, myMoveType, null);
+            ////Debug.Log("Reachable iterations: " + counter);
+            //_manager.getMapCreator().createReachableTiles();
+            ////Calculate attackable area, instantiate the graphics for the tiles and store the attackable units in a list.
+            ////TODO: no need to do this here
+            //findAttackableTiles();
+            //_manager.getMapCreator().createAttackableTilesGfx();
+            //findAttackableEnemies();
             
-            calcVisibleArea();
-            _manager.getGameFunctions().setCurrentMode(GameFunctions.mode.move);
+            //calcVisibleArea();
+            //_manager.getGameFunctions().setCurrentMode(GameFunctions.mode.move);
             
         }
         else
@@ -208,17 +211,17 @@ public class Unit : MonoBehaviour
             //Select unit, that is attackable and pass it to the fight function.
             if(_graphMatrix[xPos][yPos].GetComponent<Tile>().isAttackable)
             {
-                Unit attacker = _manager.getGameFunctions().getSelectedUnit();
-                Unit defender = this;
-                //Align the units to face each other.
-                alignUnit(attacker.xPos, attacker.yPos);
-                attacker.alignUnit(this.xPos, this.yPos);
-                //Puts the health indicator in the right position.
-                displayHealth(true);
-                attacker.displayHealth(true);
+                //Unit attacker = _manager.getGameFunctions().getSelectedUnit();
+                //Unit defender = this;
+                ////Align the units to face each other.
+                //alignUnit(attacker.xPos, attacker.yPos);
+                //attacker.alignUnit(this.xPos, this.yPos);
+                ////Puts the health indicator in the right position.
+                //displayHealth(true);
+                //attacker.displayHealth(true);
 
-                _manager.getBattleMode().fight(attacker, defender);//Battle
-                _manager.getGameFunctions().deselectObject();//Deselect the current unit                
+                //_manager.getBattleMode().fight(attacker, defender);//Battle
+                //_manager.getGameFunctions().deselectObject();//Deselect the current unit                
             }
         }
     }
@@ -226,10 +229,24 @@ public class Unit : MonoBehaviour
     //Ends the turn for the unit.
     public void wait()
     {
-        canFire = false;
-        hasTurn = false;
+        deactivate();
         _manager.getTurnManager().updateFogOfWar(myTeam);
         _manager.getGameFunctions().deselectObject();
+    }
+
+    //Activate the unit so it has turn, can fire and move.
+    public void activate()
+    {
+        canMove = true;
+        canFire = true;
+        hasTurn = true;
+        isInterrupted = false;
+    }
+    public void deactivate()
+    {
+        canMove = false;
+        canFire = false;
+        hasTurn = false;
     }
 
     public void subtractHealth(int healthToSubtract)
@@ -240,16 +257,7 @@ public class Unit : MonoBehaviour
         {
             killUnit();
         }
-    }
-
-    //Displays the tiles the unit can attack.
-    public void displayAttackableTiles(bool value)
-    {
-        for (int i = 0; i < attackableTiles.Count; i++)
-        {
-            attackableTiles[i].gameObject.SetActive(value);
-        }
-    }
+    }    
 
     //Displays the actual lifepoints in the "3D"TextMesh
     public void displayHealth(bool value)
@@ -310,33 +318,44 @@ public class Unit : MonoBehaviour
         //Only if we drew at least one arrow Path, we should be able move.
         if (_manager.getArrowBuilder().getArrowPath().Count > 1)
         {
-            //If a possible path was found, go to the desired position.
+            //Setup the sequencer for the movement animation.
             _manager.getArrowBuilder().checkForInterruption();//Check for interruption with enemies and make the tile before the interruption the last of the arrow path!
             wayPointList = _manager.getArrowBuilder().createMovementPath();
             target = wayPointList[wayPointIndex];//Set the first target for the movement.
             lookingDirection = (wayPointList[wayPointIndex] - transform.position).normalized;//Vector from our position to the target
             startRotation = Quaternion.LookRotation(this.transform.position);
             endRotation = Quaternion.LookRotation(lookingDirection);//The actual rotation we need to look at the target
-            isMoving = true; //Init the sequencer in the update function...
+            animationRunning = true; //Init the sequencer in the update function...
             rotate = true;//...and start rotating towards the first waypoint.
+
             _mapCreator.getTile(xPos,yPos).clearUnitHere();//Reset the unitStandingHere property of the old tile to null
             _mapCreator.getTile(xPos, yPos).resetTakeOverCounter();//Reset the take over counter
+
             //Remember the last position and rotation of the unit. (For resetting purposes.)
             preDirection = myFacingDirection;
             prePosX = this.xPos;
             prePosY = this.yPos;
+
             //Set xPos and yPos to the new position.            
             this.xPos = (int)(wayPointList[wayPointList.Count - 1].x);
             this.yPos = (int)(wayPointList[wayPointList.Count - 1].z);
             _mapCreator.getTile(xPos, yPos).setUnitHere(this.transform);//Inform the new tile, that a unit is standing on it.
             _manager.getStatusWindow().updateCover(xPos, yPos);//When you move the unit, you should see the new cover for the tile it will stand on.
             displayHealth(false);//While moving we dont want to see the health.
+            //_manager.getContextMenu().closeMenu(); //We dont want to see the menu while the move animation plays. !working
+            //Get info about the conditions on the new tile.
             findAttackableTiles();
             findAttackableEnemies();
+
             //Delete the reachable tiles and the movement arrow.
             _manager.getMapCreator().resetReachableTiles();
             _manager.getArrowBuilder().resetAll();
-            hasMoved = true;
+
+            if(rangeAttack)
+            {
+                canFire = false;
+            }
+            canMove = false;
         }
     }
 
@@ -344,16 +363,19 @@ public class Unit : MonoBehaviour
     public void resetPosition()
     {
         _mapCreator.getTile(xPos, yPos).clearUnitHere();//Reset the unitStandingHere property of the tile, we went to, to null
+
         //Set the position and rotation of the unit to where it was before
         this.transform.position = new Vector3(prePosX, 0, prePosY);
         this.xPos = prePosX;
         this.yPos = prePosY;
         rotateUnit(preDirection);
         wayPointIndex = 1;
+
         _manager.getStatusWindow().updateCover(xPos, yPos);//When the unit moves back, the display of the cover should be set to the old tile.
         _mapCreator.getTile(xPos, yPos).setUnitHere(this.transform);//Inform the old tile, that we are back.
-        displayHealth(true);//Repostition the health indicator.       
-        hasMoved = false;
+        displayHealth(true);//Repostition the health indicator.   
+        canFire = true;
+        canMove = true;
     }
 
     //Aligns the unit so it faces the direction of the given coordinates. 
@@ -451,7 +473,28 @@ public class Unit : MonoBehaviour
             myFacingDirection = facingDirection.West;
         }
     }
-   
+    //The unit finds tiles it can attack and the map creator creates gfx for these.
+    public void createAttackableTiles()
+    {
+        findAttackableTiles();
+        _manager.getMapCreator().createAttackableTilesGfx();
+    }
+
+    //Sets the attackable tiles to active or inactive, so they are visible or not.
+    public void displayAttackableTiles(bool value)
+    {
+        Transform attackableTiles = this.transform.Find("attackableTiles").transform;
+        for (int i = 0; i < attackableTiles.childCount; i++)
+        {
+            attackableTiles.GetChild(i).gameObject.SetActive(value);
+        }
+    }
+
+    public void deleteAttackableTiles()
+    {
+        _manager.getMapCreator().resetAttackableTiles();
+    }
+
     //Creates a list of tiles the unit can attack.
     public void findAttackableTiles()
     {
@@ -906,11 +949,11 @@ public class Unit : MonoBehaviour
     //Set/get if the unit is moving.
     public void setIsMoving(bool value)
     {
-        isMoving = value;
+        animationRunning = value;
     }
     public bool getIsMoving()
     {
-        return isMoving;
+        return animationRunning;
     }
     //Set/get if the unit is interrupted.
     public void setIsInterrupted(bool value)
@@ -931,8 +974,8 @@ public class Unit : MonoBehaviour
         return canFire;
     }
 
-    public bool getHasMoved()
+    public bool getCanMove()
     {
-        return hasMoved;
+        return canMove;
     }
 }

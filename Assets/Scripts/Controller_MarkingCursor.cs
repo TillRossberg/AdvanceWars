@@ -18,7 +18,8 @@ public class Controller_MarkingCursor : MonoBehaviour
     private int xPos = 0;
     private int yPos = 0;
     private bool buttonSelected = false;
-    //
+    public List<Mesh> cursorMeshes = new List<Mesh>();
+    private int enemyIndex = 0;
 
     public void init(int x, int y)
     {
@@ -71,7 +72,7 @@ public class Controller_MarkingCursor : MonoBehaviour
                 resetAxisInUseDelayed();
             }
         }
-        //Selection
+        //Action Button
         if(Input.GetButtonDown("Fire1") || Input.GetButtonDown("Jump"))
         {
             Unit unitHere;
@@ -82,16 +83,9 @@ public class Controller_MarkingCursor : MonoBehaviour
                     {
                          unitHere = _mapCreator.getTile(xPos, yPos).getUnitHere().GetComponent<Unit>();
                         //Select own unit
-                        if (_manager.getTurnManager().getActiveTeam().isInMyTeam(unitHere) && !unitHere.getHasMoved())
+                        if (_manager.getTurnManager().getActiveTeam().isInMyTeam(unitHere) && unitHere.getCanMove())
                         {
-                            _manager.getGameFunctions().selectUnit(unitHere);
-                            //Calculate reachable area and instantiate the graphics for the tiles.
-                            unitHere.calcReachableArea(xPos, yPos, unitHere.moveDist, unitHere.myMoveType, null);
-                            //Debug.Log("Reachable iterations: " + counter);
-                            _manager.getMapCreator().createReachableTiles();
-                            unitHere.calcVisibleArea();
-                            //displayCursorGfx(false); will be activated when tha a* allows us to draw a movement arrow to any given spot
-                            _manager.getGameFunctions().setCurrentMode(GameFunctions.mode.move);
+                            _manager.getGameFunctions().selectUnit(unitHere);                           
                         }
                         else
                         {
@@ -103,10 +97,25 @@ public class Controller_MarkingCursor : MonoBehaviour
                             _manager.getGameFunctions().selectEnemyUnit(unitHere);
                             unitHere.displayAttackableTiles(true);
                         }
-
                     }
                     break;
                 case GameFunctions.mode.fire:
+                    Unit attacker = _manager.getGameFunctions().getSelectedUnit();
+                    Unit defender = _manager.getGameFunctions().getSelectedUnit().attackableUnits[enemyIndex].GetComponent<Unit>();
+                    //Align the units to face each other.
+                    attacker.alignUnit(this.xPos, this.yPos);
+                    defender.alignUnit(attacker.xPos, attacker.yPos);
+                    //Puts the health indicator in the right position.
+                    attacker.displayHealth(true);
+                    defender.displayHealth(true);
+
+                    _manager.getBattleMode().fight(attacker, defender);//Battle
+                    //Resets
+                    //TODO: reset the cursor graphic and position to normal and the attacker after the fighting animation
+                    setCursorPosition(attacker.xPos, attacker.yPos);
+                    setCursorGfx(0);
+                    enemyIndex = 0;
+                    _manager.getGameFunctions().deselectObject();//Deselect the current unit
                     break;
                 case GameFunctions.mode.move:
                     if (_mapCreator.getTile(xPos, yPos).getUnitHere() != null)
@@ -114,7 +123,7 @@ public class Controller_MarkingCursor : MonoBehaviour
                         unitHere = _mapCreator.getTile(xPos, yPos).getUnitHere().GetComponent<Unit>();
                         if (unitHere.isSelected)//If you click on yourself.
                         {
-                            _manager.getContextMenu().openContextMenu(xPos, yPos);
+                            _manager.getContextMenu().open(xPos, yPos);
                         }
                         else if(_manager.getTurnManager().getActiveTeam().isInMyTeam(unitHere))//If you click on a friendly unit
                         {
@@ -127,26 +136,24 @@ public class Controller_MarkingCursor : MonoBehaviour
                     }
                     else
                     {
-                        Unit selectedUnit = _manager.getGameFunctions().getSelectedUnit();
-                        //Go here...
-                        selectedUnit.moveUnitTo(xPos, yPos);
-                       
-                        //...and open the context menu
-                        _manager.getContextMenu().openContextMenu(xPos, yPos);
+                        _manager.getGameFunctions().getSelectedUnit().moveUnitTo(xPos, yPos);                        
                     }
                     break;
                 case GameFunctions.mode.menu:
-                    Debug.Log("Menu mode");
+                    //apply choice
                     break;
             }
         }
 
-        //Menu
+        //Cancel button
         if (Input.GetButtonDown("Cancel"))
         {
-            Debug.Log("Cancel");
-            //displayCursorGfx(true);reactivate later
+            //displayCursorGfx(true); reactivate later
             buttonSelected = false;
+            if(_manager.getGameFunctions().getSelectedUnit() != null)
+            {
+                _manager.getGameFunctions().getSelectedUnit().resetPosition();
+            }
             _manager.getGameFunctions().deselectObject();
         }
     }
@@ -158,10 +165,11 @@ public class Controller_MarkingCursor : MonoBehaviour
             switch (_manager.getGameFunctions().getCurrentMode())
             {
                 case GameFunctions.mode.normal:
-                    setCursorsPosition(x, y);
+                    setCursorPosition(x, y);
                     break;
                 case GameFunctions.mode.fire:
                     //cycle through the attackable enemies
+                    cycleAttackableEnemies();
                     break;
                 case GameFunctions.mode.move:
                     //Draws an Arrow on the tile, if it is reachable
@@ -169,14 +177,14 @@ public class Controller_MarkingCursor : MonoBehaviour
                     if (tile.isReachable && !tile.isPartOfArrowPath)
                     {
                         //We wont move outside the bounds of the reachable area.
-                        setCursorsPosition(x, y);
+                        setCursorPosition(x, y);
                         _manager.getArrowBuilder().createArrowPath(tile);
                     }
                     //If you go back, make the arrow smaller.
                     if (tile.isPartOfArrowPath)
                     {
                         //We wont move outside the bounds of the reachable area.
-                        setCursorsPosition(x, y);
+                        setCursorPosition(x, y);
                         _manager.getStatusWindow().updateStatusPanel(x, y);
                         _manager.getArrowBuilder().tryToGoBack(tile);
                     }
@@ -191,9 +199,38 @@ public class Controller_MarkingCursor : MonoBehaviour
             }
         }
     }
-    
+    //Goes through the list of enemies and positions the attack cursor over them.
+    //TODO: find a way to move through the enemies depending on their position (above, below and so on)
+    public void cycleAttackableEnemies()
+    {
+        if (Input.GetAxisRaw("Horizontal") > 0 || Input.GetAxisRaw("Vertical") > 0)
+        {
+            enemyIndex--;
+            if(enemyIndex < 0)
+            {
+                enemyIndex = _manager.getGameFunctions().getSelectedUnit().attackableUnits.Count - 1;
+            }
+            int x = _manager.getGameFunctions().getSelectedUnit().attackableUnits[enemyIndex].xPos;
+            int y = _manager.getGameFunctions().getSelectedUnit().attackableUnits[enemyIndex].yPos;
 
-    public void setCursorsPosition(int x, int y)
+            setCursorPosition(x, y);
+        }
+        else
+        if (Input.GetAxisRaw("Horizontal") < 0 || Input.GetAxisRaw("Vertical") < 0)
+        {
+            enemyIndex++;
+            if (enemyIndex > _manager.getGameFunctions().getSelectedUnit().attackableUnits.Count - 1)
+            {
+                enemyIndex = 0;
+            }
+            int x = _manager.getGameFunctions().getSelectedUnit().attackableUnits[enemyIndex].xPos;
+            int y = _manager.getGameFunctions().getSelectedUnit().attackableUnits[enemyIndex].yPos;
+
+            setCursorPosition(x, y);
+        }
+    }
+
+    public void setCursorPosition(int x, int y)
     {
         this.transform.position = new Vector3(_mapCreator.getTile(x, y).transform.position.x, 0, _mapCreator.getTile(x, y).transform.position.z);
         xPos = x;
@@ -214,5 +251,10 @@ public class Controller_MarkingCursor : MonoBehaviour
     private void displayCursorGfx(bool value)
     {
         this.GetComponent<MeshRenderer>().enabled = value;
+    }
+
+    public void setCursorGfx(int value)
+    {
+        this.GetComponent<MeshFilter>().mesh = cursorMeshes[value];        
     }
 }

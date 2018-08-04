@@ -7,6 +7,7 @@ public class MapCreator : MonoBehaviour
 {
     //Required data structures
     Database _database;
+    Manager _manager;
 
     //General
     private List<List<Transform>> myGraph;
@@ -60,19 +61,17 @@ public class MapCreator : MonoBehaviour
     //Graph
     public int gridHeight;
     public int gridWidth;
-
-    private void Start()
+    
+    public void init()
     {
+        _database = GetComponent<Database>();
+        _manager = GetComponent<Manager>();
         myGraph = new List<List<Transform>>();
         tilePrefabs = new List<Transform>();
         tileHeight = -0.07f;
         scalingFactor = 100;
         gridHeight = 3;
         gridWidth = 3;
-    }
-    public void init()
-    {
-        _database = GetComponent<Database>();       
     }
 
     //Create an empty Graph of plain tiles.
@@ -873,7 +872,27 @@ public class MapCreator : MonoBehaviour
             }
         }
     }
-    
+       
+    //Reset the isAttackable bool on all tiles to false and delete the graphics.
+    public void resetAttackableTiles()
+    {
+        //Delete graphics
+        Transform attackableTiles = _manager.getGameFunctions().getSelectedUnit().transform.Find("attackableTiles").transform;
+        for (int i = 0; i < attackableTiles.childCount; i++)
+        {
+            Destroy(attackableTiles.GetChild(i).gameObject);
+        }
+        _manager.getGameFunctions().getSelectedUnit().attackableTiles.Clear();
+        //Reset graph
+        for (int i = 0; i < myGraph.Count; i++)
+        {
+            for (int j = 0; j < myGraph[0].Count; j++)
+            {
+                myGraph[i][j].GetComponent<Tile>().isAttackable = false;
+            }
+        }
+    }
+
     //Switches the visibility of the graphic element of the fog of war and the enemy units for each tile.
     public void setVisibility()
     {
@@ -914,19 +933,10 @@ public class MapCreator : MonoBehaviour
         {
             this.GetComponent<GameFunctions>().getSelectedUnit().transform.Find("reachableArea").GetChild(i).gameObject.SetActive(value);
         }
-        this.GetComponent<Manager>().getContextMenu().showReachableTiles = value;//Inform the context menu, if the tiles are visible or not.
+        this.GetComponent<Manager>().getContextMenu().showingReachableTiles = value;//Inform the context menu, if the tiles are visible or not.
     }
 
-    //Sets the attackable tiles to active or inactive, so they are visible or not.
-    //TODO: remove this as soon as it is not needed anymore...
-    public void showAttackableTiles(bool value)
-    {
-        for (int i = 0; i < this.GetComponent<GameFunctions>().getSelectedUnit().transform.Find("attackableTiles").transform.childCount; i++)
-        {
-            this.GetComponent<GameFunctions>().getSelectedUnit().transform.Find("attackableTiles").GetChild(i).gameObject.SetActive(value);
-        }
-        this.GetComponent<Manager>().getContextMenu().showAttackableTiles = value;//Inform the context menu, if the tiles are visible or not.
-    }
+    
 
     //Resets the visiblity value of each tile to invisible.
     public void resetFogOfWar()
@@ -959,28 +969,8 @@ public class MapCreator : MonoBehaviour
             }
         }
         this.GetComponent<GameFunctions>().getSelectedUnit().reachableTiles.Clear();
-        this.GetComponent<Manager>().getContextMenu().showReachableTiles = false;
+        this.GetComponent<Manager>().getContextMenu().showingReachableTiles = false;
     }
 
-    //Reset the isAttackable bool on all tiles to false and delete the red fields.
-    public void resetAttackableTiles()
-    {
-        for (int i = 0; i < this.GetComponent<GameFunctions>().getSelectedUnit().transform.Find("attackableTiles").transform.childCount; i++)
-        {
-            Destroy(this.GetComponent<GameFunctions>().getSelectedUnit().transform.Find("attackableTiles").GetChild(i).gameObject);
-        }
-
-        for (int i = 0; i < myGraph.Count; i++)
-        {
-            for (int j = 0; j < myGraph[0].Count; j++)
-            {
-                myGraph[i][j].GetComponent<Tile>().isAttackable = false;
-            }
-        }
-        this.GetComponent<GameFunctions>().getSelectedUnit().attackableTiles.Clear();
-        this.GetComponent<Manager>().getContextMenu().showAttackableTiles = false;
-    }
-
-    
     
 }

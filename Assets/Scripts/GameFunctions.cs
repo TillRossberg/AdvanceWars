@@ -69,9 +69,16 @@ public class GameFunctions : MonoBehaviour
         selectedUnit.isSelected = true;
         isUnit = true;
         _manager.getContextMenu().closeMenu();//Make sure the menu is not visible, when you click on a unit.
-        createMarkingCursor(selectedUnit);//Draw a marking cursor
         _manager.getStatusWindow().showStatus(true);//Show Unit status
-
+        //Calculate reachable area and instantiate the graphics for the tiles.
+        unitToSelect.calcReachableArea(unitToSelect.xPos, unitToSelect.yPos, unitToSelect.moveDist, unitToSelect.myMoveType, null);
+        //Debug.Log("Reachable iterations: " + counter);
+        _manager.getMapCreator().createReachableTiles();
+        unitToSelect.calcVisibleArea();
+        unitToSelect.createAttackableTiles();
+        unitToSelect.displayAttackableTiles(false);
+        unitToSelect.findAttackableEnemies();
+        _manager.getGameFunctions().setCurrentMode(GameFunctions.mode.move);
         //The logic that draws an arrow, that shows where the unit can go.
         Tile tileTheUnitStandsOn = _manager.getMapCreator().getGraph()[selectedUnit.xPos][selectedUnit.yPos].GetComponent<Tile>();
         _manager.getArrowBuilder().init(tileTheUnitStandsOn, selectedUnit.moveDist);
@@ -85,9 +92,7 @@ public class GameFunctions : MonoBehaviour
         isUnit = true;
         _manager.getContextMenu().closeMenu();//Make sure the menu is not visible, when you click on a unit.
         _manager.getStatusWindow().showStatus(true);//Show Unit status
-        enemyToSelect.findAttackableTiles();
-        _manager.getMapCreator().createAttackableTilesGfx();
-
+        enemyToSelect.displayAttackableTiles(true);
     }
     //Select a tile.
     public void selectTile(Tile myObject)
@@ -134,17 +139,12 @@ public class GameFunctions : MonoBehaviour
     public void deselectUnit()
     {
         //Stop the moving animation.
-        selectedUnit.setIsMoving(false);
-        //If the unit has moved and still can fire, reset it to where it was before.
-        if (selectedUnit.hasMoved && selectedUnit.canFire)
-        {
-            selectedUnit.resetPosition();
-        }
+        selectedUnit.setIsMoving(false);        
         selectedUnit.isSelected = false;//Deselect Unit
         selectedUnit.resetBattleInformation();//Reset the attackableTiles-list and the attackableUnits-list.
         _manager.getMapCreator().resetReachableTiles();//Resets all tiles to not reachable
         _manager.getMapCreator().resetAttackableTiles();//Resets all tiles to not attackable
-        _manager.getArrowBuilder().resetAll();//Resets the movement arrow.        
+        _manager.getArrowBuilder().resetAll();//Resets the movement arrow.    
         isUnit = false;
         selectedUnit = null;
     }

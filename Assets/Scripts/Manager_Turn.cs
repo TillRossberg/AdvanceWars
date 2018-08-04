@@ -49,9 +49,10 @@ public class Manager_Turn : MonoBehaviour
     //End turn
     public void endTurn()
     {
+        _manager.getGameFunctions().deselectObject();
         deactivateUnits(activeTeam);
         _manager.getMapCreator().resetFogOfWar();
-        startTurn();
+        Invoke("startTurn", 0.01f);//Necessary, because we dont want to instantly select something after the turn starts.
     }
 
     //Give money for each property the team owns. 
@@ -68,10 +69,7 @@ public class Manager_Turn : MonoBehaviour
         {
             if (teamToActivate.myUnits[i] != null)
             {
-                teamToActivate.myUnits[i].GetComponent<Unit>().hasTurn = true;
-                teamToActivate.myUnits[i].GetComponent<Unit>().hasMoved = false;
-                teamToActivate.myUnits[i].GetComponent<Unit>().canFire = true;
-                teamToActivate.myUnits[i].GetComponent<Unit>().setIsInterrupted(false);
+                teamToActivate.myUnits[i].GetComponent<Unit>().activate();
             }
         }
     }
@@ -83,7 +81,7 @@ public class Manager_Turn : MonoBehaviour
         {
             if (teamToDeactivate.myUnits[i] != null)
             {
-                teamToDeactivate.myUnits[i].GetComponent<Unit>().hasTurn = false;
+                teamToDeactivate.myUnits[i].GetComponent<Unit>().deactivate();
             }
         }
     }
