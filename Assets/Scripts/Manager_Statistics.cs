@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class Manager_Statistics : MonoBehaviour
 {
-    private Database _database;
+
     public RectTransform statisticsPanelPrefab;
     public RectTransform leftAnchor;
     public RectTransform rightAnchor;
@@ -30,15 +30,16 @@ public class Manager_Statistics : MonoBehaviour
 
     public void createStatisticsPanels()
     {
-        for (int i = 0; i < container.getTeams().Count; i++)
+        List<Team> teams = Core.Model.teams;
+        for (int i = 0; i < teams.Count; i++)
         {
             if(i == 0)
             {
-                createStatisticsPanel(container.getTeams()[i], leftAnchor);
+                createStatisticsPanel(teams[i], leftAnchor);
             }
             else
             {
-                createStatisticsPanel(container.getTeams()[i], rightAnchor);
+                createStatisticsPanel(teams[i], rightAnchor);
             }
         }
     }
@@ -53,9 +54,9 @@ public class Manager_Statistics : MonoBehaviour
 
     public void setStatisticsPanelValues(RectTransform panel, Team team)
     {
-        panel.Find("PlayerPic").GetComponent<Image>().sprite = GetComponent<Database>().getCommanderThumb(team.getTeamCommander());
-        panel.Find("KillCountText").GetComponent<Text>().text = team.getUnitsKilledCount().ToString();
-        panel.Find("UnitsBuiltText").GetComponent<Text>().text = "Units built: " + team.getUnitsBuiltCounter().ToString();
+        panel.Find("PlayerPic").GetComponent<Image>().sprite = Core.Model.Database.GetCommanderThumb(team.data.commander);
+        panel.Find("KillCountText").GetComponent<Text>().text = team.data.GetUnitsKilledCount().ToString();
+        panel.Find("UnitsBuiltText").GetComponent<Text>().text = "Units built: " + team.data.GetUnitsBuiltCounter().ToString();
     }
 
 

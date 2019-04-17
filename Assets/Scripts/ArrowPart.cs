@@ -3,33 +3,44 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ArrowPart : ScriptableObject
+public class ArrowPart : MonoBehaviour
 {
     //General
-    public string arrowPartName;    
-    public Transform myArrowPart;
-    private Tile tile;
-        
-    //Replace the current graphic by a given one.
-    public void replaceArrowGraphic(Transform newGraphic)
+    public enum Type {firstNode, arrow, straight, curve}
+    public Type type;
+    public List<Mesh> meshes;   
+    public Tile AssignedTile { get; private set; }
+    public float Rotation { get; private set; }
+
+    public void Init(Type type, Tile tile)
     {
-        Destroy(myArrowPart.gameObject);
-        this.myArrowPart = newGraphic;
+        this.AssignedTile = tile;
+        SetGfx(type);
+        SetPosition(tile.position);
     }
-    //Nessecary since you can't instantiate ScriptableObjects with parameters.
-    public void init(string name, Transform myArrowPart, Tile myTile)
+
+    public void SetGfx(Type type)
     {
-        this.arrowPartName = name;
-        this.myArrowPart = myArrowPart;
-        this.tile = myTile;
+        MeshFilter meshFilter = GetComponent<MeshFilter>();
+        this.type = type;
+        switch (type)
+        {
+            case Type.firstNode: meshFilter.mesh = null; break;
+            case Type.arrow: meshFilter.mesh = meshes[0]; break;
+            case Type.straight: meshFilter.mesh = meshes[1];break;                
+            case Type.curve:meshFilter.mesh = meshes[2];break;               
+            default: throw new System.Exception("Arrow graphic type not found!");                
+        }        
     }
-	
-    public void setTile(Tile _tile)
+
+    public void SetPosition(Vector2Int pos)
     {
-        tile = _tile;
+        this.transform.position = new Vector3(pos.x, Core.Model.Database.arrowPathHeight, pos.y);
     }
-    public Tile getTile()
+
+    public void SetRotation(float angle)
     {
-        return tile;
-    }
+        Rotation = angle;
+        this.transform.rotation = Quaternion.Euler(new Vector3(0, angle, 0));
+    }    
 }

@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5098789b35a1a04cb6450aba274a3d5, type: 3}
+  m_Name: ReefData
+  m_EditorClassIdentifier: 
+  type: 12
+  tileName: Reef
+  cover: 0
+  isProperty: 0
+  maxTakeOverPoints: 20
+  thumbNail: {fileID: 21300000, guid: f9b9d52ba7be4a74794f4f18f7b27ddd, type: 3}
+  meshes: []
+  materials: []
+  footCost: -1
+  mechCost: -1
+  treadsCost: -1
+  wheelsCost: -1
+  landerCost: 2
+  shipCost: 2
+  airCost: 1

@@ -1,0 +1,78 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eaaecfdc662b5f14f97fa826bba620e5, type: 3}
+  m_Name: Database
+  m_EditorClassIdentifier: 
+  sounds: {fileID: 11400000, guid: e378b7a2f4abf944c8d92a2b3ab0e14e, type: 2}
+  containerPrefab: {fileID: 0}
+  cursorPrefab: {fileID: 7409743416763832149, guid: b0065b027fc21b04f8b03dea54f0304c,
+    type: 3}
+  reachableTilePrefab: {fileID: 1517181847272604, guid: 773e1edddf71c1343970bd14ec347a97,
+    type: 3}
+  attackableTilePrefab: {fileID: 1517181847272604, guid: 944c9089dfbaeeb46886439aa6f92bee,
+    type: 3}
+  fogOfWarTilePrefab: {fileID: 1517181847272604, guid: 1e55daabda982fa49b44c2cccfcd3019,
+    type: 3}
+  arrowPartPrefab: {fileID: 6772187975548061667, guid: b46c131b1896eab4786d7af940b7ee71,
+    type: 3}
+  arrowPathHeight: 0
+  commanderThumbs:
+  - {fileID: 21300000, guid: 3d85a183e30dd0c48849337e16c84923, type: 3}
+  - {fileID: 21300000, guid: b32b9ada9404932409d2d81ad241317b, type: 3}
+  - {fileID: 21300000, guid: b32b9ada9404932409d2d81ad241317b, type: 3}
+  premadeTeams:
+  - {fileID: 6923475043633226247, guid: 42d52532a91f40445bb3da490b15fd5c, type: 3}
+  - {fileID: 1962665808602193965, guid: 86e43575cae63e846b037c1d3403b4f6, type: 3}
+  anitAirPrefab: {fileID: 0}
+  APCPrefab: {fileID: 0}
+  tankPrefab: {fileID: 4335460025909723858, guid: 445f1cfaf3f7fe840b2e39468b224aeb,
+    type: 3}
+  artilleryPrefab: {fileID: 0}
+  rocketPrefab: {fileID: 0}
+  missilePrefab: {fileID: 0}
+  titanTankPrefab: {fileID: 0}
+  reconPrefab: {fileID: 0}
+  infantryPrefab: {fileID: 0}
+  mdTankPrefab: {fileID: 0}
+  mechPrefab: {fileID: 0}
+  tCopterPrefab: {fileID: 0}
+  bCopterPrefab: {fileID: 0}
+  bomberPrefab: {fileID: 0}
+  fighterPrefab: {fileID: 0}
+  landerPrefab: {fileID: 0}
+  battleShipPrefab: {fileID: 0}
+  cruiserPrefab: {fileID: 0}
+  subPrefab: {fileID: 0}
+  pipePrefab: {fileID: 0}
+  plainPrefab: {fileID: 643189539939425049, guid: ab2024306c75bd24c9b8b1769e3c939a,
+    type: 3}
+  forestPrefab: {fileID: 2986379617626206641, guid: 6ede9ffba1bf7074cb6d31ab6854a06e,
+    type: 3}
+  roadPrefab: {fileID: 1676644049073146140, guid: 632cec6479ec5de4689fc9f0b36a5de9,
+    type: 3}
+  mountainPrefab: {fileID: 4984828587476296916, guid: fc924a2de434c4c45bd4e5504ef2ee8d,
+    type: 3}
+  riverPrefab: {fileID: 4079505546116748437, guid: bb30adc2d7694f64f95a6d7eb2b793be,
+    type: 3}
+  HQPrefab: {fileID: 23675551815480643, guid: 67dbf13fa2a04ce41b8d703ea0aa85c3, type: 3}
+  cityPrefab: {fileID: 4813726995934608290, guid: f64a491e9f9411e41a0977b0f0c11415,
+    type: 3}
+  facilityPrefab: {fileID: 2563962214804205465, guid: 1c64425ae87f5b646a65f7bffc60eefe,
+    type: 3}
+  airPortPrefab: {fileID: 0}
+  portPrefab: {fileID: 0}
+  shoalPrefab: {fileID: 2797501028036981368, guid: d8620a2f607854e4681a7fa093cc5a3e,
+    type: 3}
+  seaPrefab: {fileID: 4375309442412286359, guid: 90958c334d4088046bdee1f1752293dc,
+    type: 3}
+  reefPrefab: {fileID: 8092158613565735248, guid: ba8a9d52b6ec5004d93cc3a5b55c7b38,
+    type: 3}

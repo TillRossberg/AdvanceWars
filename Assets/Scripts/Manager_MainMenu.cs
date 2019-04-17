@@ -16,10 +16,7 @@ public class Manager_MainMenu : MonoBehaviour
 
     private void Start()
     {
-        container = GameObject.FindGameObjectWithTag("Container").GetComponent<Container>();
-        GetComponent<Database>().init();
-        GetComponent<AudioManager>().init();
-        mainMenu.GetComponent<Menu_Main>().init(this.transform);
+       
     }
 
     public Container getContainer()

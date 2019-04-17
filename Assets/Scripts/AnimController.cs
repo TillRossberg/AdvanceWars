@@ -22,7 +22,7 @@ public class AnimController : MonoBehaviour
 
     public void boom(int x, int y)
     {
-        this.GetComponent<AudioManager>().playSoundAt("Standardexplosion", x, y);
+        Core.AudioManager.PlaySFX(Core.Model.Database.sounds.explosion01Sound);
         Transform exploder = Instantiate(explosion, new Vector3(x, 0, y), this.transform.rotation);
         Destroy(exploder.gameObject, 3);
     }

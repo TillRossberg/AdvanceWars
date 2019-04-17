@@ -36,28 +36,28 @@ public class Menu_MultiPlayerOptions : MonoBehaviour
     //Fills the dropdown menus with data.
     private void initDropdownMenus()
     {
-        setupWeatherSelectionDropdown();
-        setupLevelSelectionDropdown();
-        setupGeneralSelectionDropdown();
+        //setupWeatherSelectionDropdown();
+        //setupLevelSelectionDropdown();
+        //setupGeneralSelectionDropdown();
     }
         
     //Sets up the dropdown list for the weather selection.
-    private void setupWeatherSelectionDropdown()
-    {
-        weatherDropdown.GetComponent<Dropdown>().AddOptions(SceneManager.GetComponent<Database>().getWeatherNames());//Get the available weather types from the database.
-        weatherDropdown.GetComponent<Dropdown>().captionText.text = "Select Weather...";//Add title to the weather select drop down menu.
-    }
-    private void setupLevelSelectionDropdown()
-    {
-        mapSelectDropdown.GetComponent<Dropdown>().AddOptions(SceneManager.GetComponent<Database>().getLevelNames());
-        mapSelectDropdown.GetComponent<Dropdown>().captionText.text = "Select Map...";
-    }
-    private void setupGeneralSelectionDropdown()
-    {
-        playerOnePanel.Find("CommanderSelectionDropdown").GetComponent<Dropdown>().AddOptions(SceneManager.GetComponent<Database>().getCommanderNames());
-        playerTwoPanel.Find("CommanderSelectionDropdown").GetComponent<Dropdown>().AddOptions(SceneManager.GetComponent<Database>().getCommanderNames());
-        playerTwoPanel.Find("CommanderSelectionDropdown").GetComponent<Dropdown>().value = 2;
-    }
+    //private void setupWeatherSelectionDropdown()
+    //{
+    //    weatherDropdown.GetComponent<Dropdown>().AddOptions(SceneManager.GetComponent<Database>().getWeatherNames());//Get the available weather types from the database.
+    //    weatherDropdown.GetComponent<Dropdown>().captionText.text = "Select Weather...";//Add title to the weather select drop down menu.
+    //}
+    //private void setupLevelSelectionDropdown()
+    //{
+    //    mapSelectDropdown.GetComponent<Dropdown>().AddOptions(SceneManager.GetComponent<Database>().getLevelNames());
+    //    mapSelectDropdown.GetComponent<Dropdown>().captionText.text = "Select Map...";
+    //}
+    //private void setupGeneralSelectionDropdown()
+    //{
+    //    playerOnePanel.Find("CommanderSelectionDropdown").GetComponent<Dropdown>().AddOptions(SceneManager.GetComponent<Database>().getCommanderNames());
+    //    playerTwoPanel.Find("CommanderSelectionDropdown").GetComponent<Dropdown>().AddOptions(SceneManager.GetComponent<Database>().getCommanderNames());
+    //    playerTwoPanel.Find("CommanderSelectionDropdown").GetComponent<Dropdown>().value = 2;
+    //}
 
     public void displayMenu(int index)
     {
@@ -101,94 +101,94 @@ public class Menu_MultiPlayerOptions : MonoBehaviour
             default: Debug.Log("MenuMaster: getMenu: menuType missing!"); return null;
         }
     }
-    //Player selection
-    public void setCommanderTeamOne(int index)
-    {
-        container.setCommanderPlayerOne(index);
-        updateCommanderPics();
-    }
+    ////Player selection
+    //public void setCommanderTeamOne(int index)
+    //{
+    //    container.setCommanderPlayerOne(index);
+    //    updateCommanderPics();
+    //}
 
-    public void setCommanderTeamTwo(int index)
-    {
-        container.setCommanderPlayerTwo(index);
-        updateCommanderPics();
-    }
+    //public void setCommanderTeamTwo(int index)
+    //{
+    //    container.setCommanderPlayerTwo(index);
+    //    updateCommanderPics();
+    //}
 
-    public void updateCommanderPics()
-    {
-        playerOnePanel.Find("CommanderPic").GetComponent<Image>().sprite = SceneManager.GetComponent<Database>().getCommanderThumb(container.getTeamCommander(0));
-        playerTwoPanel.Find("CommanderPic").GetComponent<Image>().sprite = SceneManager.GetComponent<Database>().getCommanderThumb(container.getTeamCommander(1));
-    }
+    //public void updateCommanderPics()
+    //{
+    //    playerOnePanel.Find("CommanderPic").GetComponent<Image>().sprite = SceneManager.GetComponent<Database>().getCommanderThumb(container.getTeamCommander(0));
+    //    playerTwoPanel.Find("CommanderPic").GetComponent<Image>().sprite = SceneManager.GetComponent<Database>().getCommanderThumb(container.getTeamCommander(1));
+    //}
 
-    public void setTeamColors()
-    {
-        container.setTeamColor(0, playerOnePanel.Find("Picker/ColorField/Color/Fill").GetComponent<Image>().color);
-        container.setTeamColor(1, playerTwoPanel.Find("Picker/ColorField/Color/Fill").GetComponent<Image>().color);
-    }
+    //public void setTeamColors()
+    //{
+    //    container.setTeamColor(0, playerOnePanel.Find("Picker/ColorField/Color/Fill").GetComponent<Image>().color);
+    //    container.setTeamColor(1, playerTwoPanel.Find("Picker/ColorField/Color/Fill").GetComponent<Image>().color);
+    //}
 
-    public void setTeamNamePlayerOne(string name)
-    {
-        container.setTeamName(0, name);
-    }
+    //public void setTeamNamePlayerOne(string name)
+    //{
+    //    container.setTeamName(0, name);
+    //}
 
-    public void setTeamNamePlayerTwo(string name)
-    {
-        container.setTeamName(1, name);
-    }
+    //public void setTeamNamePlayerTwo(string name)
+    //{
+    //    container.setTeamName(1, name);
+    //}
 
-    //Game Options
-    public void setLevel(int value)
-    {
-        container.setNextLevel(value);
-    }
+    ////Game Options
+    //public void setLevel(int value)
+    //{
+    //    container.setNextLevel(value);
+    //}
 
-    public void setWeather(int value)
-    {
-        container.setWeather(value);
-    }
+    //public void setWeather(int value)
+    //{
+    //    container.setWeather(value);
+    //}
 
-    public void setFogOfWar(bool value)
-    {
-        container.setFogOfWar(value);
-    }
+    //public void setFogOfWar(bool value)
+    //{
+    //    container.setFogOfWar(value);
+    //}
 
-    public void setAbility(bool value)
-    {
-        container.setAbility(value);
-    }
+    //public void setAbility(bool value)
+    //{
+    //    container.setAbility(value);
+    //}
 
-    public void setMoneyIncrease(float value)
-    {
-        int myMoneyIncrease = (int)(value * 500 + 1000);
-        moneyIncreaseText.GetComponent<Text>().text = myMoneyIncrease.ToString() + " $";
-        container.setMoneyIncrement(myMoneyIncrease);
-    }
+    //public void setMoneyIncrease(float value)
+    //{
+    //    int myMoneyIncrease = (int)(value * 500 + 1000);
+    //    moneyIncreaseText.GetComponent<Text>().text = myMoneyIncrease.ToString() + " $";
+    //    container.setMoneyIncrement(myMoneyIncrease);
+    //}
 
-    public void setBattleDuration(float value)
-    {
-        container.setBattleDuration(value);
+    //public void setBattleDuration(float value)
+    //{
+    //    container.setBattleDuration(value);
 
-        if (value == 4)
-        {
-            battleDurationText.GetComponent<Text>().text = "Duration of battle: OFF";
-        }
-        else
-        {
-            battleDurationText.GetComponent<Text>().text = "Duration of battle: " + value + " days";
-        }
-    }
+    //    if (value == 4)
+    //    {
+    //        battleDurationText.GetComponent<Text>().text = "Duration of battle: OFF";
+    //    }
+    //    else
+    //    {
+    //        battleDurationText.GetComponent<Text>().text = "Duration of battle: " + value + " days";
+    //    }
+    //}
 
-    public void setPropertiesToWin(float value)
-    {
-        container.setPropertiesToWin(value);
+    //public void setPropertiesToWin(float value)
+    //{
+    //    container.setPropertiesToWin(value);
 
-        if (value == 11)
-        {
-            propertiesToWinText.GetComponent<Text>().text = "Properties to Win: OFF";
-        }
-        else
-        {
-            propertiesToWinText.GetComponent<Text>().text = "Properties to Win: " + value;
-        }
-    }
+    //    if (value == 11)
+    //    {
+    //        propertiesToWinText.GetComponent<Text>().text = "Properties to Win: OFF";
+    //    }
+    //    else
+    //    {
+    //        propertiesToWinText.GetComponent<Text>().text = "Properties to Win: " + value;
+    //    }
+    //}
 }

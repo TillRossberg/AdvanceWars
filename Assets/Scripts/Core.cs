@@ -1,0 +1,37 @@
+﻿using UnityEngine;
+
+public class Core : Singleton<Core>
+{
+    [SerializeField] private Model _model;
+    public static Model Model
+    {
+        get { return Instance._model; }
+    }
+    [SerializeField] private View _view;
+    public static View View
+    {
+        get { return Instance._view; }
+    }
+    [SerializeField] private Controller _controller;
+    public static Controller Controller
+    {
+        get { return Instance._controller; }
+    }
+    [SerializeField] private Manager_Audio _audioManager;
+    public static Manager_Audio AudioManager
+    {
+        get { return Instance._audioManager; }
+    }
+
+    private void OnEnable()
+    {
+        Model.Init();
+        View.Init();
+        Controller.Init();
+        AudioManager.Init();
+    }
+    private void Start()
+    {
+        Controller.StartGame();
+    }
+}

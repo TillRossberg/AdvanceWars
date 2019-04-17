@@ -5,977 +5,528 @@ using UnityEngine;
 
 public class Unit : MonoBehaviour 
 {
-    //References
-    private Manager _manager;
-    private List<List<Transform>> _graphMatrix;
-    private MapCreator _mapCreator;
-	public Transform reachableTilePrefab;
-    public Transform attackableTilePrefab;
-
-    //Fields
-	//General
-	public string unitName;
-    public Sprite thumbNail;
-    public Team myTeam;
+    #region References
+    public Data_Unit data;
+    public Unit_AnimationController AnimationController { get; private set; }
+    public GameObject gfx;
+    public TextMesh healthText;
+    #endregion
+  
+    #region General Fields
+    public Team team;
     public List<Team> enemyTeams = new List<Team>();
-    public type myUnitType; 
-    public enum type { Flak, APC, Tank, Artillery, Rockets, Missiles, Titantank, Recon, Infantry, MdTank, Mech, TCopter, BCopter, Bomber, Fighter, Lander, Battleship, Cruiser, Sub, Pipe };
-    public moveType myMoveType;
-    public enum moveType {Foot, Mech, Treads, Wheels, Lander, Ship, Air};
-    //Position stuff
-    public int xPos;
-    public int yPos;
+    public Tile targetTile;
+    #endregion
+    #region Position & Rotation
+    public Vector2Int position;    
     public int rotation;
-    public facingDirection myFacingDirection;
-    public enum facingDirection { North, East, South, West};
-    //Previous position and rotation. (For resetting purposes)
-    public int prePosX;
-    public int prePosY;
-    public Unit.facingDirection preDirection;
-    private int counter = 0;//Counts the iterations of the calcReachableArea algorithm.
-
-    //States
+    public Direction direction;    
+    float counter = 0;//Counts the iterations of the calcReachableArea algorithm.
+    #endregion
+    #region States
     public bool hasTurn = false;//The unit is ready for action.
-    public bool canMove = false;//States if the unit has already moved this turn.
-    public bool canFire = false;//Some units can't fire after they have moved.
-    public bool isInterrupted = false;//If we move through terrain that is covered by fog of war, we can be interrupted by an invisible enemy unit that is on our arrowpath.
-    public bool directAttack = false;
-    public bool rangeAttack = false;
+    public bool CanMove = false;//States if the unit has already moved this turn.
+    public bool CanFire = false;//Some units can't fire after they have moved.
+    public bool IsInterrupted { get; private set; }//If we move through terrain that is covered by fog of war, we can be interrupted by an invisible enemy unit that is on our arrowpath.    
     public bool isSelected = false;
-
-    //Tilestuff
+    #endregion
+    #region Tiles
     public List<Tile> attackableTiles = new List<Tile>();
     public List<Unit> attackableUnits = new List<Unit>();
     public List<Tile> reachableTiles = new List<Tile>();
-
-    //Properties
+    #endregion
+    #region Properties
     public int health = 100;
-    private TextMesh healthText; 
-	public int ammo;
-    public int maxAmmo;
+	public int ammo;    
     public int fuel;
-    public int maxFuel;
-	public int moveDist;
-	public int visionRange;
-    public int minRange;
-    public int maxRange;
-    public int cost;
-
-    //Animationstuff
-    Vector3 target;
-    List<Vector3> wayPointList = new List<Vector3>();
-    private int wayPointIndex = 1;
-
-    private float movementSpeed = 3;
-    private float rotationSpeed = 7;
-
-    private Quaternion startRotation;
-    private Quaternion endRotation;
-    private Vector3 lookingDirection;
-    //States
-    private bool move = false;
-    private bool rotate = false;
-    private bool animationRunning = false;
-
-    public void init()
+    #endregion
+    
+    #region Basic Methods
+    public void Init()
     {
-		_manager = GameObject.FindGameObjectWithTag ("LevelManager").GetComponent<Manager>();
-        _graphMatrix = _manager.GetComponent<MapCreator>().getGraph();
-        _mapCreator = _manager.GetComponent<MapCreator>();
-        healthText = this.transform.Find("Lifepoints").GetComponent<TextMesh>();        
+        AnimationController = this.GetComponent<Unit_AnimationController>();
+        ammo = data.maxAmmo;
+        fuel = data.maxFuel;
     }
-
-    public void Update()
-    {
-        //Rotate the unit towards a point the move it to this point, then get the next point and so on.
-        if (animationRunning)
-        {
-            if (move)
-            {
-                //Debug.Log("Moving!");
-                float step = movementSpeed * Time.deltaTime;
-                transform.position = Vector3.MoveTowards(this.transform.position, target, step);
-            }
-
-            if (rotate)
-            {
-                //Debug.Log("Rotating!");
-                startRotation = this.transform.rotation;
-                transform.rotation = Quaternion.Slerp(startRotation, endRotation, rotationSpeed * Time.deltaTime);//Do the rotation with a lerp.
-            }
-
-            if (rotationComplete() && rotate)
-            {
-                rotate = false;
-                move = true;
-                //TODO: Stop rotation sound.
-                //TODO: Play move sound.
-            }
-
-            if (wayPointReached(wayPointList[wayPointIndex]) && move)
-            {
-                //Debug.Log("Reached waypoint: " + wayPointIndex);
-                wayPointIndex++;
-                if (wayPointIndex >= wayPointList.Count)
-                {
-                    animationRunning = false;                   
-                    wayPointIndex = 1;
-                    displayHealth(true);
-                    setFacingDirection(this.transform.rotation.eulerAngles.y);
-
-                    if(!isInterrupted)
-                    {
-                        _manager.getContextMenu().open(this.xPos, this.yPos);
-                    }
-                    if (isInterrupted)
-                    {
-                        wait();
-                        _manager.GetComponent<Manager>().getContextMenu().showExclamationMark(xPos, yPos); //Show exclamation mark.
-                        //TODO: Stop move sound.
-                        //TODO: Play interruption sound
-                    }
-                }
-                target = wayPointList[wayPointIndex];
-                lookingDirection = (wayPointList[wayPointIndex] - transform.position).normalized;//Vector from our position to the target
-                endRotation = Quaternion.LookRotation(lookingDirection);//The actual rotation we need to look at the target.  
-                //TODO: Stop move sound.
-                //TODO: Play rotation sound.
-                move = false;
-                rotate = true;
-            }
-            //Debug.DrawRay(this.transform.position, this.transform.forward * 2);
-            //Debug.DrawLine(this.transform.position, target, Color.green);
-        }
-    }
-
-    private void OnMouseDown()
-    {
-        //If normal mode is activated.
-        if (_manager.getGameFunctions().getCurrentMode() == GameFunctions.mode.normal && !_manager.getBuyMenu().isOpened && hasTurn)
-        {               
-            ////Select unit
-            //_manager.getGameFunctions().selectUnit(this);
-            ////Calculate reachable area and instantiate the graphics for the tiles.
-            //counter = 0;
-            //calcReachableArea(this.xPos, this.yPos, moveDist, myMoveType, null);
-            ////Debug.Log("Reachable iterations: " + counter);
-            //_manager.getMapCreator().createReachableTiles();
-            ////Calculate attackable area, instantiate the graphics for the tiles and store the attackable units in a list.
-            ////TODO: no need to do this here
-            //findAttackableTiles();
-            //_manager.getMapCreator().createAttackableTilesGfx();
-            //findAttackableEnemies();
-            
-            //calcVisibleArea();
-            //_manager.getGameFunctions().setCurrentMode(GameFunctions.mode.move);
-            
-        }
-        else
-        //If move mode is activated
-        if (_manager.getGameFunctions().getCurrentMode() == GameFunctions.mode.move)
-        {
-            //if (isSelected)
-            //{
-            //    //Decide if the menu with firebutton and wait button is opened ...
-            //    if (_manager.getGameFunctions().getSelectedUnit().attackableUnits.Count > 0)
-            //    {
-            //        //...if the selected unit is infantry/mech and this tile is a neutral/enemy property also load the 'occupy button'.
-            //        if (_graphMatrix[xPos][yPos].GetComponent<Tile>().isOccupyable(this))
-            //        {
-            //            _manager.getContextMenu().openContextMenu(3);
-            //        }
-            //        else
-            //        {
-            //            _manager.getContextMenu().openContextMenu(1);
-            //        }
-            //    }
-            //    //...OR if only the wait button is to display.
-            //    else
-            //    {
-            //        //If the selected unit is infantry/mech and this tile is a neutral/enemy property also load the 'occupy button'.
-            //        if (_graphMatrix[xPos][yPos].GetComponent<Tile>().isOccupyable(this))
-            //        {
-            //            _manager.getContextMenu().openContextMenu(2);
-            //        }
-            //        else
-            //        {
-            //            _manager.getContextMenu().openContextMenu(0);
-            //        }
-            //    }               
-            //}
-        }
-        else
-        //If fire mode is activated.
-        if(_manager.getGameFunctions().getCurrentMode() == GameFunctions.mode.fire)
-        {
-            //Select unit, that is attackable and pass it to the fight function.
-            if(_graphMatrix[xPos][yPos].GetComponent<Tile>().isAttackable)
-            {
-                //Unit attacker = _manager.getGameFunctions().getSelectedUnit();
-                //Unit defender = this;
-                ////Align the units to face each other.
-                //alignUnit(attacker.xPos, attacker.yPos);
-                //attacker.alignUnit(this.xPos, this.yPos);
-                ////Puts the health indicator in the right position.
-                //displayHealth(true);
-                //attacker.displayHealth(true);
-
-                //_manager.getBattleMode().fight(attacker, defender);//Battle
-                //_manager.getGameFunctions().deselectObject();//Deselect the current unit                
-            }
-        }
-    }
-
     //Ends the turn for the unit.
-    public void wait()
+    public void Wait()
     {
-        deactivate();
-        _manager.getTurnManager().updateFogOfWar(myTeam);
-        _manager.getGameFunctions().deselectObject();
+        Deactivate();
+        CalcVisibleArea();
+        Tile currentTile = Core.Model.GetTile(this.position);       
+        if(targetTile != null)
+        {
+            currentTile.SetUnitHere(null);//Reset the unitStandingHere property of the old tile to null
+            currentTile.ResetTakeOverCounter();//Reset the take over counter 
+            position = targetTile.position;
+            targetTile.SetUnitHere(this);
+        }
+        targetTile = null;
     }
 
     //Activate the unit so it has turn, can fire and move.
-    public void activate()
+    public void Activate()
     {
-        canMove = true;
-        canFire = true;
+        CanMove = true;
+        CanFire = true;
         hasTurn = true;
-        isInterrupted = false;
+        IsInterrupted = false;       
     }
-    public void deactivate()
+    public void Deactivate()
     {
-        canMove = false;
-        canFire = false;
+        CanMove = false;
+        CanFire = false;
         hasTurn = false;
     }
+    
 
-    public void subtractHealth(int healthToSubtract)
+    public void SetVisibility(bool value)
+    {
+        gfx.GetComponent<MeshRenderer>().enabled = value;
+        healthText.GetComponent<MeshRenderer>().enabled = value;
+        GetComponent<BoxCollider>().enabled = value;
+    }
+    public void SetTeamColor(Color color)
+    {
+        gfx.GetComponent<MeshRenderer>().materials[0].color = color;
+    }
+    #endregion
+    #region Damage Methods
+    public void SubtractHealth(int healthToSubtract)
     {
         health = health - healthToSubtract;
-        displayHealth(true);
+        DisplayHealth(true);
         if(health <= 0)
         {
-            killUnit();
+            health = 0;
+            KillUnit();
         }
     }    
 
     //Displays the actual lifepoints in the "3D"TextMesh
-    public void displayHealth(bool value)
+    public void DisplayHealth(bool value)
     {
         if(value)
         {
             healthText.gameObject.SetActive(true);
             //Reposition the health text so it is always at the lower left corner of the tile.
             healthText.transform.SetPositionAndRotation(new Vector3(this.transform.position.x - 0.4f,this.transform.position.y, this.transform.position.z - 0.2f), Quaternion.Euler(90, 0, 0));
-            //If the health goes below five the value will be rounded to 0, but we dont want that!
-            if(health > 10)
-            {
-                healthText.text = "" + (int)(health / 10);
-            }
-            else
-            {
-                healthText.text = "1";
-            }
-            if(health < 0)
-            {
-                healthText.text = "0";
-            }
+            healthText.text = GetCorrectedHealth().ToString();
         }
         else
         {
             healthText.gameObject.SetActive(false);
         }
     }
+    //If the health goes below five the value will be rounded to 0, but we dont want that!
+    public int GetCorrectedHealth()
+    {
+        if (health > 10)return (int)(health / 10);      
+        else return 1;       
+    }
 
     //Destroys the unit
-    public void killUnit()
+    public void KillUnit()
     {
         //Set the unit standing on this tile as null.
-        _graphMatrix[xPos][yPos].GetComponent<Tile>().clearUnitHere();
-        //Boom
-        _manager.getAnimationController().boom(xPos,yPos);
+        Core.Model.GetTile(position).SetUnitHere(null);
+        //Boom animation
+        
         //Remove unit from team list
-        myTeam.myUnits.Remove(this.transform);
+        team.units.Remove(this);
         //If this was the last unit of the player the game is lost.
-        if (myTeam.myUnits.Count <= 0)
+        if (team.units.Count <= 0)
         {
-            _manager.container.setTeams(_manager.GetComponent<Manager_Team>().getTeams());
-            _manager.getSceneLoader().loadGameFinishedScreenWithDelay();//This has a short delay, so the player sees how the last unit is destroyed.
+            //TODO: Mit nem event lösen!
+            Debug.Log(enemyTeams[0] + " won by killing all their foes!");
         }
         //Finally delete the unit.
         Destroy(this.gameObject);
     }
-
-    public void killUnitDelayed()
+    public IEnumerator KillUnitDelayed(float delay)
     {
-        float delay = Random.Range(1.1f, 2.5f);
-        Invoke("killUnit", delay);
-    }
-
+        yield return new WaitForSeconds(delay);
+        KillUnit();
+    }   
+    #endregion
+    #region Movement
     //Move the unit to a field and align it so it faces away, from where it came.
-    public void moveUnitTo(int newX, int newY)
+    public void MoveUnitTo(Vector2Int newPos)
     {
-        //Only if we drew at least one arrow Path, we should be able move.
-        if (_manager.getArrowBuilder().getArrowPath().Count > 1)
-        {
-            //Setup the sequencer for the movement animation.
-            _manager.getArrowBuilder().checkForInterruption();//Check for interruption with enemies and make the tile before the interruption the last of the arrow path!
-            wayPointList = _manager.getArrowBuilder().createMovementPath();
-            target = wayPointList[wayPointIndex];//Set the first target for the movement.
-            lookingDirection = (wayPointList[wayPointIndex] - transform.position).normalized;//Vector from our position to the target
-            startRotation = Quaternion.LookRotation(this.transform.position);
-            endRotation = Quaternion.LookRotation(lookingDirection);//The actual rotation we need to look at the target
-            animationRunning = true; //Init the sequencer in the update function...
-            rotate = true;//...and start rotating towards the first waypoint.
+        //Setup the sequencer for the movement animation.
+        AnimationController.Init();
+        IsInterrupted = Core.Controller.ArrowBuilder.GetInterruption();
+        if (IsInterrupted) targetTile = Core.Controller.ArrowBuilder.GetInterruptionTile();
+        else targetTile = Core.Model.GetTile(newPos);
+        DisplayHealth(false);//While moving we dont want to see the health.
+        //Delete the reachable tiles and the movement arrow.
+        Core.Controller.ClearReachableArea(this);
+        Core.Controller.ArrowBuilder.ResetAll();
 
-            _mapCreator.getTile(xPos,yPos).clearUnitHere();//Reset the unitStandingHere property of the old tile to null
-            _mapCreator.getTile(xPos, yPos).resetTakeOverCounter();//Reset the take over counter
-
-            //Remember the last position and rotation of the unit. (For resetting purposes.)
-            preDirection = myFacingDirection;
-            prePosX = this.xPos;
-            prePosY = this.yPos;
-
-            //Set xPos and yPos to the new position.            
-            this.xPos = (int)(wayPointList[wayPointList.Count - 1].x);
-            this.yPos = (int)(wayPointList[wayPointList.Count - 1].z);
-            _mapCreator.getTile(xPos, yPos).setUnitHere(this.transform);//Inform the new tile, that a unit is standing on it.
-            _manager.getStatusWindow().updateCover(xPos, yPos);//When you move the unit, you should see the new cover for the tile it will stand on.
-            displayHealth(false);//While moving we dont want to see the health.
-            //_manager.getContextMenu().closeMenu(); //We dont want to see the menu while the move animation plays. !working
-            //Get info about the conditions on the new tile.
-            findAttackableTiles();
-            findAttackableEnemies();
-
-            //Delete the reachable tiles and the movement arrow.
-            _manager.getMapCreator().resetReachableTiles();
-            _manager.getArrowBuilder().resetAll();
-
-            if(rangeAttack)
-            {
-                canFire = false;
-            }
-            canMove = false;
-        }
+        if(data.rangeAttack) CanFire = false;           
+        CanMove = false;        
     }
 
     //Resets the position and rotation of the unit to where it was before. (If we click the right mouse button or close the menu after we successfully moved it somewhere.)
-    public void resetPosition()
+    public void ResetPosition()
     {
-        _mapCreator.getTile(xPos, yPos).clearUnitHere();//Reset the unitStandingHere property of the tile, we went to, to null
-
+        targetTile = null;
         //Set the position and rotation of the unit to where it was before
-        this.transform.position = new Vector3(prePosX, 0, prePosY);
-        this.xPos = prePosX;
-        this.yPos = prePosY;
-        rotateUnit(preDirection);
-        wayPointIndex = 1;
-
-        _manager.getStatusWindow().updateCover(xPos, yPos);//When the unit moves back, the display of the cover should be set to the old tile.
-        _mapCreator.getTile(xPos, yPos).setUnitHere(this.transform);//Inform the old tile, that we are back.
-        displayHealth(true);//Repostition the health indicator.   
-        canFire = true;
-        canMove = true;
+        this.transform.position = new Vector3(position.x, 0, position.y);
+        //this.position = prePosition;
+        RotateUnit(direction);
+        //this.direction = preDirection;        
+        Core.View.statusPanel.UpdateDisplay(this);//When the unit moves back, the display of the cover should be set to the old tile.
+        //Core.Model.GetTile(position).SetUnitHere(this);//Inform the old tile, that we are back.
+        DisplayHealth(true);//Repostition the health indicator.   
+        CanFire = true;
+        CanMove = true;
     }
 
+    
+    #endregion
+    #region Rotation
+    //Rotate the unit so it faces north, east, south or west.
+    public void RotateUnit(Direction newDirection)
+    {       
+        direction = newDirection;
+        switch (newDirection)
+        {
+            case Direction.North: this.transform.rotation = Quaternion.Euler(0, 0, 0); break;
+            case Direction.East: this.transform.rotation = Quaternion.Euler(0, 90, 0); break;
+            case Direction.South: this.transform.rotation = Quaternion.Euler(0, 180, 0); break;
+            case Direction.West: this.transform.rotation = Quaternion.Euler(0, 270, 0); break;
+            default:
+                break;
+        }
+        DisplayHealth(true);
+    }
+
+    //Sets the facing direction depending on the transforms rotation.
+    public void SetFacingDirection(float angle)
+    {
+        if(-1 < angle && angle < 1)
+        {
+            direction = Direction.North;
+        }
+        if (89 < angle && angle < 91)
+        {
+            direction = Direction.East;
+        }
+        if (179 < angle && angle < 181)
+        {
+            direction = Direction.South;
+        }
+        if (269 < angle && angle < 271)
+        {
+            direction = Direction.West;
+        }
+    }
     //Aligns the unit so it faces the direction of the given coordinates. 
     //TODO: add alignment for range units
-    public void alignUnit(int targetX, int targetY)
+    public void AlignUnit(Vector2Int fromPos, Vector2Int toPos)
     {
-        if(directAttack)
+        if (data.directAttack)
         {
             //Face right
-            if(this.xPos < targetX && this.yPos == targetY)
+            if (fromPos.x < toPos.x && fromPos.y == toPos.y)
             {
-                rotateUnit(Unit.facingDirection.East);
+                RotateUnit(Direction.East);
             }
             //Face left
-            if(this.xPos > targetX && this.yPos == targetY)
-            {            
-                rotateUnit(Unit.facingDirection.West);
+            else if (fromPos.x > toPos.x && fromPos.y == toPos.y)
+            {
+                RotateUnit(Direction.West);
             }
             //Face up
-            if(this.yPos < targetY && this.xPos == targetX)
+            else if (fromPos.y < toPos.y && fromPos.x == toPos.x)
             {
-                rotateUnit(Unit.facingDirection.North);
+                RotateUnit(Direction.North);
             }
             //Face down
-            if (this.yPos > targetY && this.xPos == targetX)
-            {            
-                rotateUnit(Unit.facingDirection.South);
+            else if (fromPos.y > toPos.y && fromPos.x == toPos.x)
+            {
+                RotateUnit(Direction.South);
             }
         }
-        if(rangeAttack)
+        if (data.rangeAttack)
         {
             //How to decide, if the unit to face is e.g. more to the left than to the bottom ?
             //Compare distances
             //For direct attack only!
             //Face right
-            if (this.xPos < targetX && this.yPos == targetY)
+            if (fromPos.x < toPos.x && fromPos.y == toPos.y)
             {
-                rotateUnit(Unit.facingDirection.East);
+                RotateUnit(Direction.East);
             }
             //Face left
-            if (this.xPos > targetX && this.yPos == targetY)
+            else if (fromPos.x > toPos.x && fromPos.y == toPos.y)
             {
-                rotateUnit(Unit.facingDirection.West);
+                RotateUnit(Direction.West);
             }
             //Face up
-            if (this.yPos < targetY && this.xPos == targetX)
+            else if (fromPos.y < toPos.y && fromPos.x == toPos.x)
             {
-                rotateUnit(Unit.facingDirection.North);
+                RotateUnit(Direction.North);
             }
             //Face down
-            if (this.yPos > targetY && this.xPos == targetX)
+            else if (fromPos.y > toPos.y && fromPos.x == toPos.x)
             {
-                rotateUnit(Unit.facingDirection.South);
+                RotateUnit(Direction.South);
             }
         }
-
+        DisplayHealth(true);
     }
-
-    //Rotate the unit so it faces north, east, south or west.
-    public void rotateUnit(Unit.facingDirection newDirection)
+    #endregion
+    #region Enemy
+    //Checks the attackable tiles for enemies.
+    public void FindAttackableEnemies()
     {
-        //this.transform.rotation = Quaternion.Euler(0, angle, 0);
-        //this.rotation = 45;
-        preDirection = myFacingDirection;
-        myFacingDirection = newDirection;
-        switch (newDirection)
+        foreach (Tile tile in attackableTiles)
         {
-            case facingDirection.North: this.transform.rotation = Quaternion.Euler(0, 0, 0); break;
-            case facingDirection.East: this.transform.rotation = Quaternion.Euler(0, 90, 0); break;
-            case facingDirection.South: this.transform.rotation = Quaternion.Euler(0, 180, 0); break;
-            case facingDirection.West: this.transform.rotation = Quaternion.Euler(0, 270, 0); break;
-            default:
-                break;
-        }
-        displayHealth(true);
+            if(IsVisibleEnemyHere(tile))
+            {
+                Unit enemy = tile.unitStandingHere;
+                if (data.GetDamageAgainst(enemy.data.type) > 0) attackableUnits.Add(enemy);
+            }
+        }        
     }
-
-    //Sets the facing direction depending on the transforms rotation.
-    public void setFacingDirection(float angle)
+    public bool IsEnemy(Unit unit)
     {
-        if(-1 < angle && angle < 1)
-        {
-            myFacingDirection = facingDirection.North;
-        }
-        if (89 < angle && angle < 91)
-        {
-            myFacingDirection = facingDirection.East;
-        }
-        if (179 < angle && angle < 181)
-        {
-            myFacingDirection = facingDirection.South;
-        }
-        if (269 < angle && angle < 271)
-        {
-            myFacingDirection = facingDirection.West;
-        }
+        if (enemyTeams.Contains(unit.team)) return true;
+        else return false;
     }
-    //The unit finds tiles it can attack and the map creator creates gfx for these.
-    public void createAttackableTiles()
+    //Checks if an enemy is standing on this tile.
+    bool IsVisibleEnemyHere(Tile tile)
     {
-        findAttackableTiles();
-        _manager.getMapCreator().createAttackableTilesGfx();
-    }
-
+        if(tile.GetUnitHere() != null && tile.isVisible)
+        {
+            Unit possibleEnemy = tile.GetUnitHere();
+            if (IsEnemy(possibleEnemy)) return true;            
+        }
+        return false;
+    }   
+    
+    #endregion       
+    #region Attackable Area
     //Sets the attackable tiles to active or inactive, so they are visible or not.
-    public void displayAttackableTiles(bool value)
-    {
-        Transform attackableTiles = this.transform.Find("attackableTiles").transform;
-        for (int i = 0; i < attackableTiles.childCount; i++)
+    public void DisplayAttackableTiles(bool value)
+    {        
+        if (attackableTiles.Count > 0)
         {
-            attackableTiles.GetChild(i).gameObject.SetActive(value);
+            foreach (Tile tile in attackableTiles)
+            {
+                if(tile != null) tile.gameObject.SetActive(value);
+            }
         }
-    }
-
-    public void deleteAttackableTiles()
-    {
-        _manager.getMapCreator().resetAttackableTiles();
-    }
+        else throw new System.Exception("Attackable tiles list is empty!");       
+    } 
 
     //Creates a list of tiles the unit can attack.
-    public void findAttackableTiles()
+    public void CalcAttackableArea(Vector2Int position)
     {
         attackableTiles.Clear();
-        if(directAttack)
-        {
-            findAttackableTileForDirectAttack();
-        }
-        //TODO: Try to find a cool mathematical solution, not just BRUTE FORCE!
-        //TODO: not yet depending on min/max range
-        if(rangeAttack)
-        {
-            //Try to mark the tiles, the unit can attack and add them to the list.
-            //left
-            for (int i = 1; i < 4; i++)
-            {
-                //Straight
-                if (xPos - 2 - i > -1)
-                {
-                    _graphMatrix[xPos - 2 - i][yPos].GetComponent<Tile>().isAttackable = true;
-                    attackableTiles.Add(_graphMatrix[xPos - 2 - i][yPos].GetComponent<Tile>());
-                }
-                //Down
-                if (xPos - 1 - i > -1 && yPos - 1 > -1)
-                {
-                    _graphMatrix[xPos - 1 - i][yPos - 1].GetComponent<Tile>().isAttackable = true;
-                    attackableTiles.Add(_graphMatrix[xPos - 1 - i][yPos - 1].GetComponent<Tile>());
-                }
-                //Up
-                if (xPos - 1 - i > -1 && yPos + 1 < _graphMatrix[0].Count)
-                {
-                    _graphMatrix[xPos - 1 - i][yPos + 1].GetComponent<Tile>().isAttackable = true;
-                    attackableTiles.Add(_graphMatrix[xPos - 1 - i][yPos + 1].GetComponent<Tile>());
-                }
-            }
-            //Right
-            for (int i = 1; i < 4; i++)
-            {
-                //Straight
-                if (xPos + 2 + i < _graphMatrix.Count)
-                {
-                    _graphMatrix[xPos + 2 + i][yPos].GetComponent<Tile>().isAttackable = true;
-                    attackableTiles.Add(_graphMatrix[xPos + 2 + i][yPos].GetComponent<Tile>());
-                }
-                //Down
-                if (xPos + 1 + i < _graphMatrix.Count && yPos - 1 > -1)
-                {
-                    _graphMatrix[xPos + 1 + i][yPos - 1].GetComponent<Tile>().isAttackable = true;
-                    attackableTiles.Add(_graphMatrix[xPos + 1 + i][yPos - 1].GetComponent<Tile>());
-                }
-                //Up
-                if (xPos + 1 + i < _graphMatrix.Count && yPos + 1 < _graphMatrix[0].Count)
-                {
-                    _graphMatrix[xPos + 1 + i][yPos + 1].GetComponent<Tile>().isAttackable = true;
-                    attackableTiles.Add(_graphMatrix[xPos + 1 + i][yPos + 1].GetComponent<Tile>());
-                }
-            }
-            //Top
-            for (int i = 1; i < 4; i++)
-            {
-                //Straight
-                if (yPos + 2 + i < _graphMatrix[0].Count)
-                {
-                    _graphMatrix[xPos][yPos + 2 + i].GetComponent<Tile>().isAttackable = true;
-                    attackableTiles.Add(_graphMatrix[xPos][yPos + 2 + i].GetComponent<Tile>());
-                }
-                //Left
-                if (yPos + 1 + i < _graphMatrix[0].Count && xPos - 1 > -1)
-                {
-                    _graphMatrix[xPos - 1][yPos + 1 + i].GetComponent<Tile>().isAttackable = true;
-                    attackableTiles.Add(_graphMatrix[xPos - 1][yPos + 1 + i].GetComponent<Tile>());
-                }
-                //Right
-                if (yPos + 1 + i < _graphMatrix[0].Count && xPos + 1 < _graphMatrix.Count)
-                {
-                    _graphMatrix[xPos + 1][yPos + 1 + i].GetComponent<Tile>().isAttackable = true;
-                    attackableTiles.Add(_graphMatrix[xPos + 1][yPos + 1 + i].GetComponent<Tile>());
-                }
-            }
-            //Bottom
-            for (int i = 1; i < 4; i++)
-            {
-                //Straight
-                if (yPos - 2 - i > -1)
-                {
-                    _graphMatrix[xPos][yPos - 2 - i].GetComponent<Tile>().isAttackable = true;
-                    attackableTiles.Add(_graphMatrix[xPos][yPos - 2 - i].GetComponent<Tile>());
-                }
-                //Left
-                if (yPos - 1 - i > -1 && xPos - 1 > 0)
-                {
-                    _graphMatrix[xPos - 1][yPos - 1 - i].GetComponent<Tile>().isAttackable = true;
-                    attackableTiles.Add(_graphMatrix[xPos - 1][yPos - 1 - i].GetComponent<Tile>());
-                }
-                //Right
-                if (yPos - 1 - i > -1 && xPos + 1 < _graphMatrix.Count)
-                {
-                    _graphMatrix[xPos + 1][yPos - 1 - i].GetComponent<Tile>().isAttackable = true;
-                    attackableTiles.Add(_graphMatrix[xPos + 1][yPos - 1 - i].GetComponent<Tile>());
-                }
-            }
-
-            //Corners
-            //Lower left
-            if (xPos - 2 > -1 && yPos - 2 > -1)
-            {
-                _graphMatrix[xPos - 2][yPos - 2].GetComponent<Tile>().isAttackable = true;
-                attackableTiles.Add(_graphMatrix[xPos - 2][yPos - 2].GetComponent<Tile>());
-            }
-            if (xPos - 3 > -1 && yPos - 2 > -1)
-            {
-                _graphMatrix[xPos - 3][yPos - 2].GetComponent<Tile>().isAttackable = true;
-                attackableTiles.Add(_graphMatrix[xPos - 3][yPos - 2].GetComponent<Tile>());
-            }
-            if (xPos - 2 > -1 && yPos - 3 > -1)
-            {
-                _graphMatrix[xPos - 2][yPos - 3].GetComponent<Tile>().isAttackable = true;
-                attackableTiles.Add(_graphMatrix[xPos - 2][yPos - 3].GetComponent<Tile>());
-            }
-
-            //Upper left
-            if (xPos - 2 > -1 && yPos + 2 < _graphMatrix[0].Count)
-            {
-                _graphMatrix[xPos - 2][yPos + 2].GetComponent<Tile>().isAttackable = true;
-                attackableTiles.Add(_graphMatrix[xPos - 2][yPos + 2].GetComponent<Tile>());
-            }
-            if (xPos - 3 > -1 && yPos + 2 < _graphMatrix[0].Count)
-            {
-                _graphMatrix[xPos - 3][yPos + 2].GetComponent<Tile>().isAttackable = true;
-                attackableTiles.Add(_graphMatrix[xPos - 3][yPos + 2].GetComponent<Tile>());
-            }
-            if (xPos - 2 > -1 && yPos + 3 < _graphMatrix[0].Count)
-            {
-                _graphMatrix[xPos - 2][yPos + 3].GetComponent<Tile>().isAttackable = true;
-                attackableTiles.Add(_graphMatrix[xPos - 2][yPos + 3].GetComponent<Tile>());
-            }
-            //Upper right
-            if (xPos + 2 < _graphMatrix.Count && yPos + 2 < _graphMatrix[0].Count)
-            {
-                _graphMatrix[xPos + 2][yPos + 2].GetComponent<Tile>().isAttackable = true;
-                attackableTiles.Add(_graphMatrix[xPos + 2][yPos + 2].GetComponent<Tile>());
-            }
-            if (xPos + 3 < _graphMatrix.Count && yPos + 2 < _graphMatrix[0].Count)
-            {
-                _graphMatrix[xPos + 3][yPos + 2].GetComponent<Tile>().isAttackable = true;
-                attackableTiles.Add(_graphMatrix[xPos + 3][yPos + 2].GetComponent<Tile>());
-            }
-            if (xPos + 2 < _graphMatrix.Count && yPos + 3 < _graphMatrix[0].Count)
-            {
-                _graphMatrix[xPos + 2][yPos + 3].GetComponent<Tile>().isAttackable = true;
-                attackableTiles.Add(_graphMatrix[xPos + 2][yPos + 3].GetComponent<Tile>());
-            }
-            //Lower right
-            if (xPos + 2 < _graphMatrix.Count && yPos - 2 > -1)
-            {
-                _graphMatrix[xPos + 2][yPos - 2].GetComponent<Tile>().isAttackable = true;
-                attackableTiles.Add(_graphMatrix[xPos + 2][yPos - 2].GetComponent<Tile>());
-            }
-            if (xPos + 3 < _graphMatrix.Count && yPos - 2 > -1)
-            {
-                _graphMatrix[xPos + 3][yPos - 2].GetComponent<Tile>().isAttackable = true;
-                attackableTiles.Add(_graphMatrix[xPos + 3][yPos - 2].GetComponent<Tile>());
-            }
-            if (xPos + 2 < _graphMatrix.Count && yPos - 3 > -1)
-            {
-                _graphMatrix[xPos + 2][yPos - 3].GetComponent<Tile>().isAttackable = true;
-                attackableTiles.Add(_graphMatrix[xPos + 2][yPos - 3].GetComponent<Tile>());
-            }
-
-        }
+        if(data.directAttack) FindAttackableTilesForDirectAttack(position);           
+        else if(data.rangeAttack) FindAttackableTilesForRangedAttack();       
     }
 
     //Calculates the attackable tiles for direct attack units.
-    public void findAttackableTileForDirectAttack()
+    void FindAttackableTilesForDirectAttack(Vector2Int position)
     {
-        //Left
-        if (xPos > 0)
-        {
-            _graphMatrix[xPos - 1][yPos].GetComponent<Tile>().isAttackable = true;
-            attackableTiles.Add(_graphMatrix[xPos - 1][yPos].GetComponent<Tile>());
-        }
-        //Right
-        if (xPos < _graphMatrix.Count - 1)
-        {
-            _graphMatrix[xPos + 1][yPos].GetComponent<Tile>().isAttackable = true;
-            attackableTiles.Add(_graphMatrix[xPos + 1][yPos].GetComponent<Tile>());
-        }
-        //Top
-        if (yPos > 0)
-        {
-            _graphMatrix[xPos][yPos - 1].GetComponent<Tile>().isAttackable = true;
-            attackableTiles.Add(_graphMatrix[xPos][yPos - 1].GetComponent<Tile>());
-        }
-        //Bottom
-        if (yPos < _graphMatrix[0].Count - 1)
-        {
-            _graphMatrix[xPos][yPos + 1].GetComponent<Tile>().isAttackable = true;
-            attackableTiles.Add(_graphMatrix[xPos][yPos + 1].GetComponent<Tile>());
-        }
+        Vector2Int left = new Vector2Int(position.x - 1, position.y);
+        TryToAddAttackableTile(left);
+        Vector2Int right = new Vector2Int(position.x + 1, position.y);
+        TryToAddAttackableTile(right);
+        Vector2Int Top = new Vector2Int(position.x, position.y + 1);
+        TryToAddAttackableTile(Top);
+        Vector2Int Bottom = new Vector2Int(position.x, position.y -1);
+        TryToAddAttackableTile(Bottom);       
     }
-    //Checks the attackable tiles for enemies.
-    public void findAttackableEnemies()
+
+    void FindAttackableTilesForRangedAttack()
     {
-        attackableUnits.Clear();
-        for(int i = 0; i < attackableTiles.Count; i++)
+        //First we mark every visible tile as attackable...
+        for (int i = 1; i <= data.maxRange; i++)
         {
-            if(attackableTiles[i].getUnitHere() != null)
+            //Right...
+            Vector2Int testPosition = new Vector2Int(this.position.x + i, this.position.y);
+            if (Core.Model.IsOnMap(testPosition))
             {
-                //Only if the unit on the tile is in the opposite team add it to the attackableUnits list.
-                if(isEnemyHere(attackableTiles[i]))
+                TryToAddAttackableTile(testPosition);
+                for (int j = 1; j <= data.maxRange - i; j++)
                 {
-                    //Only if this unit is able to attack the other unit, put it into the list of attackable units.
-                    if(_manager.getDatabase().getBaseDamage(myUnitType, attackableTiles[i].getUnitHere().GetComponent<Unit>().myUnitType) > 0)
-                    {
-                        attackableUnits.Add(attackableTiles[i].getUnitHere().GetComponent<Unit>());
-                    }
+                    //... and up.
+                    testPosition = new Vector2Int(this.position.x + i, this.position.y + j);
+                    TryToAddAttackableTile(testPosition);
+                    //... and down.
+                    testPosition = new Vector2Int(this.position.x + i, this.position.y - j);
+                    TryToAddAttackableTile(testPosition);
                 }
             }
-        }
-    }
-    //Checks if an enemy is standing on this tile.
-    public bool isEnemyHere(Tile tile)
-    {
-        if(tile.getUnitHere() != null && tile.getVisibility())
-        {
-            Unit possibleEnemy = tile.getUnitHere().GetComponent<Unit>();            
-            for(int i = 0; i < myTeam.enemyTeams.Count; i++)
+            //Left...
+            testPosition = new Vector2Int(this.position.x - i, this.position.y);
+            if (Core.Model.IsOnMap(testPosition))
             {
-                for(int j = 0; j < myTeam.enemyTeams[i].myUnits.Count; j++)
+                TryToAddAttackableTile(testPosition);
+                for (int j = 1; j <= data.maxRange - i; j++)
                 {
-                    if(myTeam.enemyTeams[i].myUnits[j] != null)//Entries of the teamUnits list could be empty! (Destroying an item in a list doesnt fill the gaps!)
-                    {
-                        if(myTeam.enemyTeams[i].myUnits[j].GetComponent<Unit>() == possibleEnemy)
-                        {
-                            return true;
-                        }
-                    }
-                }
-            }                   
-        }
-        return false;
-    }
-
-    //Indicates the units that can be attacked by this unit.
-    public void showAttackableEnemies()
-    {
-        for(int i = 0; i < attackableUnits.Count; i++)
-        {
-            _manager.getGameFunctions().createMarkingCursor(attackableUnits[i]);
-        }
-    }
-
-    //Resets all the battle information.
-    public void resetBattleInformation()
-    {
-        attackableUnits.Clear();
-        attackableTiles.Clear();
-    }
-
-    //Set the thumbnail for the unit
-    public void setThumbnail(Sprite myThumb)
-    {
-        this.thumbNail = myThumb;
-    }
-
-    //Calculate how far you can move from a certain position depending on your movement points.
-    public void calcReachableArea(int x, int y, int movementPoints, moveType myMoveType, Tile cameFromTile)
-    {
-        counter++;
-        Tile tile = _graphMatrix[x][y].gameObject.GetComponent<Tile>();
-
-        movementPoints = movementPoints - tile.getMovementCost(myMoveType);
-
-        //If enough movement points are left and the tile is passable (we can move through our own units, but are blocked by enemies), do the recursion.
-        if ((movementPoints >= 0) && (tile.getMovementCost(myMoveType) > 0) && !isEnemyHere(tile))
-        {
-            List<Transform> myNeighbors = tile.neighbors;
-            tile.isReachable = true;//Mark as rachable.
-
-            //The tile was reached, so test all its neighbors for reachability. Ignore the tile you came from.
-            for (int i = 0; i < myNeighbors.Count; i++)
-            {
-                if (myNeighbors[i].gameObject.GetComponent<Tile>() != cameFromTile)
-                {
-                    int neighborX = myNeighbors[i].GetComponent<Tile>().xPos;
-                    int neighborY = myNeighbors[i].GetComponent<Tile>().yPos;
-
-                    calcReachableArea(neighborX, neighborY, movementPoints, myMoveType, tile);
+                    //... and up.
+                    testPosition = new Vector2Int(this.position.x - i, this.position.y + j);
+                    TryToAddAttackableTile(testPosition);
+                    //... and down.
+                    testPosition = new Vector2Int(this.position.x - i, this.position.y - j);
+                    TryToAddAttackableTile(testPosition);
                 }
             }
+            testPosition = new Vector2Int(this.position.x, this.position.y + i);
+            TryToAddAttackableTile(testPosition);
+            testPosition = new Vector2Int(this.position.x, this.position.y - i);
+            TryToAddAttackableTile(testPosition);
+        }
+        //...then we remove all tiles in the minimum range. (Need a better solution for this!)
+        for (int i = 1; i < data.minRange; i++)
+        {
+            //Right...
+            Vector2Int testPosition = new Vector2Int(this.position.x + i, this.position.y);
+            if (Core.Model.IsOnMap(testPosition))
+            {
+                TryToRemoveAttackableTile(testPosition);
+                for (int j = 1; j < data.minRange - i; j++)
+                {
+                    //... and up.
+                    testPosition = new Vector2Int(this.position.x + i, this.position.y + j);
+                    TryToRemoveAttackableTile(testPosition);
+                    //... and down.
+                    testPosition = new Vector2Int(this.position.x + i, this.position.y - j);
+                    TryToRemoveAttackableTile(testPosition);
+                }
+            }
+            //Left...
+            testPosition = new Vector2Int(this.position.x - i, this.position.y);
+            if (Core.Model.IsOnMap(testPosition))
+            {
+                TryToRemoveAttackableTile(testPosition);
+                for (int j = 1; j < data.minRange - i; j++)
+                {
+                    //... and up.
+                    testPosition = new Vector2Int(this.position.x - i, this.position.y + j);
+                    TryToRemoveAttackableTile(testPosition);
+                    //... and down.
+                    testPosition = new Vector2Int(this.position.x - i, this.position.y - j);
+                    TryToRemoveAttackableTile(testPosition);
+                }
+            }
+        }        
+    }
+
+    void TryToAddAttackableTile(Vector2Int position)
+    {
+        if(Core.Model.IsOnMap(position))
+        {
+            Tile tile = Core.Model.GetTile(position);
+            attackableTiles.Add(tile);
+        }
+    }
+    void TryToRemoveAttackableTile(Vector2Int position)
+    {
+        if (Core.Model.IsOnMap(position))
+        {
+            Tile tile = Core.Model.GetTile(position);
+            attackableTiles.Remove(tile);
         }
     }
     
+    
+    #endregion
+    #region Reachable Area
+    //Calculate how far you can move from a certain position depending on your movement points.
+    public void CalcReachableArea(Vector2Int position, int movementPoints, UnitMoveType moveType, Tile cameFromTile)
+    {
+        //Debug.Log(counter);
+        //counter += Time.deltaTime;
+        Tile tile = Core.Model.GetTile(position);
+
+        movementPoints = movementPoints - tile.data.GetMovementCost(moveType);
+
+        //If enough movement points are left and the tile is passable (we can move through our own units, but are blocked by enemies), do the recursion.
+        if ((movementPoints >= 0) && (tile.data.GetMovementCost(moveType) > 0) && !IsVisibleEnemyHere(tile))
+        {
+            if(!reachableTiles.Contains(tile)) reachableTiles.Add(tile);        
+
+            //The tile was reached, so test all its neighbors for reachability. Ignore the tile you came from.
+            foreach (Tile neighbor in tile.neighbors)
+            {
+                if(neighbor != cameFromTile) CalcReachableArea(neighbor.position, movementPoints, moveType, tile);
+            }           
+        }
+    }
+    #endregion
+    #region Visible Area
     //Calculates the visible area of this unit depending on its vision range and marks the visible tiles in the graph.
-    public void calcVisibleArea()
+    public void CalcVisibleArea()
     {
-        if (_manager.getContainer().fogOfWar)
+        if (Core.Model.MapSettings.fogOfWar)
         {
-            _mapCreator.getTile(xPos, yPos).setVisible(true);//Mark own position as visible.
-            for (int i = 1; i <= visionRange; i++)
+            Core.Model.SetVisibility(position, true);//Mark own position as visible.
+            //Adjacent tiles are always visible
+            Vector2Int left = new Vector2Int(position.x - 1, position.y);
+            if (Core.Model.IsOnMap(left)) Core.Model.SetVisibility(left, true);
+            Vector2Int right = new Vector2Int(position.x + 1, position.y);
+            if (Core.Model.IsOnMap(right)) Core.Model.SetVisibility(right, true);
+            Vector2Int up = new Vector2Int(position.x, position.y + 1);
+            if (Core.Model.IsOnMap(up)) Core.Model.SetVisibility(up, true);
+            Vector2Int down = new Vector2Int(position.x, position.y - 1);
+            if (Core.Model.IsOnMap(down)) Core.Model.SetVisibility(down, true);
+
+            for (int i = 1; i <= data.visionRange; i++)
             {
-                //Left
-                int xTest = this.xPos - i;
-                int yTest = this.yPos;
-                if (xTest >= 0)
+                //Right...
+                Vector2Int testPosition = new Vector2Int(this.position.x + i, this.position.y);
+                if(Core.Model.IsOnMap(testPosition))
                 {
-                    if ((i < 2) || (_mapCreator.getTile(xTest, yTest).myTileType != Tile.type.Forest))
+                    Core.Model.SetVisibility(testPosition, true);                    
+                    for (int j = 1; j <= data.visionRange - i; j++)
                     {
-                        _mapCreator.getTile(xTest, yTest).setVisible(true);
-                    }                
-                    for(int j = 1; j <= visionRange - i; j++)
-                    {
-                        //...and up.
-                        yTest = this.yPos + j;
-                        if(yTest < _mapCreator.getGraph()[0].Count)
-                        {
-                            if (_mapCreator.getTile(xTest, yTest).myTileType != Tile.type.Forest)
-                            {
-                                _mapCreator.getTile(xTest, yTest).setVisible(true);
-                            }
-                        }
-                        //...and down.
-                        yTest = this.yPos - j;
-                        if (yTest >= 0)
-                        {
-                            if (_mapCreator.getTile(xTest, yTest).myTileType != Tile.type.Forest)
-                            {
-                                _mapCreator.getTile(xTest, yTest).setVisible(true);
-                            }
-                        }
-                    }                
-                }
-                //Right
-                xTest = this.xPos + i;
-                yTest = this.yPos;
-                if (xTest < _mapCreator.getGraph().Count)
-                {
-                    if ((i < 2) || (_mapCreator.getTile(xTest, yTest).myTileType != Tile.type.Forest))
-                    {
-                        _mapCreator.getTile(xTest, yTest).setVisible(true);
-                    }
-                    for (int j = 1; j <= visionRange - i; j++)
-                    {
-                        //...and up.
-                        yTest = this.yPos + j;
-                        if (yTest < _mapCreator.getGraph()[0].Count)
-                        {
-                            if (_mapCreator.getTile(xTest, yTest).myTileType != Tile.type.Forest)
-                            {
-                                _mapCreator.getTile(xTest, yTest).setVisible(true);
-                            }
-                        }
-                        //...and down.
-                        yTest = this.yPos - j;
-                        if (yTest >= 0)
-                        {
-                            if (_mapCreator.getTile(xTest, yTest).myTileType != Tile.type.Forest)
-                            {
-                                _mapCreator.getTile(xTest, yTest).setVisible(true);
-                            }
-                        }
+                        //... and up.
+                        testPosition = new Vector2Int(this.position.x + i, this.position.y + j);
+                        TryToSetVisiblity(testPosition);
+                        //... and down.
+                        testPosition = new Vector2Int(this.position.x + i, this.position.y - j);
+                        TryToSetVisiblity(testPosition);                       
                     }
                 }
-            }
-        }
-        for(int i = 1; i <= visionRange; i++)
-        {
-            //Up
-            int xTest = this.xPos;
-            int yTest = this.yPos + i;
-            if(yTest < _mapCreator.getGraph()[0].Count)
-            {
-                if ((i < 2) || (_mapCreator.getTile(xTest, yTest).myTileType != Tile.type.Forest))
+                //Left...
+                testPosition = new Vector2Int(this.position.x - i, this.position.y);
+                if (Core.Model.IsOnMap(testPosition))
                 {
-                    _mapCreator.getTile(xTest, yTest).setVisible(true);
+                    Core.Model.SetVisibility(testPosition, true);
+                    for (int j = 1; j <= data.visionRange - i; j++)
+                    {
+                        //... and up.
+                        testPosition = new Vector2Int(this.position.x - i, this.position.y + j);
+                        TryToSetVisiblity(testPosition);
+                        //... and down.
+                        testPosition = new Vector2Int(this.position.x - i, this.position.y - j);
+                        TryToSetVisiblity(testPosition);
+                    }
                 }
-            }
-            //Down
-            yTest = this.yPos - i;
-            if (yTest >= 0)
-            {
-                if ((i < 2) || (_mapCreator.getTile(xTest, yTest).myTileType != Tile.type.Forest))
-                {
-                    _mapCreator.getTile(xTest, yTest).setVisible(true);
-                }
-            }
-        }
-    }
 
-    //Returns the actual health of the unit downsized to ten and as int.
-    public int getHealthAsInt()
-    {
-        //Debug.Log(Mathf.RoundToInt(health / 10));
-        return Mathf.RoundToInt(health/10);
-    }
+                testPosition = new Vector2Int(this.position.x, this.position.y + i);
+                TryToSetVisiblity(testPosition);
+                testPosition = new Vector2Int(this.position.x, this.position.y - i);
+                TryToSetVisiblity(testPosition);
 
-    private bool wayPointReached(Vector3 nextWaypoint)
-    {
-        if (nextWaypoint == this.transform.position)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-    //If the forward vector of the unit aligns with the vector from the unit to the target, we finished the rotation.
-    private bool rotationComplete()
-    {
-        if ( Vector3.Angle(this.transform.forward, lookingDirection) < 1 )
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    //Chose a menu depending on the below given factors.
-    public void choseAMenuType()
-    {
-        //Decide if the menu with firebutton and wait button is opened ...    
-        if (attackableUnits.Count > 0)
-        {
-            //If the selected unit is infantry/mech and this tile is a neutral/enemy property also load the 'occupy button'.
-            if (_graphMatrix[xPos][yPos].GetComponent<Tile>().isOccupyable(this))
-            {
-                _manager.getContextMenu().openContextMenu(3);
             }
-            else
-            {
-                _manager.getContextMenu().openContextMenu(1);
-            }
-        }
-        //...OR if only the wait button is to display.
-        else
+        }        
+    }
+    void TryToSetVisiblity(Vector2Int position)
+    {
+        if (Core.Model.IsOnMap(position))
         {
-            //If the selected unit is infantry/mech and this tile is a neutral/enemy property also load the 'occupy button'.
-            if (_graphMatrix[xPos][yPos].GetComponent<Tile>().isOccupyable(this))
-            {
-                _manager.getContextMenu().openContextMenu(2);
-            }
-            else
-            {
-                _manager.getContextMenu().openContextMenu(0);
-            }
+            if (Core.Model.GetTile(position).data.type != TileType.Forest) Core.Model.SetVisibility(position, true);
         }
     }
+    #endregion 
+    
 
-    //Set/get if the unit is moving.
-    public void setIsMoving(bool value)
-    {
-        animationRunning = value;
-    }
-    public bool getIsMoving()
-    {
-        return animationRunning;
-    }
-    //Set/get if the unit is interrupted.
-    public void setIsInterrupted(bool value)
-    {
-        isInterrupted = value;        
-    }
-    public bool getIsInterrupted()
-    {
-        return isInterrupted;
-    }
-
-    public void setCanFire(bool value)
-    {
-        canFire = value;
-    }
-    public bool getCanFire()
-    {
-        return canFire;
-    }
-
-    public bool getCanMove()
-    {
-        return canMove;
-    }
 }

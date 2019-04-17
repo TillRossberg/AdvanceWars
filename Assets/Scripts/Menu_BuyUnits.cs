@@ -6,156 +6,52 @@ using UnityEngine.UI;
 
 public class Menu_BuyUnits : MonoBehaviour
 {
-    //Required data structures
-    private Manager _manager;
-    //References
-    public RectTransform buyMenu;
-    public Transform facilityPanel;
-    public Transform harborPanel;
-    public Transform airPortPanel;
-    public RectTransform buyTankButton;
-    public RectTransform buyRocketsButton;
+    //References       
+    public RectTransform buyButton;
 
     //Details window
     public GameObject detailsWindow;
-    public List<Image> detailedThumbs = new List<Image>();
+    public Image unitDetailThumb;
     public Text moveDistance;
     public Text vision;
     public Text fuel;
     public Text ammunition;
     //Fields
-    List<Unit> availableUnits = new List<Unit>();
-    int xPos;
-    int yPos;
+    public Unit SelectedUnit { get; private set; }
+    List<UnitType> availableUnits;
+    public Vector2Int ProductionPosition { get; private set; }
     public bool isOpened = false;
-        
-    public void init()
+    
+    public void DisplayMenu(Tile tile)
     {
-        //Find required references.
-        _manager = GameObject.FindGameObjectWithTag("LevelManager").transform.GetComponent<Manager>();
-        facilityPanel = buyMenu.transform.Find("Facility");
-        harborPanel = buyMenu.transform.Find("Harbor");
-        airPortPanel = buyMenu.transform.Find("Airport");
-        //Deactivate all
-        facilityPanel.gameObject.SetActive(false);
-        harborPanel.gameObject.SetActive(false);
-        airPortPanel.gameObject.SetActive(false);
-        detailsWindow.gameObject.SetActive(false);
-        buyMenu.gameObject.SetActive(false);
+        ProductionPosition = tile.position;
+        if (tile.data.type == TileType.Facility) DisplayFacility(tile.owningTeam);
+        if (tile.data.type == TileType.Airport) DisplayAirport(tile.owningTeam);
+        if (tile.data.type == TileType.Port) DisplayPort(tile.owningTeam);
+    }
+
+    void DisplayFacility(Team team)
+    {
+        availableUnits = team.data.GetAvailableGroundUnits();
+        Debug.Log("Showing ground units!");
+    }
+    void DisplayAirport(Team team)
+    {
+        availableUnits = team.data.GetAvailableAirUnits();
+        Debug.Log("Showing air units!");
+    }
+    void DisplayPort(Team team)
+    {
+        availableUnits = team.data.GetAvailableNavalUnits();
+        Debug.Log("Showing naval units!");
     }
 	
-    //Open the menu either for a facility, a harbor or an airport.
-    public void openMenu(int index)
+    public void UpdateDetails()
     {
-        //Get the position of the tile we selected, so we can place the new unit there.
-        Tile selectedTile = _manager.GetComponent<GameFunctions>().getSelectedTile();
-        setProductionPosition(selectedTile.xPos, selectedTile.yPos);
-        //Get the team that has turn now, so we know for whom we create the new unit.
-
-        //Get available units from the team.
-
-
-        switch(index)
-        {
-            //Facility
-            case 1:
-                buyMenu.gameObject.SetActive(true);
-                facilityPanel.gameObject.SetActive(true);
-                isOpened = true;
-
-                break;
-            //Airport
-            case 2:
-
-                break;
-            //Harbor
-            case 3:
-
-                break;
-            default:
-                Debug.Log("BuyMenu: no such index found!");
-                break;
-        }
-    }
-
-    //Close buttons
-    public void closeMenu()
-    {
-        facilityPanel.gameObject.SetActive(false);
-        harborPanel.gameObject.SetActive(false);
-        airPortPanel.gameObject.SetActive(false);
-        buyMenu.gameObject.SetActive(false);
-
-        isOpened = false;
-    }
-
-    public void closeDetailsWindow()
-    {
-        detailsWindow.gameObject.SetActive(false);
-    }
-
-    //The position of the tile we want to create the new unit on.
-    public void setProductionPosition(int x, int y)
-    {
-        xPos = x;
-        yPos = y;
-    }
+        moveDistance.text = SelectedUnit.data.moveDist.ToString();
+        vision.text = SelectedUnit.data.visionRange.ToString();
+        fuel.text = SelectedUnit.data.maxFuel.ToString();
+        ammunition.text = SelectedUnit.data.maxAmmo.ToString();
+    }    
     
-    //Get the list of the units a team can build. (LATER!)
-    public void setAvailableUnits(List<Unit> newUnitList)
-    {
-        availableUnits.Clear();
-        availableUnits = newUnitList;
-    }
-
-  
-    public void Button_Buy(int index)
-    {
-        switch (index)
-        {
-            //Tank
-            case 0:
-                this.GetComponent<UnitCreator>().createUnit(Unit.type.Tank, _manager.getTurnManager().getActiveTeam(), xPos, yPos, Unit.facingDirection.East);
-                closeMenu();
-                break;
-            //Rockets
-            case 1:
-                this.GetComponent<UnitCreator>().createUnit(Unit.type.Rockets, _manager.getTurnManager().getActiveTeam(), xPos, yPos, Unit.facingDirection.East);
-                closeMenu();
-                break;
-            case 2:
-                break;
-            case 3:
-                break;
-            default:
-                break;
-        }
-    }
-
-    //Detail buttons
-    public void showDetails(string unitName)
-    {
-        detailsWindow.SetActive(true);
-        switch(unitName)
-        {
-            case "Tank":
-                moveDistance.text = "Distance: 6";
-                vision.text = "Vision : 3";
-                fuel.text = "Fuel: 99/99";
-                ammunition.text = "Ammo: 9/9";
-                break;
-
-            case "Rockets":
-                moveDistance.text = "Distance: 5";
-                vision.text = "Vision : 1";
-                fuel.text = "Fuel: 99/99";
-                ammunition.text = "Ammo: 6/6";
-                break;
-
-            default:
-                Debug.Log("BuyUnitMenu: No such unittype found!");
-                break;
-        }
-    }
-
 }

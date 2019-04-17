@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5098789b35a1a04cb6450aba274a3d5, type: 3}
+  m_Name: PlainData
+  m_EditorClassIdentifier: 
+  type: 0
+  tileName: Plain
+  cover: 1
+  isProperty: 0
+  maxTakeOverPoints: 20
+  thumbNail: {fileID: 21300000, guid: f9b9d52ba7be4a74794f4f18f7b27ddd, type: 3}
+  meshes:
+  - {fileID: 4300000, guid: e5927711066987247b34e9f5648e7a19, type: 3}
+  materials:
+  - {fileID: 2100000, guid: 0292a118a8a0a2645baf513490efa323, type: 2}
+  footCost: 1
+  mechCost: 1
+  treadsCost: 1
+  wheelsCost: 2
+  landerCost: -1
+  shipCost: -1
+  airCost: 1

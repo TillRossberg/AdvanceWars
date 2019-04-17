@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4847031fd4f35ef44ad3422feb5d1b25, type: 3}
+  m_Name: Soundbase
+  m_EditorClassIdentifier: 
+  explosion01Sound: {fileID: 8300000, guid: bf8414d67bcdbd04094932f68b12b6ea, type: 3}
+  clickSound: {fileID: 8300000, guid: e044648e4cfd52849bb9d84914dc7045, type: 3}
+  nopeSound: {fileID: 8300000, guid: f1ca412a489320948830a159401968a2, type: 3}
+  music:
+  - {fileID: 8300000, guid: 2c5f67638ac684e478b5d8b587cb77fe, type: 3}
