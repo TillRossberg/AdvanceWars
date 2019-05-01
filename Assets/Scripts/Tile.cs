@@ -18,7 +18,6 @@ public class Tile: MonoBehaviour
     public List<Tile> neighbors;        
     public int takeOverCounter;//For each lifepoint of the infantry/mech unit this value is lowered by one, if the takeover action is performed.
     public Team owningTeam;
-
     #endregion    
     #region States
     public bool isVisible = true;
@@ -131,5 +130,17 @@ public class Tile: MonoBehaviour
         else return false;
     }
 
+    #endregion
+    #region Conditions
+    public bool CanProduceUnits()
+    {
+        switch (data.type)
+        {         
+            case TileType.Facility: return true;
+            case TileType.Airport: return true;
+            case TileType.Port: return true;
+            default: return false;
+        }
+    }
     #endregion
 }

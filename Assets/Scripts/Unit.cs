@@ -32,6 +32,7 @@ public class Unit : MonoBehaviour
     #endregion
     #region Tiles
     public List<Tile> attackableTiles = new List<Tile>();
+    public bool IsShowingAttackableTiles = false;
     public List<Unit> attackableUnits = new List<Unit>();
     public List<Tile> reachableTiles = new List<Tile>();
     #endregion
@@ -309,18 +310,6 @@ public class Unit : MonoBehaviour
     
     #endregion       
     #region Attackable Area
-    //Sets the attackable tiles to active or inactive, so they are visible or not.
-    public void DisplayAttackableTiles(bool value)
-    {        
-        if (attackableTiles.Count > 0)
-        {
-            foreach (Tile tile in attackableTiles)
-            {
-                if(tile != null) tile.gameObject.SetActive(value);
-            }
-        }
-        else throw new System.Exception("Attackable tiles list is empty!");       
-    } 
 
     //Creates a list of tiles the unit can attack.
     public void CalcAttackableArea(Vector2Int position)

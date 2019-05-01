@@ -15,10 +15,12 @@ public class Controller : MonoBehaviour
     public int RoundCounter { get; private set; }
     public Weather currentWeather;
 
-    public enum Mode { normal, fire, move, menu };
+    public enum Mode { normal, fire, move, buyMenu, contextMenu };
     public Mode CurrentMode { get; private set; }
    
     int _enemyIndex = 0;
+
+
 
     #region Base Methods
     public void StartGame()
@@ -51,7 +53,7 @@ public class Controller : MonoBehaviour
         ActivateUnits(ActiveTeam);
     }
     #endregion
-    #region A-Button
+    #region A-Button Methods
     public void AButton()
     {
         Tile tile = Core.Model.GetTile(Cursor.Position);
@@ -70,6 +72,17 @@ public class Controller : MonoBehaviour
                     {
                         //Play dörp sound, unit has aleady moved or is not in our team
                     }
+                }
+                else if(tile.CanProduceUnits() && tile.owningTeam == ActiveTeam)
+                {
+                    OpenBuyMenu(tile);
+                    CurrentMode = Mode.buyMenu;
+                }
+                else
+                {
+                    Core.View.DisplayContextMenu(true);
+                    Core.View.contextMenu.Open();
+                    CurrentMode = Mode.contextMenu;
                 }
                 break;
             case Mode.fire:
@@ -117,13 +130,13 @@ public class Controller : MonoBehaviour
                     SelectedUnit.MoveUnitTo(Cursor.Position);
                 }
                 break;
-            case Mode.menu:
+            case Mode.buyMenu:
                 //apply choice
                 break;
         }
     }
     #endregion
-    #region B-Button
+    #region B-Button Methods
     public void BButton()
     {
         //displayCursorGfx(true); reactivate later
@@ -133,21 +146,25 @@ public class Controller : MonoBehaviour
             Cursor.SetPosition(SelectedUnit.position);
             DeselectObject();
         }
-        else if(SelectedUnit == null)
-        {
-            if(CurrentMode == Mode.menu)
-            {
-                Core.View.DisplayContextMenu(false);
-                CurrentMode = Mode.normal;
-            }
-            else
-            {
-                Core.View.DisplayContextMenu(true);
-                Core.View.contextMenu.SetButtons(0);
-                CurrentMode = Mode.menu;
-
-            }
+        else if(CurrentMode == Mode.buyMenu)
+        {         
+            Core.View.DisplayBuyMenu(false);
+             CurrentMode = Mode.normal;                    
         }
+        
+    }
+    public void BButtonHold()
+    {
+        if (Core.Model.GetTile(Cursor.Position).GetUnitHere() != null && ActiveTeam != Core.Model.GetTile(Cursor.Position).GetUnitHere().team)
+        {
+            Unit unit = Core.Model.GetTile(Cursor.Position).GetUnitHere();
+            unit.CalcAttackableArea(unit.position);
+            Core.View.CreateAttackableTilesGfx(unit);
+        }
+    }
+    public void BButtonReleased()
+    {
+        Core.View.ResetAttackableTiles();                    
     }
     #endregion   
     #region Cursor Methods
@@ -188,11 +205,7 @@ public class Controller : MonoBehaviour
                         ArrowBuilder.CreateNextPart(tile);
                         Cursor.SetPosition(pos);
                     }
-                    break;
-                case Mode.menu:
-
-                    //navigate menu
-                    break;
+                    break;               
                 default:
                     Debug.Log("Controller_MarkingCursor: goTo: mode not implemented yet!");
                     break;
@@ -230,7 +243,7 @@ public class Controller : MonoBehaviour
     }
 
     #endregion
-    #region Selection
+    #region Selection Methods
     public void Select(GameObject gameObject)
     {
         DeselectObject(); //Previous selected object out!
@@ -269,14 +282,14 @@ public class Controller : MonoBehaviour
         if (SelectedTile != null) DeselectTile();
         CurrentMode = Mode.normal;
     }
-    //Deselect a Unit.
+    //Deselect an Unit.
     public void DeselectUnit()
     {
-        SelectedUnit.isSelected = false;//Deselect Unit
+        SelectedUnit.isSelected = false;
         ClearAttackableArea(SelectedUnit);
         ClearReachableArea(SelectedUnit);
         ClearAttackableUnits(SelectedUnit);
-        ArrowBuilder.ResetAll();//Resets the movement arrow.    
+        ArrowBuilder.ResetAll();    
         Cursor.SetCursorGfx(0);
         SelectedUnit = null;
     }
@@ -304,7 +317,7 @@ public class Controller : MonoBehaviour
     public void ClearAttackableArea(Unit unit)
     {
         unit.attackableTiles.Clear();
-        Core.View.ResetAttackableTiles(unit);
+        Core.View.ResetAttackableTiles();
     }
     public void DisplayAttackableUnits(Unit unit)
     {
@@ -327,16 +340,16 @@ public class Controller : MonoBehaviour
         if(SelectedUnit.targetTile != null) SelectedUnit.CalcAttackableArea(SelectedUnit.targetTile.position);
         if(SelectedUnit.targetTile == null) SelectedUnit.CalcAttackableArea(SelectedUnit.position);
         SelectedUnit.FindAttackableEnemies();
-        Core.View.contextMenu.SetButtons(SelectedUnit);
-        CurrentMode = Mode.menu;
+        Core.View.contextMenu.Open();
+        CurrentMode = Mode.contextMenu;
         //eventSystem.SetSelectedGameObject(null);
         //Invoke("highlightFirstMenuButton", 0.01f);
     }
-    public void FireButtonDelayed()
+    public void FireButton()
     {
-        StartCoroutine(FireButton(0.01f));
+        StartCoroutine(FireButtonDelayed(0.01f));
     }
-    IEnumerator FireButton(float delay)
+    IEnumerator FireButtonDelayed(float delay)
     {
         yield return new WaitForSeconds(delay);
         CurrentMode = Mode.fire;       
@@ -367,11 +380,11 @@ public class Controller : MonoBehaviour
         Core.View.ToggleAttackableTilesGfx();
     }
     //Pause Menu
-    public void EndTurnButtonDelayed()
+    public void EndTurnButton()
     {
-       StartCoroutine(EndTurnButton(0.01f));
+       StartCoroutine(EndTurnButtonDelayed(0.01f));
     }
-    IEnumerator EndTurnButton(float delay)
+    IEnumerator EndTurnButtonDelayed(float delay)
     {
         yield return new WaitForSeconds(delay);
         EndTurn();
@@ -386,7 +399,7 @@ public class Controller : MonoBehaviour
     {
         Core.View.DisplayBuyMenu(true);
         Core.View.buyMenu.DisplayMenu(tile);
-    }
+    }   
     public void BuyUnit()
     {
         Unit unit = Core.View.buyMenu.SelectedUnit;
@@ -504,9 +517,8 @@ public class Controller : MonoBehaviour
     {
         tile.ResetTakeOverCounter();
     }
-    void Occupy(Team newOwner, Tile tile)
-    {
-       
+    public void Occupy(Team newOwner, Tile tile)
+    {       
         //If it was occupied by another team, delete it from their property list.
         if (tile.owningTeam != null)
         {
@@ -533,7 +545,7 @@ public class Controller : MonoBehaviour
         {
             //TODO: decide if more than two teams are playing and then only remove the defeated team from the map.
             //TODO: winning animationstuff
-            Debug.Log(ActiveTeam + " wins the game by getting properties! Wuhuuu!!");
+            Debug.Log(ActiveTeam + " wins the game by getting " + Core.Model.MapSettings.propertiesToWin +" properties! Wuhuuu!!");
 
         }
 

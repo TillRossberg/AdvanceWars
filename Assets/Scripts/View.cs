@@ -80,7 +80,7 @@ public class View : MonoBehaviour
             attackableTilesGfx.Add(Instantiate(Core.Model.Database.attackableTilePrefab, new Vector3(tile.position.x, 0.1f, tile.position.y), Quaternion.identity, attackablTilesParent));
         }        
     }
-    public void ResetAttackableTiles(Unit unit)
+    public void ResetAttackableTiles()
     {
         foreach (GameObject gfx in attackableTilesGfx)
         {

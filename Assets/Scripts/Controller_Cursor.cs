@@ -13,10 +13,15 @@ public class Controller_Cursor : MonoBehaviour
     public Vector2Int Position { get; private set; }
     public List<Mesh> meshes;
 
+    float _buttonHoldDelay;
+    float _buttonPressedTimer = 0;
+    bool _holdingB = false;
+
     public void Init(Vector2Int position)
     {
         SetPosition(position);
         _inputDelay = Core.Model.inputDelay;
+        _buttonHoldDelay = Core.Model.buttonHoldDelay;
     }
 
     private void Update()
@@ -79,6 +84,26 @@ public class Controller_Cursor : MonoBehaviour
         if (Input.GetButtonDown("Cancel") )
         {
             Core.Controller.BButton();
+            _buttonPressedTimer = 0;
+        }
+        //Holding B button
+        if (Input.GetButton("Cancel"))
+        {
+            _buttonPressedTimer += Time.deltaTime;
+            if(_buttonPressedTimer >= _buttonHoldDelay && !_holdingB)
+            {
+                Core.Controller.BButtonHold();
+                _holdingB = true;
+            }
+        }
+        if (Input.GetButtonUp("Cancel"))
+        {
+            if (_buttonPressedTimer >= _buttonHoldDelay)
+            {
+                Core.Controller.BButtonReleased();
+                _buttonPressedTimer = 0;
+                _holdingB = false;
+            }
         }
        
         #region Debug

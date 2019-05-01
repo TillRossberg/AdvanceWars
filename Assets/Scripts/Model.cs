@@ -19,6 +19,7 @@ public class Model : MonoBehaviour
     public List<List<Tile>> MapMatrix { get; private set; }
     public float tileHeight = 0;
     public float inputDelay = 0.145f;
+    public float buttonHoldDelay = 0.1f;
     #endregion
     #region Team fields
     public List<Team> teams = new List<Team>();
@@ -207,6 +208,7 @@ public class Model : MonoBehaviour
         }
         ChangeTile(TileType.HQ, new Vector2Int(7, 7), 0);
         ChangeTile(TileType.Facility, new Vector2Int(7, 8), 0);
+        Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(7, 8)));
         ChangeTile(TileType.Road, new Vector2Int(7, 6), 0);
         SetNeighbors(MapMatrix);
         CreateUnit(UnitType.Tank, Core.Model.teams[0], new Vector2Int(5, 5), Direction.North);
