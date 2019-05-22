@@ -76,7 +76,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1039282150362649779}
-  m_Mesh: {fileID: 4300000, guid: a302dc3963dc71e448c61998ee512e21, type: 3}
+  m_Mesh: {fileID: 4300000, guid: 77263364228721447ba1fbc1981034a2, type: 3}
 --- !u!1 &4335460025909723858
 GameObject:
   m_ObjectHideFlags: 0
@@ -104,7 +104,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4335460025909723858}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4.3077235, y: -1.7913907, z: 4.867}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 3942207213285471290}
@@ -129,14 +129,16 @@ MonoBehaviour:
   healthText: {fileID: 2881644314965173725}
   team: {fileID: 0}
   enemyTeams: []
+  targetTile: {fileID: 0}
   position: {x: 0, y: 0}
   rotation: 0
   direction: 0
-  prePosition: {x: 0, y: 0}
-  preDirection: 0
   hasTurn: 0
+  CanMove: 0
+  CanFire: 0
   isSelected: 0
   attackableTiles: []
+  IsShowingAttackableTiles: 0
   attackableUnits: []
   reachableTiles: []
   health: 100

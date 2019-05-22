@@ -1,0 +1,236 @@
+fileFormatVersion: 2
+guid: 48e2adbef51117547a2d5ae07669630f
+ModelImporter:
+  serializedVersion: 23
+  fileIDToRecycleName:
+    100000: Boden
+    100002: //RootNode
+    100004: "Deckfl\xE4che_1"
+    100006: "Deckfl\xE4che_1_2"
+    100008: "Deckfl\xE4che_2"
+    100010: "Deckfl\xE4che_2_2"
+    100012: Licht_Ziel
+    100014: Licht_Ziel_1
+    100016: STuff
+    100018: Unit_Details
+    100020: Unit_Details_1
+    100022: Unit_Details_2
+    100024: "Deckfl\xE4che_1_3"
+    100026: "Deckfl\xE4che_1_4"
+    100028: "Deckfl\xE4che_1_5"
+    100030: "Deckfl\xE4che_1_6"
+    100032: "Deckfl\xE4che_2_3"
+    100034: "Deckfl\xE4che_2_4"
+    100036: "Deckfl\xE4che_2_5"
+    100038: "Deckfl\xE4che_2_6"
+    100040: Extrudieren
+    100042: Extrudieren_1
+    100044: Extrudieren_1_2
+    100046: Extrudieren_2
+    100048: Fuel__Vision__Move
+    100050: Weapons
+    100052: Weapons_1
+    100054: "W\xFCrfel"
+    100056: "W\xFCrfel_1"
+    100058: "W\xFCrfel_2"
+    100060: "W\xFCrfel_3"
+    100062: "W\xFCrfel_4"
+    100064: "W\xFCrfel_5"
+    400000: Boden
+    400002: //RootNode
+    400004: "Deckfl\xE4che_1"
+    400006: "Deckfl\xE4che_1_2"
+    400008: "Deckfl\xE4che_2"
+    400010: "Deckfl\xE4che_2_2"
+    400012: Licht_Ziel
+    400014: Licht_Ziel_1
+    400016: STuff
+    400018: Unit_Details
+    400020: Unit_Details_1
+    400022: Unit_Details_2
+    400024: "Deckfl\xE4che_1_3"
+    400026: "Deckfl\xE4che_1_4"
+    400028: "Deckfl\xE4che_1_5"
+    400030: "Deckfl\xE4che_1_6"
+    400032: "Deckfl\xE4che_2_3"
+    400034: "Deckfl\xE4che_2_4"
+    400036: "Deckfl\xE4che_2_5"
+    400038: "Deckfl\xE4che_2_6"
+    400040: Extrudieren
+    400042: Extrudieren_1
+    400044: Extrudieren_1_2
+    400046: Extrudieren_2
+    400048: Fuel__Vision__Move
+    400050: Weapons
+    400052: Weapons_1
+    400054: "W\xFCrfel"
+    400056: "W\xFCrfel_1"
+    400058: "W\xFCrfel_2"
+    400060: "W\xFCrfel_3"
+    400062: "W\xFCrfel_4"
+    400064: "W\xFCrfel_5"
+    2100000: No Name
+    2100002: Metal 03
+    2100004: glow_blue
+    2100006: Metal - Lead - Sculpture
+    2300000: "Deckfl\xE4che_1"
+    2300002: "Deckfl\xE4che_1_2"
+    2300004: "Deckfl\xE4che_2"
+    2300006: "Deckfl\xE4che_2_2"
+    2300008: Unit_Details
+    2300010: Unit_Details_1
+    2300012: Unit_Details_2
+    2300014: "Deckfl\xE4che_1_3"
+    2300016: "Deckfl\xE4che_1_4"
+    2300018: "Deckfl\xE4che_1_5"
+    2300020: "Deckfl\xE4che_1_6"
+    2300022: "Deckfl\xE4che_2_3"
+    2300024: "Deckfl\xE4che_2_4"
+    2300026: "Deckfl\xE4che_2_5"
+    2300028: "Deckfl\xE4che_2_6"
+    2300030: Extrudieren
+    2300032: Extrudieren_1
+    2300034: Extrudieren_1_2
+    2300036: Extrudieren_2
+    2300038: "W\xFCrfel"
+    2300040: "W\xFCrfel_1"
+    2300042: "W\xFCrfel_2"
+    2300044: "W\xFCrfel_3"
+    2300046: "W\xFCrfel_4"
+    2300048: "W\xFCrfel_5"
+    3300000: "Deckfl\xE4che_1"
+    3300002: "Deckfl\xE4che_1_2"
+    3300004: "Deckfl\xE4che_2"
+    3300006: "Deckfl\xE4che_2_2"
+    3300008: Unit_Details
+    3300010: Unit_Details_1
+    3300012: Unit_Details_2
+    3300014: "Deckfl\xE4che_1_3"
+    3300016: "Deckfl\xE4che_1_4"
+    3300018: "Deckfl\xE4che_1_5"
+    3300020: "Deckfl\xE4che_1_6"
+    3300022: "Deckfl\xE4che_2_3"
+    3300024: "Deckfl\xE4che_2_4"
+    3300026: "Deckfl\xE4che_2_5"
+    3300028: "Deckfl\xE4che_2_6"
+    3300030: Extrudieren
+    3300032: Extrudieren_1
+    3300034: Extrudieren_1_2
+    3300036: Extrudieren_2
+    3300038: "W\xFCrfel"
+    3300040: "W\xFCrfel_1"
+    3300042: "W\xFCrfel_2"
+    3300044: "W\xFCrfel_3"
+    3300046: "W\xFCrfel_4"
+    3300048: "W\xFCrfel_5"
+    4300000: Unit_Details_1
+    4300002: "Deckfl\xE4che_1"
+    4300004: "Deckfl\xE4che_2"
+    4300006: Unit_Details
+    4300008: Unit_Details_2
+    4300010: "Deckfl\xE4che_1_2"
+    4300012: "Deckfl\xE4che_2_2"
+    4300014: Extrudieren_1
+    4300016: Extrudieren
+    4300018: Extrudieren_1_2
+    4300020: "Deckfl\xE4che_1_3"
+    4300022: "Deckfl\xE4che_2_3"
+    4300024: Extrudieren_2
+    4300026: "Deckfl\xE4che_1_4"
+    4300028: "Deckfl\xE4che_2_4"
+    4300030: "W\xFCrfel_5"
+    4300032: "W\xFCrfel_4"
+    4300034: "W\xFCrfel_3"
+    4300036: "W\xFCrfel_2"
+    4300038: "W\xFCrfel_1"
+    4300040: "W\xFCrfel"
+    4300042: "Deckfl\xE4che_1_5"
+    4300044: "Deckfl\xE4che_2_5"
+    4300046: "Deckfl\xE4che_1_6"
+    4300048: "Deckfl\xE4che_2_6"
+  externalObjects: {}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    previousCalculatedGlobalScale: 1
+    hasPreviousCalculatedGlobalScale: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 0
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

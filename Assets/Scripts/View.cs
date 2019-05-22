@@ -1,12 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using System.Linq;
 
 public class View : MonoBehaviour
 {
     #region References
     public Canvas canvas;
+    public EventSystem eventSystem;
     public Menu_BuyUnits buyMenu;
     public Menu_Context contextMenu;
     public Panel_Status statusPanel;
@@ -30,10 +32,12 @@ public class View : MonoBehaviour
         weatherNames = System.Enum.GetNames(typeof(Weather)).ToList<string>();
         commanderNames = System.Enum.GetNames(typeof(CommanderType)).ToList<string>();
         if (!canvas.gameObject.activeSelf) canvas.gameObject.SetActive(true);
+        buyMenu.gameObject.SetActive(false);
     }
     
     #endregion
     #region Menu Methods
+    
     public void DisplayContextMenu(bool value){contextMenu.gameObject.SetActive(value);}
     public void DisplayStatusPanel(bool value){statusPanel.gameObject.SetActive(value);}
     public void DisplayCommanderPanel(bool value){ commanderPanel.gameObject.SetActive(value);}
@@ -126,6 +130,32 @@ public class View : MonoBehaviour
                 if (unit != null) unit.CalcVisibleArea();
             }
         }
+    }
+    #endregion
+    #region Select first menu item
+    public void HighlightFirstMenuItem(Transform menutItemsParent)
+    {
+        eventSystem.SetSelectedGameObject(null);
+        StartCoroutine(SelectItemDelayed(0.0001f, menutItemsParent));
+    }
+    GameObject GetFirstActiveItem(Transform parent)
+    {
+        for (int i = 0; i < parent.childCount; i++)
+        {
+            if (parent.GetChild(i).gameObject.activeSelf)
+            {
+
+                return parent.GetChild(i).gameObject;
+            }
+        }
+        Debug.Log("menu cotext: getfirstactivebutton: no active button found!");
+        return null;
+    }
+    IEnumerator SelectItemDelayed(float delay, Transform menuParent)
+    {
+        yield return new WaitForSeconds(delay);
+                //Debug.Log(item.name);
+        eventSystem.SetSelectedGameObject(GetFirstActiveItem(menuParent));
     }
     #endregion
 }

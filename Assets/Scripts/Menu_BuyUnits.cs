@@ -3,55 +3,96 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class Menu_BuyUnits : MonoBehaviour
 {
-    //References       
-    public RectTransform buyButton;
-
     //Details window
-    public GameObject detailsWindow;
-    public Image unitDetailThumb;
-    public Text moveDistance;
-    public Text vision;
-    public Text fuel;
-    public Text ammunition;
+    public Image detailedUnit;
+    public TextMeshProUGUI movePoints;
+    public TextMeshProUGUI visionPoints;
+    public TextMeshProUGUI fuelPoints;
+    public TextMeshProUGUI range;
+
+    public TextMeshProUGUI primaryWeaponName;
+    public TextMeshProUGUI primaryWeaponAmount;
+    public TextMeshProUGUI secondaryWeaponName;
+    public TextMeshProUGUI secondaryWeaponAmount;
+    //Unit selection
+    List<Menu_BuyUnits_Selection> _selectors = new List<Menu_BuyUnits_Selection>();
+    public Transform selectorParent;
+    public Menu_BuyUnits_Selection unitSelectorPrefab;   
     //Fields
-    public Unit SelectedUnit { get; private set; }
-    List<UnitType> availableUnits;
-    public Vector2Int ProductionPosition { get; private set; }
-    public bool isOpened = false;
+    List<UnitType> _availableUnits = new List<UnitType>();
+    Vector2Int _productionPosition;
     
     public void DisplayMenu(Tile tile)
     {
-        ProductionPosition = tile.position;
-        if (tile.data.type == TileType.Facility) DisplayFacility(tile.owningTeam);
-        if (tile.data.type == TileType.Airport) DisplayAirport(tile.owningTeam);
-        if (tile.data.type == TileType.Port) DisplayPort(tile.owningTeam);
+        _productionPosition = tile.position;
+        //Debug.Log(_availableUnits.Count);
+        SetAvailableUnits(tile);
+        CreateUnitSelectors(_availableUnits);
+        Core.View.HighlightFirstMenuItem(selectorParent);
     }
 
-    void DisplayFacility(Team team)
+    public void Buy(UnitType type)
     {
-        availableUnits = team.data.GetAvailableGroundUnits();
-        Debug.Log("Showing ground units!");
+        //TODO: make unit face enemy hq
+        Core.Model.CreateUnit(type, Core.Controller.ActiveTeam, _productionPosition, Direction.North);
+        Core.Controller.CurrentMode = Controller.Mode.normal;
+        Core.View.DisplayBuyMenu(false);
     }
-    void DisplayAirport(Team team)
+
+   
+    public void UpdateDetails(UnitType type)
     {
-        availableUnits = team.data.GetAvailableAirUnits();
-        Debug.Log("Showing air units!");
-    }
-    void DisplayPort(Team team)
-    {
-        availableUnits = team.data.GetAvailableNavalUnits();
-        Debug.Log("Showing naval units!");
-    }
-	
-    public void UpdateDetails()
-    {
-        moveDistance.text = SelectedUnit.data.moveDist.ToString();
-        vision.text = SelectedUnit.data.visionRange.ToString();
-        fuel.text = SelectedUnit.data.maxFuel.ToString();
-        ammunition.text = SelectedUnit.data.maxAmmo.ToString();
+        Data_Unit data = Core.Model.Database.GetUnitPrefab(type).GetComponent<Unit>().data;
+
+        detailedUnit.sprite = data.detailedPic;
+        movePoints.text = data.moveDist.ToString();
+        visionPoints.text = data.visionRange.ToString();
+        fuelPoints.text = data.maxFuel.ToString() + "/ \n" + data.maxFuel.ToString();
+
+        if (data.maxRange == 1) range.text = "Range: " + data.maxRange.ToString();
+        else range.text = "Range: " + data.minRange.ToString() + "-" + data.maxRange.ToString();
+
+        primaryWeaponName.text = data.primaryWeapon.ToString();
+        secondaryWeaponName.text = data.secondaryWeapon.ToString();
+
+        if (data.primaryWeapon == Weapons.none) primaryWeaponAmount.text = "";
+        else if(data.primaryAmmo == -1) primaryWeaponAmount.text = "-";
+        else primaryWeaponAmount.text = data.primaryAmmo.ToString();
+
+        if (data.secondaryWeapon == Weapons.none) secondaryWeaponAmount.text = "";
+        else if (data.secondaryAmmo == -1) secondaryWeaponAmount.text = "-";
+        else secondaryWeaponAmount.text = data.secondaryAmmo.ToString();      
     }    
-    
+    void SetAvailableUnits(Tile tile)
+    {
+        Team team = tile.owningTeam;
+        if (tile.data.type == TileType.Facility) SetAvailableUnits(team.data.availableGroundUnits);
+        if (tile.data.type == TileType.Airport) SetAvailableUnits(team.data.availableAirUnits);
+        if (tile.data.type == TileType.Port) SetAvailableUnits(team.data.availableNavalUnits);
+    }
+    void SetAvailableUnits(List<UnitType> unitTypes)
+    {
+        _availableUnits.Clear();
+        _availableUnits = new List<UnitType>(unitTypes);
+    }
+    void CreateUnitSelectors(List<UnitType> units)
+    {
+        if (_selectors.Count > 0) ClearSelectors();
+        selectorParent.GetComponent<RectTransform>().sizeDelta = new Vector2(unitSelectorPrefab.GetComponent<RectTransform>().sizeDelta.x, units.Count * unitSelectorPrefab.GetComponent<RectTransform>().sizeDelta.y);
+        foreach (UnitType type in units)
+        {
+            Menu_BuyUnits_Selection selector = Instantiate(unitSelectorPrefab, selectorParent);
+            selector.Init(Core.Model.Database.GetUnitPrefab(type).GetComponent<Unit>().data);
+            _selectors.Add(selector);
+        }
+    }
+    void ClearSelectors()
+    {
+        foreach (Menu_BuyUnits_Selection selector in _selectors) Destroy(selector.gameObject);       
+        _selectors.Clear();
+    }
 }

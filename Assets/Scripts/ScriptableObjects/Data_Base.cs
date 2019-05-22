@@ -81,30 +81,33 @@ public class Data_Base : ScriptableObject
 
     public GameObject GetUnitPrefab(UnitType type)
     {
+        GameObject unit = null;
         switch (type)
         {
-            case UnitType.Flak: return anitAirPrefab;
-            case UnitType.APC: return APCPrefab;
-            case UnitType.Tank: return tankPrefab;
-            case UnitType.Artillery: return artilleryPrefab;
-            case UnitType.Rockets: return rocketPrefab;
-            case UnitType.Missiles: return missilePrefab;
-            case UnitType.Titantank: return titanTankPrefab;
-            case UnitType.Recon: return reconPrefab;
-            case UnitType.Infantry: return infantryPrefab;
-            case UnitType.MdTank: return mdTankPrefab;
-            case UnitType.Mech: return mechPrefab;
-            case UnitType.TCopter: return tCopterPrefab;
-            case UnitType.BCopter: return bCopterPrefab;
-            case UnitType.Bomber: return bomberPrefab;
-            case UnitType.Fighter:return fighterPrefab;
-            case UnitType.Lander: return landerPrefab;
-            case UnitType.Battleship: return battleShipPrefab;
-            case UnitType.Cruiser: return cruiserPrefab;
-            case UnitType.Sub: return subPrefab;
-            case UnitType.Pipe: return pipePrefab;
+            case UnitType.Flak: unit = anitAirPrefab; break;
+            case UnitType.APC: unit = APCPrefab; break;
+            case UnitType.Tank: unit = tankPrefab; break;
+            case UnitType.Artillery: unit = artilleryPrefab; break;
+            case UnitType.Rockets: unit = rocketPrefab; break;
+            case UnitType.Missiles: unit = missilePrefab; break;
+            case UnitType.Titantank: unit = titanTankPrefab; break;
+            case UnitType.Recon: unit = reconPrefab; break;
+            case UnitType.Infantry: unit = infantryPrefab; break;
+            case UnitType.MdTank: unit = mdTankPrefab; break;
+            case UnitType.Mech: unit = mechPrefab; break;
+            case UnitType.TCopter: unit = tCopterPrefab; break;
+            case UnitType.BCopter: unit = bCopterPrefab; break;
+            case UnitType.Bomber: unit = bomberPrefab; break;
+            case UnitType.Fighter: unit = fighterPrefab; break;
+            case UnitType.Lander: unit = landerPrefab; break;
+            case UnitType.Battleship: unit = battleShipPrefab; break;
+            case UnitType.Cruiser: unit = cruiserPrefab; break;
+            case UnitType.Sub: unit = subPrefab; break;
+            case UnitType.Pipe: unit = pipePrefab; break;
             default: throw new System.Exception("Unittype not found: " + type.ToString());
         }
+        if (unit != null) return unit;
+        else throw new System.Exception("Unit prefab " + type.ToString() + " not set!");
     }
     public Sprite GetCommanderThumb(CommanderType type)
     {

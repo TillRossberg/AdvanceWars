@@ -209,6 +209,8 @@ public class Model : MonoBehaviour
         ChangeTile(TileType.HQ, new Vector2Int(7, 7), 0);
         ChangeTile(TileType.Facility, new Vector2Int(7, 8), 0);
         Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(7, 8)));
+        ChangeTile(TileType.Facility, new Vector2Int(8, 8), 0);
+        Core.Controller.Occupy(teams[1], GetTile(new Vector2Int(8, 8)));
         ChangeTile(TileType.Road, new Vector2Int(7, 6), 0);
         SetNeighbors(MapMatrix);
         CreateUnit(UnitType.Tank, Core.Model.teams[0], new Vector2Int(5, 5), Direction.North);

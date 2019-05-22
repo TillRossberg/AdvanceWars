@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.EventSystems;
 
 public class Menu_Context : MonoBehaviour
 {
     //References    
-    public EventSystem eventSystem;
 
     public Transform buttonParent;
     public RectTransform waitButton;
@@ -59,8 +57,7 @@ public class Menu_Context : MonoBehaviour
             tileInfoButton.gameObject.SetActive(true);
             endTurnButton.gameObject.SetActive(true);
         }
-        eventSystem.SetSelectedGameObject(null);
-        Invoke("highlightFirstMenuButton", 0.0001f);
+        Core.View.HighlightFirstMenuItem(buttonParent);
     }
 
     void DeactivateAllButtons()
@@ -71,23 +68,5 @@ public class Menu_Context : MonoBehaviour
         tileInfoButton.gameObject.SetActive(false);
         occupyButton.gameObject.SetActive(false);
         endTurnButton.gameObject.SetActive(false);
-    }
-   
-    //Can go somewhere else... view?
-    #region Highlight First Button
-    public Transform GetFirstActiveButton()
-    {
-        for (int i = 0; i < buttonParent.childCount; i++)
-        {
-            if (buttonParent.GetChild(i).gameObject.activeSelf) return buttonParent.GetChild(i);
-        }       
-        Debug.Log("menu cotext: getfirstactivebutton: no active button found!");
-        return null;
-    }
-    private void highlightFirstMenuButton()
-    {
-        eventSystem.SetSelectedGameObject(GetFirstActiveButton().gameObject);
-    }
-    #endregion
-
+    } 
 }

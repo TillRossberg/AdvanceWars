@@ -16,7 +16,7 @@ public class Controller : MonoBehaviour
     public Weather currentWeather;
 
     public enum Mode { normal, fire, move, buyMenu, contextMenu };
-    public Mode CurrentMode { get; private set; }
+    public Mode CurrentMode;
    
     int _enemyIndex = 0;
 
@@ -58,7 +58,7 @@ public class Controller : MonoBehaviour
     {
         Tile tile = Core.Model.GetTile(Cursor.Position);
         Unit unit = tile.GetUnitHere();
-        switch (Core.Controller.CurrentMode)
+        switch (CurrentMode)
         {
             case Mode.normal:
                 if (unit != null)
@@ -139,25 +139,37 @@ public class Controller : MonoBehaviour
     #region B-Button Methods
     public void BButton()
     {
-        //displayCursorGfx(true); reactivate later
-        if (SelectedUnit != null && !SelectedUnit.AnimationController.IsMovingToTarget)
+        switch (CurrentMode)
         {
-            SelectedUnit.ResetPosition();
-            Cursor.SetPosition(SelectedUnit.position);
-            DeselectObject();
-        }
-        else if(CurrentMode == Mode.buyMenu)
-        {         
-            Core.View.DisplayBuyMenu(false);
-             CurrentMode = Mode.normal;                    
-        }
-        
+            case Mode.normal:
+                break;
+            case Mode.fire:
+                break;
+            case Mode.move:
+                if (!SelectedUnit.AnimationController.IsMovingToTarget)
+                {
+                    SelectedUnit.ResetPosition();
+                    Cursor.SetPosition(SelectedUnit.position);
+                    DeselectObject();
+                }
+                break;
+            case Mode.buyMenu:
+                Core.View.DisplayBuyMenu(false);
+                CurrentMode = Mode.normal;
+                break;
+            case Mode.contextMenu:
+                Core.View.DisplayContextMenu(false);
+                CurrentMode = Mode.normal;
+                break;
+            default:
+                break;
+        }        
     }
     public void BButtonHold()
     {
-        if (Core.Model.GetTile(Cursor.Position).GetUnitHere() != null && ActiveTeam != Core.Model.GetTile(Cursor.Position).GetUnitHere().team)
-        {
-            Unit unit = Core.Model.GetTile(Cursor.Position).GetUnitHere();
+        Unit unit = Core.Model.GetTile(Cursor.Position).GetUnitHere();
+        if (unit != null && ActiveTeam != unit.team)
+        {            
             unit.CalcAttackableArea(unit.position);
             Core.View.CreateAttackableTilesGfx(unit);
         }
@@ -205,9 +217,13 @@ public class Controller : MonoBehaviour
                         ArrowBuilder.CreateNextPart(tile);
                         Cursor.SetPosition(pos);
                     }
-                    break;               
-                default:
-                    Debug.Log("Controller_MarkingCursor: goTo: mode not implemented yet!");
+                    break;
+                case Mode.buyMenu:
+
+                    break;
+                case Mode.contextMenu:
+                    break;
+                default:                    
                     break;
             }
         }
@@ -399,16 +415,7 @@ public class Controller : MonoBehaviour
     {
         Core.View.DisplayBuyMenu(true);
         Core.View.buyMenu.DisplayMenu(tile);
-    }   
-    public void BuyUnit()
-    {
-        Unit unit = Core.View.buyMenu.SelectedUnit;
-        Vector2Int position = Core.View.buyMenu.ProductionPosition;
-        //TODO: store the direction of the enemy hq somewhere.
-        Direction direction = Direction.East;
-        Core.Model.CreateUnit(unit.data.type, ActiveTeam, position, direction);
-        Core.View.DisplayBuyMenu(false);
-    }
+    }    
     #endregion
     #region Turn
     //Start turn

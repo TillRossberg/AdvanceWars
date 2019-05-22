@@ -7,12 +7,14 @@ public class Data_Unit : ScriptableObject
 {
     #region Prefabs    
     public Sprite thumbNail;
+    public Sprite detailedPic;
     public Mesh mesh;
     public Material material;
 
     #endregion
     #region Fields
     [Header("General")]
+    public string unitName;
     public UnitType type;
     public UnitMoveType moveType;
     public string description;
@@ -28,6 +30,11 @@ public class Data_Unit : ScriptableObject
     public int cost;
     #endregion
     #region Damage
+    [Header("Weapons")]
+    public Weapons primaryWeapon;
+    public int primaryAmmo;
+    public Weapons secondaryWeapon;
+    public int secondaryAmmo;
     [Header("Damage")]
     public float Infantry;
     public float Mech;

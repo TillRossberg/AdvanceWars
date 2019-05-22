@@ -9,7 +9,10 @@ public class Data_Team : ScriptableObject
     public string teamName;
     public CommanderType commander;
     public Color teamColor;
-    public List<UnitType> availableUnits = new List<UnitType>();
+    public List<UnitType> availableGroundUnits;
+    public List<UnitType> availableAirUnits;
+    public List<UnitType> availableNavalUnits;
+
 
     #endregion
     #region Statistic Fields
@@ -21,95 +24,67 @@ public class Data_Team : ScriptableObject
 
     #region Available Units
     //Add an unit type to the available units list.
-    public void AddAvailableUnit(UnitType myUnittype)
+    public void AddAvailableUnit(UnitType myUnittype, UnitCategory category)
     {
-        if (!availableUnits.Contains(myUnittype))
+        switch (category)
         {
-            availableUnits.Add(myUnittype);
+            case UnitCategory.ground: AddAvailableUnit(myUnittype, availableGroundUnits);break;
+            case UnitCategory.air: AddAvailableUnit(myUnittype, availableAirUnits);break;
+            case UnitCategory.naval: AddAvailableUnit(myUnittype, availableNavalUnits);break;
+            default:
+                break;
         }
-        else
-        {
-            throw new System.Exception(myUnittype + ": Unit is already available!");
-        }
+        
+    }
+    void AddAvailableUnit(UnitType type, List<UnitType> typeList)
+    {
+        if (!typeList.Contains(type)) typeList.Add(type);
+        else throw new System.Exception(type + ": Unit is already available!");       
     }
 
     //Remove available unit.
-    public void RemoveAvailableUnit(UnitType myUnittype)
+    public void RemoveAvailableUnit(UnitType myUnittype, UnitCategory category)
     {
-        if (availableUnits.Contains(myUnittype))
+        switch (category)
         {
-            availableUnits.Remove(myUnittype);
-        }
-        else
-        {
-            throw new System.Exception(myUnittype + ": Unit was not available!");
+            case UnitCategory.ground: RemoveAvailableUnit(myUnittype, availableGroundUnits);break;
+            case UnitCategory.air:RemoveAvailableUnit(myUnittype, availableAirUnits);break;
+            case UnitCategory.naval:RemoveAvailableUnit(myUnittype, availableNavalUnits);break;
+            default:
+                break;
         }
     }
-
-    //Set the list of available units for a team.
-    public void SetAvailableUnits(List<UnitType> newUnitList)
+    void RemoveAvailableUnit(UnitType myUnittype, List<UnitType> typeList)
     {
-        availableUnits.Clear();
-        availableUnits = newUnitList;
+        if (typeList.Contains(myUnittype))typeList.Remove(myUnittype);
+        else throw new System.Exception(myUnittype + ": Unit was not available!");
     }
 
     //Makes all possible units available.
     public void SetAllUnitsAvailable()
     {
-        availableUnits.Add(UnitType.Flak);
-        availableUnits.Add(UnitType.APC);
-        availableUnits.Add(UnitType.Artillery);
-        availableUnits.Add(UnitType.Battleship);
-        availableUnits.Add(UnitType.BCopter);
-        availableUnits.Add(UnitType.Bomber);
-        availableUnits.Add(UnitType.Cruiser);
-        availableUnits.Add(UnitType.Fighter);
-        availableUnits.Add(UnitType.Infantry);
-        availableUnits.Add(UnitType.Lander);
-        availableUnits.Add(UnitType.MdTank);
-        availableUnits.Add(UnitType.Mech);
-        availableUnits.Add(UnitType.Missiles);
-        availableUnits.Add(UnitType.Titantank);
-        availableUnits.Add(UnitType.Recon);
-        availableUnits.Add(UnitType.Rockets);
-        availableUnits.Add(UnitType.Sub);
-        availableUnits.Add(UnitType.Tank);
-        availableUnits.Add(UnitType.TCopter);
-    }
-
-    public List<UnitType> GetAvailableGroundUnits()
-    {
-        List<UnitType> tempList = new List<UnitType>();
-        if (availableUnits.Contains(UnitType.Flak)) tempList.Add(UnitType.Flak);
-        if (availableUnits.Contains(UnitType.APC)) tempList.Add(UnitType.APC);
-        if (availableUnits.Contains(UnitType.Artillery)) tempList.Add(UnitType.Artillery);
-        if (availableUnits.Contains(UnitType.Infantry)) tempList.Add(UnitType.Infantry);
-        if (availableUnits.Contains(UnitType.MdTank)) tempList.Add(UnitType.MdTank);
-        if (availableUnits.Contains(UnitType.Mech)) tempList.Add(UnitType.Mech);
-        if (availableUnits.Contains(UnitType.Missiles)) tempList.Add(UnitType.Missiles);
-        if (availableUnits.Contains(UnitType.Titantank)) tempList.Add(UnitType.Titantank);
-        if (availableUnits.Contains(UnitType.Recon)) tempList.Add(UnitType.Recon);
-        if (availableUnits.Contains(UnitType.Rockets)) tempList.Add(UnitType.Rockets);
-        if (availableUnits.Contains(UnitType.Tank)) tempList.Add(UnitType.Tank);
-        return tempList;
-    }
-    public List<UnitType> GetAvailableAirUnits()
-    {
-        List<UnitType> tempList = new List<UnitType>();
-        if (availableUnits.Contains(UnitType.BCopter)) tempList.Add(UnitType.BCopter);
-        if (availableUnits.Contains(UnitType.TCopter)) tempList.Add(UnitType.TCopter);
-        if (availableUnits.Contains(UnitType.Bomber)) tempList.Add(UnitType.Bomber);
-        if (availableUnits.Contains(UnitType.Fighter)) tempList.Add(UnitType.Fighter);
-        return tempList;
-    }
-    public List<UnitType> GetAvailableNavalUnits()
-    {
-        List<UnitType> tempList = new List<UnitType>();
-        if (availableUnits.Contains(UnitType.Lander)) tempList.Add(UnitType.Lander);
-        if (availableUnits.Contains(UnitType.Cruiser)) tempList.Add(UnitType.Cruiser);
-        if (availableUnits.Contains(UnitType.Battleship)) tempList.Add(UnitType.Battleship);
-        if (availableUnits.Contains(UnitType.Sub)) tempList.Add(UnitType.Sub);
-        return tempList;
+        //ground
+        availableGroundUnits.Add(UnitType.Flak);
+        availableGroundUnits.Add(UnitType.APC);
+        availableGroundUnits.Add(UnitType.Artillery);
+        availableGroundUnits.Add(UnitType.Infantry);
+        availableGroundUnits.Add(UnitType.MdTank);
+        availableGroundUnits.Add(UnitType.Mech);
+        availableGroundUnits.Add(UnitType.Missiles);
+        availableGroundUnits.Add(UnitType.Titantank);
+        availableGroundUnits.Add(UnitType.Recon);
+        availableGroundUnits.Add(UnitType.Rockets);
+        availableGroundUnits.Add(UnitType.Tank);
+        //air
+        availableAirUnits.Add(UnitType.Fighter);
+        availableAirUnits.Add(UnitType.TCopter);
+        availableAirUnits.Add(UnitType.BCopter);
+        availableAirUnits.Add(UnitType.Bomber);
+        //naval
+        availableNavalUnits.Add(UnitType.Battleship);
+        availableNavalUnits.Add(UnitType.Cruiser);
+        availableNavalUnits.Add(UnitType.Lander);
+        availableNavalUnits.Add(UnitType.Sub);
     }
     #endregion
     #region Statistics

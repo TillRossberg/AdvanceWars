@@ -32,8 +32,10 @@ MonoBehaviour:
   premadeTeams:
   - {fileID: 6923475043633226247, guid: 42d52532a91f40445bb3da490b15fd5c, type: 3}
   - {fileID: 1962665808602193965, guid: 86e43575cae63e846b037c1d3403b4f6, type: 3}
-  anitAirPrefab: {fileID: 0}
-  APCPrefab: {fileID: 0}
+  anitAirPrefab: {fileID: 4335460025909723858, guid: 445f1cfaf3f7fe840b2e39468b224aeb,
+    type: 3}
+  APCPrefab: {fileID: 4335460025909723858, guid: 445f1cfaf3f7fe840b2e39468b224aeb,
+    type: 3}
   tankPrefab: {fileID: 4335460025909723858, guid: 445f1cfaf3f7fe840b2e39468b224aeb,
     type: 3}
   artilleryPrefab: {fileID: 0}
