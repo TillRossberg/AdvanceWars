@@ -1,0 +1,155 @@
+fileFormatVersion: 2
+guid: 40cae6e2d84c7ae409e81e3530b711e3
+ModelImporter:
+  serializedVersion: 23
+  fileIDToRecycleName:
+    100000: "Deckfl\xE4che_1"
+    100002: "Deckfl\xE4che_1_2"
+    100004: "Deckfl\xE4che_2"
+    100006: "Deckfl\xE4che_2_2"
+    100008: Extrudieren
+    100010: Flosse
+    100012: Kapsel
+    100014: Null
+    100016: Periskop_1
+    100018: Periskop_1_2
+    100020: //RootNode
+    100022: Tank_Mesh
+    100024: "W\xFCrfel_1"
+    400000: "Deckfl\xE4che_1"
+    400002: "Deckfl\xE4che_1_2"
+    400004: "Deckfl\xE4che_2"
+    400006: "Deckfl\xE4che_2_2"
+    400008: Extrudieren
+    400010: Flosse
+    400012: Kapsel
+    400014: Null
+    400016: Periskop_1
+    400018: Periskop_1_2
+    400020: //RootNode
+    400022: Tank_Mesh
+    400024: "W\xFCrfel_1"
+    2100000: No Name
+    2100002: Plain_Mat
+    2300000: "Deckfl\xE4che_1"
+    2300002: "Deckfl\xE4che_1_2"
+    2300004: "Deckfl\xE4che_2"
+    2300006: "Deckfl\xE4che_2_2"
+    2300008: Extrudieren
+    2300010: Flosse
+    2300012: Kapsel
+    2300014: Periskop_1
+    2300016: Periskop_1_2
+    2300018: Tank_Mesh
+    2300020: "W\xFCrfel_1"
+    2300022: //RootNode
+    3300000: "Deckfl\xE4che_1"
+    3300002: "Deckfl\xE4che_1_2"
+    3300004: "Deckfl\xE4che_2"
+    3300006: "Deckfl\xE4che_2_2"
+    3300008: Extrudieren
+    3300010: Flosse
+    3300012: Kapsel
+    3300014: Periskop_1
+    3300016: Periskop_1_2
+    3300018: Tank_Mesh
+    3300020: "W\xFCrfel_1"
+    3300022: //RootNode
+    4300000: Periskop_1
+    4300002: Flosse
+    4300004: "W\xFCrfel_1"
+    4300006: Periskop_1_2
+    4300008: "Deckfl\xE4che_1"
+    4300010: "Deckfl\xE4che_2"
+    4300012: Extrudieren
+    4300014: "Deckfl\xE4che_1_2"
+    4300016: "Deckfl\xE4che_2_2"
+    4300018: Kapsel
+    4300020: Tank_Mesh
+    4300022: Sub_Mesh
+  externalObjects: {}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 0.01
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    previousCalculatedGlobalScale: 1
+    hasPreviousCalculatedGlobalScale: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 0
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

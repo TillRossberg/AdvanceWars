@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fdb777b7545d8714796822df27a134f7, type: 3}
+  m_Name: Battle Copter
+  m_EditorClassIdentifier: 
+  redThumbNail: {fileID: 21300000, guid: 7b416baffb46e0a4b8882e51618784bd, type: 3}
+  blueThumbNail: {fileID: 21300000, guid: 13ca64d9ae9a8b445ad1dd6c634c49c8, type: 3}
+  unitName: Battle Copter
+  type: 12
+  moveType: 6
+  description: 
+  directAttack: 1
+  rangeAttack: 0
+  maxFuel: 99
+  moveDist: 6
+  visionRange: 3
+  minRange: 1
+  maxRange: 1
+  cost: 9000
+  primaryWeapon: 7
+  primaryAmmo: 6
+  secondaryWeapon: 1
+  secondaryAmmo: 0
+  Infantry: 75
+  Mech: 75
+  Flak: 25
+  APC: 60
+  Tank: 55
+  Artillery: 65
+  Rockets: 65
+  Missiles: 65
+  Titantank: 20
+  Recon: 55
+  MdTank: 25
+  TCopter: 95
+  BCopter: 65
+  Bomber: -1
+  Fighter: -1
+  Lander: 25
+  Battleship: 25
+  Cruiser: 55
+  Sub: 25
+  Pipe: 25

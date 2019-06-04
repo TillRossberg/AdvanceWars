@@ -64,7 +64,7 @@ public class Data_Team : ScriptableObject
     public void SetAllUnitsAvailable()
     {
         //ground
-        availableGroundUnits.Add(UnitType.Flak);
+        availableGroundUnits.Add(UnitType.AntiAir);
         availableGroundUnits.Add(UnitType.APC);
         availableGroundUnits.Add(UnitType.Artillery);
         availableGroundUnits.Add(UnitType.Infantry);
@@ -100,7 +100,7 @@ public class Data_Team : ScriptableObject
     {
         switch (myType)
         {
-            case UnitType.Flak: IncUnitBuiltCounter(0); break;
+            case UnitType.AntiAir: IncUnitBuiltCounter(0); break;
             case UnitType.APC: IncUnitBuiltCounter(1); break;
             case UnitType.Tank: IncUnitBuiltCounter(2); break;
             case UnitType.Artillery: IncUnitBuiltCounter(3); break;
@@ -132,7 +132,7 @@ public class Data_Team : ScriptableObject
     {
         switch (myType)
         {
-            case UnitType.Flak: return _unitsBuilt[0];
+            case UnitType.AntiAir: return _unitsBuilt[0];
             case UnitType.APC: return _unitsBuilt[1];
             case UnitType.Tank: return _unitsBuilt[2];
             case UnitType.Artillery: return _unitsBuilt[3];

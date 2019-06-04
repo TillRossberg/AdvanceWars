@@ -32,28 +32,39 @@ MonoBehaviour:
   premadeTeams:
   - {fileID: 6923475043633226247, guid: 42d52532a91f40445bb3da490b15fd5c, type: 3}
   - {fileID: 1962665808602193965, guid: 86e43575cae63e846b037c1d3403b4f6, type: 3}
-  anitAirPrefab: {fileID: 4335460025909723858, guid: 445f1cfaf3f7fe840b2e39468b224aeb,
+  anitAirPrefab: {fileID: 6943257445411592445, guid: 4fcf0fa6680fdc145aaa6c0f1c1fccc3,
     type: 3}
-  APCPrefab: {fileID: 4335460025909723858, guid: 445f1cfaf3f7fe840b2e39468b224aeb,
+  APCPrefab: {fileID: 1168732569960917816, guid: 46750188cc070f84da9bae0752eebea5,
     type: 3}
-  tankPrefab: {fileID: 4335460025909723858, guid: 445f1cfaf3f7fe840b2e39468b224aeb,
+  tankPrefab: {fileID: 1301829044179221400, guid: 590772fb2c6780643bcf119569858c0f,
     type: 3}
-  artilleryPrefab: {fileID: 0}
-  rocketPrefab: {fileID: 0}
-  missilePrefab: {fileID: 0}
-  titanTankPrefab: {fileID: 0}
-  reconPrefab: {fileID: 0}
-  infantryPrefab: {fileID: 0}
-  mdTankPrefab: {fileID: 0}
-  mechPrefab: {fileID: 0}
+  artilleryPrefab: {fileID: 9139491987978266014, guid: e16f819cbf6fae44aa66118b63a0e52f,
+    type: 3}
+  rocketPrefab: {fileID: 1692120146199857146, guid: 0eac34968c3b48a449d1b3e77b5e6fb7,
+    type: 3}
+  missilePrefab: {fileID: 5642517422307916937, guid: f82866e067668ba4daa02a407de27d2e,
+    type: 3}
+  titanTankPrefab: {fileID: 3408786331457946720, guid: ecdee981981b4cf44ab6d75a80ca172d,
+    type: 3}
+  reconPrefab: {fileID: 6609395872750491700, guid: ec95d67d1fe0fe340a0b60426590f475,
+    type: 3}
+  infantryPrefab: {fileID: 1347034629748736557, guid: 83acb034b70d37845a7f43d480cf71cb,
+    type: 3}
+  mdTankPrefab: {fileID: 2527792359745634520, guid: bcf93d4310c9ed043b0b5d9d22f0391c,
+    type: 3}
+  mechPrefab: {fileID: 2831891762243770416, guid: f4dd180dbe754d649997b36ee86c46bd,
+    type: 3}
   tCopterPrefab: {fileID: 0}
-  bCopterPrefab: {fileID: 0}
+  bCopterPrefab: {fileID: 5093411483848654272, guid: 187c40fa3126c4b418d7694d65abe6c6,
+    type: 3}
   bomberPrefab: {fileID: 0}
   fighterPrefab: {fileID: 0}
   landerPrefab: {fileID: 0}
-  battleShipPrefab: {fileID: 0}
+  battleShipPrefab: {fileID: 2212811206092741179, guid: 7d657c4b1fbe37b489b1c6a7766fec1c,
+    type: 3}
   cruiserPrefab: {fileID: 0}
-  subPrefab: {fileID: 0}
+  subPrefab: {fileID: 5955840649902259688, guid: e41ab3b1c0db3944288acbfb6b54a673,
+    type: 3}
   pipePrefab: {fileID: 0}
   plainPrefab: {fileID: 643189539939425049, guid: ab2024306c75bd24c9b8b1769e3c939a,
     type: 3}

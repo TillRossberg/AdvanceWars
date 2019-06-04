@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fdb777b7545d8714796822df27a134f7, type: 3}
+  m_Name: Med Tank
+  m_EditorClassIdentifier: 
+  redThumbNail: {fileID: 21300000, guid: c1065f9916abd064e97ba0bd26bb04c5, type: 3}
+  blueThumbNail: {fileID: 21300000, guid: b2ad18325b67d8c448248ec8d8d1795e, type: 3}
+  unitName: Heavy Tank
+  type: 9
+  moveType: 2
+  description: 
+  directAttack: 1
+  rangeAttack: 0
+  maxFuel: 50
+  moveDist: 5
+  visionRange: 1
+  minRange: 1
+  maxRange: 1
+  cost: 16000
+  primaryWeapon: 3
+  primaryAmmo: 8
+  secondaryWeapon: 1
+  secondaryAmmo: 0
+  Infantry: 105
+  Mech: 95
+  Flak: 105
+  APC: 105
+  Tank: 85
+  Artillery: 105
+  Rockets: 105
+  Missiles: 105
+  Titantank: 45
+  Recon: 105
+  MdTank: 55
+  TCopter: 45
+  BCopter: 12
+  Bomber: -1
+  Fighter: -1
+  Lander: 35
+  Battleship: 10
+  Cruiser: 45
+  Sub: 10
+  Pipe: 55

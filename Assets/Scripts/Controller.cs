@@ -450,8 +450,10 @@ public class Controller : MonoBehaviour
         DeactivateUnits(ActiveTeam);
         if (Core.Model.IsLastInSuccession(ActiveTeam)) EndRound(); //Increase Round nr., change weather
         ActiveTeam = Core.Model.GetNextTeamInSuccession();
-        StartTurn();//For some reason the first unit is instantly selected!?!? So a delay is necessary -.-
+        StartCoroutine(StartTurnDelayed(0.2f));
+        //StartTurn();//For some reason the first unit is instantly selected!?!? So a delay is necessary -.-
     }
+
 
     //Give money for each property the team owns. 
     void GiveMoneyForProperties(Team team)

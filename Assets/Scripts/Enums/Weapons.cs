@@ -7,6 +7,6 @@
     BigCannon,
     Rockets,
     Vulcan,
-    Missiles
-
+    Missiles,
+    Torpedos
 }

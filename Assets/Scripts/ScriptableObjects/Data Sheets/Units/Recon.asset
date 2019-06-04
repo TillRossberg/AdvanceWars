@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fdb777b7545d8714796822df27a134f7, type: 3}
+  m_Name: Recon
+  m_EditorClassIdentifier: 
+  redThumbNail: {fileID: 21300000, guid: b93e2e47754f1ce41b85340678f8b21c, type: 3}
+  blueThumbNail: {fileID: 21300000, guid: b5ea7f416adb6f3478a01072c3492067, type: 3}
+  unitName: Recon
+  type: 7
+  moveType: 3
+  description: 
+  directAttack: 1
+  rangeAttack: 0
+  maxFuel: 80
+  moveDist: 8
+  visionRange: 5
+  minRange: 1
+  maxRange: 1
+  cost: 4000
+  primaryWeapon: 0
+  primaryAmmo: 0
+  secondaryWeapon: 1
+  secondaryAmmo: 0
+  Infantry: 70
+  Mech: 65
+  Flak: 4
+  APC: 45
+  Tank: 6
+  Artillery: 45
+  Rockets: 55
+  Missiles: 28
+  Titantank: 1
+  Recon: 35
+  MdTank: 1
+  TCopter: 35
+  BCopter: 10
+  Bomber: -1
+  Fighter: -1
+  Lander: -1
+  Battleship: -1
+  Cruiser: -1
+  Sub: -1
+  Pipe: 1

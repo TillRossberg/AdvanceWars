@@ -6,10 +6,8 @@ using UnityEngine;
 public class Data_Unit : ScriptableObject
 {
     #region Prefabs    
-    public Sprite thumbNail;
-    public Sprite detailedPic;
-    public Mesh mesh;
-    public Material material;
+    public Sprite redThumbNail;
+    public Sprite blueThumbNail;
 
     #endregion
     #region Fields
@@ -21,7 +19,6 @@ public class Data_Unit : ScriptableObject
     public bool directAttack;
     public bool rangeAttack;
     [Header("Properties")]
-    public int maxAmmo;
     public int maxFuel;
     public int moveDist;
     public int visionRange;
@@ -61,7 +58,7 @@ public class Data_Unit : ScriptableObject
     {
         switch (type)
         {
-            case UnitType.Flak: return Flak;
+            case UnitType.AntiAir: return Flak;
             case UnitType.APC: return APC;               
             case UnitType.Tank: return Tank;
             case UnitType.Artillery: return Artillery;
@@ -83,6 +80,13 @@ public class Data_Unit : ScriptableObject
             case UnitType.Pipe: return Pipe;
             default: throw new System.Exception("Unittype not found!");
         }
+    }
+
+    public Sprite GetThumbNail(Team team)
+    {
+        if (team.data.teamName == "Blue") return blueThumbNail;
+        else if (team.data.teamName == "Red") return redThumbNail;
+        else throw new System.Exception("No valid team name for color picking!");
     }
     #endregion
 }

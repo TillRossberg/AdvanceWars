@@ -15,18 +15,19 @@ public class Menu_BuyUnits_Selection : MonoBehaviour, ISelectHandler
     {
         unitName.text = data.unitName;
         unitPrice.text = data.cost.ToString();
-        thumbnail.sprite = data.thumbNail;
+        thumbnail.sprite = data.GetThumbNail(Core.Controller.ActiveTeam);
         _unitType = data.type;
     }
 
     public void Buy()
     {
         Core.View.buyMenu.Buy(_unitType);
+        //TODO: play buy sound
     }
 
     public void OnSelect(BaseEventData eventData)
     {
         Core.View.buyMenu.UpdateDetails(_unitType);
-        //play selection sound
+        //TODO: play selection sound
     }
 }

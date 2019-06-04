@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fdb777b7545d8714796822df27a134f7, type: 3}
   m_Name: Tank
   m_EditorClassIdentifier: 
-  thumbNail: {fileID: 21300000, guid: c7ef03cf6e82c5648b502a3fdaea927c, type: 3}
-  detailedPic: {fileID: 21300000, guid: c7ef03cf6e82c5648b502a3fdaea927c, type: 3}
+  redThumbNail: {fileID: 21300000, guid: ebbd0fddcf6a1c449abb543ab4dad4e4, type: 3}
+  blueThumbNail: {fileID: 21300000, guid: 893ac4d0410db8c41943b8fc3099ece7, type: 3}
   mesh: {fileID: 0}
   material: {fileID: 0}
   unitName: Tank
@@ -24,7 +24,7 @@ MonoBehaviour:
   directAttack: 1
   rangeAttack: 0
   maxAmmo: 9
-  maxFuel: 10
+  maxFuel: 70
   moveDist: 6
   visionRange: 3
   minRange: 1
@@ -34,23 +34,23 @@ MonoBehaviour:
   primaryAmmo: 9
   secondaryWeapon: 1
   secondaryAmmo: -1
-  Infantry: 0
-  Mech: 0
-  Flak: 0
-  APC: 0
-  Tank: 45
-  Artillery: 0
-  Rockets: 0
-  Missiles: 0
-  Titantank: 0
-  Recon: 0
-  MdTank: 0
-  TCopter: 0
-  BCopter: 0
-  Bomber: 0
-  Fighter: 0
-  Lander: 0
-  Battleship: 0
-  Cruiser: 0
-  Sub: 0
-  Pipe: 0
+  Infantry: 75
+  Mech: 70
+  Flak: 65
+  APC: 75
+  Tank: 55
+  Artillery: 70
+  Rockets: 85
+  Missiles: 85
+  Titantank: 15
+  Recon: 85
+  MdTank: 15
+  TCopter: 40
+  BCopter: 10
+  Bomber: -1
+  Fighter: -1
+  Lander: 10
+  Battleship: 1
+  Cruiser: 5
+  Sub: 1
+  Pipe: 15

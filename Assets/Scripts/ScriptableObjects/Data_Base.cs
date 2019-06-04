@@ -84,7 +84,7 @@ public class Data_Base : ScriptableObject
         GameObject unit = null;
         switch (type)
         {
-            case UnitType.Flak: unit = anitAirPrefab; break;
+            case UnitType.AntiAir: unit = anitAirPrefab; break;
             case UnitType.APC: unit = APCPrefab; break;
             case UnitType.Tank: unit = tankPrefab; break;
             case UnitType.Artillery: unit = artilleryPrefab; break;
@@ -125,7 +125,7 @@ public class Data_Base : ScriptableObject
     {
         switch (myUnitType)
         {
-            case UnitType.Flak: return "This vehicle can take down helicopters and infantry units in one shot using the vulcan cannon, but it lacks the armor tanks have.";
+            case UnitType.AntiAir: return "This vehicle can take down helicopters and infantry units in one shot using the vulcan cannon, but it lacks the armor tanks have.";
             case UnitType.APC: return "The APC unit is the troop carrier of the game - it cannot attack, as it has no weapons, but can transport one unit of either Infantry or Mech, supply any units it is next to and also soak up a lot of fire before being destroyed.";
             case UnitType.Artillery: return "This unit attacks from a distance, cannot counter-attack, and in addition it cannot move and attack on the same turn. Cheaper than a regular tank, it is by far more powerful.";
             case UnitType.Battleship: return "This ship is an indirect combat unit of the sea but the pride of most navys.";

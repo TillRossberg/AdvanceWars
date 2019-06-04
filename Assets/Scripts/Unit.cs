@@ -46,7 +46,7 @@ public class Unit : MonoBehaviour
     public void Init()
     {
         AnimationController = this.GetComponent<Unit_AnimationController>();
-        ammo = data.maxAmmo;
+        ammo = data.primaryAmmo;
         fuel = data.maxFuel;
     }
     //Ends the turn for the unit.
@@ -89,6 +89,12 @@ public class Unit : MonoBehaviour
     }
     public void SetTeamColor(Color color)
     {
+        //Material[] mats = gfx.GetComponent<MeshRenderer>().materials;
+
+        //foreach (Material material in mats)
+        //{            
+        //    if (material.name == "TeamColor (Instance)") material.color = color;
+        //}
         gfx.GetComponent<MeshRenderer>().materials[0].color = color;
     }
     #endregion

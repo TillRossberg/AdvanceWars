@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fdb777b7545d8714796822df27a134f7, type: 3}
+  m_Name: Infantry
+  m_EditorClassIdentifier: 
+  redThumbNail: {fileID: 21300000, guid: b98b966276ca7fc4e8438bc7af11984d, type: 3}
+  blueThumbNail: {fileID: 21300000, guid: cf1ada3b98576604b8bd7d29cda04733, type: 3}
+  unitName: Infantry
+  type: 8
+  moveType: 0
+  description: 
+  directAttack: 1
+  rangeAttack: 0
+  maxFuel: 99
+  moveDist: 3
+  visionRange: 2
+  minRange: 1
+  maxRange: 1
+  cost: 1000
+  primaryWeapon: 0
+  primaryAmmo: 0
+  secondaryWeapon: 1
+  secondaryAmmo: -1
+  Infantry: 55
+  Mech: 55
+  Flak: 5
+  APC: 14
+  Tank: 5
+  Artillery: 15
+  Rockets: 25
+  Missiles: 25
+  Titantank: 1
+  Recon: 12
+  MdTank: 1
+  TCopter: 30
+  BCopter: 7
+  Bomber: -1
+  Fighter: -1
+  Lander: 0
+  Battleship: -1
+  Cruiser: -1
+  Sub: -1
+  Pipe: 1

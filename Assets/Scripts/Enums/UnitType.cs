@@ -1,6 +1,6 @@
 ﻿public enum UnitType 
 {
-    Flak,
+    AntiAir,
     APC,
     Tank,
     Artillery,

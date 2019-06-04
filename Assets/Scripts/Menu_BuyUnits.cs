@@ -8,7 +8,7 @@ using TMPro;
 public class Menu_BuyUnits : MonoBehaviour
 {
     //Details window
-    public Image detailedUnit;
+    public Image thumbNail;
     public TextMeshProUGUI movePoints;
     public TextMeshProUGUI visionPoints;
     public TextMeshProUGUI fuelPoints;
@@ -29,7 +29,6 @@ public class Menu_BuyUnits : MonoBehaviour
     public void DisplayMenu(Tile tile)
     {
         _productionPosition = tile.position;
-        //Debug.Log(_availableUnits.Count);
         SetAvailableUnits(tile);
         CreateUnitSelectors(_availableUnits);
         Core.View.HighlightFirstMenuItem(selectorParent);
@@ -48,7 +47,7 @@ public class Menu_BuyUnits : MonoBehaviour
     {
         Data_Unit data = Core.Model.Database.GetUnitPrefab(type).GetComponent<Unit>().data;
 
-        detailedUnit.sprite = data.detailedPic;
+        thumbNail.sprite = data.GetThumbNail(Core.Controller.ActiveTeam);
         movePoints.text = data.moveDist.ToString();
         visionPoints.text = data.visionRange.ToString();
         fuelPoints.text = data.maxFuel.ToString() + "/ \n" + data.maxFuel.ToString();
@@ -82,7 +81,7 @@ public class Menu_BuyUnits : MonoBehaviour
     void CreateUnitSelectors(List<UnitType> units)
     {
         if (_selectors.Count > 0) ClearSelectors();
-        selectorParent.GetComponent<RectTransform>().sizeDelta = new Vector2(unitSelectorPrefab.GetComponent<RectTransform>().sizeDelta.x, units.Count * unitSelectorPrefab.GetComponent<RectTransform>().sizeDelta.y);
+        selectorParent.GetComponent<RectTransform>().sizeDelta = new Vector2(unitSelectorPrefab.GetComponent<RectTransform>().sizeDelta.x, (units.Count + 1) * unitSelectorPrefab.GetComponent<RectTransform>().sizeDelta.y);
         foreach (UnitType type in units)
         {
             Menu_BuyUnits_Selection selector = Instantiate(unitSelectorPrefab, selectorParent);
