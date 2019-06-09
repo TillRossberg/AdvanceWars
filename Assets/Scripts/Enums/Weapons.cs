@@ -8,5 +8,7 @@
     Rockets,
     Vulcan,
     Missiles,
-    Torpedos
+    Torpedos, 
+    Bombs
+
 }

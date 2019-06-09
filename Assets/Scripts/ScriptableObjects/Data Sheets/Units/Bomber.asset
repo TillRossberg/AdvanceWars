@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fdb777b7545d8714796822df27a134f7, type: 3}
+  m_Name: Bomber
+  m_EditorClassIdentifier: 
+  redThumbNail: {fileID: 21300000, guid: b49f4348f797203409375052237eb92f, type: 3}
+  blueThumbNail: {fileID: 21300000, guid: b62b5a0fc37a7014d8fede3903ed8701, type: 3}
+  unitName: Bomber
+  type: 13
+  moveType: 6
+  description: 
+  directAttack: 1
+  rangeAttack: 0
+  maxFuel: 99
+  moveDist: 7
+  visionRange: 2
+  minRange: 1
+  maxRange: 1
+  cost: 22000
+  primaryWeapon: 9
+  primaryAmmo: 9
+  secondaryWeapon: 0
+  secondaryAmmo: 0
+  Infantry: 110
+  Mech: 110
+  Flak: 95
+  APC: 105
+  Tank: 105
+  Artillery: 105
+  Rockets: 105
+  Missiles: 105
+  Titantank: 90
+  Recon: 105
+  MdTank: 95
+  TCopter: -1
+  BCopter: -1
+  Bomber: -1
+  Fighter: -1
+  Lander: 95
+  Battleship: 75
+  Cruiser: 85
+  Sub: 95
+  Pipe: 95
