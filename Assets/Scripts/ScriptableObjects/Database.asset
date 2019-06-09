@@ -60,7 +60,8 @@ MonoBehaviour:
     type: 3}
   bomberPrefab: {fileID: 4715738554818115078, guid: 708c5fec16dc44744aa58532329cefe0,
     type: 3}
-  fighterPrefab: {fileID: 0}
+  fighterPrefab: {fileID: 2678226040814937016, guid: 24284dc57d3572b41b97618a9d3a242f,
+    type: 3}
   landerPrefab: {fileID: 0}
   battleShipPrefab: {fileID: 2212811206092741179, guid: 7d657c4b1fbe37b489b1c6a7766fec1c,
     type: 3}
