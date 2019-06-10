@@ -1,14 +1,16 @@
 fileFormatVersion: 2
-guid: 6f2165654e346fa4cb6b9363c60489a6
+guid: 828d6b43208d85347bd5182f65c16f32
 ModelImporter:
   serializedVersion: 23
   fileIDToRecycleName:
     100000: //RootNode
+    100002: Hintergrund
+    100004: Kamera_Ziel_1
+    100006: Licht
     400000: //RootNode
-    2100000: BakedMaterial
-    2300000: //RootNode
-    3300000: //RootNode
-    4300000: Kugel
+    400002: Hintergrund
+    400004: Kamera_Ziel_1
+    400006: Licht
   externalObjects: {}
   materials:
     importMaterials: 1

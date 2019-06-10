@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fdb777b7545d8714796822df27a134f7, type: 3}
+  m_Name: Lander
+  m_EditorClassIdentifier: 
+  redThumbNail: {fileID: 0}
+  blueThumbNail: {fileID: 0}
+  unitName: 
+  type: 0
+  moveType: 0
+  description: 
+  directAttack: 0
+  rangeAttack: 0
+  maxFuel: 0
+  moveDist: 0
+  visionRange: 0
+  minRange: 0
+  maxRange: 0
+  cost: 0
+  primaryWeapon: 0
+  primaryAmmo: 0
+  secondaryWeapon: 0
+  secondaryAmmo: 0
+  Infantry: 0
+  Mech: 0
+  Flak: 0
+  APC: 0
+  Tank: 0
+  Artillery: 0
+  Rockets: 0
+  Missiles: 0
+  Titantank: 0
+  Recon: 0
+  MdTank: 0
+  TCopter: 0
+  BCopter: 0
+  Bomber: 0
+  Fighter: 0
+  Lander: 0
+  Battleship: 0
+  Cruiser: 0
+  Sub: 0
+  Pipe: 0

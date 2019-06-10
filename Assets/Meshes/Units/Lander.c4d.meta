@@ -1,16 +1,14 @@
 fileFormatVersion: 2
-guid: 57fba5670f3ba6c4cb071c39cb41c563
+guid: f452652f34ab2d849aa3092e8a678522
 ModelImporter:
   serializedVersion: 23
   fileIDToRecycleName:
     100000: //RootNode
-    100002: Hintergrund
-    100004: Kamera_Ziel_1
-    100006: Licht
     400000: //RootNode
-    400002: Hintergrund
-    400004: Kamera_Ziel_1
-    400006: Licht
+    2100000: No Name
+    2300000: //RootNode
+    3300000: //RootNode
+    4300000: Lander_Mesh
   externalObjects: {}
   materials:
     importMaterials: 1
@@ -42,7 +40,7 @@ ModelImporter:
     isReadable: 1
   meshes:
     lODScreenPercentages: []
-    globalScale: 1
+    globalScale: 0.01
     meshCompression: 0
     addColliders: 0
     useSRGBMaterialColor: 1
