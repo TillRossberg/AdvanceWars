@@ -58,6 +58,7 @@ public class ArrowBuilder
             {
                 //Debug.Log("Reducing path");
                 ReducePathToFirstNode();
+                return;
             }
             else if (GetPredecessorTile() == tile) //If you touch the predecessor shorten the path by one.
             {
@@ -173,10 +174,13 @@ public class ArrowBuilder
     {
         momMovementPoints = maxMovementPoints;
         ArrowPart firstNode = arrowPath[0];        
-        for(int i = 0; i < arrowPath.Count; i++)
+        for(int i = 1; i < arrowPath.Count; i++)
         {
             arrowPath[i].AssignedTile.isPartOfArrowPath = false;
-            GameObject.Destroy(arrowPath[i].gameObject);
+        }
+        for (int i = 0; i < arrowPathParent.childCount; i++)
+        {
+            GameObject.Destroy(arrowPathParent.GetChild(i).gameObject);
         }
         arrowPath.Clear();
         arrowPath.Add(firstNode);

@@ -29,7 +29,7 @@ MonoBehaviour:
   primaryWeapon: 0
   primaryAmmo: 0
   secondaryWeapon: 1
-  secondaryAmmo: -1
+  secondaryAmmo: 0
   Infantry: 55
   Mech: 55
   Flak: 5

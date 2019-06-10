@@ -14,8 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   redThumbNail: {fileID: 21300000, guid: ebbd0fddcf6a1c449abb543ab4dad4e4, type: 3}
   blueThumbNail: {fileID: 21300000, guid: 893ac4d0410db8c41943b8fc3099ece7, type: 3}
-  mesh: {fileID: 0}
-  material: {fileID: 0}
   unitName: Tank
   type: 2
   moveType: 2
@@ -23,7 +21,6 @@ MonoBehaviour:
     its tracks and its versatility of being able to attack a large number of units.
   directAttack: 1
   rangeAttack: 0
-  maxAmmo: 9
   maxFuel: 70
   moveDist: 6
   visionRange: 3
@@ -33,7 +30,7 @@ MonoBehaviour:
   primaryWeapon: 2
   primaryAmmo: 9
   secondaryWeapon: 1
-  secondaryAmmo: -1
+  secondaryAmmo: 0
   Infantry: 75
   Mech: 70
   Flak: 65

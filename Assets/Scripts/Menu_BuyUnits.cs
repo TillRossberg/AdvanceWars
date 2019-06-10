@@ -42,7 +42,7 @@ public class Menu_BuyUnits : MonoBehaviour
         Core.View.DisplayBuyMenu(false);
     }
 
-   
+
     public void UpdateDetails(UnitType type)
     {
         Data_Unit data = Core.Model.Database.GetUnitPrefab(type).GetComponent<Unit>().data;
@@ -52,18 +52,19 @@ public class Menu_BuyUnits : MonoBehaviour
         visionPoints.text = data.visionRange.ToString();
         fuelPoints.text = data.maxFuel.ToString() + "/ \n" + data.maxFuel.ToString();
 
-        if (data.maxRange == 1) range.text = "Range: " + data.maxRange.ToString();
+        
+        if (data.maxRange == 0 || data.maxRange == 1) range.text = "";
         else range.text = "Range: " + data.minRange.ToString() + "-" + data.maxRange.ToString();
 
         primaryWeaponName.text = data.primaryWeapon.ToString();
         secondaryWeaponName.text = data.secondaryWeapon.ToString();
 
         if (data.primaryWeapon == Weapons.none) primaryWeaponAmount.text = "";
-        else if(data.primaryAmmo == -1) primaryWeaponAmount.text = "-";
+        else if(data.primaryAmmo == 0) primaryWeaponAmount.text = "-";
         else primaryWeaponAmount.text = data.primaryAmmo.ToString();
 
         if (data.secondaryWeapon == Weapons.none) secondaryWeaponAmount.text = "";
-        else if (data.secondaryAmmo == -1) secondaryWeaponAmount.text = "-";
+        else if (data.secondaryAmmo == 0) secondaryWeaponAmount.text = "-";
         else secondaryWeaponAmount.text = data.secondaryAmmo.ToString();      
     }    
     void SetAvailableUnits(Tile tile)

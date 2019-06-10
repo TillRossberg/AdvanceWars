@@ -207,8 +207,11 @@ public class Controller : MonoBehaviour
                     if (tile.isPartOfArrowPath)
                     {
                         //We wont move outside the bounds of the reachable area.
-                        if (ArrowBuilder.CanGoBack(tile)) Cursor.SetPosition(pos);
-                        ArrowBuilder.TryToGoBack(tile);
+                        if (ArrowBuilder.CanGoBack(tile))
+                        {
+                            Cursor.SetPosition(pos);
+                            ArrowBuilder.TryToGoBack(tile);
+                        }
                     }
                     //Draws an Arrow on the tile, if it is reachable
                     else if (!tile.isPartOfArrowPath && SelectedUnit.reachableTiles.Contains(tile) && ArrowBuilder.EnoughMovePointsRemaining(tile, SelectedUnit))
