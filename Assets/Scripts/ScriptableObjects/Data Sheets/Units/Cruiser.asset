@@ -10,25 +10,25 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fdb777b7545d8714796822df27a134f7, type: 3}
-  m_Name: Lander
+  m_Name: Cruiser
   m_EditorClassIdentifier: 
-  redThumbNail: {fileID: 21300000, guid: a11164a5a899a324e85992b06c26102e, type: 3}
-  blueThumbNail: {fileID: 21300000, guid: bc79cd3690028bd47987ed5616dc6bcb, type: 3}
-  unitName: Landing Ship
-  type: 15
-  moveType: 4
+  redThumbNail: {fileID: 21300000, guid: 0e2baeffc76c0df4d8bd23cf58bc5e5c, type: 3}
+  blueThumbNail: {fileID: 21300000, guid: efcdd84973fd0794897d45dcc816b882, type: 3}
+  unitName: Cruiser
+  type: 17
+  moveType: 5
   description: 
-  directAttack: 0
+  directAttack: 1
   rangeAttack: 0
   maxFuel: 99
   moveDist: 6
-  visionRange: 1
-  minRange: 0
-  maxRange: 0
-  cost: 12000
-  primaryWeapon: 0
-  primaryAmmo: 0
-  secondaryWeapon: 0
+  visionRange: 3
+  minRange: 1
+  maxRange: 1
+  cost: 18000
+  primaryWeapon: 7
+  primaryAmmo: 9
+  secondaryWeapon: 6
   secondaryAmmo: 0
   Infantry: -1
   Mech: -1
@@ -41,12 +41,12 @@ MonoBehaviour:
   Titantank: -1
   Recon: -1
   MdTank: -1
-  TCopter: -1
-  BCopter: -1
-  Bomber: -1
-  Fighter: -1
+  TCopter: 115
+  BCopter: 115
+  Bomber: 65
+  Fighter: 55
   Lander: -1
   Battleship: -1
   Cruiser: -1
-  Sub: -1
+  Sub: 90
   Pipe: -1

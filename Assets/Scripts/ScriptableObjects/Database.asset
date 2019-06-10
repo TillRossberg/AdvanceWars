@@ -62,10 +62,12 @@ MonoBehaviour:
     type: 3}
   fighterPrefab: {fileID: 2678226040814937016, guid: 24284dc57d3572b41b97618a9d3a242f,
     type: 3}
-  landerPrefab: {fileID: 0}
+  landerPrefab: {fileID: 7053266790693942121, guid: f53caab43a025a54b9a57f796b1d9f36,
+    type: 3}
   battleShipPrefab: {fileID: 2212811206092741179, guid: 7d657c4b1fbe37b489b1c6a7766fec1c,
     type: 3}
-  cruiserPrefab: {fileID: 0}
+  cruiserPrefab: {fileID: 4049317303768724487, guid: 5253763077786484a895061faf1367ac,
+    type: 3}
   subPrefab: {fileID: 5955840649902259688, guid: e41ab3b1c0db3944288acbfb6b54a673,
     type: 3}
   pipePrefab: {fileID: 0}
