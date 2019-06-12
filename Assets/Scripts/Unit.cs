@@ -78,6 +78,7 @@ public class Unit : MonoBehaviour
         CanMove = false;
         CanFire = false;
         hasTurn = false;
+        isSelected = false;
     }
     
 
@@ -173,6 +174,16 @@ public class Unit : MonoBehaviour
         if(data.rangeAttack) CanFire = false;           
         CanMove = false;        
     }
+    public void MoveUnitToLoad(Vector2Int newPos)
+    {
+        MoveUnitTo(newPos);
+        AnimationController.unitWantsToLoad = true;
+    }
+    public void MoveUnitToUnite(Vector2Int newPos)
+    {
+        MoveUnitTo(newPos);
+        AnimationController.unitWantsToUnite = true;
+    }
 
     //Resets the position and rotation of the unit to where it was before. (If we click the right mouse button or close the menu after we successfully moved it somewhere.)
     public void ResetPosition()
@@ -188,6 +199,8 @@ public class Unit : MonoBehaviour
         DisplayHealth(true);//Repostition the health indicator.   
         CanFire = true;
         CanMove = true;
+        AnimationController.unitWantsToLoad = false;
+        AnimationController.unitWantsToUnite = false;
     }
 
     
@@ -441,7 +454,7 @@ public class Unit : MonoBehaviour
         //counter += Time.deltaTime;
         Tile tile = Core.Model.GetTile(position);
 
-        movementPoints = movementPoints - tile.data.GetMovementCost(moveType);
+        if(cameFromTile != null) movementPoints = movementPoints - tile.data.GetMovementCost(moveType);
 
         //If enough movement points are left and the tile is passable (we can move through our own units, but are blocked by enemies), do the recursion.
         if ((movementPoints >= 0) && (tile.data.GetMovementCost(moveType) > 0) && !IsVisibleEnemyHere(tile))
@@ -521,7 +534,34 @@ public class Unit : MonoBehaviour
             if (Core.Model.GetTile(position).data.type != TileType.Forest) Core.Model.SetVisibility(position, true);
         }
     }
-    #endregion 
-    
+    #endregion
+    #region Load Methods
+    public bool IsGroundUnit()
+    {
+        if (data.type == UnitType.AntiAir ||
+            data.type == UnitType.APC ||
+            data.type == UnitType.Artillery ||
+            data.type == UnitType.Infantry ||
+            data.type == UnitType.MdTank ||
+            data.type == UnitType.Mech ||
+            data.type == UnitType.Missiles ||
+            data.type == UnitType.Recon ||
+            data.type == UnitType.Rockets ||
+            data.type == UnitType.Tank ||
+            data.type == UnitType.Titantank
+          ) return true;
+        else return false;
+    }
+    public bool IsCopterUnit()
+    {
+        if (data.type == UnitType.BCopter || data.type == UnitType.TCopter) return true;
+        else return false;
+    }
+    public bool IsInfantryUnit()
+    {
+        if (data.type == UnitType.Infantry || data.type == UnitType.Mech) return true;
+        else return false;
+    }
+    #endregion
 
 }

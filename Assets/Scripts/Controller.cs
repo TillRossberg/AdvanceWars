@@ -15,10 +15,12 @@ public class Controller : MonoBehaviour
     public int RoundCounter { get; private set; }
     public Weather currentWeather;
 
-    public enum Mode { normal, fire, move, buyMenu, contextMenu };
+    public enum Mode { normal, fire, move, buyMenu, contextMenu, unloadUnit };
     public Mode CurrentMode;
    
     int _enemyIndex = 0;
+
+    int _dropOffIndex = 0;
 
 
 
@@ -57,39 +59,37 @@ public class Controller : MonoBehaviour
     public void AButton()
     {
         Tile tile = Core.Model.GetTile(Cursor.Position);
-        Unit unit = tile.GetUnitHere();
+        Unit unitHere = tile.GetUnitHere();
         switch (CurrentMode)
         {
             case Mode.normal:
-                if (unit != null)
+                if (unitHere != null)
                 {
                     //Select own unit
-                    if (ActiveTeam == unit.team && unit.CanMove)
+                    if (ActiveTeam == unitHere.team && unitHere.CanMove)
                     {
-                        Select(unit.gameObject);
+                        Select(unitHere.gameObject);
                     }
                     else
                     {
                         //Play dörp sound, unit has aleady moved or is not in our team
                     }
                 }
-                else if(tile.CanProduceUnits() && tile.owningTeam == ActiveTeam)
+                else if (tile.CanProduceUnits() && tile.owningTeam == ActiveTeam)
                 {
                     OpenBuyMenu(tile);
-                    CurrentMode = Mode.buyMenu;
                 }
+                //Click on selected unit again.
                 else
                 {
-                    Core.View.DisplayContextMenu(true);
-                    Core.View.contextMenu.Open();
-                    CurrentMode = Mode.contextMenu;
+                    Core.View.ShowContextMenu(7);
                 }
                 break;
             case Mode.fire:
                 Unit attacker = SelectedUnit;
                 Unit defender = SelectedUnit.attackableUnits[_enemyIndex];
                 //Align the units to face each other.
-                if(attacker.targetTile != null)
+                if (attacker.targetTile != null)
                 {
                     attacker.AlignUnit(attacker.targetTile.position, defender.position);
                     defender.AlignUnit(defender.position, attacker.targetTile.position);
@@ -110,15 +110,22 @@ public class Controller : MonoBehaviour
                 DeselectObject();
                 break;
             case Mode.move:
-                if (unit != null)
+                if (unitHere != null)
                 {
-                    if (unit.isSelected)//If you click on yourself.
+                    if (unitHere == SelectedUnit)
                     {
-                        OpenContextMenu();
+                        Core.View.ShowContextMenu(8);
                     }
-                    else if (SelectedUnit.team.units.Contains(unit))//If you click on a friendly unit
+                    else if (SelectedUnit.team.units.Contains(unitHere))//If you click on a friendly unit
                     {
                         //Try to unite units
+                        //If the unit on this tile can load other units, check if it can load the selected unit.
+                        if (unitHere.GetComponent<Unit_Transporter>() != null)
+                        {
+                            if ((unitHere.data.type == UnitType.APC || unitHere.data.type == UnitType.TCopter) && SelectedUnit.IsInfantryUnit()) SelectedUnit.MoveUnitToLoad(Cursor.Position);
+                            if (unitHere.data.type == UnitType.Lander && SelectedUnit.IsGroundUnit()) SelectedUnit.MoveUnitToLoad(Cursor.Position);
+                            if (unitHere.data.type == UnitType.Cruiser && SelectedUnit.IsCopterUnit()) SelectedUnit.MoveUnitToLoad(Cursor.Position);
+                        }
                     }
                     else//If you click on an enemy unit or an unit that is in an alliance with you.
                     {
@@ -131,9 +138,18 @@ public class Controller : MonoBehaviour
                 }
                 break;
             case Mode.buyMenu:
-                //apply choice
+
+                break;
+            case Mode.contextMenu:
+                break;
+            case Mode.unloadUnit:
+
+                Debug.Log("dropping");
+                UnloadUnit(SelectedUnit.GetComponent<Unit_Transporter>().dropOffPositions[_dropOffIndex]);
+                ResetUnloadStuff();
                 break;
         }
+        Cursor.BlockInput(0.2f);
     }
     #endregion
     #region B-Button Methods
@@ -158,12 +174,21 @@ public class Controller : MonoBehaviour
                 CurrentMode = Mode.normal;
                 break;
             case Mode.contextMenu:
-                Core.View.DisplayContextMenu(false);
-                CurrentMode = Mode.normal;
+                //TODO: Bug!
+                if (!SelectedUnit.AnimationController.IsMovingToTarget)
+                {
+                    SelectedUnit.ResetPosition();
+                    Cursor.SetPosition(SelectedUnit.position);
+                    DeselectObject();
+                }
+                break;
+            case Mode.unloadUnit:
+                ResetUnloadStuff();
+                Core.View.ShowContextMenu(8);
                 break;
             default:
                 break;
-        }        
+        }
     }
     public void BButtonHold()
     {
@@ -197,7 +222,7 @@ public class Controller : MonoBehaviour
                     break;
                 case Mode.fire:
                     //TODO: Change cursor
-                    //cycle through the attackable enemies
+                    //Cycle through the attackable enemies.
                     CycleAttackableEnemies(SelectedUnit);
                     break;
                 case Mode.move:
@@ -226,7 +251,11 @@ public class Controller : MonoBehaviour
                     break;
                 case Mode.contextMenu:
                     break;
-                default:                    
+                case Mode.unloadUnit:
+                    Cursor.SetPosition(SelectedUnit.GetComponent<Unit_Transporter>().dropOffPositions[0].position);
+                    CycleDropOffPositions(SelectedUnit.GetComponent<Unit_Transporter>());
+                    break;
+                default:
                     break;
             }
         }
@@ -257,6 +286,33 @@ public class Controller : MonoBehaviour
                 }
                 Vector2Int enemyPos = unit.attackableUnits[_enemyIndex].position;
                 Cursor.SetPosition(enemyPos);
+            }
+        }
+    }
+    void CycleDropOffPositions(Unit_Transporter unit)
+    {
+        if (unit.dropOffPositions.Count > 1)
+        {
+            if (Input.GetAxisRaw("Horizontal") > 0 || Input.GetAxisRaw("Vertical") > 0)
+            {
+                _dropOffIndex--;
+                if (_dropOffIndex < 0)
+                {
+                    _dropOffIndex = unit.dropOffPositions.Count - 1;
+                }
+                Vector2Int dropOffPosition = unit.dropOffPositions[_dropOffIndex].position;
+                Cursor.SetPosition(dropOffPosition);
+            }
+            else
+            if (Input.GetAxisRaw("Horizontal") < 0 || Input.GetAxisRaw("Vertical") < 0)
+            {
+                _dropOffIndex++;
+                if (_dropOffIndex > unit.dropOffPositions.Count - 1)
+                {
+                    _dropOffIndex = 0;
+                }
+                Vector2Int dropOffPosition = unit.dropOffPositions[_dropOffIndex].position;
+                Cursor.SetPosition(dropOffPosition);
             }
         }
     }
@@ -296,10 +352,9 @@ public class Controller : MonoBehaviour
     //If you click on a new object, drop the old one, return to normal mode, delete the marking cursor and reset all data referring to this object.
     public void DeselectObject()
     {
-        Core.View.DisplayContextMenu(false);
+        Core.View.HideContextMenu();
         if (SelectedUnit != null) DeselectUnit();
         if (SelectedTile != null) DeselectTile();
-        CurrentMode = Mode.normal;
     }
     //Deselect an Unit.
     public void DeselectUnit()
@@ -351,19 +406,7 @@ public class Controller : MonoBehaviour
         //view: delete graphics for indication
     }
     #endregion
-    #region Context Menu
-    //Context Menu
-    public void OpenContextMenu()
-    {
-        Core.View.DisplayContextMenu(true);
-        if(SelectedUnit.targetTile != null) SelectedUnit.CalcAttackableArea(SelectedUnit.targetTile.position);
-        if(SelectedUnit.targetTile == null) SelectedUnit.CalcAttackableArea(SelectedUnit.position);
-        SelectedUnit.FindAttackableEnemies();
-        Core.View.contextMenu.Open();
-        CurrentMode = Mode.contextMenu;
-        //eventSystem.SetSelectedGameObject(null);
-        //Invoke("highlightFirstMenuButton", 0.01f);
-    }
+    #region Context Menu    
     public void FireButton()
     {
         StartCoroutine(FireButtonDelayed(0.01f));
@@ -380,7 +423,7 @@ public class Controller : MonoBehaviour
         //int x = _manager.getGameFunctions().getSelectedUnit().attackableUnits[0].position.x;
         //int y = _manager.getGameFunctions().getSelectedUnit().attackableUnits[0].position.y;
         //_manager.getCursor().setCursorPosition(x, y);
-        Core.View.DisplayContextMenu(false);
+        Core.View.HideContextMenu();
     }
 
     public void WaitButton()
@@ -388,6 +431,18 @@ public class Controller : MonoBehaviour
         SelectedUnit.Wait();
         DeselectObject();
     }
+    public void ChoseUnloadPosition()
+    {
+        ClearReachableArea(SelectedUnit);
+        Core.View.HideContextMenu();
+        Tile target;
+        if (SelectedUnit.targetTile != null) target = SelectedUnit.targetTile;
+        else target = Core.Model.GetTile(SelectedUnit.position);
+        SelectedUnit.GetComponent<Unit_Transporter>().SetPossibleDropPositions(target);
+        CurrentMode = Mode.unloadUnit;
+        Cursor.BlockInput(0.5f);
+    }
+   
     public void OccupyButton()
     {
         OccupyAction(SelectedUnit, Core.Model.GetTile(SelectedUnit.position));
@@ -416,6 +471,7 @@ public class Controller : MonoBehaviour
     #region Buy Menu
     public void OpenBuyMenu(Tile tile)
     {
+        CurrentMode = Mode.buyMenu;
         Core.View.DisplayBuyMenu(true);
         Core.View.buyMenu.DisplayMenu(tile);
     }    
@@ -424,7 +480,6 @@ public class Controller : MonoBehaviour
     //Start turn
     public void StartTurn()
     {
-        CurrentMode = Mode.normal;
         ActivateUnits(ActiveTeam);
         Core.View.UpdateFogOfWar(ActiveTeam);//Set fog of war for this team.
 
@@ -449,11 +504,12 @@ public class Controller : MonoBehaviour
     //End turn
     public void EndTurn()
     {
+        Cursor.BlockInput(.5f);
         DeselectObject();
         DeactivateUnits(ActiveTeam);
         if (Core.Model.IsLastInSuccession(ActiveTeam)) EndRound(); //Increase Round nr., change weather
         ActiveTeam = Core.Model.GetNextTeamInSuccession();
-        StartCoroutine(StartTurnDelayed(0.2f));
+        StartTurn();
         //StartTurn();//For some reason the first unit is instantly selected!?!? So a delay is necessary -.-
     }
 
@@ -580,6 +636,28 @@ public class Controller : MonoBehaviour
     {
         int randomInt = UnityEngine.Random.Range(0, Enum.GetValues(typeof(Weather)).Length);
         return (Weather)randomInt;
+    }
+    #endregion
+    #region Transport Unit
+    public void LoadUnit()
+    {
+        Unit_Transporter transporter = Core.Model.GetTile(Cursor.Position).GetUnitHere().GetComponent<Unit_Transporter>();
+        transporter.LoadUnit(SelectedUnit);
+        Core.View.HideContextMenu();
+        CurrentMode = Mode.normal;
+        Cursor.BlockInput(0.5f);
+
+    }
+    public void UnloadUnit(Tile tile)
+    {
+        SelectedUnit.GetComponent<Unit_Transporter>().UnloadUnit(tile);
+        SelectedUnit.Wait();
+        CurrentMode = Mode.normal;        
+    }
+    void ResetUnloadStuff()
+    {
+        _dropOffIndex = 0;
+        SelectedUnit.GetComponent<Unit_Transporter>().dropOffPositions.Clear();
     }
     #endregion
     #region Debug

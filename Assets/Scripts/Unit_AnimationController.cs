@@ -17,12 +17,16 @@ public class Unit_AnimationController : MonoBehaviour
     Quaternion startRotation;
     Quaternion endRotation;
     Vector3 lookingDirection;
+
+    public bool unitWantsToUnite;
+    public bool unitWantsToLoad;
     //States
+
     bool move = false;
     bool rotate = false;
     public bool IsMovingToTarget { get; private set; }
 
-    public void Init(   )
+    public void Init()
     {
         wayPointList = Core.Controller.ArrowBuilder.CreateMovementPath();
         wayPointIndex = 1;//Starts at one because the first entry is the current position of the unit.
@@ -31,7 +35,9 @@ public class Unit_AnimationController : MonoBehaviour
         startRotation = Quaternion.LookRotation(this.transform.position);
         endRotation = Quaternion.LookRotation(lookingDirection);//The actual rotation we need to look at the target
         IsMovingToTarget = true; //Init the sequencer in the update function...
-        rotate = true;//...and start rotating towards the first waypoint.
+        rotate = true;//...and start rotating towards the first waypoint.        
+        unitWantsToUnite = false;
+        unitWantsToLoad = false;
     }
     private void Start()
     {
@@ -77,7 +83,9 @@ public class Unit_AnimationController : MonoBehaviour
                     unit.DisplayHealth(true);
                     if (!unit.IsInterrupted)
                     {
-                        Core.Controller.OpenContextMenu();
+                        if (unitWantsToLoad) Core.View.ShowContextMenu(5);
+                        else if (unitWantsToUnite) Debug.Log("Unit wants to unite");
+                        else Core.View.ShowContextMenu(8);
                     }
                     else
                     {

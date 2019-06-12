@@ -213,8 +213,10 @@ public class Model : MonoBehaviour
         Core.Controller.Occupy(teams[1], GetTile(new Vector2Int(8, 8)));
         ChangeTile(TileType.Road, new Vector2Int(7, 6), 0);
         SetNeighbors(MapMatrix);
-        CreateUnit(UnitType.Tank, Core.Model.teams[0], new Vector2Int(5, 5), Direction.North);
-        CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(6, 5), Direction.West);
+        CreateUnit(UnitType.APC, Core.Model.teams[0], new Vector2Int(5, 5), Direction.North);
+        CreateUnit(UnitType.Infantry, Core.Model.teams[0], new Vector2Int(3, 5), Direction.North);
+        CreateUnit(UnitType.APC, Core.Model.teams[1], new Vector2Int(6, 5), Direction.West);
+        CreateUnit(UnitType.Mech, Core.Model.teams[1], new Vector2Int(8, 5), Direction.West);
     }
 
     #endregion

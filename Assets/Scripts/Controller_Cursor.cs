@@ -4,7 +4,8 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class Controller_Cursor : MonoBehaviour
-{    
+{
+    bool _canInput = true;
     float _inputDelay;
     bool _horAxisInUse;
     bool _vertAxisInUse;
@@ -26,100 +27,104 @@ public class Controller_Cursor : MonoBehaviour
 
     private void Update()
     {
-        #region Movement
-        //Up
-        if (Input.GetAxisRaw("Vertical") > 0)
+        if (_canInput)
         {
-            if (!_vertAxisInUse)
+
+            #region Movement
+            //Up
+            if (Input.GetAxisRaw("Vertical") > 0)
             {
-                _vertAxisInUse = true;
-                Core.Controller.GoTo(new Vector2Int(Position.x, Position.y + 1));
-                StartCoroutine(ResetAxisInUseDelayed(_inputDelay));
+                if (!_vertAxisInUse)
+                {
+                    _vertAxisInUse = true;
+                    Core.Controller.GoTo(new Vector2Int(Position.x, Position.y + 1));
+                    StartCoroutine(ResetAxisInUseDelayed(_inputDelay));
+                }
             }
-        }
-        else
-        //Down
-        if (Input.GetAxisRaw("Vertical") < 0)
-        {
-            if (!_vertAxisInUse)
+            else
+            //Down
+            if (Input.GetAxisRaw("Vertical") < 0)
             {
-                _vertAxisInUse = true;
-                Core.Controller.GoTo(new Vector2Int(Position.x, Position.y - 1));
-                StartCoroutine(ResetAxisInUseDelayed(_inputDelay));
+                if (!_vertAxisInUse)
+                {
+                    _vertAxisInUse = true;
+                    Core.Controller.GoTo(new Vector2Int(Position.x, Position.y - 1));
+                    StartCoroutine(ResetAxisInUseDelayed(_inputDelay));
+                }
             }
-        }
-        //Left
-        if (Input.GetAxisRaw("Horizontal") < 0)
-        {
-            if (!_horAxisInUse)
+            //Left
+            if (Input.GetAxisRaw("Horizontal") < 0)
             {
-                _horAxisInUse = true;
-                Core.Controller.GoTo(new Vector2Int(Position.x - 1, Position.y));
-                StartCoroutine(ResetAxisInUseDelayed(_inputDelay));
+                if (!_horAxisInUse)
+                {
+                    _horAxisInUse = true;
+                    Core.Controller.GoTo(new Vector2Int(Position.x - 1, Position.y));
+                    StartCoroutine(ResetAxisInUseDelayed(_inputDelay));
+                }
             }
-        }
-        else
-        //Right
-        if (Input.GetAxisRaw("Horizontal") > 0)
-        {
-            if (!_horAxisInUse)
+            else
+            //Right
+            if (Input.GetAxisRaw("Horizontal") > 0)
             {
-                _horAxisInUse = true;
-                Core.Controller.GoTo(new Vector2Int(Position.x + 1, Position.y));
-                StartCoroutine(ResetAxisInUseDelayed(_inputDelay));
+                if (!_horAxisInUse)
+                {
+                    _horAxisInUse = true;
+                    Core.Controller.GoTo(new Vector2Int(Position.x + 1, Position.y));
+                    StartCoroutine(ResetAxisInUseDelayed(_inputDelay));
+                }
+            }
+
+            #endregion
+
+            if (Input.GetButtonDown("Jump"))
+            {
+                if (!_buttonPressed)
+                {
+                    Core.Controller.AButton();
+                    _buttonPressed = true;
+                    StartCoroutine(ResetButtonPressedDelayed(_inputDelay));
+                }
+            }
+            if (Input.GetButtonDown("Cancel"))
+            {
+                Core.Controller.BButton();
+                _buttonPressedTimer = 0;
+            }
+            //Holding B button
+            if (Input.GetButton("Cancel"))
+            {
+                _buttonPressedTimer += Time.deltaTime;
+                if (_buttonPressedTimer >= _buttonHoldDelay && !_holdingB)
+                {
+                    Core.Controller.BButtonHold();
+                    _holdingB = true;
+                }
+            }
+            if (Input.GetButtonUp("Cancel"))
+            {
+                if (_buttonPressedTimer >= _buttonHoldDelay)
+                {
+                    Core.Controller.BButtonReleased();
+                    _buttonPressedTimer = 0;
+                    _holdingB = false;
+                }
             }
         }
 
-        #endregion
-        
-        if (Input.GetButtonDown("Jump"))
-        {
-            if(!_buttonPressed)
-            {
-                Core.Controller.AButton();
-                _buttonPressed = true;
-                StartCoroutine(ResetButtonPressedDelayed(_inputDelay));
-            }
-        }      
-        if (Input.GetButtonDown("Cancel") )
-        {
-            Core.Controller.BButton();
-            _buttonPressedTimer = 0;
-        }
-        //Holding B button
-        if (Input.GetButton("Cancel"))
-        {
-            _buttonPressedTimer += Time.deltaTime;
-            if(_buttonPressedTimer >= _buttonHoldDelay && !_holdingB)
-            {
-                Core.Controller.BButtonHold();
-                _holdingB = true;
-            }
-        }
-        if (Input.GetButtonUp("Cancel"))
-        {
-            if (_buttonPressedTimer >= _buttonHoldDelay)
-            {
-                Core.Controller.BButtonReleased();
-                _buttonPressedTimer = 0;
-                _holdingB = false;
-            }
-        }
-       
         #region Debug
         if (Input.GetKeyDown(KeyCode.A))
         {
-           
+
         }
-        if(Input.GetKeyDown(KeyCode.S))
+        if (Input.GetKeyDown(KeyCode.S))
         {
-            
+
         }
 
         #endregion
     }
 
-    
+
 
     public void SetPosition(Vector2Int pos)
     {
@@ -127,6 +132,16 @@ public class Controller_Cursor : MonoBehaviour
         this.transform.position = new Vector3(tile.transform.position.x, 0, tile.transform.position.z);
         Position = pos;
         Core.View.statusPanel.UpdateDisplay(tile);
+    }
+    public void BlockInput(float duration)
+    {
+        _canInput = false;
+        StartCoroutine(ActivateInput(duration));
+    }
+    IEnumerator ActivateInput(float time)
+    {
+        yield return new WaitForSeconds(time);
+        _canInput = true;
     }
 
     #region Cursor Gfx

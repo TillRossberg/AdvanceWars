@@ -25,7 +25,7 @@ public class View : MonoBehaviour
     List<GameObject> reachableTilesGfx = new List<GameObject>();
     List<GameObject> attackableTilesGfx = new List<GameObject>();
     #endregion
-        
+
     #region Base Methods
     public void Init()
     {
@@ -33,18 +33,29 @@ public class View : MonoBehaviour
         commanderNames = System.Enum.GetNames(typeof(CommanderType)).ToList<string>();
         if (!canvas.gameObject.activeSelf) canvas.gameObject.SetActive(true);
         buyMenu.gameObject.SetActive(false);
+        contextMenu.gameObject.SetActive(false);
     }
-    
+
     #endregion
     #region Menu Methods
-    
-    public void DisplayContextMenu(bool value){contextMenu.gameObject.SetActive(value);}
+
+    public void ShowContextMenu(int index)
+    {
+        contextMenu.gameObject.SetActive(true);
+        contextMenu.Open(index);
+
+    }   
+    public void HideContextMenu()
+    {
+        contextMenu.gameObject.SetActive(false);
+        Core.Controller.CurrentMode = Controller.Mode.normal;
+    }
     public void DisplayStatusPanel(bool value){statusPanel.gameObject.SetActive(value);}
     public void DisplayCommanderPanel(bool value){ commanderPanel.gameObject.SetActive(value);}
     public void DisplayBuyMenu(bool value)
     {
         buyMenu.gameObject.SetActive(value);
-        DisplayContextMenu(false);
+        HideContextMenu();
         DisplayStatusPanel(!value);
         DisplayCommanderPanel(!value);
     }
