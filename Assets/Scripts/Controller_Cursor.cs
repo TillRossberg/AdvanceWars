@@ -29,7 +29,6 @@ public class Controller_Cursor : MonoBehaviour
     {
         if (_canInput)
         {
-
             #region Movement
             //Up
             if (Input.GetAxisRaw("Vertical") > 0)

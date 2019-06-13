@@ -199,10 +199,10 @@ public class Model : MonoBehaviour
         CreateEmptyMatrix(width, height, TileType.Plain);
         for (int i = 0; i < width; i++)
         {
-            ChangeTile(TileType.Sea, new Vector2Int(i, 0), 0);
-            ChangeTile(TileType.Sea, new Vector2Int(i, height - 1), 0);
-            ChangeTile(TileType.Forest, new Vector2Int(i, 2), 0);
-            ChangeTile(TileType.Mountain, new Vector2Int(i, 1), 0);
+            //ChangeTile(TileType.Sea, new Vector2Int(i, 0), 0);
+            //ChangeTile(TileType.Sea, new Vector2Int(i, height - 1), 0);
+            //ChangeTile(TileType.Forest, new Vector2Int(i, 2), 0);
+            //ChangeTile(TileType.Mountain, new Vector2Int(i, 1), 0);
             ChangeTile(TileType.River, new Vector2Int(i, 9), 0);
             ChangeTile(TileType.Shoal, new Vector2Int(i, height - 2), 0);
         }
@@ -213,10 +213,12 @@ public class Model : MonoBehaviour
         Core.Controller.Occupy(teams[1], GetTile(new Vector2Int(8, 8)));
         ChangeTile(TileType.Road, new Vector2Int(7, 6), 0);
         SetNeighbors(MapMatrix);
-        CreateUnit(UnitType.APC, Core.Model.teams[0], new Vector2Int(5, 5), Direction.North);
-        CreateUnit(UnitType.Infantry, Core.Model.teams[0], new Vector2Int(3, 5), Direction.North);
-        CreateUnit(UnitType.APC, Core.Model.teams[1], new Vector2Int(6, 5), Direction.West);
-        CreateUnit(UnitType.Mech, Core.Model.teams[1], new Vector2Int(8, 5), Direction.West);
+        CreateUnit(UnitType.APC, Core.Model.teams[0], new Vector2Int(0, 0), Direction.North);
+        CreateUnit(UnitType.APC, Core.Model.teams[0], new Vector2Int(1, 0), Direction.North);
+        CreateUnit(UnitType.APC, Core.Model.teams[0], new Vector2Int(0, 1), Direction.North);
+        CreateUnit(UnitType.Infantry, Core.Model.teams[0], new Vector2Int(0, 2), Direction.North);
+        CreateUnit(UnitType.APC, Core.Model.teams[1], new Vector2Int(5, 10), Direction.West);
+        CreateUnit(UnitType.Infantry, Core.Model.teams[1], new Vector2Int(5, 11), Direction.West);
     }
 
     #endregion

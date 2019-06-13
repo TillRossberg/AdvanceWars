@@ -30,9 +30,9 @@ public class Core : Singleton<Core>
         Controller.Init();
         AudioManager.Init();
     }
+   
     private void Start()
     {
-        
         Controller.StartGame();
     }
 }

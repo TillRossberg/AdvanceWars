@@ -40,8 +40,7 @@ public class Unit : MonoBehaviour
     public int health = 100;
 	public int ammo;    
     public int fuel;
-    #endregion
-    
+    #endregion    
     #region Basic Methods
     public void Init()
     {

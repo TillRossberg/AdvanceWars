@@ -19,10 +19,7 @@ public class Controller : MonoBehaviour
     public Mode CurrentMode;
    
     int _enemyIndex = 0;
-
     int _dropOffIndex = 0;
-
-
 
     #region Base Methods
     public void StartGame()
@@ -110,31 +107,34 @@ public class Controller : MonoBehaviour
                 DeselectObject();
                 break;
             case Mode.move:
-                if (unitHere != null)
+                if (!SelectedUnit.AnimationController.IsMovingToTarget)
                 {
-                    if (unitHere == SelectedUnit)
+                    if (unitHere != null)
                     {
-                        Core.View.ShowContextMenu(8);
-                    }
-                    else if (SelectedUnit.team.units.Contains(unitHere))//If you click on a friendly unit
-                    {
-                        //Try to unite units
-                        //If the unit on this tile can load other units, check if it can load the selected unit.
-                        if (unitHere.GetComponent<Unit_Transporter>() != null)
+                        if (unitHere == SelectedUnit)
                         {
-                            if ((unitHere.data.type == UnitType.APC || unitHere.data.type == UnitType.TCopter) && SelectedUnit.IsInfantryUnit()) SelectedUnit.MoveUnitToLoad(Cursor.Position);
-                            if (unitHere.data.type == UnitType.Lander && SelectedUnit.IsGroundUnit()) SelectedUnit.MoveUnitToLoad(Cursor.Position);
-                            if (unitHere.data.type == UnitType.Cruiser && SelectedUnit.IsCopterUnit()) SelectedUnit.MoveUnitToLoad(Cursor.Position);
+                            Core.View.ShowContextMenu(8);
+                        }
+                        else if (SelectedUnit.team.units.Contains(unitHere))//If you click on a friendly unit
+                        {
+                            //Try to unite units
+                            //If the unit on this tile can load other units, check if it can load the selected unit.
+                            if (unitHere.GetComponent<Unit_Transporter>() != null)
+                            {
+                                if ((unitHere.data.type == UnitType.APC || unitHere.data.type == UnitType.TCopter) && SelectedUnit.IsInfantryUnit()) SelectedUnit.MoveUnitToLoad(Cursor.Position);
+                                if (unitHere.data.type == UnitType.Lander && SelectedUnit.IsGroundUnit()) SelectedUnit.MoveUnitToLoad(Cursor.Position);
+                                if (unitHere.data.type == UnitType.Cruiser && SelectedUnit.IsCopterUnit()) SelectedUnit.MoveUnitToLoad(Cursor.Position);
+                            }
+                        }
+                        else//If you click on an enemy unit or an unit that is in an alliance with you.
+                        {
+                            //Play dörp sound, you cant go there
                         }
                     }
-                    else//If you click on an enemy unit or an unit that is in an alliance with you.
+                    else
                     {
-                        //Play dörp sound, you cant go there
+                         SelectedUnit.MoveUnitTo(Cursor.Position);
                     }
-                }
-                else
-                {
-                    SelectedUnit.MoveUnitTo(Cursor.Position);
                 }
                 break;
             case Mode.buyMenu:
@@ -143,10 +143,7 @@ public class Controller : MonoBehaviour
             case Mode.contextMenu:
                 break;
             case Mode.unloadUnit:
-
-                Debug.Log("dropping");
                 UnloadUnit(SelectedUnit.GetComponent<Unit_Transporter>().dropOffPositions[_dropOffIndex]);
-                ResetUnloadStuff();
                 break;
         }
         Cursor.BlockInput(0.2f);
@@ -175,11 +172,15 @@ public class Controller : MonoBehaviour
                 break;
             case Mode.contextMenu:
                 //TODO: Bug!
-                if (!SelectedUnit.AnimationController.IsMovingToTarget)
+                if (SelectedUnit != null)
                 {
                     SelectedUnit.ResetPosition();
                     Cursor.SetPosition(SelectedUnit.position);
                     DeselectObject();
+                }
+                else
+                {
+                    Core.View.HideContextMenu();
                 }
                 break;
             case Mode.unloadUnit:
@@ -193,7 +194,7 @@ public class Controller : MonoBehaviour
     public void BButtonHold()
     {
         Unit unit = Core.Model.GetTile(Cursor.Position).GetUnitHere();
-        if (unit != null && ActiveTeam != unit.team)
+        if (unit != null)
         {            
             unit.CalcAttackableArea(unit.position);
             Core.View.CreateAttackableTilesGfx(unit);
@@ -251,9 +252,8 @@ public class Controller : MonoBehaviour
                     break;
                 case Mode.contextMenu:
                     break;
-                case Mode.unloadUnit:
-                    Cursor.SetPosition(SelectedUnit.GetComponent<Unit_Transporter>().dropOffPositions[0].position);
-                    CycleDropOffPositions(SelectedUnit.GetComponent<Unit_Transporter>());
+                case Mode.unloadUnit:                    
+                    CycleDropOffPositions(SelectedUnit.GetComponent<Unit_Transporter>(), pos);
                     break;
                 default:
                     break;
@@ -289,31 +289,53 @@ public class Controller : MonoBehaviour
             }
         }
     }
-    void CycleDropOffPositions(Unit_Transporter unit)
+    void CycleDropOffPositions(Unit_Transporter transporter, Vector2Int newPos)
     {
-        if (unit.dropOffPositions.Count > 1)
-        {
-            if (Input.GetAxisRaw("Horizontal") > 0 || Input.GetAxisRaw("Vertical") > 0)
+        Vector2Int currentPos = Cursor.Position;
+        if (transporter.dropOffPositions.Count > 1)
+        {            
+            if(newPos.x > currentPos.x)
             {
-                _dropOffIndex--;
-                if (_dropOffIndex < 0)
-                {
-                    _dropOffIndex = unit.dropOffPositions.Count - 1;
-                }
-                Vector2Int dropOffPosition = unit.dropOffPositions[_dropOffIndex].position;
-                Cursor.SetPosition(dropOffPosition);
+                Debug.Log("right");
+                if (transporter.GetTile(newPos) != null) Cursor.SetPosition(newPos);
             }
-            else
-            if (Input.GetAxisRaw("Horizontal") < 0 || Input.GetAxisRaw("Vertical") < 0)
+            if(newPos.x < currentPos.x)
             {
-                _dropOffIndex++;
-                if (_dropOffIndex > unit.dropOffPositions.Count - 1)
-                {
-                    _dropOffIndex = 0;
-                }
-                Vector2Int dropOffPosition = unit.dropOffPositions[_dropOffIndex].position;
-                Cursor.SetPosition(dropOffPosition);
+                if (transporter.GetTile(newPos) != null) Cursor.SetPosition(newPos);
+                Debug.Log("left");
             }
+            if(newPos.y > currentPos.y)
+            {
+                if (transporter.GetTile(newPos) != null) Cursor.SetPosition(newPos);
+                Debug.Log("up");
+            }
+            if(newPos.y < currentPos.y)
+            {
+                if (transporter.GetTile(newPos) != null) Cursor.SetPosition(newPos);
+                Debug.Log("down");
+
+            }
+            //if (Input.GetAxisRaw("Horizontal") > 0 || Input.GetAxisRaw("Vertical") > 0)
+            //{
+            //    _dropOffIndex--;
+            //    if (_dropOffIndex < 0)
+            //    {
+            //        _dropOffIndex = transportert.dropOffPositions.Count - 1;
+            //    }
+            //    Vector2Int dropOffPosition = transportert.dropOffPositions[_dropOffIndex].position;
+            //    Cursor.SetPosition(dropOffPosition);
+            //}
+            //else
+            //if (Input.GetAxisRaw("Horizontal") < 0 || Input.GetAxisRaw("Vertical") < 0)
+            //{
+            //    _dropOffIndex++;
+            //    if (_dropOffIndex > transportert.dropOffPositions.Count - 1)
+            //    {
+            //        _dropOffIndex = 0;
+            //    }
+            //    Vector2Int dropOffPosition = transportert.dropOffPositions[_dropOffIndex].position;
+            //    Cursor.SetPosition(dropOffPosition);
+            //}
         }
     }
 
@@ -439,6 +461,7 @@ public class Controller : MonoBehaviour
         if (SelectedUnit.targetTile != null) target = SelectedUnit.targetTile;
         else target = Core.Model.GetTile(SelectedUnit.position);
         SelectedUnit.GetComponent<Unit_Transporter>().SetPossibleDropPositions(target);
+        Cursor.SetPosition(SelectedUnit.GetComponent<Unit_Transporter>().dropOffPositions[0].position);
         CurrentMode = Mode.unloadUnit;
         Cursor.BlockInput(0.5f);
     }
@@ -646,12 +669,13 @@ public class Controller : MonoBehaviour
         Core.View.HideContextMenu();
         CurrentMode = Mode.normal;
         Cursor.BlockInput(0.5f);
-
     }
     public void UnloadUnit(Tile tile)
     {
         SelectedUnit.GetComponent<Unit_Transporter>().UnloadUnit(tile);
         SelectedUnit.Wait();
+        ResetUnloadStuff();
+        DeselectObject();
         CurrentMode = Mode.normal;        
     }
     void ResetUnloadStuff()

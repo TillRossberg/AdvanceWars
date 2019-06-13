@@ -12,20 +12,26 @@ PrefabInstance:
       propertyPath: m_Name
       value: Team Red
       objectReference: {fileID: 0}
+    - target: {fileID: 2525944439473362184, guid: 1af4522836d6cc141bd6c1e9832da9aa,
+        type: 3}
+      propertyPath: data
+      value: 
+      objectReference: {fileID: 11400000, guid: 2531f263a126d9e4187bdec4580cf2cf,
+        type: 2}
     - target: {fileID: 6683122760643651934, guid: 1af4522836d6cc141bd6c1e9832da9aa,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 4.3000445
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6683122760643651934, guid: 1af4522836d6cc141bd6c1e9832da9aa,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1.7778958
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6683122760643651934, guid: 1af4522836d6cc141bd6c1e9832da9aa,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 5.626259
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6683122760643651934, guid: 1af4522836d6cc141bd6c1e9832da9aa,
         type: 3}
@@ -67,11 +73,5 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2525944439473362184, guid: 1af4522836d6cc141bd6c1e9832da9aa,
-        type: 3}
-      propertyPath: data
-      value: 
-      objectReference: {fileID: 11400000, guid: 2531f263a126d9e4187bdec4580cf2cf,
-        type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1af4522836d6cc141bd6c1e9832da9aa, type: 3}

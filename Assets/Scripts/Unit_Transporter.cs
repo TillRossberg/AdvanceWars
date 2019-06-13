@@ -15,12 +15,12 @@ public class Unit_Transporter : MonoBehaviour
     public void LoadUnit(Unit unit)
     {
         loadedUnit = unit;
+        loadedUnit.targetTile = null;
         unit.gameObject.SetActive(false);
+        Core.Model.GetTile(unit.position).SetUnitHere(null);
     }
     public void UnloadUnit(Tile tile)
     {
-
-        Debug.Log("pos:" + tile.position);
         loadedUnit.gameObject.SetActive(true);
         loadedUnit.position = tile.position;
         loadedUnit.transform.position = new Vector3(tile.position.x, 0, tile.position.y);
@@ -33,18 +33,33 @@ public class Unit_Transporter : MonoBehaviour
         dropOffPositions.Clear();
         foreach (Tile neighbor in targetTile.neighbors)
         {
-            if (neighbor.data.GetMovementCost(loadedUnit.data.moveType) > 0 && neighbor.GetUnitHere() == null)
-            {
-                dropOffPositions.Add(neighbor);
-
-                //Debug.Log(neighbor.position);
-
-            }
+            if (neighbor.data.GetMovementCost(loadedUnit.data.moveType) > 0 && neighbor.GetUnitHere() == null) dropOffPositions.Add(neighbor);           
         }
     }
 
     public void DisplayArrow(bool value)
     {
         loadUnitArrow.SetActive(value);
+    }
+
+    public bool CanDropUnitsHere(Tile targetTile)
+    {
+        SetPossibleDropPositions(targetTile);
+        if (dropOffPositions.Count > 0)
+        {
+            dropOffPositions.Clear();
+            return true;
+        }
+        else return false;
+    }
+
+    public Tile GetTile(Vector2Int pos)
+    {
+        Tile tile = null;
+        foreach (Tile item in dropOffPositions)
+        {
+            if (item.position == pos) tile = item;
+        }
+        return tile;
     }
 }
