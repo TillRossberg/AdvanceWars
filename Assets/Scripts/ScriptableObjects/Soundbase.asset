@@ -14,6 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   explosion01Sound: {fileID: 8300000, guid: bf8414d67bcdbd04094932f68b12b6ea, type: 3}
   clickSound: {fileID: 8300000, guid: e044648e4cfd52849bb9d84914dc7045, type: 3}
-  nopeSound: {fileID: 8300000, guid: f1ca412a489320948830a159401968a2, type: 3}
+  NopeSound: {fileID: 8300000, guid: a83f12b3bcce99545b3d46d013739144, type: 3}
   music:
   - {fileID: 8300000, guid: 2c5f67638ac684e478b5d8b587cb77fe, type: 3}

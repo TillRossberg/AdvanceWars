@@ -20,15 +20,16 @@ public class ArrowBuilder
 
     #region Arrow Path
     //Initiate the arrowBuilder with the start point of the path.
-    public void StartArrowPath(Tile tile, int moveDist)
+    public void StartArrowPath(Unit unit)
     {
+        Tile tile = Core.Model.GetTile(unit.Position);
         _isInterrupted = false;
         tile.isPartOfArrowPath = true;
         ArrowPart firstNode = GameObject.Instantiate(Core.Model.Database.arrowPartPrefab, arrowPathParent).GetComponent<ArrowPart>();
         firstNode.Init(ArrowPart.Type.firstNode, tile);
         arrowPath.Add(firstNode);//Set this tile as startpoint of the arrowPath
         
-        momMovementPoints = maxMovementPoints = moveDist;//Handover the maximum movement points of the unit.        
+        momMovementPoints = maxMovementPoints = unit.data.moveDist;//Handover the maximum movement points of the unit.        
     }
 
     public void CreateNextPart(Tile tile)
@@ -98,44 +99,44 @@ public class ArrowBuilder
         ArrowPart.Type newType = ArrowPart.Type.firstNode;
         float newRotation = 0;
         //Vertical...
-        if(tile.position.x == preTile.position.x)
+        if(tile.Position.x == preTile.Position.x)
         {            
-            if(tile.position.x == prePreTile.position.x)//Top/bottom in a straight line.
+            if(tile.Position.x == prePreTile.Position.x)//Top/bottom in a straight line.
             {
                 newType = ArrowPart.Type.straight;
                 newRotation = 0;
             }
-            else if(tile.position.y > preTile.position.y)//...with one step up...
+            else if(tile.Position.y > preTile.Position.y)//...with one step up...
             {
                 newType = ArrowPart.Type.curve;
-                if (tile.position.x > prePreTile.position.x) newRotation = 90;//...and the prepredecessor on the left.      
+                if (tile.Position.x > prePreTile.Position.x) newRotation = 90;//...and the prepredecessor on the left.      
                 else newRotation = 180; //...and the prepredecessor on the right.               
             }            
-            else if (tile.position.y < preTile.position.y)//...with one step down...
+            else if (tile.Position.y < preTile.Position.y)//...with one step down...
             {
                 newType = ArrowPart.Type.curve;
-                if (tile.position.x > prePreTile.position.x)newRotation = 0;//...and the prepredecessor on the left.
+                if (tile.Position.x > prePreTile.Position.x)newRotation = 0;//...and the prepredecessor on the left.
                 else newRotation = 270;//...and the prepredecessor on the right.
             }
         }
         //Horizontal...
-        else if(tile.position.y == preTile.position.y)
+        else if(tile.Position.y == preTile.Position.y)
         {            
-            if (tile.position.y == prePreTile.position.y)//Left/Right in a straight line.
+            if (tile.Position.y == prePreTile.Position.y)//Left/Right in a straight line.
             {
                 newType = ArrowPart.Type.straight;
                 newRotation = 90;
             }            
-            else if(tile.position.x > preTile.position.x)//...with one step to the right...
+            else if(tile.Position.x > preTile.Position.x)//...with one step to the right...
             {
                 newType = ArrowPart.Type.curve;                
-                if (tile.position.y < prePreTile.position.y)newRotation = 180;//...and the prepredecessor upwards.
+                if (tile.Position.y < prePreTile.Position.y)newRotation = 180;//...and the prepredecessor upwards.
                 else newRotation = 270;  //...and the prepredecessor downwards.
             }            
-            else if(tile.position.x < preTile.position.x)//...with one step to the left...
+            else if(tile.Position.x < preTile.Position.x)//...with one step to the left...
             {
                 newType = ArrowPart.Type.curve;               
-                if (tile.position.y < prePreTile.position.y)newRotation = 90; //...and the prepredecessor upwards.
+                if (tile.Position.y < prePreTile.Position.y)newRotation = 90; //...and the prepredecessor upwards.
                 else newRotation = 0;//...and the prepredecessor downwards.
             }
         }       
@@ -146,14 +147,14 @@ public class ArrowBuilder
 
     float GetFacingDirection(Tile currentTile, Tile lastTile)
     {
-        if (lastTile.position.x == currentTile.position.x)
+        if (lastTile.Position.x == currentTile.Position.x)
         {
-            if (lastTile.position.y < currentTile.position.y) return 180;
+            if (lastTile.Position.y < currentTile.Position.y) return 180;
             else return 0;
         }
-        else if (lastTile.position.y == currentTile.position.y)
+        else if (lastTile.Position.y == currentTile.Position.y)
         {
-            if (lastTile.position.x < currentTile.position.x) return 270;
+            if (lastTile.Position.x < currentTile.Position.x) return 270;
             else return 90;
         }
         else throw new System.Exception("Error in direction calculation!");
@@ -197,24 +198,24 @@ public class ArrowBuilder
     public List<Vector3> CreateMovementPath()
     {
         List<Vector3> movementPath = new List<Vector3>();
-        AddWaypoint(movementPath, arrowPath[0].AssignedTile.position);//Set the starting position of the movement path as the position we are on right now.
+        AddWaypoint(movementPath, arrowPath[0].AssignedTile.Position);//Set the starting position of the movement path as the position we are on right now.
         //TODO: implement the height for mountains and rivers!--> Linerenderer!!!
         for (int i = 1; i < arrowPath.Count; i++)
         {
             Tile tile = arrowPath[i].AssignedTile;
             if(!IsEnemyUnitHere(tile))
             {
-                if (arrowPath[i].type == ArrowPart.Type.curve) AddWaypoint(movementPath, tile.position);      
+                if (arrowPath[i].type == ArrowPart.Type.curve) AddWaypoint(movementPath, tile.Position);      
             }
             else
             {
                 Tile preTile = arrowPath[i - 1].AssignedTile;
-                AddWaypoint(movementPath, preTile.position);
+                AddWaypoint(movementPath, preTile.Position);
                 _isInterrupted = true;
                 _interruptTile = preTile;
             }
         }
-        if(!_isInterrupted) AddWaypoint(movementPath, arrowPath[arrowPath.Count - 1].AssignedTile.position);//Endpoint        
+        if(!_isInterrupted) AddWaypoint(movementPath, arrowPath[arrowPath.Count - 1].AssignedTile.Position);//Endpoint        
         return movementPath;
     }
     void AddWaypoint(List<Vector3> wayPointList, Vector2Int position)

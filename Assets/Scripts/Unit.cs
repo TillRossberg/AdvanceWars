@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Unit : MonoBehaviour 
+public class Unit : MonoBehaviour
 {
     #region References
     public Data_Unit data;
@@ -11,16 +11,19 @@ public class Unit : MonoBehaviour
     public GameObject gfx;
     public TextMesh healthText;
     #endregion
-  
+
     #region General Fields
     public Team team;
     public List<Team> enemyTeams = new List<Team>();
-    public Tile targetTile;
     #endregion
     #region Position & Rotation
-    public Vector2Int position;    
+    public Vector2Int Position;
+    public Vector2Int PreviousPosition;
+    public Tile CurrentTile;
+    public Tile PreviousTile;
     public int rotation;
-    public Direction direction;    
+    public Direction direction;
+    public Direction previousDirection;
     float counter = 0;//Counts the iterations of the calcReachableArea algorithm.
     #endregion
     #region States
@@ -28,7 +31,6 @@ public class Unit : MonoBehaviour
     public bool CanMove = false;//States if the unit has already moved this turn.
     public bool CanFire = false;//Some units can't fire after they have moved.
     public bool IsInterrupted { get; private set; }//If we move through terrain that is covered by fog of war, we can be interrupted by an invisible enemy unit that is on our arrowpath.    
-    public bool isSelected = false;
     #endregion
     #region Tiles
     public List<Tile> attackableTiles = new List<Tile>();
@@ -38,7 +40,7 @@ public class Unit : MonoBehaviour
     #endregion
     #region Properties
     public int health = 100;
-	public int ammo;    
+    public int ammo;
     public int fuel;
     #endregion    
     #region Basic Methods
@@ -53,15 +55,7 @@ public class Unit : MonoBehaviour
     {
         Deactivate();
         CalcVisibleArea();
-        Tile currentTile = Core.Model.GetTile(this.position);       
-        if(targetTile != null)
-        {
-            currentTile.SetUnitHere(null);//Reset the unitStandingHere property of the old tile to null
-            currentTile.ResetTakeOverCounter();//Reset the take over counter 
-            position = targetTile.position;
-            targetTile.SetUnitHere(this);
-        }
-        targetTile = null;
+        ConfirmCurrentPosition();        
     }
 
     //Activate the unit so it has turn, can fire and move.
@@ -70,16 +64,15 @@ public class Unit : MonoBehaviour
         CanMove = true;
         CanFire = true;
         hasTurn = true;
-        IsInterrupted = false;       
+        IsInterrupted = false;
     }
     public void Deactivate()
     {
         CanMove = false;
         CanFire = false;
         hasTurn = false;
-        isSelected = false;
     }
-    
+
 
     public void SetVisibility(bool value)
     {
@@ -103,21 +96,21 @@ public class Unit : MonoBehaviour
     {
         health = health - healthToSubtract;
         DisplayHealth(true);
-        if(health <= 0)
+        if (health <= 0)
         {
             health = 0;
             KillUnit();
         }
-    }    
+    }
 
     //Displays the actual lifepoints in the "3D"TextMesh
     public void DisplayHealth(bool value)
     {
-        if(value)
+        if (value)
         {
             healthText.gameObject.SetActive(true);
             //Reposition the health text so it is always at the lower left corner of the tile.
-            healthText.transform.SetPositionAndRotation(new Vector3(this.transform.position.x - 0.4f,this.transform.position.y, this.transform.position.z - 0.2f), Quaternion.Euler(90, 0, 0));
+            healthText.transform.SetPositionAndRotation(new Vector3(this.transform.position.x - 0.4f, this.transform.position.y, this.transform.position.z - 0.2f), Quaternion.Euler(90, 0, 0));
             healthText.text = GetCorrectedHealth().ToString();
         }
         else
@@ -128,17 +121,17 @@ public class Unit : MonoBehaviour
     //If the health goes below five the value will be rounded to 0, but we dont want that!
     public int GetCorrectedHealth()
     {
-        if (health > 10)return (int)(health / 10);      
-        else return 1;       
+        if (health > 10) return (int)(health / 10);
+        else return 1;
     }
 
     //Destroys the unit
     public void KillUnit()
     {
         //Set the unit standing on this tile as null.
-        Core.Model.GetTile(position).SetUnitHere(null);
+        Core.Model.GetTile(Position).SetUnitHere(null);
         //Boom animation
-        
+
         //Remove unit from team list
         team.units.Remove(this);
         //If this was the last unit of the player the game is lost.
@@ -154,7 +147,7 @@ public class Unit : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
         KillUnit();
-    }   
+    }
     #endregion
     #region Movement
     //Move the unit to a field and align it so it faces away, from where it came.
@@ -163,15 +156,15 @@ public class Unit : MonoBehaviour
         //Setup the sequencer for the movement animation.
         AnimationController.Init();
         IsInterrupted = Core.Controller.ArrowBuilder.GetInterruption();
-        if (IsInterrupted) targetTile = Core.Controller.ArrowBuilder.GetInterruptionTile();
-        else targetTile = Core.Model.GetTile(newPos);
+        //if (IsInterrupted) targetTile = Core.Controller.ArrowBuilder.GetInterruptionTile();
+        //else targetTile = Core.Model.GetTile(newPos);
         DisplayHealth(false);//While moving we dont want to see the health.
         //Delete the reachable tiles and the movement arrow.
         Core.Controller.ClearReachableArea(this);
         Core.Controller.ArrowBuilder.ResetAll();
 
-        if(data.rangeAttack) CanFire = false;           
-        CanMove = false;        
+        if (data.rangeAttack) CanFire = false;
+        CanMove = false;
     }
     public void MoveUnitToLoad(Vector2Int newPos)
     {
@@ -184,24 +177,57 @@ public class Unit : MonoBehaviour
         AnimationController.unitWantsToUnite = true;
     }
 
+
+    public void SetPosition(Vector2Int pos)
+    {
+        Core.Model.GetTile(Position).SetUnitHere(null);
+        //Save the old stuff.
+        SetPreviousPosition(Position);
+        //Position
+        this.transform.position = new Vector3(pos.x, 0, pos.y);
+        this.Position = pos;
+        //Tile
+        SetCurrentTile(pos);
+        Core.View.statusPanel.UpdateDisplay(this);
+    }
+    public void ConfirmCurrentPosition()
+    {
+        if(PreviousTile != null) PreviousTile.ResetTakeOverCounter();
+        PreviousPosition = new Vector2Int(-1, -1);
+        PreviousTile = null;
+        previousDirection = Direction.North;
+
+    }
+    public void SetPreviousPosition(Vector2Int position)
+    {
+        this.PreviousPosition = Position;
+        this.PreviousTile = Core.Model.GetTile(Position);
+    }   
+    public void SeRotation(Direction direction)
+    {
+        previousDirection = this.direction;
+        this.direction = direction;
+    }
+    public void SetCurrentTile(Vector2Int pos)
+    {
+        this.CurrentTile = Core.Model.GetTile(pos);
+        Core.Model.GetTile(pos).SetUnitHere(this);
+    }
+
     //Resets the position and rotation of the unit to where it was before. (If we click the right mouse button or close the menu after we successfully moved it somewhere.)
     public void ResetPosition()
     {
-        targetTile = null;
-        //Set the position and rotation of the unit to where it was before
-        this.transform.position = new Vector3(position.x, 0, position.y);
-        //this.position = prePosition;
-        RotateUnit(direction);
-        //this.direction = preDirection;        
+        SetPosition(PreviousPosition);
+        ConfirmCurrentPosition();
         Core.View.statusPanel.UpdateDisplay(this);//When the unit moves back, the display of the cover should be set to the old tile.
-        //Core.Model.GetTile(position).SetUnitHere(this);//Inform the old tile, that we are back.
         DisplayHealth(true);//Repostition the health indicator.   
         CanFire = true;
-        CanMove = true;
-        AnimationController.unitWantsToLoad = false;
-        AnimationController.unitWantsToUnite = false;
+        CanMove = true;        
     }
-
+    public void ResetRotation()
+    {
+        RotateUnit(previousDirection);
+    }
     
     #endregion
     #region Rotation
@@ -301,6 +327,7 @@ public class Unit : MonoBehaviour
     //Checks the attackable tiles for enemies.
     public void FindAttackableEnemies()
     {
+        CalcAttackableArea(this.Position);
         foreach (Tile tile in attackableTiles)
         {
             if(IsVisibleEnemyHere(tile))
@@ -356,70 +383,70 @@ public class Unit : MonoBehaviour
         for (int i = 1; i <= data.maxRange; i++)
         {
             //Right...
-            Vector2Int testPosition = new Vector2Int(this.position.x + i, this.position.y);
+            Vector2Int testPosition = new Vector2Int(this.Position.x + i, this.Position.y);
             if (Core.Model.IsOnMap(testPosition))
             {
                 TryToAddAttackableTile(testPosition);
                 for (int j = 1; j <= data.maxRange - i; j++)
                 {
                     //... and up.
-                    testPosition = new Vector2Int(this.position.x + i, this.position.y + j);
+                    testPosition = new Vector2Int(this.Position.x + i, this.Position.y + j);
                     TryToAddAttackableTile(testPosition);
                     //... and down.
-                    testPosition = new Vector2Int(this.position.x + i, this.position.y - j);
+                    testPosition = new Vector2Int(this.Position.x + i, this.Position.y - j);
                     TryToAddAttackableTile(testPosition);
                 }
             }
             //Left...
-            testPosition = new Vector2Int(this.position.x - i, this.position.y);
+            testPosition = new Vector2Int(this.Position.x - i, this.Position.y);
             if (Core.Model.IsOnMap(testPosition))
             {
                 TryToAddAttackableTile(testPosition);
                 for (int j = 1; j <= data.maxRange - i; j++)
                 {
                     //... and up.
-                    testPosition = new Vector2Int(this.position.x - i, this.position.y + j);
+                    testPosition = new Vector2Int(this.Position.x - i, this.Position.y + j);
                     TryToAddAttackableTile(testPosition);
                     //... and down.
-                    testPosition = new Vector2Int(this.position.x - i, this.position.y - j);
+                    testPosition = new Vector2Int(this.Position.x - i, this.Position.y - j);
                     TryToAddAttackableTile(testPosition);
                 }
             }
-            testPosition = new Vector2Int(this.position.x, this.position.y + i);
+            testPosition = new Vector2Int(this.Position.x, this.Position.y + i);
             TryToAddAttackableTile(testPosition);
-            testPosition = new Vector2Int(this.position.x, this.position.y - i);
+            testPosition = new Vector2Int(this.Position.x, this.Position.y - i);
             TryToAddAttackableTile(testPosition);
         }
         //...then we remove all tiles in the minimum range. (Need a better solution for this!)
         for (int i = 1; i < data.minRange; i++)
         {
             //Right...
-            Vector2Int testPosition = new Vector2Int(this.position.x + i, this.position.y);
+            Vector2Int testPosition = new Vector2Int(this.Position.x + i, this.Position.y);
             if (Core.Model.IsOnMap(testPosition))
             {
                 TryToRemoveAttackableTile(testPosition);
                 for (int j = 1; j < data.minRange - i; j++)
                 {
                     //... and up.
-                    testPosition = new Vector2Int(this.position.x + i, this.position.y + j);
+                    testPosition = new Vector2Int(this.Position.x + i, this.Position.y + j);
                     TryToRemoveAttackableTile(testPosition);
                     //... and down.
-                    testPosition = new Vector2Int(this.position.x + i, this.position.y - j);
+                    testPosition = new Vector2Int(this.Position.x + i, this.Position.y - j);
                     TryToRemoveAttackableTile(testPosition);
                 }
             }
             //Left...
-            testPosition = new Vector2Int(this.position.x - i, this.position.y);
+            testPosition = new Vector2Int(this.Position.x - i, this.Position.y);
             if (Core.Model.IsOnMap(testPosition))
             {
                 TryToRemoveAttackableTile(testPosition);
                 for (int j = 1; j < data.minRange - i; j++)
                 {
                     //... and up.
-                    testPosition = new Vector2Int(this.position.x - i, this.position.y + j);
+                    testPosition = new Vector2Int(this.Position.x - i, this.Position.y + j);
                     TryToRemoveAttackableTile(testPosition);
                     //... and down.
-                    testPosition = new Vector2Int(this.position.x - i, this.position.y - j);
+                    testPosition = new Vector2Int(this.Position.x - i, this.Position.y - j);
                     TryToRemoveAttackableTile(testPosition);
                 }
             }
@@ -463,7 +490,7 @@ public class Unit : MonoBehaviour
             //The tile was reached, so test all its neighbors for reachability. Ignore the tile you came from.
             foreach (Tile neighbor in tile.neighbors)
             {
-                if(neighbor != cameFromTile) CalcReachableArea(neighbor.position, movementPoints, moveType, tile);
+                if(neighbor != cameFromTile) CalcReachableArea(neighbor.Position, movementPoints, moveType, tile);
             }           
         }
     }
@@ -474,53 +501,53 @@ public class Unit : MonoBehaviour
     {
         if (Core.Model.MapSettings.fogOfWar)
         {
-            Core.Model.SetVisibility(position, true);//Mark own position as visible.
+            Core.Model.SetVisibility(Position, true);//Mark own position as visible.
             //Adjacent tiles are always visible
-            Vector2Int left = new Vector2Int(position.x - 1, position.y);
+            Vector2Int left = new Vector2Int(Position.x - 1, Position.y);
             if (Core.Model.IsOnMap(left)) Core.Model.SetVisibility(left, true);
-            Vector2Int right = new Vector2Int(position.x + 1, position.y);
+            Vector2Int right = new Vector2Int(Position.x + 1, Position.y);
             if (Core.Model.IsOnMap(right)) Core.Model.SetVisibility(right, true);
-            Vector2Int up = new Vector2Int(position.x, position.y + 1);
+            Vector2Int up = new Vector2Int(Position.x, Position.y + 1);
             if (Core.Model.IsOnMap(up)) Core.Model.SetVisibility(up, true);
-            Vector2Int down = new Vector2Int(position.x, position.y - 1);
+            Vector2Int down = new Vector2Int(Position.x, Position.y - 1);
             if (Core.Model.IsOnMap(down)) Core.Model.SetVisibility(down, true);
 
             for (int i = 1; i <= data.visionRange; i++)
             {
                 //Right...
-                Vector2Int testPosition = new Vector2Int(this.position.x + i, this.position.y);
+                Vector2Int testPosition = new Vector2Int(this.Position.x + i, this.Position.y);
                 if(Core.Model.IsOnMap(testPosition))
                 {
                     Core.Model.SetVisibility(testPosition, true);                    
                     for (int j = 1; j <= data.visionRange - i; j++)
                     {
                         //... and up.
-                        testPosition = new Vector2Int(this.position.x + i, this.position.y + j);
+                        testPosition = new Vector2Int(this.Position.x + i, this.Position.y + j);
                         TryToSetVisiblity(testPosition);
                         //... and down.
-                        testPosition = new Vector2Int(this.position.x + i, this.position.y - j);
+                        testPosition = new Vector2Int(this.Position.x + i, this.Position.y - j);
                         TryToSetVisiblity(testPosition);                       
                     }
                 }
                 //Left...
-                testPosition = new Vector2Int(this.position.x - i, this.position.y);
+                testPosition = new Vector2Int(this.Position.x - i, this.Position.y);
                 if (Core.Model.IsOnMap(testPosition))
                 {
                     Core.Model.SetVisibility(testPosition, true);
                     for (int j = 1; j <= data.visionRange - i; j++)
                     {
                         //... and up.
-                        testPosition = new Vector2Int(this.position.x - i, this.position.y + j);
+                        testPosition = new Vector2Int(this.Position.x - i, this.Position.y + j);
                         TryToSetVisiblity(testPosition);
                         //... and down.
-                        testPosition = new Vector2Int(this.position.x - i, this.position.y - j);
+                        testPosition = new Vector2Int(this.Position.x - i, this.Position.y - j);
                         TryToSetVisiblity(testPosition);
                     }
                 }
 
-                testPosition = new Vector2Int(this.position.x, this.position.y + i);
+                testPosition = new Vector2Int(this.Position.x, this.Position.y + i);
                 TryToSetVisiblity(testPosition);
-                testPosition = new Vector2Int(this.position.x, this.position.y - i);
+                testPosition = new Vector2Int(this.Position.x, this.Position.y - i);
                 TryToSetVisiblity(testPosition);
 
             }

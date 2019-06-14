@@ -10,9 +10,10 @@ public class View : MonoBehaviour
     public Canvas canvas;
     public EventSystem eventSystem;
     public Menu_BuyUnits buyMenu;
-    public Menu_Context contextMenu;
+    public Menu_Context ContextMenu;
     public Panel_Status statusPanel;
     public Panel_Commander commanderPanel;
+    public Menu_Details_Tile TileDetails;
     #endregion
     #region Parent Object Fields
     public Transform reachableTilesParent;
@@ -33,29 +34,18 @@ public class View : MonoBehaviour
         commanderNames = System.Enum.GetNames(typeof(CommanderType)).ToList<string>();
         if (!canvas.gameObject.activeSelf) canvas.gameObject.SetActive(true);
         buyMenu.gameObject.SetActive(false);
-        contextMenu.gameObject.SetActive(false);
+        ContextMenu.gameObject.SetActive(false);
+        TileDetails.gameObject.SetActive(false);
     }
 
     #endregion
     #region Menu Methods
-
-    public void ShowContextMenu(int index)
-    {
-        contextMenu.gameObject.SetActive(true);
-        contextMenu.Open(index);
-
-    }   
-    public void HideContextMenu()
-    {
-        contextMenu.gameObject.SetActive(false);
-        Core.Controller.CurrentMode = Controller.Mode.normal;
-    }
     public void DisplayStatusPanel(bool value){statusPanel.gameObject.SetActive(value);}
     public void DisplayCommanderPanel(bool value){ commanderPanel.gameObject.SetActive(value);}
     public void DisplayBuyMenu(bool value)
     {
         buyMenu.gameObject.SetActive(value);
-        HideContextMenu();
+        ContextMenu.Hide();
         DisplayStatusPanel(!value);
         DisplayCommanderPanel(!value);
     }
@@ -66,7 +56,7 @@ public class View : MonoBehaviour
     {
         foreach (Tile tile in unit.reachableTiles)
         {
-            reachableTilesGfx.Add(Instantiate(Core.Model.Database.reachableTilePrefab, new Vector3(tile.position.x, 0, tile.position.y), Quaternion.identity, reachableTilesParent));
+            reachableTilesGfx.Add(Instantiate(Core.Model.Database.reachableTilePrefab, new Vector3(tile.Position.x, 0, tile.Position.y), Quaternion.identity, reachableTilesParent));
         }       
     }
     public void ResetReachableTiles(Unit unit)
@@ -92,7 +82,7 @@ public class View : MonoBehaviour
     {
         foreach (Tile tile in unit.attackableTiles)
         {
-            attackableTilesGfx.Add(Instantiate(Core.Model.Database.attackableTilePrefab, new Vector3(tile.position.x, 0.1f, tile.position.y), Quaternion.identity, attackablTilesParent));
+            attackableTilesGfx.Add(Instantiate(Core.Model.Database.attackableTilePrefab, new Vector3(tile.Position.x, 0.1f, tile.Position.y), Quaternion.identity, attackablTilesParent));
         }        
     }
     public void ResetAttackableTiles()

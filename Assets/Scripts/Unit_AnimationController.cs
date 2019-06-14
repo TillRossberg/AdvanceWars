@@ -83,9 +83,7 @@ public class Unit_AnimationController : MonoBehaviour
                     unit.DisplayHealth(true);
                     if (!unit.IsInterrupted)
                     {
-                        if (unitWantsToLoad) Core.View.ShowContextMenu(5);
-                        else if (unitWantsToUnite) Debug.Log("Unit wants to unite");
-                        else Core.View.ShowContextMenu(8);
+                        //TODO: add event to inform that we reached the last waypoint.
                     }
                     else
                     {

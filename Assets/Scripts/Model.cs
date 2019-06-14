@@ -88,7 +88,7 @@ public class Model : MonoBehaviour
     {
         Tile newTile = Instantiate(Database.GetTilePrefab(type), new Vector3(position.x, tileHeight, position.y), Quaternion.Euler(new Vector3(0, rotation, 0)), tileParent).GetComponent<Tile>();
         newTile.name += " at X: " + position.x + " Y: " + position.y;
-        newTile.position = position;
+        newTile.Position = position;
         GameObject fogOfWarGfx = Instantiate(Database.fogOfWarTilePrefab, new Vector3(position.x, tileHeight, position.y), Quaternion.Euler(new Vector3(0, rotation, 0)), newTile.transform);
         newTile.fogOfWarGfx = fogOfWarGfx;
         fogOfWarGfx.SetActive(false);
@@ -130,7 +130,7 @@ public class Model : MonoBehaviour
         unit.Init();
         //Position and rotation
         unit.RotateUnit(facingDirection);
-        unit.position = position;       
+        unit.Position = position;       
         team.AddUnit(unit);
         GetTile(position).SetUnitHere(unit);//Pass the unit to the tile it stands on
     }
@@ -218,6 +218,7 @@ public class Model : MonoBehaviour
         CreateUnit(UnitType.APC, Core.Model.teams[0], new Vector2Int(0, 1), Direction.North);
         CreateUnit(UnitType.Infantry, Core.Model.teams[0], new Vector2Int(0, 2), Direction.North);
         CreateUnit(UnitType.APC, Core.Model.teams[1], new Vector2Int(5, 10), Direction.West);
+        CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(3, 3), Direction.North);
         CreateUnit(UnitType.Infantry, Core.Model.teams[1], new Vector2Int(5, 11), Direction.West);
     }
 

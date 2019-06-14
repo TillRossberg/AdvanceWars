@@ -41,11 +41,11 @@ public class Panel_Status : MonoBehaviour
 
     public void UpdateDisplay(Unit unit)
     {
-        UpdateDisplay(Core.Model.GetTile(unit.position));
+        UpdateDisplay(Core.Model.GetTile(unit.Position));
     }
 
 
-    public void resetStatus()
+    public void ResetStatus()
     {
         this.unitName.text = "nono";
         this.health.text = "-1";

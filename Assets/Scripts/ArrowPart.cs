@@ -16,7 +16,7 @@ public class ArrowPart : MonoBehaviour
     {
         this.AssignedTile = tile;
         SetGfx(type);
-        SetPosition(tile.position);
+        SetPosition(tile.Position);
     }
 
     public void SetGfx(Type type)

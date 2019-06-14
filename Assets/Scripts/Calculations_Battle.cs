@@ -10,8 +10,8 @@ public class Calculations_Battle
     public void Fight(Unit attacker, Unit defender)
     {
         //Get the tiles the Units are standing on.
-        Tile attackerTile = Core.Model.GetTile(attacker.position);
-        Tile defenderTile = Core.Model.GetTile(defender.position);
+        Tile attackerTile = Core.Model.GetTile(attacker.Position);
+        Tile defenderTile = Core.Model.GetTile(defender.Position);
         //1. the attacker shoots.
         int attackerDamage = CalcDamage(attacker, defender, defenderTile);
         Debug.Log("Attacker: " + attacker.name +  " damage: " + attackerDamage);

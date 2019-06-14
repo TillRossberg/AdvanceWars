@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eaaecfdc662b5f14f97fa826bba620e5, type: 3}
   m_Name: Database
   m_EditorClassIdentifier: 
-  sounds: {fileID: 11400000, guid: e378b7a2f4abf944c8d92a2b3ab0e14e, type: 2}
+  Sounds: {fileID: 11400000, guid: e378b7a2f4abf944c8d92a2b3ab0e14e, type: 2}
   containerPrefab: {fileID: 0}
   cursorPrefab: {fileID: 7409743416763832149, guid: b0065b027fc21b04f8b03dea54f0304c,
     type: 3}

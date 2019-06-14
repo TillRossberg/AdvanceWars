@@ -7,6 +7,6 @@ public class Data_Sounds : ScriptableObject
 {
     public AudioClip explosion01Sound;
     public AudioClip clickSound;
-    public AudioClip nopeSound;
+    public AudioClip NopeSound;
     public List<AudioClip> music = new List<AudioClip>();
 }

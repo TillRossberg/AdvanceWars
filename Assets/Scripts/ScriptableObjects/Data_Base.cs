@@ -7,7 +7,7 @@ using UnityEngine;
 public class Data_Base : ScriptableObject
 {
     [Header("General")]
-    public Data_Sounds sounds;
+    public Data_Sounds Sounds;
     public GameObject containerPrefab;
     [Header("Graphics")]
     public GameObject cursorPrefab;

@@ -28,7 +28,7 @@ public class Menu_BuyUnits : MonoBehaviour
     
     public void DisplayMenu(Tile tile)
     {
-        _productionPosition = tile.position;
+        _productionPosition = tile.Position;
         SetAvailableUnits(tile);
         CreateUnitSelectors(_availableUnits);
         Core.View.HighlightFirstMenuItem(selectorParent);
@@ -38,7 +38,7 @@ public class Menu_BuyUnits : MonoBehaviour
     {
         //TODO: make unit face enemy hq
         Core.Model.CreateUnit(type, Core.Controller.ActiveTeam, _productionPosition, Direction.North);
-        Core.Controller.CurrentMode = Controller.Mode.normal;
+        Core.Controller.CurrentMode = Controller.Mode.Normal;
         Core.View.DisplayBuyMenu(false);
     }
 

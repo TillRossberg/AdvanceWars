@@ -12,7 +12,7 @@ public class Tile: MonoBehaviour
     public GameObject fogOfWarGfx;
     #endregion
     #region General Fields
-    public Vector2Int position;	
+    public Vector2Int Position;	
 	public int rotation;
     public Unit unitStandingHere = null;   
     public List<Tile> neighbors;        
@@ -80,13 +80,13 @@ public class Tile: MonoBehaviour
     public void SetNeighbors()
     {
         Vector2Int testPos;
-        testPos = new Vector2Int(position.x - 1, position.y);
+        testPos = new Vector2Int(Position.x - 1, Position.y);
         if (Core.Model.IsOnMap(testPos)) neighbors.Add(Core.Model.GetTile(testPos));
-        testPos = new Vector2Int(position.x + 1, position.y);
+        testPos = new Vector2Int(Position.x + 1, Position.y);
         if (Core.Model.IsOnMap(testPos)) neighbors.Add(Core.Model.GetTile(testPos));
-        testPos = new Vector2Int(position.x, position.y + 1);
+        testPos = new Vector2Int(Position.x, Position.y + 1);
         if (Core.Model.IsOnMap(testPos)) neighbors.Add(Core.Model.GetTile(testPos));
-        testPos = new Vector2Int(position.x, position.y - 1);
+        testPos = new Vector2Int(Position.x, Position.y - 1);
         if (Core.Model.IsOnMap(testPos)) neighbors.Add(Core.Model.GetTile(testPos));
     }
     #endregion

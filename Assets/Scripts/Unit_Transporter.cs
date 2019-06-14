@@ -15,15 +15,13 @@ public class Unit_Transporter : MonoBehaviour
     public void LoadUnit(Unit unit)
     {
         loadedUnit = unit;
-        loadedUnit.targetTile = null;
         unit.gameObject.SetActive(false);
-        Core.Model.GetTile(unit.position).SetUnitHere(null);
+        Core.Model.GetTile(unit.Position).SetUnitHere(null);
     }
     public void UnloadUnit(Tile tile)
     {
         loadedUnit.gameObject.SetActive(true);
-        loadedUnit.position = tile.position;
-        loadedUnit.transform.position = new Vector3(tile.position.x, 0, tile.position.y);
+        loadedUnit.SetPosition(tile.Position);
         tile.SetUnitHere(loadedUnit);
         loadedUnit.Wait();
         loadedUnit = null;
@@ -58,7 +56,7 @@ public class Unit_Transporter : MonoBehaviour
         Tile tile = null;
         foreach (Tile item in dropOffPositions)
         {
-            if (item.position == pos) tile = item;
+            if (item.Position == pos) tile = item;
         }
         return tile;
     }
