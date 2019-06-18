@@ -1,18 +1,19 @@
 ﻿//created by Till Roßberg, 2017-19
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class Panel_Status : MonoBehaviour
 {
     //Fields
     public Image unitThumb;
-    public Text unitName;
-    public Text health;
-    public Text ammo;
-    public Text fuel;
-    public Text tileName;
+    public TextMeshProUGUI unitName;
+    public TextMeshProUGUI health;
+    public TextMeshProUGUI ammo;
+    public TextMeshProUGUI fuel;
+    public TextMeshProUGUI tileName;
     public Image tileThumb;
-    public Text cover;
+    public TextMeshProUGUI cover;
     
     public void UpdateDisplay(Tile tile)
     {       
@@ -22,7 +23,7 @@ public class Panel_Status : MonoBehaviour
         if(tile.isVisible && tile.unitStandingHere != null)
         {
             Unit unit = tile.unitStandingHere;
-            this.unitName.text = unit.name;
+            this.unitName.text = unit.data.unitName;
             this.unitThumb.sprite = unit.data.redThumbNail;
             this.health.text = unit.GetCorrectedHealth().ToString();
             this.ammo.text = unit.ammo.ToString();

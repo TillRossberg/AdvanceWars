@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 public class Panel_Commander : MonoBehaviour
 {
     public Image commanderThumbnail;
     public Image commanderFrame;
-    public Text activeTeam;
-    public Text money;
-    public Text roundNr;
+    public TextMeshProUGUI activeTeam;
+    public TextMeshProUGUI money;
+    public TextMeshProUGUI roundNr;
 
     public void UpdateDisplay()
     {

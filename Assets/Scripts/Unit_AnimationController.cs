@@ -41,8 +41,8 @@ public class Unit_AnimationController : MonoBehaviour
     }
     private void Start()
     {
-        IsMovingToTarget = false;
         unit = this.GetComponent<Unit>();
+        IsMovingToTarget = false;
     }
     // Update is called once per frame
     void Update()
@@ -64,7 +64,7 @@ public class Unit_AnimationController : MonoBehaviour
                 transform.rotation = Quaternion.Slerp(startRotation, endRotation, rotationSpeed * Time.deltaTime);//Do the rotation with a lerp.
             }
 
-            if (rotationComplete() && rotate)
+            if (RotationComplete() && rotate)
             {
                 rotate = false;
                 move = true;
@@ -72,7 +72,7 @@ public class Unit_AnimationController : MonoBehaviour
                 //TODO: Play move sound.
             }
 
-            if (wayPointReached(wayPointList[wayPointIndex]) && move)
+            if (WayPointReached(wayPointList[wayPointIndex]) && move)
             {
                 //Debug.Log("Reached waypoint: " + wayPointIndex);
                 wayPointIndex++;
@@ -84,52 +84,42 @@ public class Unit_AnimationController : MonoBehaviour
                     if (!unit.IsInterrupted)
                     {
                         //TODO: add event to inform that we reached the last waypoint.
+                        if (unitWantsToLoad) Core.View.ContextMenu.ShowLoadButton();
+                        else if (unitWantsToUnite) Debug.Log("Unit wants to unite!");
+                        else
+                        {
+                            unit.FindAttackableEnemies(Core.Controller.SelectedTile.Position);
+                            Core.View.ContextMenu.Show(unit);
+                        }
                     }
-                    else
-                    {
-                        unit.Wait();
-                        //TODO: Show exclamation mark.
-                        //TODO: Stop move sound.
-                        //TODO: Play interruption sound
-                    }
+                    else unit.GetInterrupted();
                 }
-                target = wayPointList[wayPointIndex];
-                lookingDirection = (wayPointList[wayPointIndex] - transform.position).normalized;//Vector from our position to the target
-                endRotation = Quaternion.LookRotation(lookingDirection);//The actual rotation we need to look at the target.  
-                //TODO: Stop move sound.
-                //TODO: Play rotation sound.
-                move = false;
-                rotate = true;
-            }
-            //Debug.DrawRay(this.transform.position, this.transform.forward * 2);
-            //Debug.DrawLine(this.transform.position, target, Color.green);
+                else
+                {
+                    target = wayPointList[wayPointIndex];
+                    lookingDirection = (wayPointList[wayPointIndex] - transform.position).normalized;//Vector from our position to the target
+                    endRotation = Quaternion.LookRotation(lookingDirection);//The actual rotation we need to look at the target.  
+                    //TODO: Stop move sound.
+                    //TODO: Play rotation sound.
+                    move = false;
+                    rotate = true;
+                }
+            }            
         }
     }
 
     #region Conditions
     //TODO: Move to Animation Controller
-    private bool wayPointReached(Vector3 nextWaypoint)
+    private bool WayPointReached(Vector3 nextWaypoint)
     {
-        if (nextWaypoint == this.transform.position)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        if (nextWaypoint == this.transform.position)return true;        
+        else return false;        
     }
     //If the forward vector of the unit aligns with the vector from the unit to the target, we finished the rotation.
-    private bool rotationComplete()
+    private bool RotationComplete()
     {
-        if (Vector3.Angle(this.transform.forward, lookingDirection) < 1)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        if (Vector3.Angle(this.transform.forward, lookingDirection) < 1) return true;       
+        else return false;      
     }
 
     #endregion

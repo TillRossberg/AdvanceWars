@@ -18,19 +18,17 @@ public class Unit : MonoBehaviour
     #endregion
     #region Position & Rotation
     public Vector2Int Position;
-    public Vector2Int PreviousPosition;
     public Tile CurrentTile;
-    public Tile PreviousTile;
     public int rotation;
     public Direction direction;
-    public Direction previousDirection;
     float counter = 0;//Counts the iterations of the calcReachableArea algorithm.
     #endregion
     #region States
     public bool hasTurn = false;//The unit is ready for action.
     public bool CanMove = false;//States if the unit has already moved this turn.
     public bool CanFire = false;//Some units can't fire after they have moved.
-    public bool IsInterrupted { get; private set; }//If we move through terrain that is covered by fog of war, we can be interrupted by an invisible enemy unit that is on our arrowpath.    
+    public bool IsInterrupted { get; private set; }//If we move through terrain that is covered by fog of war, we can be interrupted by an invisible enemy unit that is on our arrowpath.   
+    Tile _interruptionTile;
     #endregion
     #region Tiles
     public List<Tile> attackableTiles = new List<Tile>();
@@ -55,7 +53,7 @@ public class Unit : MonoBehaviour
     {
         Deactivate();
         CalcVisibleArea();
-        ConfirmCurrentPosition();        
+        ConfirmPosition(Core.Controller.GetSelectedPosition());
     }
 
     //Activate the unit so it has turn, can fire and move.
@@ -72,7 +70,6 @@ public class Unit : MonoBehaviour
         CanFire = false;
         hasTurn = false;
     }
-
 
     public void SetVisibility(bool value)
     {
@@ -151,89 +148,67 @@ public class Unit : MonoBehaviour
     #endregion
     #region Movement
     //Move the unit to a field and align it so it faces away, from where it came.
-    public void MoveUnitTo(Vector2Int newPos)
+    public void MoveTo(Vector2Int newPos)
     {
         //Setup the sequencer for the movement animation.
         AnimationController.Init();
         IsInterrupted = Core.Controller.ArrowBuilder.GetInterruption();
-        //if (IsInterrupted) targetTile = Core.Controller.ArrowBuilder.GetInterruptionTile();
-        //else targetTile = Core.Model.GetTile(newPos);
         DisplayHealth(false);//While moving we dont want to see the health.
         //Delete the reachable tiles and the movement arrow.
         Core.Controller.ClearReachableArea(this);
+        _interruptionTile = Core.Controller.ArrowBuilder.GetInterruptionTile();
         Core.Controller.ArrowBuilder.ResetAll();
-
         if (data.rangeAttack) CanFire = false;
         CanMove = false;
     }
     public void MoveUnitToLoad(Vector2Int newPos)
     {
-        MoveUnitTo(newPos);
+        MoveTo(newPos);
         AnimationController.unitWantsToLoad = true;
     }
     public void MoveUnitToUnite(Vector2Int newPos)
     {
-        MoveUnitTo(newPos);
+        MoveTo(newPos);
         AnimationController.unitWantsToUnite = true;
     }
-
-
     public void SetPosition(Vector2Int pos)
     {
-        Core.Model.GetTile(Position).SetUnitHere(null);
-        //Save the old stuff.
-        SetPreviousPosition(Position);
-        //Position
         this.transform.position = new Vector3(pos.x, 0, pos.y);
         this.Position = pos;
-        //Tile
+    }
+    public void ConfirmPosition(Vector2Int pos)
+    {
+        Core.Model.GetTile(Position).SetUnitHere(null);
+        SetPosition(pos);
+        SetDirection(this.transform.eulerAngles.y);
         SetCurrentTile(pos);
         Core.View.statusPanel.UpdateDisplay(this);
-    }
-    public void ConfirmCurrentPosition()
-    {
-        if(PreviousTile != null) PreviousTile.ResetTakeOverCounter();
-        PreviousPosition = new Vector2Int(-1, -1);
-        PreviousTile = null;
-        previousDirection = Direction.North;
-
-    }
-    public void SetPreviousPosition(Vector2Int position)
-    {
-        this.PreviousPosition = Position;
-        this.PreviousTile = Core.Model.GetTile(Position);
-    }   
-    public void SeRotation(Direction direction)
-    {
-        previousDirection = this.direction;
-        this.direction = direction;
+        Core.Controller.CurrentMode = Controller.Mode.Normal;
     }
     public void SetCurrentTile(Vector2Int pos)
     {
         this.CurrentTile = Core.Model.GetTile(pos);
         Core.Model.GetTile(pos).SetUnitHere(this);
     }
-
     //Resets the position and rotation of the unit to where it was before. (If we click the right mouse button or close the menu after we successfully moved it somewhere.)
     public void ResetPosition()
     {
-        SetPosition(PreviousPosition);
-        ConfirmCurrentPosition();
+        SetPosition(this.Position);
         Core.View.statusPanel.UpdateDisplay(this);//When the unit moves back, the display of the cover should be set to the old tile.
         DisplayHealth(true);//Repostition the health indicator.   
         CanFire = true;
-        CanMove = true;        
+        CanMove = true;
     }
     public void ResetRotation()
     {
-        RotateUnit(previousDirection);
+        RotateUnit(direction);
     }
-    
+
     #endregion
     #region Rotation
     //Rotate the unit so it faces north, east, south or west.
     public void RotateUnit(Direction newDirection)
-    {       
+    {
         direction = newDirection;
         switch (newDirection)
         {
@@ -246,26 +221,13 @@ public class Unit : MonoBehaviour
         }
         DisplayHealth(true);
     }
-
     //Sets the facing direction depending on the transforms rotation.
-    public void SetFacingDirection(float angle)
+    public void SetDirection(float angle)
     {
-        if(-1 < angle && angle < 1)
-        {
-            direction = Direction.North;
-        }
-        if (89 < angle && angle < 91)
-        {
-            direction = Direction.East;
-        }
-        if (179 < angle && angle < 181)
-        {
-            direction = Direction.South;
-        }
-        if (269 < angle && angle < 271)
-        {
-            direction = Direction.West;
-        }
+        if (-2 < angle && angle < 2) direction = Direction.North;
+        if (88 < angle && angle < 92) direction = Direction.East;
+        if (178 < angle && angle < 182) direction = Direction.South;
+        if (268 < angle && angle < 272) direction = Direction.West;
     }
     //Aligns the unit so it faces the direction of the given coordinates. 
     //TODO: add alignment for range units
@@ -325,17 +287,17 @@ public class Unit : MonoBehaviour
     #endregion
     #region Enemy
     //Checks the attackable tiles for enemies.
-    public void FindAttackableEnemies()
+    public void FindAttackableEnemies(Vector2Int pos)
     {
-        CalcAttackableArea(this.Position);
+        CalcAttackableArea(pos);
         foreach (Tile tile in attackableTiles)
         {
-            if(IsVisibleEnemyHere(tile))
+            if (IsVisibleEnemyHere(tile))
             {
                 Unit enemy = tile.unitStandingHere;
                 if (data.GetDamageAgainst(enemy.data.type) > 0) attackableUnits.Add(enemy);
             }
-        }        
+        }
     }
     public bool IsEnemy(Unit unit)
     {
@@ -345,23 +307,32 @@ public class Unit : MonoBehaviour
     //Checks if an enemy is standing on this tile.
     bool IsVisibleEnemyHere(Tile tile)
     {
-        if(tile.GetUnitHere() != null && tile.isVisible)
+        if (tile.GetUnitHere() != null && tile.isVisible)
         {
             Unit possibleEnemy = tile.GetUnitHere();
-            if (IsEnemy(possibleEnemy)) return true;            
+            if (IsEnemy(possibleEnemy)) return true;
         }
         return false;
-    }   
-    
-    #endregion       
+    }
+    public List<Tile> GetAttackableEnemyTiles()
+    {
+        List<Tile> tempList = new List<Tile>();
+        foreach (Unit enemy in attackableUnits)
+        {
+            tempList.Add(enemy.CurrentTile);
+        }
+        return tempList;
+    }
+
+    #endregion
     #region Attackable Area
 
     //Creates a list of tiles the unit can attack.
     public void CalcAttackableArea(Vector2Int position)
     {
         attackableTiles.Clear();
-        if(data.directAttack) FindAttackableTilesForDirectAttack(position);           
-        else if(data.rangeAttack) FindAttackableTilesForRangedAttack();       
+        if (data.directAttack) FindAttackableTilesForDirectAttack(position);
+        else if (data.rangeAttack) FindAttackableTilesForRangedAttack();
     }
 
     //Calculates the attackable tiles for direct attack units.
@@ -373,8 +344,8 @@ public class Unit : MonoBehaviour
         TryToAddAttackableTile(right);
         Vector2Int Top = new Vector2Int(position.x, position.y + 1);
         TryToAddAttackableTile(Top);
-        Vector2Int Bottom = new Vector2Int(position.x, position.y -1);
-        TryToAddAttackableTile(Bottom);       
+        Vector2Int Bottom = new Vector2Int(position.x, position.y - 1);
+        TryToAddAttackableTile(Bottom);
     }
 
     void FindAttackableTilesForRangedAttack()
@@ -450,12 +421,18 @@ public class Unit : MonoBehaviour
                     TryToRemoveAttackableTile(testPosition);
                 }
             }
-        }        
+            //Up
+            testPosition = new Vector2Int(this.Position.x, this.Position.y + i);
+            if (Core.Model.IsOnMap(testPosition)) TryToRemoveAttackableTile(testPosition);
+            //Down
+            testPosition = new Vector2Int(this.Position.x, this.Position.y - i);
+            if (Core.Model.IsOnMap(testPosition)) TryToRemoveAttackableTile(testPosition);
+        }
     }
 
     void TryToAddAttackableTile(Vector2Int position)
     {
-        if(Core.Model.IsOnMap(position))
+        if (Core.Model.IsOnMap(position))
         {
             Tile tile = Core.Model.GetTile(position);
             attackableTiles.Add(tile);
@@ -469,8 +446,8 @@ public class Unit : MonoBehaviour
             attackableTiles.Remove(tile);
         }
     }
-    
-    
+
+
     #endregion
     #region Reachable Area
     //Calculate how far you can move from a certain position depending on your movement points.
@@ -480,18 +457,18 @@ public class Unit : MonoBehaviour
         //counter += Time.deltaTime;
         Tile tile = Core.Model.GetTile(position);
 
-        if(cameFromTile != null) movementPoints = movementPoints - tile.data.GetMovementCost(moveType);
+        if (cameFromTile != null) movementPoints = movementPoints - tile.data.GetMovementCost(moveType);
 
         //If enough movement points are left and the tile is passable (we can move through our own units, but are blocked by enemies), do the recursion.
         if ((movementPoints >= 0) && (tile.data.GetMovementCost(moveType) > 0) && !IsVisibleEnemyHere(tile))
         {
-            if(!reachableTiles.Contains(tile)) reachableTiles.Add(tile);        
+            if (!reachableTiles.Contains(tile)) reachableTiles.Add(tile);
 
             //The tile was reached, so test all its neighbors for reachability. Ignore the tile you came from.
             foreach (Tile neighbor in tile.neighbors)
             {
-                if(neighbor != cameFromTile) CalcReachableArea(neighbor.Position, movementPoints, moveType, tile);
-            }           
+                if (neighbor != cameFromTile) CalcReachableArea(neighbor.Position, movementPoints, moveType, tile);
+            }
         }
     }
     #endregion
@@ -516,9 +493,9 @@ public class Unit : MonoBehaviour
             {
                 //Right...
                 Vector2Int testPosition = new Vector2Int(this.Position.x + i, this.Position.y);
-                if(Core.Model.IsOnMap(testPosition))
+                if (Core.Model.IsOnMap(testPosition))
                 {
-                    Core.Model.SetVisibility(testPosition, true);                    
+                    Core.Model.SetVisibility(testPosition, true);
                     for (int j = 1; j <= data.visionRange - i; j++)
                     {
                         //... and up.
@@ -526,7 +503,7 @@ public class Unit : MonoBehaviour
                         TryToSetVisiblity(testPosition);
                         //... and down.
                         testPosition = new Vector2Int(this.Position.x + i, this.Position.y - j);
-                        TryToSetVisiblity(testPosition);                       
+                        TryToSetVisiblity(testPosition);
                     }
                 }
                 //Left...
@@ -551,7 +528,7 @@ public class Unit : MonoBehaviour
                 TryToSetVisiblity(testPosition);
 
             }
-        }        
+        }
     }
     void TryToSetVisiblity(Vector2Int position)
     {
@@ -562,6 +539,20 @@ public class Unit : MonoBehaviour
     }
     #endregion
     #region Load Methods
+    public void GetLoaded()
+    {
+        CurrentTile = null;
+        Core.Model.GetTile(this.Position).SetUnitHere(null);
+
+    }
+    public void GetUnloaded(Tile tile)
+    {
+        this.SetPosition(tile.Position);
+        CurrentTile = tile;
+        tile.SetUnitHere(this);
+        CalcVisibleArea();
+        Deactivate();
+    }
     public bool IsGroundUnit()
     {
         if (data.type == UnitType.AntiAir ||
@@ -589,5 +580,18 @@ public class Unit : MonoBehaviour
         else return false;
     }
     #endregion
+    #region Interuption
+    public void GetInterrupted()
+    {
+        ConfirmPosition(_interruptionTile.Position);
+        _interruptionTile = null;
+        CalcVisibleArea();
+        Deactivate();
+        //TODO: Show exclamation mark.
+        //TODO: Stop move sound.
+        //TODO: Play interruption sound
+    }
 
+
+    #endregion
 }

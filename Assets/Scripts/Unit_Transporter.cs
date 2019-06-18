@@ -6,7 +6,6 @@ public class Unit_Transporter : MonoBehaviour
 {
     public GameObject loadUnitArrow;
     public Unit loadedUnit;
-    public List<Tile> dropOffPositions = new List<Tile>();
 
     public bool canLoadGroundUnits;
     public bool canLoadCopterUnits;
@@ -16,48 +15,35 @@ public class Unit_Transporter : MonoBehaviour
     {
         loadedUnit = unit;
         unit.gameObject.SetActive(false);
-        Core.Model.GetTile(unit.Position).SetUnitHere(null);
+        unit.GetLoaded();
     }
     public void UnloadUnit(Tile tile)
     {
         loadedUnit.gameObject.SetActive(true);
-        loadedUnit.SetPosition(tile.Position);
-        tile.SetUnitHere(loadedUnit);
-        loadedUnit.Wait();
+        loadedUnit.GetUnloaded(tile);
         loadedUnit = null;
     }
-    public void SetPossibleDropPositions(Tile targetTile)
+    
+    public List<Tile> GetPossibleDropOffPositions(Vector2Int pos)
     {
-        dropOffPositions.Clear();
-        foreach (Tile neighbor in targetTile.neighbors)
+        List<Tile> tempList = new List<Tile>();
+        foreach (Tile neighbor in Core.Model.GetTile(pos).neighbors)
         {
-            if (neighbor.data.GetMovementCost(loadedUnit.data.moveType) > 0 && neighbor.GetUnitHere() == null) dropOffPositions.Add(neighbor);           
+            if (neighbor.data.GetMovementCost(loadedUnit.data.moveType) > 0 && neighbor.GetUnitHere() == null) tempList.Add(neighbor);
         }
+        return tempList;
     }
+
 
     public void DisplayArrow(bool value)
     {
         loadUnitArrow.SetActive(value);
     }
 
-    public bool CanDropUnitsHere(Tile targetTile)
+    public bool CanDropUnitsHere(Vector2Int pos)
     {
-        SetPossibleDropPositions(targetTile);
-        if (dropOffPositions.Count > 0)
-        {
-            dropOffPositions.Clear();
-            return true;
-        }
+        List<Tile> tempList = GetPossibleDropOffPositions(pos);
+        if (tempList.Count > 0) return true;       
         else return false;
-    }
-
-    public Tile GetTile(Vector2Int pos)
-    {
-        Tile tile = null;
-        foreach (Tile item in dropOffPositions)
-        {
-            if (item.Position == pos) tile = item;
-        }
-        return tile;
     }
 }

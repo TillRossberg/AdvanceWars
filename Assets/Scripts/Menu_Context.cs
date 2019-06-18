@@ -35,6 +35,18 @@ public class Menu_Context : MonoBehaviour
         endTurnButton.gameObject.SetActive(true);
         Core.View.HighlightFirstMenuItem(buttonParent);
     }
+    public void ShowLoadButton()
+    {
+        ActivateMenu();
+        loadUnitButton.gameObject.SetActive(true);
+        Core.View.HighlightFirstMenuItem(buttonParent);
+    }
+    //public void ShowUniteButton()
+    //{
+    //    ActivateMenu();
+    //    loadUnitButton.gameObject.SetActive(true);
+    //    Core.View.HighlightFirstMenuItem(buttonParent);
+    //}
     void ActivateMenu()
     {
         this.gameObject.SetActive(true);
@@ -49,7 +61,8 @@ public class Menu_Context : MonoBehaviour
     }
     public void Hide(Controller.Mode nextMode)
     {
-
+        this.gameObject.SetActive(false);
+        Core.Controller.CurrentMode = nextMode;
     }
     
     void DeactivateAllButtons()
@@ -70,8 +83,9 @@ public class Menu_Context : MonoBehaviour
     }
     bool CanDropUnits(Unit unit)
     {
-        Unit_Transporter transporter = unit.GetComponent<Unit_Transporter>();        
-        if (transporter != null && transporter.loadedUnit != null && transporter.CanDropUnitsHere(unit.CurrentTile)) return true;
+        Unit_Transporter transporter = unit.GetComponent<Unit_Transporter>();
+        
+        if (transporter != null && transporter.loadedUnit != null && transporter.CanDropUnitsHere(Core.Controller.GetSelectedPosition())) return true;
         else return false;
     }
     void TryActivateRangeButton(Unit activeUnit)

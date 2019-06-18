@@ -233,7 +233,9 @@ public class ArrowBuilder
 
     #endregion
     public void ResetAll()
-    {        
+    {
+        _interruptTile = null;
+        _isInterrupted = false;
         momMovementPoints = 0;
         maxMovementPoints = 0;
         if(arrowPath.Count > 0)

@@ -10,16 +10,16 @@ public class Controller : MonoBehaviour
     public Controller_Cursor Cursor { get; private set; }
     #endregion
     public Team ActiveTeam { get; private set; }
-    public Tile SelectedTile { get; private set; }
-    public Unit SelectedUnit { get; private set; }
+    public Tile SelectedTile;
+    public Unit SelectedUnit;
     public int RoundCounter { get; private set; }
     public Weather currentWeather;
 
     public enum Mode { Normal, Fire, Move, BuyMenu, ContextMenu, UnloadUnit, ShowTileDetails };
     public Mode CurrentMode;
-   
-    int _enemyIndex = 0;
-    int _dropOffIndex = 0;
+
+    List<Tile> _tilesToCycle;
+    Tile _targetTile;
 
     #region Base Methods
     public void StartGame()
@@ -39,10 +39,10 @@ public class Controller : MonoBehaviour
     }
     public void Init()
     {
-        ArrowBuilder = new ArrowBuilder(Core.Model.arrowPathParent);        
+        ArrowBuilder = new ArrowBuilder(Core.Model.arrowPathParent);
         RoundCounter = 1;
         CurrentMode = Mode.Normal;
-        currentWeather = Core.Model.MapData.startWeather;       
+        currentWeather = Core.Model.MapData.startWeather;
     }
     //Define the succession and set the first team that has a turn.
     public void InitSuccession()
@@ -67,68 +67,69 @@ public class Controller : MonoBehaviour
                     if (ActiveTeam == unitHere.team && unitHere.CanMove)
                     {
                         CurrentMode = Mode.Move;
-                        Select(unitHere);                 
+                        Select(unitHere);
                         DisplayReachableArea(unitHere);
                         ArrowBuilder.StartArrowPath(unitHere);
                     }
                     //...or select already used unit or unit from enemy team.
-                    else Core.AudioManager.PlaySFX(Core.Model.Database.Sounds.NopeSound);                    
+                    else Core.AudioManager.PlaySFX(Core.Model.Database.Sounds.NopeSound);
                 }
                 //Select tile, that can produce units...
-                else if (currentTile.CanProduceUnits() && currentTile.owningTeam == ActiveTeam) OpenBuyMenu(currentTile);  
+                else if (currentTile.CanProduceUnits() && currentTile.owningTeam == ActiveTeam) OpenBuyMenu(currentTile);
                 //...or select empty tile.
-                else Core.View.TileDetails.Show(currentTile);               
+                else Core.View.TileDetails.Show(currentTile);
                 break;
             case Mode.Fire:
                 Unit attacker = SelectedUnit;
-                Unit defender = SelectedUnit.attackableUnits[_enemyIndex];
+                Unit defender = _targetTile.GetUnitHere();
                 //Align the units to face each other.
-               
+
                 //Battle
                 Core.Model.BattleCalculations.Fight(attacker, defender);
                 //Reset Cursor
                 Cursor.SetPosition(attacker.Position);
                 Cursor.SetCursorGfx(0);
                 //End turn for attacking unit
-                _enemyIndex = 0;
                 attacker.Wait();
+                ResetTilesToCycle();
                 Deselect();
                 break;
             case Mode.Move:
                 //Select another unit you want the to interact with...
                 if (unitHere != null)
                 {
+                    //Click on self
                     if (unitHere == SelectedUnit)
                     {
+                        SelectedUnit.FindAttackableEnemies(SelectedUnit.Position);
                         Core.View.ContextMenu.Show(SelectedUnit);
                     }
-                    else if (SelectedUnit.team.units.Contains(unitHere))//If you click on a friendly unit
+                    //Click on transporter
+                    else if (SelectedUnit.team.units.Contains(unitHere) && (unitHere.GetComponent<Unit_Transporter>() != null))
                     {
-                        //Try to unite units
-                        //If the unit on this tile can load other units, check if it can load the selected unit.
-                        if (unitHere.GetComponent<Unit_Transporter>() != null)
+
+                        if ((unitHere.data.type == UnitType.APC || unitHere.data.type == UnitType.TCopter) && SelectedUnit.IsInfantryUnit())
                         {
-                            if ((unitHere.data.type == UnitType.APC || unitHere.data.type == UnitType.TCopter) && SelectedUnit.IsInfantryUnit()) SelectedUnit.MoveUnitToLoad(Cursor.Position);
-                            if (unitHere.data.type == UnitType.Lander && SelectedUnit.IsGroundUnit()) SelectedUnit.MoveUnitToLoad(Cursor.Position);
-                            if (unitHere.data.type == UnitType.Cruiser && SelectedUnit.IsCopterUnit()) SelectedUnit.MoveUnitToLoad(Cursor.Position);
+                            SelectedUnit.MoveUnitToLoad(Cursor.Position);
                         }
+                        if (unitHere.data.type == UnitType.Lander && SelectedUnit.IsGroundUnit()) SelectedUnit.MoveUnitToLoad(Cursor.Position);
+                        if (unitHere.data.type == UnitType.Cruiser && SelectedUnit.IsCopterUnit()) SelectedUnit.MoveUnitToLoad(Cursor.Position);
+
                     }
-                    else//If you click on an enemy unit or an unit that is in an alliance with you.
+                    //TODO: Click on unit of the same type to unite.
+                    //If you click on an enemy unit or an unit that is in an alliance with you.
+                    else
                     {
-                        //Play dörp sound, you cant go there
+                        Core.AudioManager.PlaySFX(Core.Model.Database.Sounds.NopeSound);
                     }
                 }
                 //...or select an empty tile you want to go to.
                 else
                 {
                     Select(currentTile);
-                    SelectedUnit.SetPosition(SelectedTile.Position);
-                    SelectedUnit.FindAttackableEnemies();
-                    ClearReachableArea(SelectedUnit);
-                    ArrowBuilder.ResetAll();
-                    Core.View.ContextMenu.Show(SelectedUnit);
+                    SelectedUnit.MoveTo(currentTile.Position);
                 }
-               
+
                 break;
             case Mode.BuyMenu:
 
@@ -136,7 +137,7 @@ public class Controller : MonoBehaviour
             case Mode.ContextMenu:
                 break;
             case Mode.UnloadUnit:
-                UnloadUnit(SelectedUnit.GetComponent<Unit_Transporter>().dropOffPositions[_dropOffIndex]);
+                UnloadUnit(_targetTile);
                 break;
         }
         Cursor.BlockInput(0.2f);
@@ -148,18 +149,27 @@ public class Controller : MonoBehaviour
         switch (CurrentMode)
         {
             case Mode.Normal:
-                Core.View.ContextMenu.Show(Core.Model.GetTile(Cursor.Position));
+                if (Core.Model.GetTile(Cursor.Position).GetUnitHere() == null)
+                {
+                    Core.View.ContextMenu.Show(Core.Model.GetTile(Cursor.Position));
+                }
                 break;
             case Mode.Fire:
+                ResetTilesToCycle();
+                Cursor.SetPosition(GetSelectedPosition());
+                Core.View.ContextMenu.Show(SelectedUnit);
                 break;
             case Mode.Move:
-                if (SelectedUnit.PreviousTile != null)
+                if (!SelectedUnit.AnimationController.IsMovingToTarget)
                 {
-                    SelectedUnit.ResetPosition();
-                    Cursor.SetPosition(SelectedUnit.Position);
+                    if (SelectedTile != null)
+                    {
+                        SelectedUnit.ResetPosition();
+                        SelectedUnit.ResetRotation();
+                        Cursor.SetPosition(SelectedUnit.Position);
+                    }
                     Deselect();
                 }
-                else Deselect();              
                 break;
             case Mode.BuyMenu:
                 Core.View.DisplayBuyMenu(false);
@@ -169,6 +179,7 @@ public class Controller : MonoBehaviour
                 if (SelectedUnit != null)
                 {
                     SelectedUnit.ResetPosition();
+                    SelectedUnit.ResetRotation();
                     Cursor.SetPosition(SelectedUnit.Position);
                     Deselect();
                 }
@@ -178,7 +189,8 @@ public class Controller : MonoBehaviour
                 }
                 break;
             case Mode.UnloadUnit:
-                ResetUnloadStuff();
+                ResetTilesToCycle();
+                Cursor.SetPosition(GetSelectedPosition());
                 Core.View.ContextMenu.Show(SelectedUnit);
                 break;
             case Mode.ShowTileDetails:
@@ -192,14 +204,14 @@ public class Controller : MonoBehaviour
     {
         Unit unit = Core.Model.GetTile(Cursor.Position).GetUnitHere();
         if (unit != null)
-        {            
+        {
             unit.CalcAttackableArea(unit.Position);
             Core.View.CreateAttackableTilesGfx(unit);
         }
     }
     public void BButtonReleased()
     {
-        Core.View.ResetAttackableTiles();                    
+        Core.View.ResetAttackableTiles();
     }
     #endregion   
     #region Cursor Methods
@@ -221,7 +233,7 @@ public class Controller : MonoBehaviour
                 case Mode.Fire:
                     //TODO: Change cursor
                     //Cycle through the attackable enemies.
-                    CycleAttackableEnemies(SelectedUnit);
+                    CyclePositions(_tilesToCycle, pos);
                     break;
                 case Mode.Move:
                     Tile tile = Core.Model.GetTile(pos);
@@ -249,106 +261,136 @@ public class Controller : MonoBehaviour
                     break;
                 case Mode.ContextMenu:
                     break;
-                case Mode.UnloadUnit:                    
-                    CycleDropOffPositions(SelectedUnit.GetComponent<Unit_Transporter>(), pos);
+                case Mode.UnloadUnit:
+                    CyclePositions(_tilesToCycle, pos);
                     break;
                 default:
                     break;
             }
         }
     }
-    //Goes through the list of enemies and positions the attack cursor over them.
-    //TODO: find a way to move through the enemies depending on their position (above, below and so on)
-    public void CycleAttackableEnemies(Unit unit)
-    {
-        if(unit.attackableUnits.Count > 1)
-        {
-            if (Input.GetAxisRaw("Horizontal") > 0 || Input.GetAxisRaw("Vertical") > 0)
-            {
-                _enemyIndex--;
-                if (_enemyIndex < 0)
-                {
-                    _enemyIndex = unit.attackableUnits.Count - 1;
-                }
-                Vector2Int enemyPos = unit.attackableUnits[_enemyIndex].Position;
-                Cursor.SetPosition(enemyPos);
-            }
-            else
-            if (Input.GetAxisRaw("Horizontal") < 0 || Input.GetAxisRaw("Vertical") < 0)
-            {
-                _enemyIndex++;
-                if (_enemyIndex > unit.attackableUnits.Count - 1)
-                {
-                    _enemyIndex = 0;
-                }
-                Vector2Int enemyPos = unit.attackableUnits[_enemyIndex].Position;
-                Cursor.SetPosition(enemyPos);
-            }
-        }
-    }
-    void CycleDropOffPositions(Unit_Transporter transporter, Vector2Int newPos)
+    #endregion
+    #region Cycle Positions
+
+    void CyclePositions(List<Tile> tiles, Vector2Int newPos)
     {
         Vector2Int currentPos = Cursor.Position;
-        if (transporter.dropOffPositions.Count > 1)
-        {            
-            if(newPos.x > currentPos.x)
+        if (newPos.x > currentPos.x)
+        {
+            if (CanCycleRight(currentPos))
             {
-                Debug.Log("right");
-                if (transporter.GetTile(newPos) != null) Cursor.SetPosition(newPos);
+                Tile nextTile = GetClosestTileRight(currentPos);
+                Cursor.SetPosition(nextTile.Position);
+                _targetTile = nextTile;
             }
-            if(newPos.x < currentPos.x)
+        }
+        else if (newPos.x < currentPos.x)
+        {
+            if (CanCycleLeft(currentPos))
             {
-                if (transporter.GetTile(newPos) != null) Cursor.SetPosition(newPos);
-                Debug.Log("left");
+                Tile nextTile = GetClosestTileLeft(currentPos);
+                Cursor.SetPosition(nextTile.Position);
+                _targetTile = nextTile;
             }
-            if(newPos.y > currentPos.y)
+        }
+        else if (newPos.y > currentPos.y)
+        {
+            if (CanCycleUp(currentPos))
             {
-                if (transporter.GetTile(newPos) != null) Cursor.SetPosition(newPos);
-                Debug.Log("up");
+                Tile nextTile = GetClosestTileUp(currentPos);
+                Cursor.SetPosition(nextTile.Position);
+                _targetTile = nextTile;
             }
-            if(newPos.y < currentPos.y)
+        }
+        else if (newPos.y < currentPos.y)
+        {
+            if (CanCycleDown(currentPos))
             {
-                if (transporter.GetTile(newPos) != null) Cursor.SetPosition(newPos);
-                Debug.Log("down");
-
+                Tile nextTile = GetClosestTileDown(currentPos);
+                Cursor.SetPosition(nextTile.Position);
+                _targetTile = nextTile;
             }
-            //if (Input.GetAxisRaw("Horizontal") > 0 || Input.GetAxisRaw("Vertical") > 0)
-            //{
-            //    _dropOffIndex--;
-            //    if (_dropOffIndex < 0)
-            //    {
-            //        _dropOffIndex = transportert.dropOffPositions.Count - 1;
-            //    }
-            //    Vector2Int dropOffPosition = transportert.dropOffPositions[_dropOffIndex].position;
-            //    Cursor.SetPosition(dropOffPosition);
-            //}
-            //else
-            //if (Input.GetAxisRaw("Horizontal") < 0 || Input.GetAxisRaw("Vertical") < 0)
-            //{
-            //    _dropOffIndex++;
-            //    if (_dropOffIndex > transportert.dropOffPositions.Count - 1)
-            //    {
-            //        _dropOffIndex = 0;
-            //    }
-            //    Vector2Int dropOffPosition = transportert.dropOffPositions[_dropOffIndex].position;
-            //    Cursor.SetPosition(dropOffPosition);
-            //}
         }
     }
+    bool CanCycleRight(Vector2Int currentPos)
+    {
+        foreach (Tile tile in _tilesToCycle) if (tile.Position.x > currentPos.x) return true;
+        return false;
+    }
+    bool CanCycleLeft(Vector2Int currentPos)
+    {
+        foreach (Tile tile in _tilesToCycle) if (tile.Position.x < currentPos.x) return true;
+        return false;
+    }
+    bool CanCycleUp(Vector2Int currentPos)
+    {
+        foreach (Tile tile in _tilesToCycle) if (tile.Position.y > currentPos.y) return true;
+        return false;
+    }
+    bool CanCycleDown(Vector2Int currentPos)
+    {
+        foreach (Tile tile in _tilesToCycle) if (tile.Position.y < currentPos.y) return true;
+        return false;
+    }
 
+    Tile GetClosestTileRight(Vector2Int currentPos)
+    {
+        List<Tile> tempList = new List<Tile>();
+        foreach (Tile tile in _tilesToCycle) if (tile.Position.x > currentPos.x) tempList.Add(tile);
+        return GetClosestTile(tempList, currentPos);
+    }
+    Tile GetClosestTileLeft(Vector2Int currentPos)
+    {
+        List<Tile> tempList = new List<Tile>();
+        foreach (Tile tile in _tilesToCycle) if (tile.Position.x < currentPos.x) tempList.Add(tile);
+        return GetClosestTile(tempList, currentPos);
+    }
+    Tile GetClosestTileUp(Vector2Int currentPos)
+    {
+        List<Tile> tempList = new List<Tile>();
+        foreach (Tile tile in _tilesToCycle) if (tile.Position.y > currentPos.y) tempList.Add(tile);
+        return GetClosestTile(tempList, currentPos);
+    }
+    Tile GetClosestTileDown(Vector2Int currentPos)
+    {
+        List<Tile> tempList = new List<Tile>();
+        foreach (Tile tile in _tilesToCycle) if (tile.Position.y < currentPos.y) tempList.Add(tile);
+        return GetClosestTile(tempList, currentPos);
+    }
+
+    Tile GetClosestTile(List<Tile> tiles, Vector2Int currentPos)
+    {
+        float shortestDistance = 99999;
+        Tile closestTile = null;
+        foreach (Tile tile in tiles)
+        {
+            float distance = Vector2Int.Distance(tile.Position, currentPos);
+            if (distance < shortestDistance)
+            {
+                shortestDistance = distance;
+                closestTile = tile;
+            }
+        }
+        return closestTile;
+    }
     #endregion
     #region Selection Methods
-    
     //Select an unit.
     void Select(Unit unit)
     {
         SelectedUnit = unit;
-    }    
+    }
     //Select a tile.
     void Select(Tile tile)
     {
-        SelectedTile = tile;        
+        SelectedTile = tile;
     }
+    public Vector2Int GetSelectedPosition()
+    {
+        if (SelectedTile != null) return SelectedTile.Position;
+        else return SelectedUnit.Position;
+    }
+
     //If you click on a new object, drop the old one, return to normal mode, delete the marking cursor and reset all data referring to this object.
     public void Deselect()
     {
@@ -396,8 +438,7 @@ public class Controller : MonoBehaviour
     {
         //View: indicate attackable units
         //view: create cursor for selected attackable unit
-        Cursor.SetCursorGfx(1);
-        Cursor.SetPosition(unit.attackableUnits[0].Position);
+       
     }
     public void ClearAttackableUnits(Unit unit)
     {
@@ -408,21 +449,16 @@ public class Controller : MonoBehaviour
     #region Context Menu    
     public void FireButton()
     {
-        StartCoroutine(FireButtonDelayed(0.01f));
+        CurrentMode = Mode.Fire;
+        _tilesToCycle = SelectedUnit.GetAttackableEnemyTiles();
+        Cursor.SetCursorGfx(1);
+        Cursor.SetPosition(_tilesToCycle[0].Position);
+        _targetTile = _tilesToCycle[0];
+        Core.View.ContextMenu.Hide(Mode.Fire);
     }
     IEnumerator FireButtonDelayed(float delay)
     {
         yield return new WaitForSeconds(delay);
-        CurrentMode = Mode.Fire;       
-        DisplayAttackableUnits(SelectedUnit);
-        //Show indicator over the first enemy     
-        ////Set cursor gfx to attack 
-        //_manager.getCursor().setCursorGfx(1);
-        ////Set cursor position to the first attackable unit
-        //int x = _manager.getGameFunctions().getSelectedUnit().attackableUnits[0].position.x;
-        //int y = _manager.getGameFunctions().getSelectedUnit().attackableUnits[0].position.y;
-        //_manager.getCursor().setCursorPosition(x, y);
-        Core.View.ContextMenu.Hide();
     }
 
     public void WaitButton()
@@ -430,15 +466,7 @@ public class Controller : MonoBehaviour
         SelectedUnit.Wait();
         Deselect();
     }
-    public void ChoseUnloadPosition()
-    {
-        ClearReachableArea(SelectedUnit);
-        Core.View.ContextMenu.Hide(Mode.UnloadUnit);
-        SelectedUnit.GetComponent<Unit_Transporter>().SetPossibleDropPositions(SelectedUnit.CurrentTile);
-        Cursor.SetPosition(SelectedUnit.GetComponent<Unit_Transporter>().dropOffPositions[0].Position);
-        CurrentMode = Mode.UnloadUnit;
-        Cursor.BlockInput(0.5f);
-    }
+   
    
     public void OccupyButton()
     {
@@ -637,25 +665,40 @@ public class Controller : MonoBehaviour
     #endregion
     #region Transport Unit
     public void LoadUnit()
-    {
+    {        
         Unit_Transporter transporter = Core.Model.GetTile(Cursor.Position).GetUnitHere().GetComponent<Unit_Transporter>();
         transporter.LoadUnit(SelectedUnit);
         Core.View.ContextMenu.Hide();
         CurrentMode = Mode.Normal;
-        Cursor.BlockInput(0.5f);
     }
     public void UnloadUnit(Tile tile)
     {
         SelectedUnit.GetComponent<Unit_Transporter>().UnloadUnit(tile);
         SelectedUnit.Wait();
-        ResetUnloadStuff();
+        ResetTilesToCycle();
         Deselect();
         CurrentMode = Mode.Normal;        
     }
-    void ResetUnloadStuff()
+    public void ChoseUnloadPosition()
     {
-        _dropOffIndex = 0;
-        SelectedUnit.GetComponent<Unit_Transporter>().dropOffPositions.Clear();
+        ClearReachableArea(SelectedUnit);
+        Core.View.ContextMenu.Hide(Mode.UnloadUnit);
+        _tilesToCycle = SelectedUnit.GetComponent<Unit_Transporter>().GetPossibleDropOffPositions(GetSelectedPosition());
+        _targetTile = _tilesToCycle[0];
+        Cursor.SetPosition(_tilesToCycle[0].Position);
+
+        CurrentMode = Mode.UnloadUnit;
+    }
+    void ResetTilesToCycle()
+    {
+        _targetTile = null;
+        _tilesToCycle.Clear();
+    }
+    #endregion
+    #region Utility
+    public void BlockInputFor(float duration)
+    {
+        Cursor.BlockInput(duration);
     }
     #endregion
     #region Debug

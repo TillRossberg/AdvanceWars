@@ -131,6 +131,7 @@ public class Model : MonoBehaviour
         //Position and rotation
         unit.RotateUnit(facingDirection);
         unit.Position = position;       
+        unit.CurrentTile = GetTile(position);
         team.AddUnit(unit);
         GetTile(position).SetUnitHere(unit);//Pass the unit to the tile it stands on
     }
@@ -218,7 +219,7 @@ public class Model : MonoBehaviour
         CreateUnit(UnitType.APC, Core.Model.teams[0], new Vector2Int(0, 1), Direction.North);
         CreateUnit(UnitType.Infantry, Core.Model.teams[0], new Vector2Int(0, 2), Direction.North);
         CreateUnit(UnitType.APC, Core.Model.teams[1], new Vector2Int(5, 10), Direction.West);
-        CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(3, 3), Direction.North);
+        CreateUnit(UnitType.Rockets, Core.Model.teams[1], new Vector2Int(3, 3), Direction.North);
         CreateUnit(UnitType.Infantry, Core.Model.teams[1], new Vector2Int(5, 11), Direction.West);
     }
 

@@ -37,7 +37,7 @@ public class Controller_Cursor : MonoBehaviour
                 {
                     _vertAxisInUse = true;
                     Core.Controller.GoTo(new Vector2Int(Position.x, Position.y + 1));
-                    StartCoroutine(ResetAxisInUseDelayed(_inputDelay));
+                    StartCoroutine(ResetVerticalAxisInUseDelayed(_inputDelay));
                 }
             }
             else
@@ -48,7 +48,7 @@ public class Controller_Cursor : MonoBehaviour
                 {
                     _vertAxisInUse = true;
                     Core.Controller.GoTo(new Vector2Int(Position.x, Position.y - 1));
-                    StartCoroutine(ResetAxisInUseDelayed(_inputDelay));
+                    StartCoroutine(ResetVerticalAxisInUseDelayed(_inputDelay));
                 }
             }
             //Left
@@ -58,7 +58,7 @@ public class Controller_Cursor : MonoBehaviour
                 {
                     _horAxisInUse = true;
                     Core.Controller.GoTo(new Vector2Int(Position.x - 1, Position.y));
-                    StartCoroutine(ResetAxisInUseDelayed(_inputDelay));
+                    StartCoroutine(ResetHorizontalAxisInUseDelayed(_inputDelay));
                 }
             }
             else
@@ -69,7 +69,7 @@ public class Controller_Cursor : MonoBehaviour
                 {
                     _horAxisInUse = true;
                     Core.Controller.GoTo(new Vector2Int(Position.x + 1, Position.y));
-                    StartCoroutine(ResetAxisInUseDelayed(_inputDelay));
+                    StartCoroutine(ResetHorizontalAxisInUseDelayed(_inputDelay));
                 }
             }
 
@@ -156,16 +156,24 @@ public class Controller_Cursor : MonoBehaviour
 
     #endregion
     #region Input Delay
-    void ResetAxisInUse()
+    void ResetVerticalAxisInUse()
     {
-        _horAxisInUse = false;
         _vertAxisInUse = false;
     }
+    void ResetHorizontalAxisInUse()
+    {
+        _horAxisInUse = false;
+    }
 
-    IEnumerator ResetAxisInUseDelayed(float delay)
+    IEnumerator ResetVerticalAxisInUseDelayed(float delay)
     {
         yield return new WaitForSeconds(delay);
-        ResetAxisInUse();
+        ResetVerticalAxisInUse();
+    }
+    IEnumerator ResetHorizontalAxisInUseDelayed(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        ResetHorizontalAxisInUse();
     }
 
     void ResetButtonPressed()
