@@ -30,7 +30,8 @@ public class Controller : MonoBehaviour
         Core.Model.teams[0].AddEnemyTeam(Core.Model.teams[1]);
         Core.Model.teams[1].AddEnemyTeam(Core.Model.teams[0]);
         Core.Model.InitTeams();
-        Core.Model.LoadLevel01(15, 15);
+        //Core.Model.LoadLevel01(15, 15);
+        Core.Model.LoadLevel02(19, 13);
         Cursor = CreateCursor(new Vector2Int(5, 5));
         Core.Model.SetupRandomSuccession();
         ActiveTeam = Core.Model.Succession[0];
@@ -75,14 +76,14 @@ public class Controller : MonoBehaviour
                     else Core.AudioManager.PlaySFX(Core.Model.Database.Sounds.NopeSound);
                 }
                 //Select tile, that can produce units...
-                else if (currentTile.CanProduceUnits() && currentTile.owningTeam == ActiveTeam) OpenBuyMenu(currentTile);
+                else if (currentTile.CanProduceUnits() && currentTile.owningTeam == ActiveTeam) Core.View.BuyMenu.Show(currentTile);
                 //...or select empty tile.
                 else Core.View.TileDetails.Show(currentTile);
                 break;
             case Mode.Fire:
                 Unit attacker = SelectedUnit;
                 Unit defender = _targetTile.GetUnitHere();
-                //Align the units to face each other.
+                //TODO: Align the units to face each other.
 
                 //Battle
                 Core.Model.BattleCalculations.Fight(attacker, defender);
@@ -108,10 +109,7 @@ public class Controller : MonoBehaviour
                     else if (SelectedUnit.team.units.Contains(unitHere) && (unitHere.GetComponent<Unit_Transporter>() != null))
                     {
 
-                        if ((unitHere.data.type == UnitType.APC || unitHere.data.type == UnitType.TCopter) && SelectedUnit.IsInfantryUnit())
-                        {
-                            SelectedUnit.MoveUnitToLoad(Cursor.Position);
-                        }
+                        if ((unitHere.data.type == UnitType.APC || unitHere.data.type == UnitType.TCopter) && SelectedUnit.IsInfantryUnit())SelectedUnit.MoveUnitToLoad(Cursor.Position);                        
                         if (unitHere.data.type == UnitType.Lander && SelectedUnit.IsGroundUnit()) SelectedUnit.MoveUnitToLoad(Cursor.Position);
                         if (unitHere.data.type == UnitType.Cruiser && SelectedUnit.IsCopterUnit()) SelectedUnit.MoveUnitToLoad(Cursor.Position);
 
@@ -172,8 +170,8 @@ public class Controller : MonoBehaviour
                 }
                 break;
             case Mode.BuyMenu:
-                Core.View.DisplayBuyMenu(false);
-                CurrentMode = Mode.Normal;
+                Core.View.BuyMenu.Hide();
+                Core.View.ShowStandardPanels();
                 break;
             case Mode.ContextMenu:
                 if (SelectedUnit != null)
@@ -492,15 +490,7 @@ public class Controller : MonoBehaviour
     {
         Debug.Log("Interesting info, you never knew you would want to know!");
     }
-    #endregion
-    #region Buy Menu
-    public void OpenBuyMenu(Tile tile)
-    {
-        CurrentMode = Mode.BuyMenu;
-        Core.View.DisplayBuyMenu(true);
-        Core.View.buyMenu.DisplayMenu(tile);
-    }    
-    #endregion
+    #endregion   
     #region Turn
     //Start turn
     public void StartTurn()
@@ -518,7 +508,7 @@ public class Controller : MonoBehaviour
 
         //Subtract money for repairing units.
         
-        Core.View.commanderPanel.UpdateDisplay();//Update the GUI for the active team.
+        Core.View.CommanderPanel.UpdateDisplay();//Update the GUI for the active team.
         Cursor.SetPosition(ActiveTeam.units[0].Position);//Set cursors position to first unit
     }
     IEnumerator StartTurnDelayed(float delay)

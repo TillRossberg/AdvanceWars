@@ -31,7 +31,7 @@ MonoBehaviour:
   secondaryWeapon: 1
   secondaryAmmo: 0
   Infantry: 55
-  Mech: 55
+  Mech: 45
   Flak: 5
   APC: 14
   Tank: 5
@@ -45,7 +45,7 @@ MonoBehaviour:
   BCopter: 7
   Bomber: -1
   Fighter: -1
-  Lander: 0
+  Lander: -1
   Battleship: -1
   Cruiser: -1
   Sub: -1

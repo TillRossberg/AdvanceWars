@@ -15,6 +15,16 @@ public class Panel_Status : MonoBehaviour
     public Image tileThumb;
     public TextMeshProUGUI cover;
     
+    public void Show()
+    {
+        this.gameObject.SetActive(true);
+        UpdateDisplay(Core.Model.GetTile(Core.Controller.Cursor.Position));
+    }
+    public void Hide()
+    {
+        this.gameObject.SetActive(false);
+    }
+
     public void UpdateDisplay(Tile tile)
     {       
         this.tileName.text = tile.data.tileName;

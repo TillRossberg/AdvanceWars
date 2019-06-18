@@ -11,6 +11,16 @@ public class Panel_Commander : MonoBehaviour
     public TextMeshProUGUI money;
     public TextMeshProUGUI roundNr;
 
+    public void Show()
+    {
+        this.gameObject.SetActive(true);
+        UpdateDisplay();
+    }
+    public void Hide()
+    {
+        this.gameObject.SetActive(false);
+    }
+
     public void UpdateDisplay()
     {
         this.activeTeam.text = "Team: " + Core.Controller.ActiveTeam.data.teamName;

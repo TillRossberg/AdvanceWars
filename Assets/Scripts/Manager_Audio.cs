@@ -33,4 +33,8 @@ public class Manager_Audio : MonoBehaviour
         musicPlayer.Play();
     }
 
+    public void PlayNopeSound()
+    {
+        PlaySFX(Core.Model.Database.Sounds.NopeSound);
+    }
 }

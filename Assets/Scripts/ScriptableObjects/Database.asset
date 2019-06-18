@@ -86,8 +86,10 @@ MonoBehaviour:
     type: 3}
   facilityPrefab: {fileID: 2563962214804205465, guid: 1c64425ae87f5b646a65f7bffc60eefe,
     type: 3}
-  airPortPrefab: {fileID: 0}
-  portPrefab: {fileID: 0}
+  airPortPrefab: {fileID: 9155748651167783454, guid: 023d859818b78dc4c9868eada238adb8,
+    type: 3}
+  portPrefab: {fileID: 4872789357563413430, guid: b096bfde4db9b7b45a9efdf9238620ad,
+    type: 3}
   shoalPrefab: {fileID: 2797501028036981368, guid: d8620a2f607854e4681a7fa093cc5a3e,
     type: 3}
   seaPrefab: {fileID: 4375309442412286359, guid: 90958c334d4088046bdee1f1752293dc,

@@ -21,13 +21,13 @@ public class Menu_BuyUnits_Selection : MonoBehaviour, ISelectHandler
 
     public void Buy()
     {
-        Core.View.buyMenu.Buy(_unitType);
+        Core.View.BuyMenu.Buy(_unitType);
         //TODO: play buy sound
     }
 
     public void OnSelect(BaseEventData eventData)
     {
-        Core.View.buyMenu.UpdateDetails(_unitType);
+        Core.View.BuyMenu.UpdateDetails(_unitType);
         //TODO: play selection sound
     }
 }

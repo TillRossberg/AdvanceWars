@@ -105,6 +105,11 @@ public class Tile: MonoBehaviour
         tempMats[0] = material;
         Gfx.GetComponent<MeshRenderer>().materials = tempMats;
     }
+    public void SetMaterial(int index)
+    {
+        if(index < data.materials.Count && data.materials[index] != null)SetMaterial(data.materials[index]);
+        else Debug.Log("Material not found!");
+    }
     public void SetColor(Color color)
     {
         Material[] tempMats = Gfx.GetComponent<MeshRenderer>().materials;

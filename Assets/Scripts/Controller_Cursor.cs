@@ -130,7 +130,7 @@ public class Controller_Cursor : MonoBehaviour
         Tile tile = Core.Model.GetTile(pos);
         this.transform.position = new Vector3(tile.transform.position.x, 0, tile.transform.position.z);
         Position = pos;
-        Core.View.statusPanel.UpdateDisplay(tile);
+        Core.View.StatusPanel.UpdateDisplay(tile);
     }
     public void BlockInput(float duration)
     {

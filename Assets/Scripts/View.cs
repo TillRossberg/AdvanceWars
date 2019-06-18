@@ -9,10 +9,10 @@ public class View : MonoBehaviour
     #region References
     public Canvas canvas;
     public EventSystem eventSystem;
-    public Menu_BuyUnits buyMenu;
+    public Menu_BuyUnits BuyMenu;
     public Menu_Context ContextMenu;
-    public Panel_Status statusPanel;
-    public Panel_Commander commanderPanel;
+    public Panel_Status StatusPanel;
+    public Panel_Commander CommanderPanel;
     public Menu_Details_Tile TileDetails;
     #endregion
     #region Parent Object Fields
@@ -33,23 +33,24 @@ public class View : MonoBehaviour
         weatherNames = System.Enum.GetNames(typeof(Weather)).ToList<string>();
         commanderNames = System.Enum.GetNames(typeof(CommanderType)).ToList<string>();
         if (!canvas.gameObject.activeSelf) canvas.gameObject.SetActive(true);
-        buyMenu.gameObject.SetActive(false);
+        BuyMenu.gameObject.SetActive(false);
         ContextMenu.gameObject.SetActive(false);
         TileDetails.gameObject.SetActive(false);
     }
 
-    #endregion
-    #region Menu Methods
-    public void DisplayStatusPanel(bool value){statusPanel.gameObject.SetActive(value);}
-    public void DisplayCommanderPanel(bool value){ commanderPanel.gameObject.SetActive(value);}
-    public void DisplayBuyMenu(bool value)
+    #endregion  
+    public void ShowStandardPanels()
     {
-        buyMenu.gameObject.SetActive(value);
-        ContextMenu.Hide();
-        DisplayStatusPanel(!value);
-        DisplayCommanderPanel(!value);
+        CommanderPanel.Show();
+        StatusPanel.Show();
     }
-    #endregion
+    public void HideAllMenus()
+    {
+        BuyMenu.Hide();
+        ContextMenu.Hide();
+        CommanderPanel.Hide();
+        StatusPanel.Hide();
+    }   
     #region Tilegraphics
     //Draws the tiles, that can be reached.
     public void CreateReachableTilesGfx(Unit unit)

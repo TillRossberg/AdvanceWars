@@ -223,5 +223,80 @@ public class Model : MonoBehaviour
         CreateUnit(UnitType.Infantry, Core.Model.teams[1], new Vector2Int(5, 11), Direction.West);
     }
 
+    public void LoadLevel02(int width, int height)
+    {
+        CreateEmptyMatrix(width, height, TileType.Plain);
+        for (int i = 0; i < 5; i++) DrawX(TileType.Sea, 0, 8 + i, width);
+        DrawY(TileType.Forest, 0, 0, 8);
+        DrawY(TileType.Forest, 18, 0, 8);
+        DrawX(TileType.Forest, 0, 0, 18);
+        DrawY(TileType.River, 9, 0, 8);
+        //Roads
+        DrawX(TileType.Road, 6, 3, 7);
+        DrawX(TileType.Road, 6, 5, 7);
+        DrawX(TileType.Road, 3, 4, 3);
+        DrawX(TileType.Road, 13, 4, 3);
+        ChangeTile(TileType.Road, new Vector2Int(5, 3), 90);
+        GetTile(new Vector2Int(5, 3)).SetMaterial(1);
+        ChangeTile(TileType.Road, new Vector2Int(13, 3), 0);
+        GetTile(new Vector2Int(13, 3)).SetMaterial(1);
+        ChangeTile(TileType.Road, new Vector2Int(5, 5), 180);
+        GetTile(new Vector2Int(5, 5)).SetMaterial(1);
+        ChangeTile(TileType.Road, new Vector2Int(13, 5), 270);
+        GetTile(new Vector2Int(13, 5)).SetMaterial(1);
+
+
+        //Properties
+        //Red
+        ChangeTile(TileType.HQ, new Vector2Int(2, 4), 0);
+        ChangeTile(TileType.Airport, new Vector2Int(2, 6), 0);
+        ChangeTile(TileType.Airport, new Vector2Int(2, 2), 0);
+        ChangeTile(TileType.Facility, new Vector2Int(6, 4), 0);
+        ChangeTile(TileType.Port, new Vector2Int(4, 7), 0);
+        Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(2,4)));
+        Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(2,6)));
+        Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(2,2)));
+        Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(6,4)));
+        Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(4,7)));
+        //Blue
+        ChangeTile(TileType.HQ, new Vector2Int(16,4), 0);
+        ChangeTile(TileType.Airport, new Vector2Int(16,2), 0);
+        ChangeTile(TileType.Airport, new Vector2Int(16,6), 0);
+        ChangeTile(TileType.Facility, new Vector2Int(12,4), 0);
+        ChangeTile(TileType.Port, new Vector2Int(14,7), 0);
+        Core.Controller.Occupy(teams[1], GetTile(new Vector2Int(16, 4)));
+        Core.Controller.Occupy(teams[1], GetTile(new Vector2Int(16, 6)));
+        Core.Controller.Occupy(teams[1], GetTile(new Vector2Int(16, 2)));
+        Core.Controller.Occupy(teams[1], GetTile(new Vector2Int(12, 4)));
+        Core.Controller.Occupy(teams[1], GetTile(new Vector2Int(14, 7)));
+
+        SetNeighbors(MapMatrix);
+
+        //Units
+        //Red
+        CreateUnit(UnitType.APC, Core.Model.teams[0], new Vector2Int(4,4), Direction.North);
+        CreateUnit(UnitType.Rockets, Core.Model.teams[0], new Vector2Int(8,4), Direction.North);
+        CreateUnit(UnitType.Battleship, Core.Model.teams[0], new Vector2Int(7,10), Direction.North);
+        //Blue
+        CreateUnit(UnitType.APC, Core.Model.teams[1], new Vector2Int(14,4), Direction.North);
+        CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(10,4), Direction.North);
+        CreateUnit(UnitType.Cruiser, Core.Model.teams[1], new Vector2Int(11,10), Direction.North);
+
+    }
+
+    void DrawX(TileType type, int startX, int startY, int length)
+    {
+        for (int i = 0; i < length; i++)
+        {
+            ChangeTile(type, new Vector2Int(startX + i, startY), 0);
+        }
+    }
+    void DrawY(TileType type, int startX, int startY, int length)
+    {
+        for (int i = 0; i < length; i++)
+        {
+            ChangeTile(type, new Vector2Int(startX, startY + i), 0);
+        }
+    }
     #endregion
 }

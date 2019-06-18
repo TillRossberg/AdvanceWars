@@ -182,7 +182,7 @@ public class Unit : MonoBehaviour
         SetPosition(pos);
         SetDirection(this.transform.eulerAngles.y);
         SetCurrentTile(pos);
-        Core.View.statusPanel.UpdateDisplay(this);
+        Core.View.StatusPanel.UpdateDisplay(this);
         Core.Controller.CurrentMode = Controller.Mode.Normal;
     }
     public void SetCurrentTile(Vector2Int pos)
@@ -194,7 +194,7 @@ public class Unit : MonoBehaviour
     public void ResetPosition()
     {
         SetPosition(this.Position);
-        Core.View.statusPanel.UpdateDisplay(this);//When the unit moves back, the display of the cover should be set to the old tile.
+        Core.View.StatusPanel.UpdateDisplay(this);//When the unit moves back, the display of the cover should be set to the old tile.
         DisplayHealth(true);//Repostition the health indicator.   
         CanFire = true;
         CanMove = true;
