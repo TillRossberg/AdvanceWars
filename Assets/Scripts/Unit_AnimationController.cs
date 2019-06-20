@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class Unit_AnimationController : MonoBehaviour
 {
@@ -17,16 +18,15 @@ public class Unit_AnimationController : MonoBehaviour
     Quaternion startRotation;
     Quaternion endRotation;
     Vector3 lookingDirection;
-
-    public bool unitWantsToUnite;
-    public bool unitWantsToLoad;
+    
     //States
-
     bool move = false;
     bool rotate = false;
     public bool IsMovingToTarget { get; private set; }
+    //events
+    public event Action OnReachedLastWayPoint;
 
-    public void Init()
+    public void InitMovement()
     {
         wayPointList = Core.Controller.ArrowBuilder.CreateMovementPath();
         wayPointIndex = 1;//Starts at one because the first entry is the current position of the unit.
@@ -35,9 +35,7 @@ public class Unit_AnimationController : MonoBehaviour
         startRotation = Quaternion.LookRotation(this.transform.position);
         endRotation = Quaternion.LookRotation(lookingDirection);//The actual rotation we need to look at the target
         IsMovingToTarget = true; //Init the sequencer in the update function...
-        rotate = true;//...and start rotating towards the first waypoint.        
-        unitWantsToUnite = false;
-        unitWantsToLoad = false;
+        rotate = true;//...and start rotating towards the first waypoint.            
     }
     private void Start()
     {
@@ -73,28 +71,18 @@ public class Unit_AnimationController : MonoBehaviour
             }
 
             if (WayPointReached(wayPointList[wayPointIndex]) && move)
-            {
-                //Debug.Log("Reached waypoint: " + wayPointIndex);
+            {                
                 wayPointIndex++;
                 if (wayPointIndex >= wayPointList.Count)
+                //Destination reached
                 {
                     IsMovingToTarget = false;
                     wayPointIndex = 1;
                     unit.DisplayHealth(true);
-                    if (!unit.IsInterrupted)
-                    {
-                        //TODO: add event to inform that we reached the last waypoint.
-                        if (unitWantsToLoad) Core.View.ContextMenu.ShowLoadButton();
-                        else if (unitWantsToUnite) Debug.Log("Unit wants to unite!");
-                        else
-                        {
-                            unit.FindAttackableEnemies(Core.Controller.SelectedTile.Position);
-                            Core.View.ContextMenu.Show(unit);
-                        }
-                    }
-                    else unit.GetInterrupted();
+                    OnReachedLastWayPoint();                    
                 }
                 else
+                //Keep on moving
                 {
                     target = wayPointList[wayPointIndex];
                     lookingDirection = (wayPointList[wayPointIndex] - transform.position).normalized;//Vector from our position to the target

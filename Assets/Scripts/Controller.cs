@@ -69,8 +69,8 @@ public class Controller : MonoBehaviour
                     {
                         CurrentMode = Mode.Move;
                         Select(unitHere);
-                        DisplayReachableArea(unitHere);
-                        ArrowBuilder.StartArrowPath(unitHere);
+                        SelectedUnit.ShowReachableArea();
+                        ArrowBuilder.StartArrowPath(SelectedUnit);
                     }
                     //...or select already used unit or unit from enemy team.
                     else Core.AudioManager.PlaySFX(Core.Model.Database.Sounds.NopeSound);
@@ -106,13 +106,11 @@ public class Controller : MonoBehaviour
                         Core.View.ContextMenu.Show(SelectedUnit);
                     }
                     //Click on transporter
-                    else if (SelectedUnit.team.units.Contains(unitHere) && (unitHere.GetComponent<Unit_Transporter>() != null))
+                    else if (SelectedUnit.IsInMyTeam(unitHere) && unitHere.CanLoadtUnits())
                     {
-
                         if ((unitHere.data.type == UnitType.APC || unitHere.data.type == UnitType.TCopter) && SelectedUnit.IsInfantryUnit())SelectedUnit.MoveUnitToLoad(Cursor.Position);                        
                         if (unitHere.data.type == UnitType.Lander && SelectedUnit.IsGroundUnit()) SelectedUnit.MoveUnitToLoad(Cursor.Position);
                         if (unitHere.data.type == UnitType.Cruiser && SelectedUnit.IsCopterUnit()) SelectedUnit.MoveUnitToLoad(Cursor.Position);
-
                     }
                     //TODO: Click on unit of the same type to unite.
                     //If you click on an enemy unit or an unit that is in an alliance with you.
@@ -203,13 +201,13 @@ public class Controller : MonoBehaviour
         Unit unit = Core.Model.GetTile(Cursor.Position).GetUnitHere();
         if (unit != null)
         {
-            unit.CalcAttackableArea(unit.Position);
-            Core.View.CreateAttackableTilesGfx(unit);
+            Select(unit);
+            unit.ShowAttackableTiles(unit.Position);
         }
     }
     public void BButtonReleased()
     {
-        Core.View.ResetAttackableTiles();
+        Deselect();
     }
     #endregion   
     #region Cursor Methods
@@ -235,21 +233,18 @@ public class Controller : MonoBehaviour
                     break;
                 case Mode.Move:
                     Tile tile = Core.Model.GetTile(pos);
-
                     //If you go back, make the arrow smaller.
                     if (tile.isPartOfArrowPath)
                     {
-                        //We wont move outside the bounds of the reachable area.
                         if (ArrowBuilder.CanGoBack(tile))
                         {
                             Cursor.SetPosition(pos);
                             ArrowBuilder.TryToGoBack(tile);
                         }
                     }
-                    //Draws an Arrow on the tile, if it is reachable
-                    else if (!tile.isPartOfArrowPath && SelectedUnit.reachableTiles.Contains(tile) && ArrowBuilder.EnoughMovePointsRemaining(tile, SelectedUnit))
+                    //Draws an Arrow on the tile, if it is reachable.
+                    else if (SelectedUnit.CanReachTile(tile) && ArrowBuilder.EnoughMovePointsRemaining(tile, SelectedUnit))
                     {
-                        //We wont move outside the bounds of the reachable area.
                         ArrowBuilder.CreateNextPart(tile);
                         Cursor.SetPosition(pos);
                     }
@@ -399,9 +394,9 @@ public class Controller : MonoBehaviour
     //Deselect an Unit.
     public void DeselectUnit()
     {
-        ClearAttackableArea(SelectedUnit);
-        ClearReachableArea(SelectedUnit);
-        ClearAttackableUnits(SelectedUnit);
+        SelectedUnit.ClearAttackableTiles();
+        SelectedUnit.ClearReachableTiles();
+        SelectedUnit.ClearAttackableTiles();
         ArrowBuilder.ResetAll();    
         Cursor.SetCursorGfx(0);
         SelectedUnit = null;
@@ -410,39 +405,7 @@ public class Controller : MonoBehaviour
     public void DeselectTile()
     {
         SelectedTile = null;
-    }
-
-    public void DisplayReachableArea(Unit unit)
-    {
-        unit.CalcReachableArea(unit.Position, unit.data.moveDist, unit.data.moveType, null);
-        Core.View.CreateReachableTilesGfx(unit);
-    }
-    public void ClearReachableArea(Unit unit)
-    {
-        unit.reachableTiles.Clear();
-        Core.View.ResetReachableTiles(unit);
-    }
-    public void DisplayAttackableArea(Unit unit)
-    {
-        unit.CalcAttackableArea(SelectedUnit.Position);
-        Core.View.CreateAttackableTilesGfx(unit);
-    }
-    public void ClearAttackableArea(Unit unit)
-    {
-        unit.attackableTiles.Clear();
-        Core.View.ResetAttackableTiles();
-    }
-    public void DisplayAttackableUnits(Unit unit)
-    {
-        //View: indicate attackable units
-        //view: create cursor for selected attackable unit
-       
-    }
-    public void ClearAttackableUnits(Unit unit)
-    {
-        unit.attackableUnits.Clear();
-        //view: delete graphics for indication
-    }
+    }    
     #endregion
     #region Context Menu    
     public void FireButton()
@@ -474,7 +437,7 @@ public class Controller : MonoBehaviour
     }
     public void RangeButton()
     {
-        Core.View.ToggleAttackableTilesGfx();
+        SelectedUnit.ToggleAttackableTilesVisiblity();
     }
     //Pause Menu
     public void EndTurnButton()
@@ -671,7 +634,7 @@ public class Controller : MonoBehaviour
     }
     public void ChoseUnloadPosition()
     {
-        ClearReachableArea(SelectedUnit);
+        SelectedUnit.ClearReachableTiles();
         Core.View.ContextMenu.Hide(Mode.UnloadUnit);
         _tilesToCycle = SelectedUnit.GetComponent<Unit_Transporter>().GetPossibleDropOffPositions(GetSelectedPosition());
         _targetTile = _tilesToCycle[0];

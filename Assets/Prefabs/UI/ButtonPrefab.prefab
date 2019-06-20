@@ -37,8 +37,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.31, y: 0.62864476}
   m_AnchorMax: {x: 0.693, y: 0.88464475}
-  m_AnchoredPosition: {x: 0.000015258789, y: 0.5}
-  m_SizeDelta: {x: 0.30000305, y: -3.0999985}
+  m_AnchoredPosition: {x: 0.000015258789, y: 1.0499878}
+  m_SizeDelta: {x: 0.3, y: -2.0999}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &222524176651083328
 CanvasRenderer:
@@ -273,7 +273,7 @@ MonoBehaviour:
   m_enableWordWrapping: 1
   m_wordWrappingRatios: 0.4
   m_overflowMode: 0
-  m_firstOverflowCharacterIndex: 0
+  m_firstOverflowCharacterIndex: -1
   m_linkedTextComponent: {fileID: 0}
   m_isLinkedTextComponent: 0
   m_isTextTruncated: 0

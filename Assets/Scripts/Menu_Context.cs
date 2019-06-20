@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class Menu_Context : MonoBehaviour
 {
     //References    
-
+    public Image bgPic;
     public Transform buttonParent;
     public RectTransform waitButton;
     public RectTransform fireButton;
@@ -26,6 +26,7 @@ public class Menu_Context : MonoBehaviour
         TryActivateRangeButton(unit);
         TryActivateUnloadButton(unit);
         waitButton.gameObject.SetActive(true);
+        //AdaptBGPicSize();
         Core.View.HighlightFirstMenuItem(buttonParent);
     }
     public void Show(Tile tile)
@@ -64,14 +65,14 @@ public class Menu_Context : MonoBehaviour
         this.gameObject.SetActive(false);
         Core.Controller.CurrentMode = nextMode;
     }
-    
+
     void DeactivateAllButtons()
     {
         for (int i = 0; i < buttonParent.childCount; i++) buttonParent.GetChild(i).gameObject.SetActive(false);
     }
     void TryActivateFireButton(Unit activeUnit)
     {
-        if (activeUnit.attackableUnits.Count > 0 && activeUnit.CanFire) fireButton.gameObject.SetActive(true);
+        if (activeUnit.CanAttack()) fireButton.gameObject.SetActive(true);
     }
     void TryActivateOccupyButton(Unit activeUnit)
     {
@@ -84,13 +85,27 @@ public class Menu_Context : MonoBehaviour
     bool CanDropUnits(Unit unit)
     {
         Unit_Transporter transporter = unit.GetComponent<Unit_Transporter>();
-        
+
         if (transporter != null && transporter.loadedUnit != null && transporter.CanDropUnitsHere(Core.Controller.GetSelectedPosition())) return true;
         else return false;
     }
     void TryActivateRangeButton(Unit activeUnit)
     {
-        if (activeUnit.data.directAttack || activeUnit.data.rangeAttack) rangeButton.gameObject.SetActive(true);
+        if (activeUnit.data.rangeAttack) rangeButton.gameObject.SetActive(true);
     }
-   
+
+    void AdaptBGPicSize()
+    {
+        int counter = 0;
+        float spacing = buttonParent.GetComponent<VerticalLayoutGroup>().spacing;
+        float buttonHeight = waitButton.rect.height;
+        for (int i = 0; i < buttonParent.childCount; i++)
+        {
+            if (buttonParent.GetChild(i).gameObject.activeSelf) counter++;
+        }
+        Debug.Log("active buttons: " + counter);
+        Debug.Log("size: " + (spacing + buttonHeight));       
+        bgPic.rectTransform.sizeDelta = new Vector2(this.GetComponent<RectTransform>().rect.size.x, counter * (buttonHeight + spacing) + buttonHeight + spacing);
+    }
+
 }

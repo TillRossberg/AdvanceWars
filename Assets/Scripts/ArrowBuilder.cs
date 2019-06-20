@@ -225,7 +225,7 @@ public class ArrowBuilder
 
     bool IsEnemyUnitHere(Tile tile)
     {
-        if (tile.unitStandingHere != null && Core.Controller.SelectedUnit.IsEnemy(tile.unitStandingHere)) return true;
+        if (tile.unitStandingHere != null && Core.Controller.SelectedUnit.IsMyEnemy(tile.unitStandingHere)) return true;
         else return false;
     }   
     public bool GetInterruption(){return _isInterrupted;}

@@ -50,69 +50,7 @@ public class View : MonoBehaviour
         ContextMenu.Hide();
         CommanderPanel.Hide();
         StatusPanel.Hide();
-    }   
-    #region Tilegraphics
-    //Draws the tiles, that can be reached.
-    public void CreateReachableTilesGfx(Unit unit)
-    {
-        foreach (Tile tile in unit.reachableTiles)
-        {
-            reachableTilesGfx.Add(Instantiate(Core.Model.Database.reachableTilePrefab, new Vector3(tile.Position.x, 0, tile.Position.y), Quaternion.identity, reachableTilesParent));
-        }       
-    }
-    public void ResetReachableTiles(Unit unit)
-    {
-        foreach (GameObject gfx in reachableTilesGfx)
-        {
-            Destroy(gfx.gameObject);
-        }
-        reachableTilesGfx.Clear();
-    }
-    public void DisplayReachableTiles(bool value)
-    {
-        if(reachableTilesGfx.Count > 0)
-        {
-            foreach (GameObject gfx in reachableTilesGfx)
-            {
-                gfx.SetActive(value);
-            }
-        }
-    }
-    //Creates the graphics for the tiles, that can be attacked by the unit.
-    public void CreateAttackableTilesGfx(Unit unit)
-    {
-        foreach (Tile tile in unit.attackableTiles)
-        {
-            attackableTilesGfx.Add(Instantiate(Core.Model.Database.attackableTilePrefab, new Vector3(tile.Position.x, 0.1f, tile.Position.y), Quaternion.identity, attackablTilesParent));
-        }        
-    }
-    public void ResetAttackableTiles()
-    {
-        foreach (GameObject gfx in attackableTilesGfx)
-        {
-            Destroy(gfx.gameObject);
-        }
-        attackableTilesGfx.Clear();
-    }
-    public void DisplayAttackableTiles(bool value)
-    {
-        if(attackableTilesGfx.Count > 0)
-        {
-            foreach (GameObject gfx in attackableTilesGfx)
-            {
-                gfx.SetActive(value);
-            }
-        }
-    }
-    public void ToggleAttackableTilesGfx()
-    {
-        if (attackableTilesGfx.Count > 0)
-        {
-            DisplayAttackableTiles(!attackableTilesGfx[0].activeSelf);
-        }
-    }
-
-    #endregion
+    }      
     #region Fog of War
     
     //Resets the visiblity value of each tile to invisible and calculates the visibility for the given team.

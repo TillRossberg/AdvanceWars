@@ -31,22 +31,32 @@ public class Unit : MonoBehaviour
     Tile _interruptionTile;
     #endregion
     #region Tiles
-    public List<Tile> attackableTiles = new List<Tile>();
-    public bool IsShowingAttackableTiles = false;
-    public List<Unit> attackableUnits = new List<Unit>();
-    public List<Tile> reachableTiles = new List<Tile>();
+    List<Unit> _attackableUnits = new List<Unit>();
+    List<Tile> _attackableTiles = new List<Tile>();
+    List<GameObject> _attackableTilesGfx = new List<GameObject>();
+    bool _isShowingAttackableTiles = false;
+    List<Tile> _reachableTiles = new List<Tile>();
+    List<GameObject> _reachableTilesGfx = new List<GameObject>();
     #endregion
     #region Properties
     public int health = 100;
     public int ammo;
     public int fuel;
+    public bool WantsToBeLoaded = false;
+    public bool WantsToUnite = false;
     #endregion    
+
     #region Basic Methods
     public void Init()
     {
         AnimationController = this.GetComponent<Unit_AnimationController>();
         ammo = data.primaryAmmo;
         fuel = data.maxFuel;
+        AnimationController.OnReachedLastWayPoint += MoveToFinished;
+    }
+    private void OnDestroy()
+    {
+        AnimationController.OnReachedLastWayPoint -= MoveToFinished;
     }
     //Ends the turn for the unit.
     public void Wait()
@@ -86,6 +96,27 @@ public class Unit : MonoBehaviour
         //    if (material.name == "TeamColor (Instance)") material.color = color;
         //}
         gfx.GetComponent<MeshRenderer>().materials[0].color = color;
+    }
+    public bool IsInMyTeam(Unit unit)
+    {
+        if (team.units.Contains(unit)) return true;
+        else return false;
+    }
+    public bool IsGroundUnit()
+    {
+        if (data.type == UnitType.AntiAir ||
+            data.type == UnitType.APC ||
+            data.type == UnitType.Artillery ||
+            data.type == UnitType.Infantry ||
+            data.type == UnitType.MdTank ||
+            data.type == UnitType.Mech ||
+            data.type == UnitType.Missiles ||
+            data.type == UnitType.Recon ||
+            data.type == UnitType.Rockets ||
+            data.type == UnitType.Tank ||
+            data.type == UnitType.Titantank
+          ) return true;
+        else return false;
     }
     #endregion
     #region Damage Methods
@@ -151,25 +182,42 @@ public class Unit : MonoBehaviour
     public void MoveTo(Vector2Int newPos)
     {
         //Setup the sequencer for the movement animation.
-        AnimationController.Init();
+        AnimationController.InitMovement();
         IsInterrupted = Core.Controller.ArrowBuilder.GetInterruption();
         DisplayHealth(false);//While moving we dont want to see the health.
         //Delete the reachable tiles and the movement arrow.
-        Core.Controller.ClearReachableArea(this);
+        ClearReachableTiles();
         _interruptionTile = Core.Controller.ArrowBuilder.GetInterruptionTile();
         Core.Controller.ArrowBuilder.ResetAll();
         if (data.rangeAttack) CanFire = false;
         CanMove = false;
     }
+    public void MoveToFinished()
+    {
+        if (!IsInterrupted)
+        {
+            //TODO: add event to inform that we reached the last waypoint.
+            if (WantsToBeLoaded) Core.View.ContextMenu.ShowLoadButton();
+            else if (WantsToUnite) Debug.Log("Unit wants to unite!");
+            else
+            {
+                FindAttackableEnemies(Core.Controller.SelectedTile.Position);
+                Core.View.ContextMenu.Show(this);
+            }
+        }
+        else GetInterrupted();
+        WantsToBeLoaded = false;
+        WantsToUnite = false;
+    }
     public void MoveUnitToLoad(Vector2Int newPos)
     {
+        WantsToBeLoaded = true;
         MoveTo(newPos);
-        AnimationController.unitWantsToLoad = true;
     }
     public void MoveUnitToUnite(Vector2Int newPos)
     {
+        WantsToUnite = true;
         MoveTo(newPos);
-        AnimationController.unitWantsToUnite = true;
     }
     public void SetPosition(Vector2Int pos)
     {
@@ -290,16 +338,21 @@ public class Unit : MonoBehaviour
     public void FindAttackableEnemies(Vector2Int pos)
     {
         CalcAttackableArea(pos);
-        foreach (Tile tile in attackableTiles)
+        foreach (Tile tile in _attackableTiles)
         {
             if (IsVisibleEnemyHere(tile))
             {
                 Unit enemy = tile.unitStandingHere;
-                if (data.GetDamageAgainst(enemy.data.type) > 0) attackableUnits.Add(enemy);
+                if (data.GetDamageAgainst(enemy.data.type) > 0) _attackableUnits.Add(enemy);
             }
         }
     }
-    public bool IsEnemy(Unit unit)
+    public void ClearAttackableEnemies()
+    {
+        _attackableUnits.Clear();
+    }
+
+    public bool IsMyEnemy(Unit unit)
     {
         if (enemyTeams.Contains(unit.team)) return true;
         else return false;
@@ -310,27 +363,51 @@ public class Unit : MonoBehaviour
         if (tile.GetUnitHere() != null && tile.isVisible)
         {
             Unit possibleEnemy = tile.GetUnitHere();
-            if (IsEnemy(possibleEnemy)) return true;
+            if (IsMyEnemy(possibleEnemy)) return true;
         }
         return false;
     }
     public List<Tile> GetAttackableEnemyTiles()
     {
         List<Tile> tempList = new List<Tile>();
-        foreach (Unit enemy in attackableUnits)
+        foreach (Unit enemy in _attackableUnits)
         {
             tempList.Add(enemy.CurrentTile);
         }
         return tempList;
     }
-
+    public bool CanAttack()
+    {
+        if (CanFire && _attackableUnits.Count > 0) return true;
+        else return false;
+    }
     #endregion
     #region Attackable Area
-
-    //Creates a list of tiles the unit can attack.
-    public void CalcAttackableArea(Vector2Int position)
+    public void ShowAttackableTiles(Vector2Int pos)
     {
-        attackableTiles.Clear();
+        CalcAttackableArea(pos);
+        CreateAttackableTilesGfx();
+    }
+    public void ClearAttackableTiles()
+    {
+        foreach (GameObject gfx in _attackableTilesGfx) Destroy(gfx.gameObject);
+        _attackableTilesGfx.Clear();
+        _attackableTiles.Clear();
+    }
+    public void ToggleAttackableTilesVisiblity()
+    {
+        if(_attackableTiles.Count > 0)
+        {
+
+        }
+        else
+        {
+
+        }
+    }
+    //Creates a list of tiles the unit can attack.
+    void CalcAttackableArea(Vector2Int position)
+    {
         if (data.directAttack) FindAttackableTilesForDirectAttack(position);
         else if (data.rangeAttack) FindAttackableTilesForRangedAttack();
     }
@@ -347,7 +424,6 @@ public class Unit : MonoBehaviour
         Vector2Int Bottom = new Vector2Int(position.x, position.y - 1);
         TryToAddAttackableTile(Bottom);
     }
-
     void FindAttackableTilesForRangedAttack()
     {
         //First we mark every visible tile as attackable...
@@ -429,13 +505,12 @@ public class Unit : MonoBehaviour
             if (Core.Model.IsOnMap(testPosition)) TryToRemoveAttackableTile(testPosition);
         }
     }
-
     void TryToAddAttackableTile(Vector2Int position)
     {
         if (Core.Model.IsOnMap(position))
         {
             Tile tile = Core.Model.GetTile(position);
-            attackableTiles.Add(tile);
+            _attackableTiles.Add(tile);
         }
     }
     void TryToRemoveAttackableTile(Vector2Int position)
@@ -443,26 +518,44 @@ public class Unit : MonoBehaviour
         if (Core.Model.IsOnMap(position))
         {
             Tile tile = Core.Model.GetTile(position);
-            attackableTiles.Remove(tile);
+            _attackableTiles.Remove(tile);
         }
     }
 
+    //Creates the graphics for the tiles, that can be attacked by the unit.
+    void CreateAttackableTilesGfx()
+    {
+        foreach (Tile tile in _attackableTiles) _attackableTilesGfx.Add(Instantiate(Core.Model.Database.attackableTilePrefab, new Vector3(tile.Position.x, 0.1f, tile.Position.y), Quaternion.identity, this.transform));        
+    }    
 
     #endregion
     #region Reachable Area
-    //Calculate how far you can move from a certain position depending on your movement points.
-    public void CalcReachableArea(Vector2Int position, int movementPoints, UnitMoveType moveType, Tile cameFromTile)
+    public void ShowReachableArea()
     {
-        //Debug.Log(counter);
-        //counter += Time.deltaTime;
+        CalcReachableArea(this.Position, data.moveDist, data.moveType, null);
+        CreateReachableTilesGfx();
+    }
+    public void ClearReachableTiles()
+    {
+        foreach (GameObject gfx in _reachableTilesGfx) Destroy(gfx.gameObject);        
+        _reachableTilesGfx.Clear();
+        _reachableTiles.Clear();
+    }
+    //Calculate how far you can move from a certain position depending on your movement points.
+    void CalcReachableArea(Vector2Int position, int movementPoints, UnitMoveType moveType, Tile cameFromTile)
+    {
         Tile tile = Core.Model.GetTile(position);
 
-        if (cameFromTile != null) movementPoints = movementPoints - tile.data.GetMovementCost(moveType);
+        if (cameFromTile != null)
+        {
+            movementPoints = movementPoints - tile.data.GetMovementCost(moveType);
+            //TODO: add fuel
+        }
 
         //If enough movement points are left and the tile is passable (we can move through our own units, but are blocked by enemies), do the recursion.
         if ((movementPoints >= 0) && (tile.data.GetMovementCost(moveType) > 0) && !IsVisibleEnemyHere(tile))
         {
-            if (!reachableTiles.Contains(tile)) reachableTiles.Add(tile);
+            if (!_reachableTiles.Contains(tile)) _reachableTiles.Add(tile);
 
             //The tile was reached, so test all its neighbors for reachability. Ignore the tile you came from.
             foreach (Tile neighbor in tile.neighbors)
@@ -470,6 +563,16 @@ public class Unit : MonoBehaviour
                 if (neighbor != cameFromTile) CalcReachableArea(neighbor.Position, movementPoints, moveType, tile);
             }
         }
+    }
+    //Draws the tiles, that can be reached.
+    void CreateReachableTilesGfx()
+    {
+        foreach (Tile tile in _reachableTiles)_reachableTilesGfx.Add(Instantiate(Core.Model.Database.reachableTilePrefab, new Vector3(tile.Position.x, 0, tile.Position.y), Quaternion.identity, this.transform));       
+    }
+    public bool CanReachTile(Tile tile)
+    {
+        if (_reachableTiles.Contains(tile)) return true;
+        else return false;
     }
     #endregion
     #region Visible Area
@@ -539,6 +642,11 @@ public class Unit : MonoBehaviour
     }
     #endregion
     #region Load Methods
+    public bool CanLoadtUnits()
+    {
+        if (GetComponent<Unit_Transporter>()) return true;
+        else return false;
+    }   
     public void GetLoaded()
     {
         CurrentTile = null;
@@ -553,22 +661,7 @@ public class Unit : MonoBehaviour
         CalcVisibleArea();
         Deactivate();
     }
-    public bool IsGroundUnit()
-    {
-        if (data.type == UnitType.AntiAir ||
-            data.type == UnitType.APC ||
-            data.type == UnitType.Artillery ||
-            data.type == UnitType.Infantry ||
-            data.type == UnitType.MdTank ||
-            data.type == UnitType.Mech ||
-            data.type == UnitType.Missiles ||
-            data.type == UnitType.Recon ||
-            data.type == UnitType.Rockets ||
-            data.type == UnitType.Tank ||
-            data.type == UnitType.Titantank
-          ) return true;
-        else return false;
-    }
+    
     public bool IsCopterUnit()
     {
         if (data.type == UnitType.BCopter || data.type == UnitType.TCopter) return true;

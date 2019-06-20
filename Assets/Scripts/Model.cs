@@ -275,10 +275,12 @@ public class Model : MonoBehaviour
         //Units
         //Red
         CreateUnit(UnitType.APC, Core.Model.teams[0], new Vector2Int(4,4), Direction.North);
+        CreateUnit(UnitType.Infantry, Core.Model.teams[0], new Vector2Int(4,3), Direction.North);
         CreateUnit(UnitType.Rockets, Core.Model.teams[0], new Vector2Int(8,4), Direction.North);
         CreateUnit(UnitType.Battleship, Core.Model.teams[0], new Vector2Int(7,10), Direction.North);
         //Blue
         CreateUnit(UnitType.APC, Core.Model.teams[1], new Vector2Int(14,4), Direction.North);
+        CreateUnit(UnitType.Infantry, Core.Model.teams[1], new Vector2Int(14,3), Direction.North);
         CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(10,4), Direction.North);
         CreateUnit(UnitType.Cruiser, Core.Model.teams[1], new Vector2Int(11,10), Direction.North);
 

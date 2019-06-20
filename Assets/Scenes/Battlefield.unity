@@ -3109,6 +3109,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f227ed7affb2fcd4aba6b005f87917e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bgPic: {fileID: 703494514}
   buttonParent: {fileID: 133493861}
   waitButton: {fileID: 1495534116}
   fireButton: {fileID: 224179338979165192}
@@ -3497,16 +3498,16 @@ RectTransform:
   m_GameObject: {fileID: 703494512}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.11252664, y: 0.11252664, z: 0.11252664}
+  m_LocalScale: {x: 1, y: 0.5, z: 1}
   m_Children: []
   m_Father: {fileID: 484808824}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.003036499, y: -0.0010986328}
-  m_SizeDelta: {x: 2852, y: 4517.5}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 1145.2}
+  m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &703494514
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3527,7 +3528,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 21300000, guid: 36d6c286a5ee3a746a709f5fb2acc427, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 2f017cec890f57f4999207df8692f21d, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
