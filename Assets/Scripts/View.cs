@@ -7,7 +7,7 @@ using System.Linq;
 public class View : MonoBehaviour
 {
     #region References
-    public Canvas canvas;
+    public Canvas canvas;    
     public EventSystem eventSystem;
     public Menu_BuyUnits BuyMenu;
     public Menu_Context ContextMenu;

@@ -6,9 +6,11 @@ using System;
 public class Controller : MonoBehaviour
 {
     #region References
+    public Controller_Camera CameraController;
     public ArrowBuilder ArrowBuilder { get; private set; }
     public Controller_Cursor Cursor { get; private set; }
     #endregion
+
     public Team ActiveTeam { get; private set; }
     public Tile SelectedTile;
     public Unit SelectedUnit;

@@ -34,5 +34,6 @@ public class Core : Singleton<Core>
     private void Start()
     {
         Controller.StartGame();
+        Controller.CameraController.Init();
     }
 }
