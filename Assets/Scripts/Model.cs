@@ -278,11 +278,16 @@ public class Model : MonoBehaviour
         CreateUnit(UnitType.Infantry, Core.Model.teams[0], new Vector2Int(4,3), Direction.North);
         CreateUnit(UnitType.Rockets, Core.Model.teams[0], new Vector2Int(8,4), Direction.North);
         CreateUnit(UnitType.Battleship, Core.Model.teams[0], new Vector2Int(7,10), Direction.North);
+        CreateUnit(UnitType.Battleship, Core.Model.teams[0], new Vector2Int(6,10), Direction.North);
+        SetUnitTypeHealth(Core.Model.teams[0], UnitType.Battleship, 25);
         //Blue
         CreateUnit(UnitType.APC, Core.Model.teams[1], new Vector2Int(14,4), Direction.North);
         CreateUnit(UnitType.Infantry, Core.Model.teams[1], new Vector2Int(14,3), Direction.North);
         CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(10,4), Direction.North);
         CreateUnit(UnitType.Cruiser, Core.Model.teams[1], new Vector2Int(11,10), Direction.North);
+        CreateUnit(UnitType.Cruiser, Core.Model.teams[1], new Vector2Int(10,10), Direction.North);
+        SetUnitTypeHealth(Core.Model.teams[1], UnitType.Cruiser, 39);
+
 
     }
 
@@ -299,6 +304,13 @@ public class Model : MonoBehaviour
         {
             ChangeTile(type, new Vector2Int(startX, startY + i), 0);
         }
+    }
+    #endregion
+    #region Debug
+    void SetUnitTypeHealth(Team team, UnitType type, int amount)
+    {
+        List<Unit> units = team.GetAllUnitsOfType(type);
+        foreach (Unit item in units)item.SetHealth(amount);       
     }
     #endregion
 }

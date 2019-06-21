@@ -16,6 +16,7 @@ public class Menu_Context : MonoBehaviour
     public RectTransform endTurnButton;
     public RectTransform loadUnitButton;
     public RectTransform unloadUnitButton;
+    public RectTransform uniteButton;
 
 
     public void Show(Unit unit)
@@ -42,12 +43,12 @@ public class Menu_Context : MonoBehaviour
         loadUnitButton.gameObject.SetActive(true);
         Core.View.HighlightFirstMenuItem(buttonParent);
     }
-    //public void ShowUniteButton()
-    //{
-    //    ActivateMenu();
-    //    loadUnitButton.gameObject.SetActive(true);
-    //    Core.View.HighlightFirstMenuItem(buttonParent);
-    //}
+    public void ShowUniteButton()
+    {
+        ActivateMenu();
+        uniteButton.gameObject.SetActive(true);
+        Core.View.HighlightFirstMenuItem(buttonParent);
+    }
     void ActivateMenu()
     {
         this.gameObject.SetActive(true);
@@ -93,6 +94,7 @@ public class Menu_Context : MonoBehaviour
     {
         if (activeUnit.data.rangeAttack) rangeButton.gameObject.SetActive(true);
     }
+    
 
     void AdaptBGPicSize()
     {

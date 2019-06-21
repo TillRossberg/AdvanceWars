@@ -63,6 +63,12 @@ public class Team: MonoBehaviour
             if(unit != null) unit.SetTeamColor(data.teamColor);
         }
     }
+    public List<Unit> GetAllUnitsOfType(UnitType type)
+    {
+        List<Unit> tempList = new List<Unit>();
+        foreach (Unit item in units)if (item.data.type == type) tempList.Add(item);        
+        return tempList;
+    }
     #endregion
     #region Money
     public void SetStartMoney(int amount) { Money = amount; }

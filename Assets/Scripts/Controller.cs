@@ -31,7 +31,7 @@ public class Controller : MonoBehaviour
         Core.Model.teams[1].AddEnemyTeam(Core.Model.teams[0]);
         Core.Model.InitTeams();
         //Core.Model.LoadLevel01(15, 15);
-        Core.Model.LoadLevel02(19, 13);
+        Core.Model.LoadLevel02(19, 13); 
         Cursor = CreateCursor(new Vector2Int(5, 5));
         Core.Model.SetupRandomSuccession();
         ActiveTeam = Core.Model.Succession[0];
@@ -108,16 +108,14 @@ public class Controller : MonoBehaviour
                     //Click on transporter
                     else if (SelectedUnit.IsInMyTeam(unitHere) && unitHere.CanLoadtUnits())
                     {
-                        if ((unitHere.data.type == UnitType.APC || unitHere.data.type == UnitType.TCopter) && SelectedUnit.IsInfantryUnit())SelectedUnit.MoveUnitToLoad(Cursor.Position);                        
+                        if ((unitHere.data.type == UnitType.APC || unitHere.data.type == UnitType.TCopter) && SelectedUnit.IsInfantryUnit()) SelectedUnit.MoveUnitToLoad(Cursor.Position);
                         if (unitHere.data.type == UnitType.Lander && SelectedUnit.IsGroundUnit()) SelectedUnit.MoveUnitToLoad(Cursor.Position);
                         if (unitHere.data.type == UnitType.Cruiser && SelectedUnit.IsCopterUnit()) SelectedUnit.MoveUnitToLoad(Cursor.Position);
                     }
-                    //TODO: Click on unit of the same type to unite.
+                    //Click on unit of the same type to unite.
+                    else if (unitHere.CanUnite(SelectedUnit) || SelectedUnit.CanUnite(unitHere)) SelectedUnit.MoveUnitToUnite(Cursor.Position);                   
                     //If you click on an enemy unit or an unit that is in an alliance with you.
-                    else
-                    {
-                        Core.AudioManager.PlaySFX(Core.Model.Database.Sounds.NopeSound);
-                    }
+                    else Core.AudioManager.PlaySFX(Core.Model.Database.Sounds.NopeSound);                   
                 }
                 //...or select an empty tile you want to go to.
                 else
@@ -452,6 +450,15 @@ public class Controller : MonoBehaviour
     public void InfoButton()
     {
         Debug.Log("Interesting info, you never knew you would want to know!");
+    }
+    public void UniteButton()
+    {
+        Unit clickedUnit = Core.Model.GetTile(Cursor.Position).GetUnitHere();
+        clickedUnit.Unite(SelectedUnit);
+        SelectedUnit.ConfirmPosition(Cursor.Position);
+        SelectedUnit.Deactivate();
+        Deselect();
+        Core.View.ContextMenu.Hide();
     }
     #endregion   
     #region Turn

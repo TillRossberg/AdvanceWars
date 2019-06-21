@@ -119,7 +119,12 @@ public class Unit : MonoBehaviour
         else return false;
     }
     #endregion
-    #region Damage Methods
+    #region Health Methods
+    public void AddHealth(int healing)
+    {
+        if ((health + healing) <= 100) health += healing;
+        else health = 100;
+    }
     public void SubtractHealth(int healthToSubtract)
     {
         health = health - healthToSubtract;
@@ -130,16 +135,18 @@ public class Unit : MonoBehaviour
             KillUnit();
         }
     }
-
+    public void SetHealth(int amount)
+    {
+        health = amount;
+        UpdateHealth();
+    }
     //Displays the actual lifepoints in the "3D"TextMesh
     public void DisplayHealth(bool value)
     {
         if (value)
         {
             healthText.gameObject.SetActive(true);
-            //Reposition the health text so it is always at the lower left corner of the tile.
-            healthText.transform.SetPositionAndRotation(new Vector3(this.transform.position.x - 0.4f, this.transform.position.y, this.transform.position.z - 0.2f), Quaternion.Euler(90, 0, 0));
-            healthText.text = GetCorrectedHealth().ToString();
+            UpdateHealth();
         }
         else
         {
@@ -152,13 +159,20 @@ public class Unit : MonoBehaviour
         if (health > 10) return (int)(health / 10);
         else return 1;
     }
-
+    void UpdateHealth()
+    {
+        //Reposition the health text so it is always at the lower left corner of the tile.
+        healthText.transform.SetPositionAndRotation(new Vector3(this.transform.position.x - 0.4f, this.transform.position.y, this.transform.position.z - 0.2f), Quaternion.Euler(90, 0, 0));
+        healthText.text = GetCorrectedHealth().ToString();
+    }
+    #endregion
+    #region Kill Unit Methods
     //Destroys the unit
     public void KillUnit()
     {
         //Set the unit standing on this tile as null.
         Core.Model.GetTile(Position).SetUnitHere(null);
-        //Boom animation
+        //TODO: Boom animation
 
         //Remove unit from team list
         team.units.Remove(this);
@@ -198,7 +212,7 @@ public class Unit : MonoBehaviour
         {
             //TODO: add event to inform that we reached the last waypoint.
             if (WantsToBeLoaded) Core.View.ContextMenu.ShowLoadButton();
-            else if (WantsToUnite) Debug.Log("Unit wants to unite!");
+            else if (WantsToUnite) Core.View.ContextMenu.ShowUniteButton();
             else
             {
                 FindAttackableEnemies(Core.Controller.SelectedTile.Position);
@@ -670,6 +684,19 @@ public class Unit : MonoBehaviour
     public bool IsInfantryUnit()
     {
         if (data.type == UnitType.Infantry || data.type == UnitType.Mech) return true;
+        else return false;
+    }
+    #endregion
+    #region Unite Methods
+    public void Unite(Unit unit)
+    {       
+        unit.AddHealth(this.health);
+        unit.UpdateHealth();
+        this.KillUnit();
+    }
+    public bool CanUnite(Unit unit)
+    {
+        if (unit.data.type == data.type && health < 100) return true;
         else return false;
     }
     #endregion
