@@ -132,6 +132,10 @@ public class Controller_Cursor : MonoBehaviour
         Position = pos;
         Core.View.StatusPanel.UpdateDisplay(tile);
     }
+    public void BlockInput(bool value)
+    {
+        _canInput = !value;
+    }
     public void BlockInput(float duration)
     {
         _canInput = false;

@@ -40,6 +40,7 @@ public class Controller : MonoBehaviour
         StartTurn();
         //Core.AudioManager.PlayMusic(Core.Model.Database.sounds.music[0]);
     }
+   
     public void Init()
     {
         ArrowBuilder = new ArrowBuilder(Core.Model.arrowPathParent);
@@ -583,7 +584,7 @@ public class Controller : MonoBehaviour
         //Introduce the new owner to the tile.
         tile.owningTeam = newOwner;
         //Set the color of the property to the occupying team color.
-        tile.SetColor(newOwner.data.teamColor);
+        tile.SetColor(newOwner.data.color);
         //Add the tile to the new owners properties.
         newOwner.ownedProperties.Add(tile);
         //If you occupy the enemies HQ, you win the game.
@@ -661,6 +662,10 @@ public class Controller : MonoBehaviour
     public void BlockInputFor(float duration)
     {
         Cursor.BlockInput(duration);
+    }
+    public void BlockInput(bool value)
+    {
+        Cursor.BlockInput(value);
     }
     #endregion
     #region Debug

@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Core : Singleton<Core>
 {
@@ -25,6 +26,7 @@ public class Core : Singleton<Core>
 
     private void OnEnable()
     {
+        //DontDestroyOnLoad(this.gameObject);
         Model.Init();
         View.Init();
         Controller.Init();
@@ -35,5 +37,13 @@ public class Core : Singleton<Core>
     {
         Controller.StartGame();
         Controller.CameraController.Init();
+    }
+    public void Restart()
+    {
+        SceneManager.LoadScene(0, LoadSceneMode.Single);
+    }
+    public void Quit()
+    {
+        Application.Quit();
     }
 }

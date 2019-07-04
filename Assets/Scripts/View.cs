@@ -11,9 +11,10 @@ public class View : MonoBehaviour
     public EventSystem eventSystem;
     public Menu_BuyUnits BuyMenu;
     public Menu_Context ContextMenu;
+    public Menu_Details_Tile TileDetails;
     public Panel_Status StatusPanel;
     public Panel_Commander CommanderPanel;
-    public Menu_Details_Tile TileDetails;
+    public Screen_Victory VictoryScreen;
     #endregion
     #region Parent Object Fields
     public Transform reachableTilesParent;
@@ -33,9 +34,9 @@ public class View : MonoBehaviour
         weatherNames = System.Enum.GetNames(typeof(Weather)).ToList<string>();
         commanderNames = System.Enum.GetNames(typeof(CommanderType)).ToList<string>();
         if (!canvas.gameObject.activeSelf) canvas.gameObject.SetActive(true);
-        BuyMenu.gameObject.SetActive(false);
-        ContextMenu.gameObject.SetActive(false);
-        TileDetails.gameObject.SetActive(false);
+        HideAll();
+        StatusPanel.gameObject.SetActive(true);
+        CommanderPanel.gameObject.SetActive(true);
     }
 
     #endregion  
@@ -44,13 +45,11 @@ public class View : MonoBehaviour
         CommanderPanel.Show();
         StatusPanel.Show();
     }
-    public void HideAllMenus()
+    public void HideAll()
     {
-        BuyMenu.Hide();
-        ContextMenu.Hide();
-        CommanderPanel.Hide();
-        StatusPanel.Hide();
-    }      
+        for (int i = 0; i < canvas.transform.childCount; i++) canvas.transform.GetChild(i).gameObject.SetActive(false);            
+    }     
+    
     #region Fog of War
     
     //Resets the visiblity value of each tile to invisible and calculates the visibility for the given team.

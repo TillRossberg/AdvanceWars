@@ -84,8 +84,8 @@ public class Data_Unit : ScriptableObject
 
     public Sprite GetThumbNail(Team team)
     {
-        if (team.data.teamName == "Blue") return blueThumbNail;
-        else if (team.data.teamName == "Red") return redThumbNail;
+        if (team.data.teamName == "Team Blue") return blueThumbNail;
+        else if (team.data.teamName == "Team Red") return redThumbNail;
         else throw new System.Exception("No valid team name for color picking!");
     }
     #endregion

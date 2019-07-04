@@ -4,9 +4,10 @@ using UnityEngine;
 
 public class Controller_Camera : MonoBehaviour
 {
-     float CameraSpeed = 2;
-     float maxTopAngle = 70;
-     float maxDownAngle = 20;
+    public bool Active;
+    float CameraSpeed = 2;
+    float maxTopAngle = 70;
+    float maxDownAngle = 20;
     float maxDownY = 5;
     Camera mainCamera;
     Transform _cursor;
@@ -23,50 +24,53 @@ public class Controller_Camera : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        #region Right Stick
-        //Right
-        if (Input.GetAxis("Right Stick Horizontal") > 0)
+        if(Active)
         {
-            Debug.Log("Right");
-            Rotate(_cursor, _cursorY, -CameraSpeed);
-        }
-        //Left
-        else if (Input.GetAxis("Right Stick Horizontal") < 0)
-        {
-            Debug.Log("Left");
-            Rotate(_cursor, _cursorY, CameraSpeed);
-        }
-        //Up
-        else if (Input.GetAxis("Right Stick Vertical") > 0)
-        {
-            Debug.Log("Up");
-            RotateUp(_cursor, _cursorX, CameraSpeed);
-        }
-        //Down
-        else if (Input.GetAxis("Right Stick Vertical") < 0)
-        {
-            Debug.Log("Down");
-            RotateDown(_cursor, _cursorX, -CameraSpeed);
-        }
-        #endregion
-        #region Left Stick
-        else if (Input.GetAxisRaw("Vertical") > 0)
-        {
+            #region Right Stick
+            //Right
+            if (Input.GetAxis("Right Stick Horizontal") > 0)
+            {
+                Debug.Log("Right");
+                Rotate(_cursor, _cursorY, -CameraSpeed);
+            }
+            //Left
+            else if (Input.GetAxis("Right Stick Horizontal") < 0)
+            {
+                Debug.Log("Left");
+                Rotate(_cursor, _cursorY, CameraSpeed);
+            }
+            //Up
+            else if (Input.GetAxis("Right Stick Vertical") > 0)
+            {
+                Debug.Log("Up");
+                RotateUp(_cursor, _cursorX, CameraSpeed);
+            }
+            //Down
+            else if (Input.GetAxis("Right Stick Vertical") < 0)
+            {
+                Debug.Log("Down");
+                RotateDown(_cursor, _cursorX, -CameraSpeed);
+            }
+            #endregion
+            #region Left Stick
+            else if (Input.GetAxisRaw("Vertical") > 0)
+            {
             
-        }
-        else if (Input.GetAxisRaw("Vertical") < 0)           
-        {
+            }
+            else if (Input.GetAxisRaw("Vertical") < 0)           
+            {
            
-        }       
-        else if (Input.GetAxisRaw("Horizontal") < 0)
-        {
+            }       
+            else if (Input.GetAxisRaw("Horizontal") < 0)
+            {
             
-        }
-        else if (Input.GetAxisRaw("Horizontal") > 0)
-        {
+            }
+            else if (Input.GetAxisRaw("Horizontal") > 0)
+            {
             
+            }
+            #endregion
         }
-        #endregion
     }
 
     void Rotate(Transform origin, Vector3 axis, float step)

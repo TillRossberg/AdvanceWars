@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3d13709070f70742a83fb71388e5f42, type: 3}
   m_Name: TeamRedData
   m_EditorClassIdentifier: 
-  teamName: Red
+  teamName: Team Red
   commander: 0
-  teamColor: {r: 1, g: 0, b: 0, a: 1}
+  color: {r: 1, g: 0, b: 0, a: 1}
   availableGroundUnits: 080000000a000000070000000200000009000000060000000100000003000000040000000000000005000000
   availableAirUnits: 0e0000000d0000000c0000000b000000
   availableNavalUnits: 10000000110000000f00000012000000

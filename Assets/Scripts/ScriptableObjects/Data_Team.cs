@@ -8,7 +8,7 @@ public class Data_Team : ScriptableObject
     #region Basic Fields
     public string teamName;
     public CommanderType commander;
-    public Color teamColor;
+    public Color color;
     public List<UnitType> availableGroundUnits;
     public List<UnitType> availableAirUnits;
     public List<UnitType> availableNavalUnits;

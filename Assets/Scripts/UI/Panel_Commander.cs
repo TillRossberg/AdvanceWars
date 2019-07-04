@@ -27,6 +27,6 @@ public class Panel_Commander : MonoBehaviour
         this.money.text = "$: " + Core.Controller.ActiveTeam.Money.ToString();
         this.roundNr.text = "Round: " + Core.Controller.RoundCounter.ToString();
         this.commanderThumbnail.sprite = Core.Model.Database.GetCommanderThumb(Core.Controller.ActiveTeam.data.commander);
-        this.commanderFrame.color = Core.Controller.ActiveTeam.data.teamColor;
+        this.commanderFrame.color = Core.Controller.ActiveTeam.data.color;
     }
 }

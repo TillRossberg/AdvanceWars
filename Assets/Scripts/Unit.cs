@@ -179,8 +179,7 @@ public class Unit : MonoBehaviour
         //If this was the last unit of the player the game is lost.
         if (team.units.Count <= 0)
         {
-            //TODO: Mit nem event lösen!
-            Debug.Log(enemyTeams[0] + " won by killing all their foes!");
+            Core.View.VictoryScreen.Show(team.enemyTeams[0]);
         }
         //Finally delete the unit.
         Destroy(this.gameObject);

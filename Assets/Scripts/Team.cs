@@ -43,7 +43,7 @@ public class Team: MonoBehaviour
         units.Add(unitToAdd);
         unitToAdd.team = this;
         unitToAdd.enemyTeams = enemyTeams;
-        unitToAdd.SetTeamColor(data.teamColor);
+        unitToAdd.SetTeamColor(data.color);
         data.IncUnitsBuilt(unitToAdd.data.type);
     }     
     //Deletes a unit completely with all references. (Sure?)
@@ -60,7 +60,7 @@ public class Team: MonoBehaviour
     {
         foreach (Unit unit in units)
         {
-            if(unit != null) unit.SetTeamColor(data.teamColor);
+            if(unit != null) unit.SetTeamColor(data.color);
         }
     }
     public List<Unit> GetAllUnitsOfType(UnitType type)
