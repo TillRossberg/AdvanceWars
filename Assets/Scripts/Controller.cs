@@ -93,6 +93,7 @@ public class Controller : MonoBehaviour
                 //Reset Cursor
                 Cursor.SetPosition(attacker.Position);
                 Cursor.SetCursorGfx(0);
+                Cursor.HideEstimnatedDamage();
                 //End turn for attacking unit
                 attacker.Wait();
                 ResetTilesToCycle();
@@ -154,6 +155,8 @@ public class Controller : MonoBehaviour
             case Mode.Fire:
                 ResetTilesToCycle();
                 Cursor.SetPosition(GetSelectedPosition());
+                Cursor.SetCursorGfx(0);
+                Cursor.HideEstimnatedDamage();
                 Core.View.ContextMenu.Show(SelectedUnit);
                 break;
             case Mode.Move:
@@ -228,8 +231,6 @@ public class Controller : MonoBehaviour
                     Cursor.SetPosition(pos);
                     break;
                 case Mode.Fire:
-                    //TODO: Change cursor
-                    //Cycle through the attackable enemies.
                     CyclePositions(_tilesToCycle, pos);
                     break;
                 case Mode.Move:
@@ -275,6 +276,7 @@ public class Controller : MonoBehaviour
             {
                 Tile nextTile = GetClosestTileRight(currentPos);
                 Cursor.SetPosition(nextTile.Position);
+                Cursor.ShowEstimatedDamage(SelectedUnit, nextTile.GetUnitHere(), nextTile);
                 _targetTile = nextTile;
             }
         }
@@ -284,6 +286,7 @@ public class Controller : MonoBehaviour
             {
                 Tile nextTile = GetClosestTileLeft(currentPos);
                 Cursor.SetPosition(nextTile.Position);
+                Cursor.ShowEstimatedDamage(SelectedUnit, nextTile.GetUnitHere(), nextTile);
                 _targetTile = nextTile;
             }
         }
@@ -293,6 +296,7 @@ public class Controller : MonoBehaviour
             {
                 Tile nextTile = GetClosestTileUp(currentPos);
                 Cursor.SetPosition(nextTile.Position);
+                Cursor.ShowEstimatedDamage(SelectedUnit, nextTile.GetUnitHere(), nextTile);
                 _targetTile = nextTile;
             }
         }
@@ -302,6 +306,7 @@ public class Controller : MonoBehaviour
             {
                 Tile nextTile = GetClosestTileDown(currentPos);
                 Cursor.SetPosition(nextTile.Position);
+                Cursor.ShowEstimatedDamage(SelectedUnit, nextTile.GetUnitHere(), nextTile);
                 _targetTile = nextTile;
             }
         }
@@ -408,13 +413,14 @@ public class Controller : MonoBehaviour
         SelectedTile = null;
     }    
     #endregion
-    #region Context Menu    
+    #region Buttons    
     public void FireButton()
     {
         CurrentMode = Mode.Fire;
         _tilesToCycle = SelectedUnit.GetAttackableEnemyTiles();
         Cursor.SetCursorGfx(1);
         Cursor.SetPosition(_tilesToCycle[0].Position);
+        Cursor.ShowEstimatedDamage(SelectedUnit, _tilesToCycle[0].GetUnitHere(), _tilesToCycle[0]);
         _targetTile = _tilesToCycle[0];
         Core.View.ContextMenu.Hide(Mode.Fire);
     }

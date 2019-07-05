@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Calculations_Battle 
-{  
-    List<float> coverRatings = new List<float>() { 0.9f, 0.85f,0.8f,0.7f,0.5f}; 
+public class Calculations_Battle
+{
+    List<float> coverRatings = new List<float>() { 0.9f, 0.85f, 0.8f, 0.7f, 0.5f };
 
     //Lets two units battle!! The fun part :)
     public void Fight(Unit attacker, Unit defender)
@@ -14,19 +14,19 @@ public class Calculations_Battle
         Tile defenderTile = Core.Model.GetTile(defender.Position);
         //1. the attacker shoots.
         int attackerDamage = CalcDamage(attacker, defender, defenderTile);
-        Debug.Log("Attacker: " + attacker.name +  " damage: " + attackerDamage);
+        Debug.Log("Attacker: " + attacker.name + " damage: " + attackerDamage);
         attacker.CanFire = false;
         //2. The defender loses health.
         defender.SubtractHealth(attackerDamage);
         //The defender only shoots back, if he is still alive and both units are direct attack units.
-        if(defender.health > 0 && (attacker.data.directAttack && defender.data.directAttack))
+        if (defender.health > 0 && (attacker.data.directAttack && defender.data.directAttack))
         {
             //3. The defender shoots.
             int defenderDamage = CalcDamage(defender, attacker, attackerTile);
             Debug.Log("Defender: " + defender.name + " damage: " + defenderDamage);
             //4. The attacker loses health.
             attacker.SubtractHealth(defenderDamage);
-            if(attacker.health < 0)
+            if (attacker.health < 0)
             {
                 defender.team.data.IncUnitsKilledCount();
             }
@@ -36,7 +36,7 @@ public class Calculations_Battle
             attacker.team.data.IncUnitsKilledCount();
         }
     }
-
+    
     //Calculate the damage inflicted, based on the attacker, defender, the chosen General(will be added later!) and the cover of the tiles they stand on.
     public int CalcDamage(Unit attacker, Unit defender, Tile defendingTile)
     {

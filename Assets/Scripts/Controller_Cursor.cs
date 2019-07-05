@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-
+using TMPro;
 public class Controller_Cursor : MonoBehaviour
 {
     bool _canInput = true;
@@ -11,6 +11,7 @@ public class Controller_Cursor : MonoBehaviour
     bool _vertAxisInUse;
     bool _buttonPressed;
     public GameObject gfx;
+    public TextMeshPro estimatedDamage;
     public Vector2Int Position { get; private set; }
     public List<Mesh> meshes;
 
@@ -122,9 +123,6 @@ public class Controller_Cursor : MonoBehaviour
 
         #endregion
     }
-
-
-
     public void SetPosition(Vector2Int pos)
     {
         Tile tile = Core.Model.GetTile(pos);
@@ -147,7 +145,22 @@ public class Controller_Cursor : MonoBehaviour
         yield return new WaitForSeconds(time);
         _canInput = true;
     }
+    #region Text
+    public void ShowEstimatedDamage(Unit attacker, Unit defender, Tile defendingTile)
+    {
+        estimatedDamage.gameObject.SetActive(true);
+        string damage = Core.Model.BattleCalculations.CalcDamage(attacker, defender, defendingTile).ToString();
+        estimatedDamage.text = damage + "% !";
+    }
+    public void HideEstimnatedDamage()       
+    {
+        estimatedDamage.gameObject.SetActive(false);
+    }
+    public void ShowTakeOverCounter()
+    {
 
+    }
+    #endregion
     #region Cursor Gfx
     private void DisplayCursorGfx(bool value)
     {
