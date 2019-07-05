@@ -131,6 +131,7 @@ public class Controller_Cursor : MonoBehaviour
         this.transform.position = new Vector3(tile.transform.position.x, 0, tile.transform.position.z);
         Position = pos;
         Core.View.StatusPanel.UpdateDisplay(tile);
+        Core.Controller.CameraController.SetTargetPos(pos);
     }
     public void BlockInput(bool value)
     {

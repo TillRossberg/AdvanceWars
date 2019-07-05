@@ -26,7 +26,6 @@ public class Core : Singleton<Core>
 
     private void OnEnable()
     {
-        //DontDestroyOnLoad(this.gameObject);
         Model.Init();
         View.Init();
         Controller.Init();

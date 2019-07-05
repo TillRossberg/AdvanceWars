@@ -1,55 +1,62 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Controller_Camera : MonoBehaviour
 {
+    public Transform CameraTarget;
+    Vector2Int _cameraTargetPos;
     public bool Active;
-    float CameraSpeed = 2;
-    float maxTopAngle = 70;
-    float maxDownAngle = 20;
-    float maxDownY = 5;
+    float CameraSpeed = 50;
+    float ZoomSpeed = 10;
+    //Bounds
+    float minHorizontalAngle = 5;
+    float maxHorizontalAngle = 175;
+    float minVerticalAngle = 5;
+    float maxVerticalAngle = 90;
+    float minZoomDistance = 1;
+    float maxZoomDistance = 12;
     Camera mainCamera;
-    Transform _cursor;
-    Vector3 _cursorX = new Vector3(1, 0, 0);
-    Vector3 _cursorY = new Vector3(0, 1, 0);
-    Vector3 _cursorZ = new Vector3(0, 0, 1);
-
+   
+   
     public void Init()
     {
         mainCamera = Camera.main;
-        _cursor = Core.Controller.Cursor.transform;
+        //mainCamera.transform.LookAt(CameraTarget);
+        SetTargetPos(Core.Controller.Cursor.Position);
     }
 
     // Update is called once per frame
     void Update()
     {
+        float speed = CameraSpeed * Time.deltaTime;
         if(Active)
         {
             #region Right Stick
             //Right
             if (Input.GetAxis("Right Stick Horizontal") > 0)
             {
-                Debug.Log("Right");
-                Rotate(_cursor, _cursorY, -CameraSpeed);
+                if(IsInHorizontalBounds()) RotateHorizontal(-speed);
+                else CorrectHorizontalBounds();
             }
             //Left
             else if (Input.GetAxis("Right Stick Horizontal") < 0)
             {
-                Debug.Log("Left");
-                Rotate(_cursor, _cursorY, CameraSpeed);
+                if (IsInHorizontalBounds()) RotateHorizontal(speed);
+                else CorrectHorizontalBounds();
             }
             //Up
             else if (Input.GetAxis("Right Stick Vertical") > 0)
             {
-                Debug.Log("Up");
-                RotateUp(_cursor, _cursorX, CameraSpeed);
+                if (IsInVerticalBounds()) RotateVertical(speed);
+                else CorrectVerticalBounds();
             }
             //Down
             else if (Input.GetAxis("Right Stick Vertical") < 0)
             {
-                Debug.Log("Down");
-                RotateDown(_cursor, _cursorX, -CameraSpeed);
+                if (IsInVerticalBounds()) RotateVertical(-speed);
+                else CorrectVerticalBounds();
             }
             #endregion
             #region Left Stick
@@ -70,53 +77,93 @@ public class Controller_Camera : MonoBehaviour
             
             }
             #endregion
+            #region Triggers
+            if(Input.GetAxis("RT") > 0)
+            {
+                if (IsInZoomBounds()) Zoom(ZoomSpeed);
+                else CorrectZoomPosition();
+            }
+            else if(Input.GetAxis("LT") > 0)
+            {
+                if (IsInZoomBounds()) Zoom(-ZoomSpeed);
+                else CorrectZoomPosition();
+
+            }
+            #endregion
         }
     }
 
-    void Rotate(Transform origin, Vector3 axis, float step)
+    #region Rotation
+    void RotateVertical(float speed)
     {
-        this.transform.RotateAround(origin.position, axis, step);
+        //mainCamera.transform.RotateAround(target.position, axis, step);
+        CameraTarget.Rotate(CameraTarget.forward, speed, Space.World);
     }
-    void RotateUp(Transform origin, Vector3 axis, float step)
+    void RotateHorizontal(float speed)
     {
-        if (IsInsideTopBounds()) Rotate(origin, axis, step);
-        else mainCamera.transform.eulerAngles = new Vector3(maxTopAngle, 0, 0);
+        CameraTarget.Rotate(Vector3.up, speed, Space.World);    }
+
+    bool IsInHorizontalBounds()
+    {
+        if (minHorizontalAngle <= CameraTarget.eulerAngles.y && CameraTarget.eulerAngles.y <= maxHorizontalAngle) return true;
+        else return false;
     }
-    void RotateDown(Transform origin, Vector3 axis, float step)
+    void CorrectHorizontalBounds()
     {
-        if (IsInsideDownBounds()) Rotate(origin, axis, step);
-        else
+        if (CameraTarget.eulerAngles.y < minHorizontalAngle)
         {
-            mainCamera.transform.eulerAngles = new Vector3(maxDownAngle, 0, 0);
-            mainCamera.transform.position = new Vector3(mainCamera.transform.position.x, maxDownY, mainCamera.transform.position.z);
+            CameraTarget.eulerAngles = new Vector3(CameraTarget.eulerAngles.x, minHorizontalAngle, CameraTarget.eulerAngles.z);
         }
-    } 
-    bool IsInsideTopBounds()
+        if (CameraTarget.eulerAngles.y > maxHorizontalAngle)
+        {
+            CameraTarget.eulerAngles = new Vector3(CameraTarget.eulerAngles.x, maxHorizontalAngle, CameraTarget.eulerAngles.z);
+        }
+    }
+    bool IsInVerticalBounds()
     {
-        if (mainCamera.transform.eulerAngles.x < maxTopAngle) return true;
+        if (minVerticalAngle <= CameraTarget.eulerAngles.z && CameraTarget.eulerAngles.z <= maxVerticalAngle) return true;
         else return false;
     }
-    bool IsInsideDownBounds()
+
+    void CorrectVerticalBounds()
     {
-        if (mainCamera.transform.eulerAngles.x > maxDownAngle && mainCamera.transform.position.y > maxDownY)return true;       
+        if (CameraTarget.eulerAngles.z < minVerticalAngle)
+        {
+            CameraTarget.eulerAngles = new Vector3(CameraTarget.eulerAngles.x, CameraTarget.eulerAngles.y, minVerticalAngle);
+        }
+        if (CameraTarget.eulerAngles.z > maxVerticalAngle)
+        {
+            CameraTarget.eulerAngles = new Vector3(CameraTarget.eulerAngles.x, CameraTarget.eulerAngles.y, maxVerticalAngle);
+        }
+    }
+    #endregion
+    #region Zoom
+    void Zoom(float speed)
+    {
+        mainCamera.transform.Translate(mainCamera.transform.forward * speed * Time.deltaTime, Space.World);
+    }
+    bool IsInZoomBounds()
+    {
+        float distance = Vector3.Distance(mainCamera.transform.position, CameraTarget.position);
+        if (distance >= minZoomDistance && distance <= maxZoomDistance) return true;
         else return false;
     }
-    void CorrectTopBounds()
+    void CorrectZoomPosition()
     {
+        float distance = Vector3.Distance(mainCamera.transform.position, CameraTarget.position);
+        if(distance < minZoomDistance) mainCamera.transform.Translate(mainCamera.transform.forward * -0.1f, Space.World);
+        if (distance > maxZoomDistance) mainCamera.transform.Translate(mainCamera.transform.forward * 0.1f, Space.World);
+    }
+    #endregion
 
+    public void SetTargetPos(Vector2Int pos)
+    {
+        _cameraTargetPos = pos;
+        CameraTarget.transform.position = new Vector3(pos.x, 0, pos.y);
+    }
+    public Vector2Int GetTargetPos()
+    {
+        return _cameraTargetPos;
     }
 
-
-    //Vector3 CalcXAxis(Vector3 target, Vector3 origin)
-    //{
-    //    Vector3 vectorToTarget = target - origin;
-    //    return Vector3.Cross(vectorToTarget, mainCamera.transform.up);
-    //}
-    //Vector3 CalcYAxis(Vector3 target, Vector3 origin)
-    //{
-    //    Vector3 vectorToTarget = target - origin;
-    //    Vector3 vector = Vector3.Cross(vectorToTarget, mainCamera.transform.right);
-    //    vector = new Vector3(0, 0, 0);
-    //    return vector;
-    //}
 }
