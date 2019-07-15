@@ -54,9 +54,9 @@ public class Manager_Statistics : MonoBehaviour
 
     public void setStatisticsPanelValues(RectTransform panel, Team team)
     {
-        panel.Find("PlayerPic").GetComponent<Image>().sprite = Core.Model.Database.GetCommanderThumb(team.data.commander);
-        panel.Find("KillCountText").GetComponent<Text>().text = team.data.GetUnitsKilledCount().ToString();
-        panel.Find("UnitsBuiltText").GetComponent<Text>().text = "Units built: " + team.data.GetUnitsBuiltCounter().ToString();
+        panel.Find("PlayerPic").GetComponent<Image>().sprite = Core.Model.Database.GetCommanderThumb(team.Data.commander);
+        panel.Find("KillCountText").GetComponent<Text>().text = team.Data.GetUnitsKilledCount().ToString();
+        panel.Find("UnitsBuiltText").GetComponent<Text>().text = "Units built: " + team.Data.GetUnitsBuiltCounter().ToString();
     }
 
 

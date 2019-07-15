@@ -96,7 +96,6 @@ public class Controller_Camera : MonoBehaviour
     #region Rotation
     void RotateVertical(float speed)
     {
-        //mainCamera.transform.RotateAround(target.position, axis, step);
         CameraTarget.Rotate(CameraTarget.forward, speed, Space.World);
     }
     void RotateHorizontal(float speed)

@@ -25,7 +25,7 @@ public class Screen_Victory : MonoBehaviour
     }
     void SetVictoryText(Team team)
     {
-        victoryText.color = team.data.color;
-        victoryText.text = team.data.teamName + " wins!";
+        victoryText.color = team.Data.color;
+        victoryText.text = team.Data.teamName + " wins!";
     }
 }

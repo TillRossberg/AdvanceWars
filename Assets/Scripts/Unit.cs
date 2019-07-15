@@ -99,7 +99,7 @@ public class Unit : MonoBehaviour
     }
     public bool IsInMyTeam(Unit unit)
     {
-        if (team.units.Contains(unit)) return true;
+        if (team.Units.Contains(unit)) return true;
         else return false;
     }
     public bool IsGroundUnit()
@@ -175,11 +175,11 @@ public class Unit : MonoBehaviour
         //TODO: Boom animation
 
         //Remove unit from team list
-        team.units.Remove(this);
+        team.Units.Remove(this);
         //If this was the last unit of the player the game is lost.
-        if (team.units.Count <= 0)
+        if (team.Units.Count <= 0)
         {
-            Core.View.VictoryScreen.Show(team.enemyTeams[0]);
+            Core.View.VictoryScreen.Show(team.EnemyTeams[0]);
         }
         //Finally delete the unit.
         Destroy(this.gameObject);

@@ -23,10 +23,10 @@ public class Panel_Commander : MonoBehaviour
 
     public void UpdateDisplay()
     {
-        this.activeTeam.text = "Team: " + Core.Controller.ActiveTeam.data.teamName;
+        this.activeTeam.text = "Team: " + Core.Controller.ActiveTeam.Data.teamName;
         this.money.text = "$: " + Core.Controller.ActiveTeam.Money.ToString();
         this.roundNr.text = "Round: " + Core.Controller.RoundCounter.ToString();
-        this.commanderThumbnail.sprite = Core.Model.Database.GetCommanderThumb(Core.Controller.ActiveTeam.data.commander);
-        this.commanderFrame.color = Core.Controller.ActiveTeam.data.color;
+        this.commanderThumbnail.sprite = Core.Model.Database.GetCommanderThumb(Core.Controller.ActiveTeam.Data.commander);
+        this.commanderFrame.color = Core.Controller.ActiveTeam.Data.color;
     }
 }

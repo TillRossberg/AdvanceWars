@@ -45,4 +45,6 @@ public class Core : Singleton<Core>
     {
         Application.Quit();
     }
+    
+
 }

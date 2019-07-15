@@ -75,7 +75,7 @@ public class Controller_Cursor : MonoBehaviour
             }
 
             #endregion
-
+            #region Buttons
             if (Input.GetButtonDown("Jump"))
             {
                 if (!_buttonPressed)
@@ -109,6 +109,15 @@ public class Controller_Cursor : MonoBehaviour
                     _holdingB = false;
                 }
             }
+            if(Input.GetButtonDown("RB"))
+            {
+                Core.Controller.RButton();
+            }
+            if (Input.GetButtonDown("LB"))
+            {
+                Core.Controller.LButton();
+            }
+            #endregion
         }
 
         #region Debug

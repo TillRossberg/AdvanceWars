@@ -28,12 +28,12 @@ public class Calculations_Battle
             attacker.SubtractHealth(defenderDamage);
             if (attacker.health < 0)
             {
-                defender.team.data.IncUnitsKilledCount();
+                defender.team.Data.IncUnitsKilledCount();
             }
         }
         else
         {
-            attacker.team.data.IncUnitsKilledCount();
+            attacker.team.Data.IncUnitsKilledCount();
         }
     }
     

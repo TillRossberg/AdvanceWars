@@ -7,12 +7,13 @@ using System.Linq;
 public class Team: MonoBehaviour
 {
     #region Basic Fields
-    public Data_Team data;
-    public List<Team> enemyTeams = new List<Team>();
-    public List<Team> alliedTeams = new List<Team>();
+    public Data_Team Data;
+    public List<Team> EnemyTeams = new List<Team>();
+    public List<Team> AlliedTeams = new List<Team>();
 
     public int Money { get; private set; }
-    public List<Unit> units = new List<Unit>();
+    public List<Unit> Units = new List<Unit>();
+    int _unitIndex = 0;
     public List<Tile> ownedProperties = new List<Tile>();    
 
     #endregion
@@ -20,15 +21,15 @@ public class Team: MonoBehaviour
     public void Init()
     {
         Money = Core.Model.MapSettings.startMoney;
-        if(units.Count > 0)
+        if(Units.Count > 0)
         {
-            AssignTeamColor(units);
+            AssignTeamColor(Units);
         }
     }  
    
     public void ActivateUnits()
     {
-        foreach (Unit unit in units)
+        foreach (Unit unit in Units)
         {
             if(unit != null) unit.Activate();
         }
@@ -40,11 +41,11 @@ public class Team: MonoBehaviour
     //Add an unit to the team, set its color to the teamcolor and pass information about the own team and the enemy team to the unit.
     public void AddUnit(Unit unitToAdd)
     {
-        units.Add(unitToAdd);
+        Units.Add(unitToAdd);
         unitToAdd.team = this;
-        unitToAdd.enemyTeams = enemyTeams;
-        unitToAdd.SetTeamColor(data.color);
-        data.IncUnitsBuilt(unitToAdd.data.type);
+        unitToAdd.enemyTeams = EnemyTeams;
+        unitToAdd.SetTeamColor(Data.color);
+        Data.IncUnitsBuilt(unitToAdd.data.type);
     }     
     //Deletes a unit completely with all references. (Sure?)
     public void DestroyUnit(Unit unit)
@@ -53,21 +54,58 @@ public class Team: MonoBehaviour
     }
     public bool IsInMyTeam(Unit unitToTest)
     {
-        if(units.Contains(unitToTest)) return true;      
+        if(Units.Contains(unitToTest)) return true;      
         else return false;        
     }
     void AssignTeamColor(List<Unit> units)
     {
         foreach (Unit unit in units)
         {
-            if(unit != null) unit.SetTeamColor(data.color);
+            if(unit != null) unit.SetTeamColor(Data.color);
         }
     }
     public List<Unit> GetAllUnitsOfType(UnitType type)
     {
         List<Unit> tempList = new List<Unit>();
-        foreach (Unit item in units)if (item.data.type == type) tempList.Add(item);        
+        foreach (Unit item in Units)if (item.data.type == type) tempList.Add(item);        
         return tempList;
+    }
+    public bool HasActiveUnits()
+    {
+        foreach (Unit item in Units) if (item.hasTurn) return true;       
+        return false;
+    }
+    public Unit GetNextActiveUnit()
+    {
+        Unit unit = null;
+        _unitIndex++;
+        if (_unitIndex >= Units.Count) _unitIndex = 0;
+        for (int i = _unitIndex; i < Units.Count; i++)
+        {
+            if(Units[i].hasTurn)
+            {
+                unit = Units[i];
+                _unitIndex = i;
+                break;
+            }
+        }        
+        return unit;
+    }
+    public Unit GetPreviousActiveUnit()
+    {
+        Unit unit = null;
+        _unitIndex--;
+        if (_unitIndex < 0) _unitIndex = Units.Count - 1;
+        for (int i = _unitIndex; i >= 0; i--)
+        {
+            if (Units[i].hasTurn)
+            {
+                unit = Units[i];
+                _unitIndex = i;
+                break;
+            }
+        }
+        return unit;
     }
     #endregion
     #region Money
@@ -80,7 +118,7 @@ public class Team: MonoBehaviour
     public void AddMoney(int amount)
     {
         Money += amount;
-        data.IncTotalMoney(amount);
+        Data.IncTotalMoney(amount);
     }
     
 
@@ -104,7 +142,7 @@ public class Team: MonoBehaviour
     //Add enemy team, but only if it is not already in the list and it is not THIS team.
     public void AddEnemyTeam(Team possibleEnemy)
     {
-        if (possibleEnemy != this && !enemyTeams.Contains(possibleEnemy) && !alliedTeams.Contains(possibleEnemy))enemyTeams.Add(possibleEnemy);     
+        if (possibleEnemy != this && !EnemyTeams.Contains(possibleEnemy) && !AlliedTeams.Contains(possibleEnemy))EnemyTeams.Add(possibleEnemy);     
         else throw new System.Exception("Team: You are either trying to add your own team to the enemy teams list, this enemy team is already in the list or you try to add one of your allies to the enemy list!");
     }
 
@@ -113,7 +151,7 @@ public class Team: MonoBehaviour
     //Get/Set allied Teams
     public void AddAlliedTeam(Team possibleAlly)
     {
-        if (possibleAlly != this && !alliedTeams.Contains(possibleAlly) && !enemyTeams.Contains(possibleAlly) ) alliedTeams.Add(possibleAlly);        
+        if (possibleAlly != this && !AlliedTeams.Contains(possibleAlly) && !EnemyTeams.Contains(possibleAlly) ) AlliedTeams.Add(possibleAlly);        
         else throw new System.Exception("Team: You are either trying to add your own team to the allied teams list, this possible allied team is already in the list or you try to add one of your enemies to the allied list!");         
     }   
 

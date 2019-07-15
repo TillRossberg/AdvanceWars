@@ -33,14 +33,14 @@ public class Controller : MonoBehaviour
         Core.Model.teams[1].AddEnemyTeam(Core.Model.teams[0]);
         Core.Model.InitTeams();
         //Core.Model.LoadLevel01(15, 15);
-        Core.Model.LoadLevel02(19, 13); 
+        Core.Model.LoadLevel02(19, 13);
         Cursor = CreateCursor(new Vector2Int(5, 5));
         Core.Model.SetupRandomSuccession();
         ActiveTeam = Core.Model.Succession[0];
         StartTurn();
         //Core.AudioManager.PlayMusic(Core.Model.Database.sounds.music[0]);
     }
-   
+
     public void Init()
     {
         ArrowBuilder = new ArrowBuilder(Core.Model.arrowPathParent);
@@ -117,9 +117,9 @@ public class Controller : MonoBehaviour
                         if (unitHere.data.type == UnitType.Cruiser && SelectedUnit.IsCopterUnit()) SelectedUnit.MoveUnitToLoad(Cursor.Position);
                     }
                     //Click on unit of the same type to unite.
-                    else if (unitHere.CanUnite(SelectedUnit) || SelectedUnit.CanUnite(unitHere)) SelectedUnit.MoveUnitToUnite(Cursor.Position);                   
+                    else if (unitHere.CanUnite(SelectedUnit) || SelectedUnit.CanUnite(unitHere)) SelectedUnit.MoveUnitToUnite(Cursor.Position);
                     //If you click on an enemy unit or an unit that is in an alliance with you.
-                    else Core.AudioManager.PlaySFX(Core.Model.Database.Sounds.NopeSound);                   
+                    else Core.AudioManager.PlaySFX(Core.Model.Database.Sounds.NopeSound);
                 }
                 //...or select an empty tile you want to go to.
                 else
@@ -213,7 +213,25 @@ public class Controller : MonoBehaviour
     {
         Deselect();
     }
-    #endregion   
+    #endregion
+    #region RB & LB
+    public void RButton()
+    {
+        if (CurrentMode == Mode.Normal && ActiveTeam.HasActiveUnits())
+        {
+            GoTo(ActiveTeam.GetNextActiveUnit().Position);
+        }
+        else Core.AudioManager.PlayNopeSound();
+    }
+    public void LButton()
+    {
+        if (CurrentMode == Mode.Normal && ActiveTeam.HasActiveUnits())
+        {
+            GoTo(ActiveTeam.GetPreviousActiveUnit().Position);
+        }
+        else Core.AudioManager.PlayNopeSound();
+    }
+    #endregion
     #region Cursor Methods
     public Controller_Cursor CreateCursor(Vector2Int pos)
     {
@@ -266,7 +284,6 @@ public class Controller : MonoBehaviour
     }
     #endregion
     #region Cycle Positions
-
     void CyclePositions(List<Tile> tiles, Vector2Int newPos)
     {
         Vector2Int currentPos = Cursor.Position;
@@ -488,7 +505,7 @@ public class Controller : MonoBehaviour
         //Subtract money for repairing units.
         
         Core.View.CommanderPanel.UpdateDisplay();//Update the GUI for the active team.
-        Cursor.SetPosition(ActiveTeam.units[0].Position);//Set cursors position to first unit
+        Cursor.SetPosition(ActiveTeam.Units[0].Position);//Set cursors position to first unit
     }
     IEnumerator StartTurnDelayed(float delay)
     {
@@ -517,7 +534,7 @@ public class Controller : MonoBehaviour
     //Sets all the units of a team so they have a turn, can move and fire.
     void ActivateUnits(Team team)
     {
-        foreach (Unit unit in team.units)
+        foreach (Unit unit in team.Units)
         {
             if(unit != null) unit.Activate();
         }        
@@ -526,7 +543,7 @@ public class Controller : MonoBehaviour
     //Set the properties of all units of a team so they don't have a turn.
     void DeactivateUnits(Team team)
     {
-        foreach (Unit unit in team.units)
+        foreach (Unit unit in team.Units)
         {
             if (unit != null) unit.Deactivate();
         }       
@@ -590,7 +607,7 @@ public class Controller : MonoBehaviour
         //Introduce the new owner to the tile.
         tile.owningTeam = newOwner;
         //Set the color of the property to the occupying team color.
-        tile.SetColor(newOwner.data.color);
+        tile.SetColor(newOwner.Data.color);
         //Add the tile to the new owners properties.
         newOwner.ownedProperties.Add(tile);
         //If you occupy the enemies HQ, you win the game.
@@ -677,12 +694,12 @@ public class Controller : MonoBehaviour
     #region Debug
     public void killAllEnemies()
     {
-        List<Team> enemyTeams = ActiveTeam.enemyTeams;
+        List<Team> enemyTeams = ActiveTeam.EnemyTeams;
         for (int i = 0; i < enemyTeams.Count; i++)
         {
-            for (int j = 0; j < enemyTeams[i].units.Count; j++)
+            for (int j = 0; j < enemyTeams[i].Units.Count; j++)
             {
-                Unit unit = enemyTeams[i].units[j];
+                Unit unit = enemyTeams[i].Units[j];
                 unit.KillUnitDelayed(UnityEngine.Random.Range(1.1f, 2.5f));
             }
         }

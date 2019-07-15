@@ -86,9 +86,9 @@ public class Menu_BuyUnits : MonoBehaviour
     void SetAvailableUnits(Tile tile)
     {
         Team team = tile.owningTeam;
-        if (tile.data.type == TileType.Facility) SetAvailableUnits(team.data.availableGroundUnits);
-        if (tile.data.type == TileType.Airport) SetAvailableUnits(team.data.availableAirUnits);
-        if (tile.data.type == TileType.Port) SetAvailableUnits(team.data.availableNavalUnits);
+        if (tile.data.type == TileType.Facility) SetAvailableUnits(team.Data.availableGroundUnits);
+        if (tile.data.type == TileType.Airport) SetAvailableUnits(team.Data.availableAirUnits);
+        if (tile.data.type == TileType.Port) SetAvailableUnits(team.Data.availableNavalUnits);
     }
     void SetAvailableUnits(List<UnitType> unitTypes)
     {

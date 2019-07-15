@@ -18,7 +18,7 @@ public class Panel_Statistics : MonoBehaviour
 
     public void createUnitBuiltPanels(Team team)
     {
-        List<int> unitsBuilt = team.data.GetUnitsBuilt();
+        List<int> unitsBuilt = team.Data.GetUnitsBuilt();
         //TODO: find a better way to do this... all
         int counter = 0;
         for (int i = 0; i < unitsBuilt.Count; i++)

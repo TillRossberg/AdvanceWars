@@ -35,8 +35,8 @@ public class Model : MonoBehaviour
     #endregion
 
     #region Init Methods
-    public void Init()
-    {
+    public void Init()    {     
+        
         TeamManager = new Manager_Team();
         BattleCalculations = new Calculations_Battle();
     }
@@ -283,7 +283,7 @@ public class Model : MonoBehaviour
         CreateUnit(UnitType.Bomber, Core.Model.teams[0], new Vector2Int(7, 4), Direction.East);
         //Blue
         CreateUnit(UnitType.APC, Core.Model.teams[1], new Vector2Int(14, 4), Direction.North);
-        CreateUnit(UnitType.Infantry, Core.Model.teams[1], new Vector2Int(14,3), Direction.North);
+        CreateUnit(UnitType.Infantry, Core.Model.teams[1], new Vector2Int(5,3), Direction.North);
         CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(9, 3), Direction.North);
         CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(10, 4), Direction.North);
         CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(9, 5), Direction.North);

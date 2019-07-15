@@ -64,7 +64,7 @@ public class View : MonoBehaviour
                     Core.Model.SetVisibility(new Vector2Int(i, j), false);
                 }
             }
-            foreach (Unit unit in team.units)
+            foreach (Unit unit in team.Units)
             {
                 if (unit != null) unit.CalcVisibleArea();
             }
