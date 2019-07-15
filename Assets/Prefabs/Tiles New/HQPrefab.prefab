@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 8704063238967484707}
   - component: {fileID: 8476774058258159170}
   - component: {fileID: 3965982322698729555}
+  - component: {fileID: 6811527756659320382}
   m_Layer: 0
   m_Name: HQPrefab
   m_TagString: Untagged
@@ -48,12 +49,11 @@ MonoBehaviour:
   data: {fileID: 11400000, guid: 91603fdf164843c43bc19f7ea014ed1a, type: 2}
   Gfx: {fileID: 7446092080621826974}
   fogOfWarGfx: {fileID: 0}
-  position: {x: 0, y: 0}
-  rotation: 0
-  unitStandingHere: {fileID: 0}
-  neighbors: []
-  takeOverCounter: 0
-  owningTeam: {fileID: 0}
+  Property: {fileID: 0}
+  Position: {x: 0, y: 0}
+  Rotation: 0
+  UnitHere: {fileID: 0}
+  Neighbors: []
   isVisible: 1
   isPartOfArrowPath: 0
 --- !u!65 &3965982322698729555
@@ -69,6 +69,21 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 0.1, z: 1}
   m_Center: {x: 0, y: -0.05, z: 0}
+--- !u!114 &6811527756659320382
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 23675551815480643}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87e9d2db7f8d6f841aee203599cac15d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TakeOverPoints: {fileID: 0}
+  OwningTeam: {fileID: 0}
+  TakeOverCounter: 0
 --- !u!1001 &7446092080621925694
 PrefabInstance:
   m_ObjectHideFlags: 0

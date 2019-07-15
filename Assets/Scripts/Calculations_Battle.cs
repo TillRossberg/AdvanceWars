@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Calculations_Battle
 {
-    List<float> coverRatings = new List<float>() { 0.9f, 0.85f, 0.8f, 0.7f, 0.5f };
+    List<float> _coverRatings = new List<float>() { 0.9f, 0.85f, 0.8f, 0.7f, 0.5f };
 
     //Lets two units battle!! The fun part :)
     public void Fight(Unit attacker, Unit defender)
@@ -48,7 +48,7 @@ public class Calculations_Battle
             int RandomNumber = Random.Range(0, 10); //Random number between 0-9 to vary the damage.
             int AttackerHP = attacker.health; //Attacker HP
             float dmgModifierDefender = 1; // Defending CO attack value.(Will vary later ^^)
-            float dmgReductionCover = coverRatings[defendingTile.data.cover]; //Defending terrain stars.    
+            float dmgReductionCover = _coverRatings[defendingTile.data.cover]; //Defending terrain stars.    
             float DefenderHp = defender.health; //HP of the defender.
 
             Debug.Log("Damage = (BaseDamage:" + BaseDamage + " + RandomNumber:" + RandomNumber + ") * AttackerHp/100:" + AttackerHP / 100 + " * dmgReductionCover:" + dmgReductionCover);

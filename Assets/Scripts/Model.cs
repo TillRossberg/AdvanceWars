@@ -11,8 +11,6 @@ public class Model : MonoBehaviour
     public Data_MapSettings MapSettings { get { return _mapSettings; } }
     [SerializeField] Data_Map _mapData;
     public Data_Map MapData { get { return _mapData; } }
-    public Container Container { get; private set; }
-    public Manager_Team TeamManager { get; private set; }
     public Calculations_Battle BattleCalculations { get; private set; }
     #endregion
     #region Fields
@@ -35,25 +33,11 @@ public class Model : MonoBehaviour
     #endregion
 
     #region Init Methods
-    public void Init()    {     
-        
-        TeamManager = new Manager_Team();
+    public void Init()
+    {             
         BattleCalculations = new Calculations_Battle();
     }
-    //Check if the data container with a game setup created in the main menu is existing and return it. If not, we create a default container.
-    private void InitContainer()
-    {
-        if (GameObject.FindWithTag("Container") != null)
-        {
-            Container = GameObject.FindWithTag("Container").GetComponent<Container>();
-        }
-        else
-        {
-            Debug.Log("MasterClass: No container found, loading default container!");
-            Container container = Instantiate(Database.containerPrefab).GetComponent<Container>();
-            this.Container = container;
-        }
-    }
+    
     public void InitMap()
     {
         CreateEmptyMatrix(_mapData.gridWidth, _mapData.gridHeight, _mapData.baseType);
@@ -92,6 +76,7 @@ public class Model : MonoBehaviour
         GameObject fogOfWarGfx = Instantiate(Database.fogOfWarTilePrefab, new Vector3(position.x, tileHeight, position.y), Quaternion.Euler(new Vector3(0, rotation, 0)), newTile.transform);
         newTile.fogOfWarGfx = fogOfWarGfx;
         fogOfWarGfx.SetActive(false);
+        newTile.Init();
         return newTile;
     }
     public Tile GetTile(Vector2Int position)
@@ -107,8 +92,8 @@ public class Model : MonoBehaviour
     {
         Tile tile = GetTile(position);
         tile.fogOfWarGfx.SetActive(!value);
-        tile.isVisible = value;
-        if(tile.unitStandingHere != null) tile.unitStandingHere.SetVisibility(value);      
+        tile.IsVisible = value;
+        if(tile.UnitHere != null) tile.UnitHere.SetVisibility(value);      
     }
     public void SetNeighbors(List<List<Tile>> matrix)
     {
@@ -133,7 +118,7 @@ public class Model : MonoBehaviour
         unit.Position = position;       
         unit.CurrentTile = GetTile(position);
         team.AddUnit(unit);
-        GetTile(position).SetUnitHere(unit);//Pass the unit to the tile it stands on
+        GetTile(position).UnitHere = unit;//Pass the unit to the tile it stands on
     }
     #endregion
     #region Team Methods
@@ -222,7 +207,6 @@ public class Model : MonoBehaviour
         CreateUnit(UnitType.Rockets, Core.Model.teams[1], new Vector2Int(3, 3), Direction.North);
         CreateUnit(UnitType.Infantry, Core.Model.teams[1], new Vector2Int(5, 11), Direction.West);
     }
-
     public void LoadLevel02(int width, int height)
     {
         CreateEmptyMatrix(width, height, TileType.Plain);
@@ -275,7 +259,7 @@ public class Model : MonoBehaviour
         //Units
         //Red
         CreateUnit(UnitType.APC, Core.Model.teams[0], new Vector2Int(4,4), Direction.North);
-        CreateUnit(UnitType.Infantry, Core.Model.teams[0], new Vector2Int(4,3), Direction.North);
+        CreateUnit(UnitType.Infantry, Core.Model.teams[0], new Vector2Int(14,3), Direction.North);
         CreateUnit(UnitType.Rockets, Core.Model.teams[0], new Vector2Int(8,4), Direction.North);
         CreateUnit(UnitType.Battleship, Core.Model.teams[0], new Vector2Int(7,10), Direction.North);
         CreateUnit(UnitType.Battleship, Core.Model.teams[0], new Vector2Int(6,10), Direction.North);
@@ -283,7 +267,7 @@ public class Model : MonoBehaviour
         CreateUnit(UnitType.Bomber, Core.Model.teams[0], new Vector2Int(7, 4), Direction.East);
         //Blue
         CreateUnit(UnitType.APC, Core.Model.teams[1], new Vector2Int(14, 4), Direction.North);
-        CreateUnit(UnitType.Infantry, Core.Model.teams[1], new Vector2Int(5,3), Direction.North);
+        CreateUnit(UnitType.Infantry, Core.Model.teams[1], new Vector2Int(3,3), Direction.North);
         CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(9, 3), Direction.North);
         CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(10, 4), Direction.North);
         CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(9, 5), Direction.North);

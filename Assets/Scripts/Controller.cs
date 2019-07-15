@@ -60,7 +60,7 @@ public class Controller : MonoBehaviour
     public void AButton()
     {
         Tile currentTile = Core.Model.GetTile(Cursor.Position);
-        Unit unitHere = currentTile.GetUnitHere();
+        Unit unitHere = currentTile.UnitHere;
         switch (CurrentMode)
         {
             case Mode.Normal:
@@ -79,13 +79,13 @@ public class Controller : MonoBehaviour
                     else Core.AudioManager.PlaySFX(Core.Model.Database.Sounds.NopeSound);
                 }
                 //Select tile, that can produce units...
-                else if (currentTile.CanProduceUnits() && currentTile.owningTeam == ActiveTeam) Core.View.BuyMenu.Show(currentTile);
+                else if (currentTile.CanProduceUnits() && currentTile.Property.OwningTeam == ActiveTeam) Core.View.BuyMenu.Show(currentTile);
                 //...or select empty tile.
                 else Core.View.TileDetails.Show(currentTile);
                 break;
             case Mode.Fire:
                 Unit attacker = SelectedUnit;
-                Unit defender = _targetTile.GetUnitHere();
+                Unit defender = _targetTile.UnitHere;
                 //TODO: Align the units to face each other.
 
                 //Battle
@@ -147,7 +147,7 @@ public class Controller : MonoBehaviour
         switch (CurrentMode)
         {
             case Mode.Normal:
-                if (Core.Model.GetTile(Cursor.Position).GetUnitHere() == null)
+                if (Core.Model.GetTile(Cursor.Position).UnitHere == null)
                 {
                     Core.View.ContextMenu.Show(Core.Model.GetTile(Cursor.Position));
                 }
@@ -202,7 +202,7 @@ public class Controller : MonoBehaviour
     }
     public void BButtonHold()
     {
-        Unit unit = Core.Model.GetTile(Cursor.Position).GetUnitHere();
+        Unit unit = Core.Model.GetTile(Cursor.Position).UnitHere;
         if (unit != null)
         {
             Select(unit);
@@ -254,7 +254,7 @@ public class Controller : MonoBehaviour
                 case Mode.Move:
                     Tile tile = Core.Model.GetTile(pos);
                     //If you go back, make the arrow smaller.
-                    if (tile.isPartOfArrowPath)
+                    if (tile.IsPartOfArrowPath)
                     {
                         if (ArrowBuilder.CanGoBack(tile))
                         {
@@ -293,7 +293,7 @@ public class Controller : MonoBehaviour
             {
                 Tile nextTile = GetClosestTileRight(currentPos);
                 Cursor.SetPosition(nextTile.Position);
-                Cursor.ShowEstimatedDamage(SelectedUnit, nextTile.GetUnitHere(), nextTile);
+                Cursor.ShowEstimatedDamage(SelectedUnit, nextTile.UnitHere, nextTile);
                 _targetTile = nextTile;
             }
         }
@@ -303,7 +303,7 @@ public class Controller : MonoBehaviour
             {
                 Tile nextTile = GetClosestTileLeft(currentPos);
                 Cursor.SetPosition(nextTile.Position);
-                Cursor.ShowEstimatedDamage(SelectedUnit, nextTile.GetUnitHere(), nextTile);
+                Cursor.ShowEstimatedDamage(SelectedUnit, nextTile.UnitHere, nextTile);
                 _targetTile = nextTile;
             }
         }
@@ -313,7 +313,7 @@ public class Controller : MonoBehaviour
             {
                 Tile nextTile = GetClosestTileUp(currentPos);
                 Cursor.SetPosition(nextTile.Position);
-                Cursor.ShowEstimatedDamage(SelectedUnit, nextTile.GetUnitHere(), nextTile);
+                Cursor.ShowEstimatedDamage(SelectedUnit, nextTile.UnitHere, nextTile);
                 _targetTile = nextTile;
             }
         }
@@ -323,7 +323,7 @@ public class Controller : MonoBehaviour
             {
                 Tile nextTile = GetClosestTileDown(currentPos);
                 Cursor.SetPosition(nextTile.Position);
-                Cursor.ShowEstimatedDamage(SelectedUnit, nextTile.GetUnitHere(), nextTile);
+                Cursor.ShowEstimatedDamage(SelectedUnit, nextTile.UnitHere, nextTile);
                 _targetTile = nextTile;
             }
         }
@@ -437,7 +437,7 @@ public class Controller : MonoBehaviour
         _tilesToCycle = SelectedUnit.GetAttackableEnemyTiles();
         Cursor.SetCursorGfx(1);
         Cursor.SetPosition(_tilesToCycle[0].Position);
-        Cursor.ShowEstimatedDamage(SelectedUnit, _tilesToCycle[0].GetUnitHere(), _tilesToCycle[0]);
+        Cursor.ShowEstimatedDamage(SelectedUnit, _tilesToCycle[0].UnitHere, _tilesToCycle[0]);
         _targetTile = _tilesToCycle[0];
         Core.View.ContextMenu.Hide(Mode.Fire);
     }
@@ -455,7 +455,7 @@ public class Controller : MonoBehaviour
    
     public void OccupyButton()
     {
-        OccupyAction(SelectedUnit, Core.Model.GetTile(SelectedUnit.Position));
+        OccupyAction(SelectedUnit, Core.Model.GetTile(Cursor.Position));
         SelectedUnit.Wait();
         Deselect();
     }
@@ -479,7 +479,7 @@ public class Controller : MonoBehaviour
     }
     public void UniteButton()
     {
-        Unit clickedUnit = Core.Model.GetTile(Cursor.Position).GetUnitHere();
+        Unit clickedUnit = Core.Model.GetTile(Cursor.Position).UnitHere;
         clickedUnit.Unite(SelectedUnit);
         SelectedUnit.ConfirmPosition(Cursor.Position);
         SelectedUnit.Deactivate();
@@ -585,27 +585,25 @@ public class Controller : MonoBehaviour
     //Adds a property to a team.
     public void OccupyAction(Unit unit, Tile tile)
     {
-        tile.takeOverCounter -= unit.GetCorrectedHealth();
-        if(tile.takeOverCounter <= 0)
+
+        Debug.Log(tile.Property.TakeOverCounter);
+        tile.Property.TakeOverCounter -= unit.GetCorrectedHealth();
+        if(tile.Property.TakeOverCounter <= 0)
         {
-            tile.takeOverCounter = 0;
+            tile.Property.TakeOverCounter = 0;
             Occupy(unit.team, tile);
         }
     }
     public void StopOccupation(Tile tile)
     {
-        tile.ResetTakeOverCounter();
+        tile.GetComponent<Property>().ResetTakeOverCounter();
     }
     public void Occupy(Team newOwner, Tile tile)
-    {       
+    {
         //If it was occupied by another team, delete it from their property list.
-        if (tile.owningTeam != null)
-        {
-            tile.owningTeam.ownedProperties.Remove(tile);//This maybe confusing: we delete the property from the list of the team that owned it.
-            tile.owningTeam = null;
-        }
+        if (tile.Property.OwningTeam != null) tile.Property.OwningTeam.ownedProperties.Remove(tile);
         //Introduce the new owner to the tile.
-        tile.owningTeam = newOwner;
+        tile.Property.OwningTeam = newOwner;
         //Set the color of the property to the occupying team color.
         tile.SetColor(newOwner.Data.color);
         //Add the tile to the new owners properties.
@@ -627,7 +625,6 @@ public class Controller : MonoBehaviour
             Debug.Log(ActiveTeam + " wins the game by getting " + Core.Model.MapSettings.propertiesToWin +" properties! Wuhuuu!!");
 
         }
-
     }
     #endregion
     #region Load/Save
@@ -652,7 +649,7 @@ public class Controller : MonoBehaviour
     #region Transport Unit
     public void LoadUnit()
     {        
-        Unit_Transporter transporter = Core.Model.GetTile(Cursor.Position).GetUnitHere().GetComponent<Unit_Transporter>();
+        Unit_Transporter transporter = Core.Model.GetTile(Cursor.Position).UnitHere.GetComponent<Unit_Transporter>();
         transporter.LoadUnit(SelectedUnit);
         Core.View.ContextMenu.Hide();
         CurrentMode = Mode.Normal;

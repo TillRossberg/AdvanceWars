@@ -85,7 +85,7 @@ public class Menu_BuyUnits : MonoBehaviour
     }    
     void SetAvailableUnits(Tile tile)
     {
-        Team team = tile.owningTeam;
+        Team team = tile.Property.OwningTeam;
         if (tile.data.type == TileType.Facility) SetAvailableUnits(team.Data.availableGroundUnits);
         if (tile.data.type == TileType.Airport) SetAvailableUnits(team.Data.availableAirUnits);
         if (tile.data.type == TileType.Port) SetAvailableUnits(team.Data.availableNavalUnits);

@@ -27,9 +27,9 @@ public class Unit_Transporter : MonoBehaviour
     public List<Tile> GetPossibleDropOffPositions(Vector2Int pos)
     {
         List<Tile> tempList = new List<Tile>();
-        foreach (Tile neighbor in Core.Model.GetTile(pos).neighbors)
+        foreach (Tile neighbor in Core.Model.GetTile(pos).Neighbors)
         {
-            if (neighbor.data.GetMovementCost(loadedUnit.data.moveType) > 0 && neighbor.GetUnitHere() == null) tempList.Add(neighbor);
+            if (neighbor.data.GetMovementCost(loadedUnit.data.moveType) > 0 && neighbor.UnitHere == null) tempList.Add(neighbor);
         }
         return tempList;
     }

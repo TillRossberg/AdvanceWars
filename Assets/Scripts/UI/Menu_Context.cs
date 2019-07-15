@@ -77,7 +77,7 @@ public class Menu_Context : MonoBehaviour
     }
     void TryActivateOccupyButton(Unit activeUnit)
     {
-        if (Core.Model.GetTile(activeUnit.Position).IsOccupyableBy(activeUnit)) occupyButton.gameObject.SetActive(true);
+        if (Core.Model.GetTile(Core.Controller.Cursor.Position).CanBeOccupiedBy(activeUnit)) occupyButton.gameObject.SetActive(true);
     }
     void TryActivateUnloadButton(Unit activeUnit)
     {

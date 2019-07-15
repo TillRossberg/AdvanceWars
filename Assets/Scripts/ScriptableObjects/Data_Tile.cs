@@ -9,7 +9,6 @@ public class Data_Tile : ScriptableObject
     public TileType type;
     public string tileName;
     public int cover;
-    public bool isProperty = false;
     public int maxTakeOverPoints = 20;
     public Sprite thumbNail;
     [Header("Graphics")]

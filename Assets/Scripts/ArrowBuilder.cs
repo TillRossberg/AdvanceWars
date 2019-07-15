@@ -24,7 +24,7 @@ public class ArrowBuilder
     {
         Tile tile = Core.Model.GetTile(unit.Position);
         _isInterrupted = false;
-        tile.isPartOfArrowPath = true;
+        tile.IsPartOfArrowPath = true;
         ArrowPart firstNode = GameObject.Instantiate(Core.Model.Database.arrowPartPrefab, arrowPathParent).GetComponent<ArrowPart>();
         firstNode.Init(ArrowPart.Type.firstNode, tile);
         arrowPath.Add(firstNode);//Set this tile as startpoint of the arrowPath
@@ -36,7 +36,7 @@ public class ArrowBuilder
     {        
         ArrowPart newPart = CreatePart(ArrowPart.Type.arrow, tile);
         arrowPath.Add(newPart);
-        tile.isPartOfArrowPath = true;
+        tile.IsPartOfArrowPath = true;
         momMovementPoints -= tile.data.GetMovementCost(Core.Controller.SelectedUnit.data.moveType);
         Tile preTile = GetPredecessorTile();
         float angle = GetFacingDirection(tile, preTile);
@@ -67,7 +67,7 @@ public class ArrowBuilder
                 momMovementPoints += tile.data.GetMovementCost(Core.Controller.SelectedUnit.data.moveType);//If you go back, you have more movement points available.
                 //Delete last entry of the arrow path, because that is the arrowhead.
                 ArrowPart lastPart = arrowPath[arrowPath.Count - 1];
-                lastPart.AssignedTile.isPartOfArrowPath = false;//Is no longe part of the arrow path.
+                lastPart.AssignedTile.IsPartOfArrowPath = false;//Is no longe part of the arrow path.
                 GameObject.Destroy(lastPart.gameObject);
                 arrowPath.Remove(lastPart);//Delete it from the list.
                 //Change the gfx of the new last part to be an arrow and face the right direction.
@@ -177,7 +177,7 @@ public class ArrowBuilder
         ArrowPart firstNode = arrowPath[0];        
         for(int i = 1; i < arrowPath.Count; i++)
         {
-            arrowPath[i].AssignedTile.isPartOfArrowPath = false;
+            arrowPath[i].AssignedTile.IsPartOfArrowPath = false;
         }
         for (int i = 0; i < arrowPathParent.childCount; i++)
         {
@@ -225,7 +225,7 @@ public class ArrowBuilder
 
     bool IsEnemyUnitHere(Tile tile)
     {
-        if (tile.unitStandingHere != null && Core.Controller.SelectedUnit.IsMyEnemy(tile.unitStandingHere)) return true;
+        if (tile.UnitHere != null && Core.Controller.SelectedUnit.IsMyEnemy(tile.UnitHere)) return true;
         else return false;
     }   
     public bool GetInterruption(){return _isInterrupted;}
@@ -244,7 +244,7 @@ public class ArrowBuilder
             {
                 if(part != null)
                 {
-                    part.AssignedTile.isPartOfArrowPath = false;
+                    part.AssignedTile.IsPartOfArrowPath = false;
                     GameObject.Destroy(part.gameObject);
                 }
             }            

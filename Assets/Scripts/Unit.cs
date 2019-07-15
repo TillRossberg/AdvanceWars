@@ -171,7 +171,7 @@ public class Unit : MonoBehaviour
     public void KillUnit()
     {
         //Set the unit standing on this tile as null.
-        Core.Model.GetTile(Position).SetUnitHere(null);
+        Core.Model.GetTile(Position).UnitHere = null;
         //TODO: Boom animation
 
         //Remove unit from team list
@@ -239,7 +239,7 @@ public class Unit : MonoBehaviour
     }
     public void ConfirmPosition(Vector2Int pos)
     {
-        Core.Model.GetTile(Position).SetUnitHere(null);
+        Core.Model.GetTile(Position).UnitHere = null;
         SetPosition(pos);
         SetDirection(this.transform.eulerAngles.y);
         SetCurrentTile(pos);
@@ -249,7 +249,7 @@ public class Unit : MonoBehaviour
     public void SetCurrentTile(Vector2Int pos)
     {
         this.CurrentTile = Core.Model.GetTile(pos);
-        Core.Model.GetTile(pos).SetUnitHere(this);
+        Core.Model.GetTile(pos).UnitHere = null;
     }
     //Resets the position and rotation of the unit to where it was before. (If we click the right mouse button or close the menu after we successfully moved it somewhere.)
     public void ResetPosition()
@@ -355,7 +355,7 @@ public class Unit : MonoBehaviour
         {
             if (IsVisibleEnemyHere(tile))
             {
-                Unit enemy = tile.unitStandingHere;
+                Unit enemy = tile.UnitHere;
                 if (data.GetDamageAgainst(enemy.data.type) > 0) _attackableUnits.Add(enemy);
             }
         }
@@ -373,9 +373,9 @@ public class Unit : MonoBehaviour
     //Checks if an enemy is standing on this tile.
     bool IsVisibleEnemyHere(Tile tile)
     {
-        if (tile.GetUnitHere() != null && tile.isVisible)
+        if (tile.UnitHere != null && tile.IsVisible)
         {
-            Unit possibleEnemy = tile.GetUnitHere();
+            Unit possibleEnemy = tile.UnitHere;
             if (IsMyEnemy(possibleEnemy)) return true;
         }
         return false;
@@ -571,7 +571,7 @@ public class Unit : MonoBehaviour
             if (!_reachableTiles.Contains(tile)) _reachableTiles.Add(tile);
 
             //The tile was reached, so test all its neighbors for reachability. Ignore the tile you came from.
-            foreach (Tile neighbor in tile.neighbors)
+            foreach (Tile neighbor in tile.Neighbors)
             {
                 if (neighbor != cameFromTile) CalcReachableArea(neighbor.Position, movementPoints, moveType, tile);
             }
@@ -663,14 +663,14 @@ public class Unit : MonoBehaviour
     public void GetLoaded()
     {
         CurrentTile = null;
-        Core.Model.GetTile(this.Position).SetUnitHere(null);
+        Core.Model.GetTile(this.Position).UnitHere = null;
 
     }
     public void GetUnloaded(Tile tile)
     {
         this.SetPosition(tile.Position);
         CurrentTile = tile;
-        tile.SetUnitHere(this);
+        tile.UnitHere = this;
         CalcVisibleArea();
         Deactivate();
     }

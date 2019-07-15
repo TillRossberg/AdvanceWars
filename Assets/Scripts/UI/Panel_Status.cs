@@ -30,9 +30,9 @@ public class Panel_Status : MonoBehaviour
         this.tileName.text = tile.data.tileName;
         this.tileThumb.sprite = tile.data.thumbNail;
         this.cover.text = tile.data.cover.ToString();
-        if(tile.isVisible && tile.unitStandingHere != null)
+        if(tile.IsVisible && tile.UnitHere != null)
         {
-            Unit unit = tile.unitStandingHere;
+            Unit unit = tile.UnitHere;
             this.unitName.text = unit.data.unitName;
             this.unitThumb.sprite = unit.data.redThumbNail;
             this.health.text = unit.GetCorrectedHealth().ToString();

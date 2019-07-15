@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 5383103117793925166}
   - component: {fileID: 7628904165072701337}
   - component: {fileID: 5660126193170745823}
+  - component: {fileID: 7764356315539746837}
   m_Layer: 0
   m_Name: CityPrefab
   m_TagString: Untagged
@@ -48,12 +49,11 @@ MonoBehaviour:
   data: {fileID: 0}
   Gfx: {fileID: 6146997368949237663}
   fogOfWarGfx: {fileID: 0}
-  position: {x: 0, y: 0}
-  rotation: 0
-  unitStandingHere: {fileID: 0}
-  neighbors: []
-  takeOverCounter: 0
-  owningTeam: {fileID: 0}
+  Property: {fileID: 0}
+  Position: {x: 0, y: 0}
+  Rotation: 0
+  UnitHere: {fileID: 0}
+  Neighbors: []
   isVisible: 1
   isPartOfArrowPath: 0
 --- !u!65 &5660126193170745823
@@ -69,6 +69,21 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 0.1, z: 1}
   m_Center: {x: 0, y: -0.05, z: 0}
+--- !u!114 &7764356315539746837
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4813726995934608290}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87e9d2db7f8d6f841aee203599cac15d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TakeOverPoints: {fileID: 0}
+  OwningTeam: {fileID: 0}
+  TakeOverCounter: 0
 --- !u!1001 &6146997368949268799
 PrefabInstance:
   m_ObjectHideFlags: 0

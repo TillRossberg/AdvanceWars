@@ -1,5 +1,20 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &6969759543931186502
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9155748651167783454}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87e9d2db7f8d6f841aee203599cac15d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TakeOverPoints: {fileID: 0}
+  OwningTeam: {fileID: 0}
+  TakeOverCounter: 0
 --- !u!1001 &5873892514480921923
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -12,6 +27,12 @@ PrefabInstance:
       propertyPath: m_Name
       value: Airport
       objectReference: {fileID: 0}
+    - target: {fileID: 6385849117997670737, guid: 7772c102f6037bb4ca6ec3269b1e388b,
+        type: 3}
+      propertyPath: data
+      value: 
+      objectReference: {fileID: 11400000, guid: bb857597da5a5c84b9f83f771625dc4f,
+        type: 2}
     - target: {fileID: 8275486198587319337, guid: 7772c102f6037bb4ca6ec3269b1e388b,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -67,12 +88,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 6385849117997670737, guid: 7772c102f6037bb4ca6ec3269b1e388b,
-        type: 3}
-      propertyPath: data
-      value: 
-      objectReference: {fileID: 11400000, guid: bb857597da5a5c84b9f83f771625dc4f,
-        type: 2}
     - target: {fileID: 3857728794249048294, guid: 7772c102f6037bb4ca6ec3269b1e388b,
         type: 3}
       propertyPath: m_Mesh
@@ -95,3 +110,9 @@ PrefabInstance:
       objectReference: {fileID: 2100002, guid: ddc7e6978e2f0d1469fbfdd8ac2a6d4c, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7772c102f6037bb4ca6ec3269b1e388b, type: 3}
+--- !u!1 &9155748651167783454 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3353918372590389085, guid: 7772c102f6037bb4ca6ec3269b1e388b,
+    type: 3}
+  m_PrefabInstance: {fileID: 5873892514480921923}
+  m_PrefabAsset: {fileID: 0}

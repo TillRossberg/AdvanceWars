@@ -10,24 +10,27 @@ public class Tile: MonoBehaviour
     public Data_Tile data;
     public GameObject Gfx;
     public GameObject fogOfWarGfx;
+    public Property Property;
     #endregion
     #region General Fields
     public Vector2Int Position;	
-	public int rotation;
-    public Unit unitStandingHere = null;   
-    public List<Tile> neighbors;        
-    public int takeOverCounter;//For each lifepoint of the infantry/mech unit this value is lowered by one, if the takeover action is performed.
-    public Team owningTeam;
+	public int Rotation;
+    public Unit UnitHere = null;   
+    public List<Tile> Neighbors;        
     #endregion    
     #region States
-    public bool isVisible = true;
-    public bool isPartOfArrowPath = false;
+    public bool IsVisible = true;
+    public bool IsPartOfArrowPath = false;
 
     #endregion
     #region Base Methods
     public void Init()
     {
-        takeOverCounter = data.maxTakeOverPoints;
+        if (this.GetComponent<Property>())
+        {
+            Property = GetComponent<Property>();
+            Property.TakeOverCounter = data.maxTakeOverPoints;
+        }
     }
     private void OnMouseDown()
     {
@@ -81,23 +84,15 @@ public class Tile: MonoBehaviour
     {
         Vector2Int testPos;
         testPos = new Vector2Int(Position.x - 1, Position.y);
-        if (Core.Model.IsOnMap(testPos)) neighbors.Add(Core.Model.GetTile(testPos));
+        if (Core.Model.IsOnMap(testPos)) Neighbors.Add(Core.Model.GetTile(testPos));
         testPos = new Vector2Int(Position.x + 1, Position.y);
-        if (Core.Model.IsOnMap(testPos)) neighbors.Add(Core.Model.GetTile(testPos));
+        if (Core.Model.IsOnMap(testPos)) Neighbors.Add(Core.Model.GetTile(testPos));
         testPos = new Vector2Int(Position.x, Position.y + 1);
-        if (Core.Model.IsOnMap(testPos)) neighbors.Add(Core.Model.GetTile(testPos));
+        if (Core.Model.IsOnMap(testPos)) Neighbors.Add(Core.Model.GetTile(testPos));
         testPos = new Vector2Int(Position.x, Position.y - 1);
-        if (Core.Model.IsOnMap(testPos)) neighbors.Add(Core.Model.GetTile(testPos));
+        if (Core.Model.IsOnMap(testPos)) Neighbors.Add(Core.Model.GetTile(testPos));
     }
     #endregion
-
-
-    
-
-    //Set the unit that stands on this tile.
-    public void SetUnitHere(Unit unit){unitStandingHere = unit;}
-    public Unit GetUnitHere(){ return unitStandingHere; }
-    
     //If the tile is a property, set its color to the occuping team color
     public void SetMaterial(Material material)
     {
@@ -121,17 +116,14 @@ public class Tile: MonoBehaviour
 
     #region Occupation
    
-    //Reset the take over counter to 20.
-    public void ResetTakeOverCounter()
-    {
-        takeOverCounter = data.maxTakeOverPoints;
-    }
+    
 
     //Check if a unit can occupy this tile
     //TODO: Check if the owning team is part of our alliance. (much later)
-    public bool IsOccupyableBy(Unit unit)
+    public bool CanBeOccupiedBy(Unit unit)
     {
-        if (data.isProperty && (owningTeam != unit.team) && (unit.data.type == UnitType.Infantry || unit.data.type == UnitType.Mech)) return true;
+        if (IsProperty() && (Property.OwningTeam != unit.team)             
+            && (unit.data.type == UnitType.Infantry || unit.data.type == UnitType.Mech)) return true;
         else return false;
     }
 
@@ -146,6 +138,11 @@ public class Tile: MonoBehaviour
             case TileType.Port: return true;
             default: return false;
         }
+    }
+    public bool IsProperty()
+    {
+        if (Property != null) return true;
+        else return false;
     }
     #endregion
 }
