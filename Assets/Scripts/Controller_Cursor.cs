@@ -121,8 +121,12 @@ public class Controller_Cursor : MonoBehaviour
         }
 
         #region Debug
-        if (Input.GetKeyDown(KeyCode.A))
+        if (Input.GetKeyDown(KeyCode.N))
         {
+            Tile start = Core.Model.GetTile(new Vector2Int(0, 0));
+            Tile end = Core.Model.GetTile(new Vector2Int(7, 0));
+
+            Core.Controller.CalcShortestPath(UnitMoveType.Wheels, start, end);
 
         }
         if (Input.GetKeyDown(KeyCode.S))

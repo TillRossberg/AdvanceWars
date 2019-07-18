@@ -12,6 +12,8 @@ public class Model : MonoBehaviour
     [SerializeField] Data_Map _mapData;
     public Data_Map MapData { get { return _mapData; } }
     public Calculations_Battle BattleCalculations { get; private set; }
+    public AStar AStar { get; private set; }
+
     #endregion
     #region Fields
     public List<List<Tile>> MapMatrix { get; private set; }
@@ -32,12 +34,16 @@ public class Model : MonoBehaviour
     public Transform arrowPathParent;
     #endregion
 
+       
     #region Init Methods
     public void Init()
-    {             
+    {
+       
+       
         BattleCalculations = new Calculations_Battle();
+        AStar = new AStar();
     }
-    
+
     public void InitMap()
     {
         CreateEmptyMatrix(_mapData.gridWidth, _mapData.gridHeight, _mapData.baseType);
@@ -60,11 +66,11 @@ public class Model : MonoBehaviour
                 MapMatrix[colIndex].Add(newTile);
             }
         }
-    }      
+    }
     public bool IsOnMap(Vector2Int position)
     {
         if (position.x >= 0 && position.x < MapMatrix.Count && position.y >= 0 && position.y < MapMatrix[0].Count) return true;
-        else return false;      
+        else return false;
     }
     #endregion
     #region Tile Methods
@@ -93,7 +99,7 @@ public class Model : MonoBehaviour
         Tile tile = GetTile(position);
         tile.fogOfWarGfx.SetActive(!value);
         tile.IsVisible = value;
-        if(tile.UnitHere != null) tile.UnitHere.SetVisibility(value);      
+        if (tile.UnitHere != null) tile.UnitHere.SetVisibility(value);
     }
     public void SetNeighbors(List<List<Tile>> matrix)
     {
@@ -109,20 +115,20 @@ public class Model : MonoBehaviour
     #region Unit Methods
     //Create a unit for the given team, position and rotation.
     public void CreateUnit(UnitType type, Team team, Vector2Int position, Direction facingDirection)
-    {        
+    {
         //Create the Unit
         Unit unit = Instantiate(Core.Model.Database.GetUnitPrefab(type), new Vector3(position.x, tileHeight, position.y), Quaternion.Euler(0, 0, 0), team.transform).GetComponent<Unit>();
         unit.Init();
         //Position and rotation
         unit.RotateUnit(facingDirection);
-        unit.Position = position;       
+        unit.Position = position;
         unit.CurrentTile = GetTile(position);
         team.AddUnit(unit);
         GetTile(position).UnitHere = unit;//Pass the unit to the tile it stands on
     }
     #endregion
     #region Team Methods
-   
+
     //Create a team with a name and a color from the teamColors list and add it to the teams list.
     public void CreateTeam(string myTeamName)
     {
@@ -150,13 +156,13 @@ public class Model : MonoBehaviour
             }
         }
         throw new System.Exception("No such team found!");
-    } 
+    }
 
     public Team GetTeam(int index)
     {
         return teams[index];
     }
-  
+
     #endregion
     #region Succession
     //Defines the order in wich the teams have their turns. (TODO: find a better way to solve this...)
@@ -175,7 +181,7 @@ public class Model : MonoBehaviour
     public Team GetNextTeamInSuccession() { return Succession[((Succession.IndexOf(Core.Controller.ActiveTeam) + 1) % Succession.Count)]; }
     public bool IsLastInSuccession(Team team)
     {
-        if(Succession.IndexOf(team) == Succession.Count - 1) return true;
+        if (Succession.IndexOf(team) == Succession.Count - 1) return true;
         else return false;
     }
     #endregion
@@ -237,17 +243,17 @@ public class Model : MonoBehaviour
         ChangeTile(TileType.Airport, new Vector2Int(2, 2), 0);
         ChangeTile(TileType.Facility, new Vector2Int(6, 4), 0);
         ChangeTile(TileType.Port, new Vector2Int(4, 7), 0);
-        Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(2,4)));
-        Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(2,6)));
-        Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(2,2)));
-        Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(6,4)));
-        Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(4,7)));
+        Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(2, 4)));
+        Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(2, 6)));
+        Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(2, 2)));
+        Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(6, 4)));
+        Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(4, 7)));
         //Blue
-        ChangeTile(TileType.HQ, new Vector2Int(16,4), 0);
-        ChangeTile(TileType.Airport, new Vector2Int(16,2), 0);
-        ChangeTile(TileType.Airport, new Vector2Int(16,6), 0);
-        ChangeTile(TileType.Facility, new Vector2Int(12,4), 0);
-        ChangeTile(TileType.Port, new Vector2Int(14,7), 0);
+        ChangeTile(TileType.HQ, new Vector2Int(16, 4), 0);
+        ChangeTile(TileType.Airport, new Vector2Int(16, 2), 0);
+        ChangeTile(TileType.Airport, new Vector2Int(16, 6), 0);
+        ChangeTile(TileType.Facility, new Vector2Int(12, 4), 0);
+        ChangeTile(TileType.Port, new Vector2Int(14, 7), 0);
         Core.Controller.Occupy(teams[1], GetTile(new Vector2Int(16, 4)));
         Core.Controller.Occupy(teams[1], GetTile(new Vector2Int(16, 6)));
         Core.Controller.Occupy(teams[1], GetTile(new Vector2Int(16, 2)));
@@ -258,16 +264,16 @@ public class Model : MonoBehaviour
 
         //Units
         //Red
-        CreateUnit(UnitType.APC, Core.Model.teams[0], new Vector2Int(4,4), Direction.North);
-        CreateUnit(UnitType.Infantry, Core.Model.teams[0], new Vector2Int(14,3), Direction.North);
-        CreateUnit(UnitType.Rockets, Core.Model.teams[0], new Vector2Int(8,4), Direction.North);
-        CreateUnit(UnitType.Battleship, Core.Model.teams[0], new Vector2Int(7,10), Direction.North);
-        CreateUnit(UnitType.Battleship, Core.Model.teams[0], new Vector2Int(6,10), Direction.North);
+        CreateUnit(UnitType.APC, Core.Model.teams[0], new Vector2Int(4, 4), Direction.North);
+        CreateUnit(UnitType.Infantry, Core.Model.teams[0], new Vector2Int(14, 3), Direction.North);
+        CreateUnit(UnitType.Rockets, Core.Model.teams[0], new Vector2Int(8, 4), Direction.North);
+        CreateUnit(UnitType.Battleship, Core.Model.teams[0], new Vector2Int(7, 10), Direction.North);
+        CreateUnit(UnitType.Battleship, Core.Model.teams[0], new Vector2Int(6, 10), Direction.North);
         SetUnitTypeHealth(Core.Model.teams[0], UnitType.Battleship, 25);
         CreateUnit(UnitType.Bomber, Core.Model.teams[0], new Vector2Int(7, 4), Direction.East);
         //Blue
         CreateUnit(UnitType.APC, Core.Model.teams[1], new Vector2Int(14, 4), Direction.North);
-        CreateUnit(UnitType.Infantry, Core.Model.teams[1], new Vector2Int(3,3), Direction.North);
+        CreateUnit(UnitType.Infantry, Core.Model.teams[1], new Vector2Int(3, 3), Direction.North);
         CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(9, 3), Direction.North);
         CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(10, 4), Direction.North);
         CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(9, 5), Direction.North);
@@ -276,6 +282,19 @@ public class Model : MonoBehaviour
         SetUnitTypeHealth(Core.Model.teams[1], UnitType.Infantry, 1);
 
 
+    }
+    public void LoadLevel03(int width, int height)
+    {
+        CreateEmptyMatrix(width, height, TileType.Plain);
+        DrawY(TileType.Forest, 3, 0, 2);
+        DrawY(TileType.Forest, 4, 0, 2);
+        DrawY(TileType.Forest, 5, 0, 2);
+        DrawY(TileType.Forest, 6, 0, 2);
+        DrawY(TileType.Road, 2, 0, 2);
+        DrawY(TileType.Road, 7, 0, 2);
+        DrawX(TileType.Road, 1, 2, 7);
+        //ChangeTile(TileType.Mountain, new Vector2Int(5,0), 0);
+        SetNeighbors(MapMatrix);
     }
 
     void DrawX(TileType type, int startX, int startY, int length)

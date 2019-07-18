@@ -23,6 +23,12 @@ public class Controller : MonoBehaviour
     List<Tile> _tilesToCycle;
     Tile _targetTile;
 
+    #region Debug
+    public GameObject pathIndicator;
+    public GameObject redCross;
+    public List<GameObject> indicators;
+    #endregion
+
     #region Base Methods
     public void StartGame()
     {
@@ -34,7 +40,8 @@ public class Controller : MonoBehaviour
         Core.Model.InitTeams();
         //Core.Model.LoadLevel01(15, 15);
         Core.Model.LoadLevel02(19, 13);
-        Cursor = CreateCursor(new Vector2Int(5, 5));
+        //Core.Model.LoadLevel03(8, 4);
+        Cursor = CreateCursor(new Vector2Int(1, 1));
         Core.Model.SetupRandomSuccession();
         ActiveTeam = Core.Model.Succession[0];
         StartTurn();
@@ -254,6 +261,7 @@ public class Controller : MonoBehaviour
                 case Mode.Move:
                     Tile tile = Core.Model.GetTile(pos);
                     //If you go back, make the arrow smaller.
+                    if (indicators.Count > 0) ClearIndicators(); 
                     if (tile.IsPartOfArrowPath)
                     {
                         if (ArrowBuilder.CanGoBack(tile))
@@ -268,6 +276,16 @@ public class Controller : MonoBehaviour
                         ArrowBuilder.CreateNextPart(tile);
                         Cursor.SetPosition(pos);
                     }
+                    else if(SelectedUnit.CanReachTile(tile))
+                    {
+                        Cursor.SetPosition(pos);
+                        Tile start = SelectedUnit.CurrentTile;
+                        Tile end = tile;
+                        Core.Model.AStar.CalcPath(SelectedUnit.data.moveType, start, end);
+                        //IndicatePath(Core.Model.AStar.finalPath);
+                        ArrowBuilder.CreateGraphics(Core.Model.AStar.finalPath);
+                        Core.Model.AStar.Reset();
+                    }                    
                     break;
                 case Mode.BuyMenu:
 
@@ -420,7 +438,7 @@ public class Controller : MonoBehaviour
         SelectedUnit.ClearAttackableTiles();
         SelectedUnit.ClearReachableTiles();
         SelectedUnit.ClearAttackableTiles();
-        ArrowBuilder.ResetAll();    
+        ArrowBuilder.ResetAll();
         Cursor.SetCursorGfx(0);
         SelectedUnit = null;
     }
@@ -428,7 +446,7 @@ public class Controller : MonoBehaviour
     public void DeselectTile()
     {
         SelectedTile = null;
-    }    
+    }
     #endregion
     #region Buttons    
     public void FireButton()
@@ -451,8 +469,8 @@ public class Controller : MonoBehaviour
         SelectedUnit.Wait();
         Deselect();
     }
-   
-   
+
+
     public void OccupyButton()
     {
         OccupyAction(SelectedUnit, Core.Model.GetTile(Cursor.Position));
@@ -466,7 +484,7 @@ public class Controller : MonoBehaviour
     //Pause Menu
     public void EndTurnButton()
     {
-       StartCoroutine(EndTurnButtonDelayed(0.01f));
+        StartCoroutine(EndTurnButtonDelayed(0.01f));
     }
     IEnumerator EndTurnButtonDelayed(float delay)
     {
@@ -503,7 +521,7 @@ public class Controller : MonoBehaviour
         //Repair units.
 
         //Subtract money for repairing units.
-        
+
         Core.View.CommanderPanel.UpdateDisplay();//Update the GUI for the active team.
         Cursor.SetPosition(ActiveTeam.Units[0].Position);//Set cursors position to first unit
     }
@@ -536,8 +554,8 @@ public class Controller : MonoBehaviour
     {
         foreach (Unit unit in team.Units)
         {
-            if(unit != null) unit.Activate();
-        }        
+            if (unit != null) unit.Activate();
+        }
     }
 
     //Set the properties of all units of a team so they don't have a turn.
@@ -546,8 +564,8 @@ public class Controller : MonoBehaviour
         foreach (Unit unit in team.Units)
         {
             if (unit != null) unit.Deactivate();
-        }       
-    }  
+        }
+    }
 
     //When all teams had their turn: change the weather (if random was selected), increase the round counter, check if the battle duration is ecxeeded
     void EndRound()
@@ -577,7 +595,7 @@ public class Controller : MonoBehaviour
                 highestPropertyCount = propertyCount;
                 winner = team;
             }
-        }        
+        }
         return winner;
     }
     #endregion   
@@ -588,7 +606,7 @@ public class Controller : MonoBehaviour
 
         Debug.Log(tile.Property.TakeOverCounter);
         tile.Property.TakeOverCounter -= unit.GetCorrectedHealth();
-        if(tile.Property.TakeOverCounter <= 0)
+        if (tile.Property.TakeOverCounter <= 0)
         {
             tile.Property.TakeOverCounter = 0;
             Occupy(unit.team, tile);
@@ -614,7 +632,7 @@ public class Controller : MonoBehaviour
         {
             //TODO: decide if more than two teams are playing and then only remove the defeated team from the map.
             //TODO: winning animationstuff
-            Debug.Log(ActiveTeam + " wins the game by capturing the enmy HQ! Wuhuuu!!"); 
+            Debug.Log(ActiveTeam + " wins the game by capturing the enmy HQ! Wuhuuu!!");
         }
         //If you reach the necessary amount of properties you also win the game.
         //!WORKING
@@ -622,7 +640,7 @@ public class Controller : MonoBehaviour
         {
             //TODO: decide if more than two teams are playing and then only remove the defeated team from the map.
             //TODO: winning animationstuff
-            Debug.Log(ActiveTeam + " wins the game by getting " + Core.Model.MapSettings.propertiesToWin +" properties! Wuhuuu!!");
+            Debug.Log(ActiveTeam + " wins the game by getting " + Core.Model.MapSettings.propertiesToWin + " properties! Wuhuuu!!");
 
         }
     }
@@ -648,7 +666,7 @@ public class Controller : MonoBehaviour
     #endregion
     #region Transport Unit
     public void LoadUnit()
-    {        
+    {
         Unit_Transporter transporter = Core.Model.GetTile(Cursor.Position).UnitHere.GetComponent<Unit_Transporter>();
         transporter.LoadUnit(SelectedUnit);
         Core.View.ContextMenu.Hide();
@@ -660,7 +678,7 @@ public class Controller : MonoBehaviour
         SelectedUnit.Wait();
         ResetTilesToCycle();
         Deselect();
-        CurrentMode = Mode.Normal;        
+        CurrentMode = Mode.Normal;
     }
     public void ChoseUnloadPosition()
     {
@@ -676,6 +694,37 @@ public class Controller : MonoBehaviour
     {
         _targetTile = null;
         _tilesToCycle.Clear();
+    }
+    #endregion
+    #region A*
+    public void CalcShortestPath(UnitMoveType moveType, Tile start, Tile end)
+    {
+        Core.Model.AStar.CalcPath(moveType, start, end);
+        List<Tile> finalPath = Core.Model.AStar.finalPath; 
+        
+        for (int i = 0; i < finalPath.Count; i++)
+        {
+            if(i== 0) Instantiate(redCross, finalPath[i].transform.position, Quaternion.identity);
+            Instantiate(pathIndicator, finalPath[i].transform.position, Quaternion.identity);
+            if (i == finalPath.Count -1) Instantiate(redCross, finalPath[i].transform.position, Quaternion.identity);
+        }
+    }
+    public void IndicatePath(List<Tile> path)
+    {
+        for (int i = 0; i < path.Count; i++)
+        {
+            if (i == 0) indicators.Add(Instantiate(redCross, path[i].transform.position, Quaternion.identity));
+            indicators.Add(Instantiate(pathIndicator, path[i].transform.position, Quaternion.identity));
+            if (i == path.Count - 1) indicators.Add(Instantiate(redCross, path[i].transform.position, Quaternion.identity));
+        }
+    }
+    public void ClearIndicators()
+    {
+        foreach (GameObject gameObject in indicators)
+        {
+            Destroy(gameObject);
+        }
+        indicators.Clear();
     }
     #endregion
     #region Utility

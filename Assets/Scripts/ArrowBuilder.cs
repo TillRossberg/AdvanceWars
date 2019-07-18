@@ -34,6 +34,7 @@ public class ArrowBuilder
 
     public void CreateNextPart(Tile tile)
     {        
+        //Create the arrow
         ArrowPart newPart = CreatePart(ArrowPart.Type.arrow, tile);
         arrowPath.Add(newPart);
         tile.IsPartOfArrowPath = true;
@@ -73,12 +74,7 @@ public class ArrowBuilder
                 //Change the gfx of the new last part to be an arrow and face the right direction.
                 arrowPath[arrowPath.Count - 1].SetGfx(ArrowPart.Type.arrow);
                 arrowPath[arrowPath.Count - 1].SetRotation(GetFacingDirection(tile, GetPredecessorTile()));
-            }
-            else
-            {
-                //If you touch any of the reachable tiles, the shortest path to this tile will be calculated.
-                //TODO: calculate shortest path to this tile... will follow if A* is implemented
-            }
+            }           
         }
     }
     //TODO: goes out, if A* is implemented
@@ -86,6 +82,25 @@ public class ArrowBuilder
     {
         if (tile == GetPredecessorTile()) return true;
         else return false;
+    }
+    public void CreateGraphics(List<Tile> path)
+    {
+        ResetArrowPath();
+        path[1].IsPartOfArrowPath = true;  
+        for (int i = 2; i < path.Count - 1; i++)
+        {
+            ArrowPart part = CreatePart(ArrowPart.Type.straight, path[i-1]);
+            arrowPath.Add(part);
+            ChangePart(part, path[i], path[i - 1], path[i - 2]);
+            path[i].IsPartOfArrowPath = true;
+        }
+        //Lastly create the arrow
+        ArrowPart newPart = CreatePart(ArrowPart.Type.arrow, path[path.Count -1]);
+        arrowPath.Add(newPart);
+        //tile.IsPartOfArrowPath = true;
+        //momMovementPoints -= tile.data.GetMovementCost(Core.Controller.SelectedUnit.data.moveType);        
+        float angle = GetFacingDirection(path[path.Count - 2], path[path.Count - 3]);
+        newPart.SetRotation(angle);
     }
 
     ArrowPart CreatePart(ArrowPart.Type type, Tile tile)
@@ -156,7 +171,7 @@ public class ArrowBuilder
         {
             if (lastTile.Position.x < currentTile.Position.x) return 270;
             else return 90;
-        }
+        }        
         else throw new System.Exception("Error in direction calculation!");
     }
 
@@ -238,6 +253,10 @@ public class ArrowBuilder
         _isInterrupted = false;
         momMovementPoints = 0;
         maxMovementPoints = 0;
+        ResetArrowPath();
+    }
+    public void ResetArrowPath()
+    {
         if(arrowPath.Count > 0)
         {
             foreach (ArrowPart part in arrowPath)

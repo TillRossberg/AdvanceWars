@@ -15,7 +15,6 @@ MonoBehaviour:
   type: 1
   tileName: Forest
   cover: 2
-  isProperty: 0
   maxTakeOverPoints: 20
   thumbNail: {fileID: 21300000, guid: db735d11af6d8054fa2fa4ef7e8ff123, type: 3}
   meshes: []

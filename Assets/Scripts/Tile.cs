@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Tile: MonoBehaviour
+public class Tile : MonoBehaviour
 {
     #region References
     public Data_Tile data;
@@ -13,15 +13,21 @@ public class Tile: MonoBehaviour
     public Property Property;
     #endregion
     #region General Fields
-    public Vector2Int Position;	
-	public int Rotation;
-    public Unit UnitHere = null;   
-    public List<Tile> Neighbors;        
-    #endregion    
+    public Vector2Int Position;
+    public int Rotation;
+    public Unit UnitHere = null;
+    public List<Tile> Neighbors;
+    #endregion
     #region States
     public bool IsVisible = true;
     public bool IsPartOfArrowPath = false;
 
+    #endregion
+    #region A*
+    public float F = 0;
+    public float G = 0;
+    public float H = 0;
+    public Tile PreviousTile;
     #endregion
     #region Base Methods
     public void Init()
@@ -36,25 +42,25 @@ public class Tile: MonoBehaviour
     {
         //myLevelManager.GetComponent<AnimController>().boom(xPos, yPos);
         //Actions are only perfomed, if no menu is opened.
-                 
-            ////Move mode
-            //if(_manager.getGameFunctions().getCurrentMode() == GameFunctions.mode.move)
-            //{
-            //    Unit selectedUnit = _manager.getGameFunctions().getSelectedUnit().GetComponent<Unit>();
-            //    if((isPartOfArrowPath && unitStandingHere == null) || (isPartOfArrowPath && !isVisible))
-            //    {
-            //        //Move to the position and try to find units that can be attacked.
-            //        selectedUnit.moveUnitTo(this.xPos, this.yPos);
-            //        selectedUnit.FindAttackableTiles();
-            //        selectedUnit.FindAttackableEnemies();
-            //        //Delete the reachable tiles and the movement arrow.
-            //        _manager.getMapCreator().ResetReachableTiles();
-            //        _manager.getArrowBuilder().resetAll();                    
-            //    }
-            //}       
-   
-        
-    }    
+
+        ////Move mode
+        //if(_manager.getGameFunctions().getCurrentMode() == GameFunctions.mode.move)
+        //{
+        //    Unit selectedUnit = _manager.getGameFunctions().getSelectedUnit().GetComponent<Unit>();
+        //    if((isPartOfArrowPath && unitStandingHere == null) || (isPartOfArrowPath && !isVisible))
+        //    {
+        //        //Move to the position and try to find units that can be attacked.
+        //        selectedUnit.moveUnitTo(this.xPos, this.yPos);
+        //        selectedUnit.FindAttackableTiles();
+        //        selectedUnit.FindAttackableEnemies();
+        //        //Delete the reachable tiles and the movement arrow.
+        //        _manager.getMapCreator().ResetReachableTiles();
+        //        _manager.getArrowBuilder().resetAll();                    
+        //    }
+        //}       
+
+
+    }
 
     private void OnMouseEnter()
     {
@@ -70,7 +76,7 @@ public class Tile: MonoBehaviour
         //    if (isPartOfArrowPath)
         //    {
         //        _manager.getArrowBuilder().tryToGoBack(this);
-                
+
         //        //Resets the arrowPath if you hover over the unit again. (If this is the tile the unit stands on and an arrow has been drawn.)
         //        if (this == _manager.getArrowBuilder().getArrowPath()[0].getTile() && _manager.getArrowBuilder().getArrowPath().Count > 2)
         //        {
@@ -102,7 +108,7 @@ public class Tile: MonoBehaviour
     }
     public void SetMaterial(int index)
     {
-        if(index < data.materials.Count && data.materials[index] != null)SetMaterial(data.materials[index]);
+        if (index < data.materials.Count && data.materials[index] != null) SetMaterial(data.materials[index]);
         else Debug.Log("Material not found!");
     }
     public void SetColor(Color color)
@@ -110,19 +116,19 @@ public class Tile: MonoBehaviour
         Material[] tempMats = Gfx.GetComponent<MeshRenderer>().materials;
         tempMats[0].color = color;
         Gfx.GetComponent<MeshRenderer>().materials = tempMats;
-    }    
+    }
 
-    
+
 
     #region Occupation
-   
-    
+
+
 
     //Check if a unit can occupy this tile
     //TODO: Check if the owning team is part of our alliance. (much later)
     public bool CanBeOccupiedBy(Unit unit)
     {
-        if (IsProperty() && (Property.OwningTeam != unit.team)             
+        if (IsProperty() && (Property.OwningTeam != unit.team)
             && (unit.data.type == UnitType.Infantry || unit.data.type == UnitType.Mech)) return true;
         else return false;
     }
@@ -132,7 +138,7 @@ public class Tile: MonoBehaviour
     public bool CanProduceUnits()
     {
         switch (data.type)
-        {         
+        {
             case TileType.Facility: return true;
             case TileType.Airport: return true;
             case TileType.Port: return true;
@@ -144,5 +150,15 @@ public class Tile: MonoBehaviour
         if (Property != null) return true;
         else return false;
     }
+    #endregion
+    #region A*
+    public void ResetAStar()
+    {
+        PreviousTile = null;
+        F = 0;
+        G = 0;
+        H = 0;
+    }
+
     #endregion
 }
