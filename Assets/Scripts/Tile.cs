@@ -20,7 +20,6 @@ public class Tile : MonoBehaviour
     #endregion
     #region States
     public bool IsVisible = true;
-    public bool IsPartOfArrowPath = false;
 
     #endregion
     #region A*

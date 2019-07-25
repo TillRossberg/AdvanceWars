@@ -25,7 +25,8 @@ public class Controller : MonoBehaviour
 
     #region Debug
     public GameObject pathIndicator;
-    public GameObject redCross;
+    public GameObject startIndicator;
+    public GameObject endIndicator;
     public List<GameObject> indicators;
     #endregion
 
@@ -80,7 +81,7 @@ public class Controller : MonoBehaviour
                         CurrentMode = Mode.Move;
                         Select(unitHere);
                         SelectedUnit.ShowReachableArea();
-                        ArrowBuilder.StartArrowPath(SelectedUnit);
+                        ArrowBuilder.StartPath(SelectedUnit);
                     }
                     //...or select already used unit or unit from enemy team.
                     else Core.AudioManager.PlaySFX(Core.Model.Database.Sounds.NopeSound);
@@ -259,31 +260,28 @@ public class Controller : MonoBehaviour
                     CyclePositions(_tilesToCycle, pos);
                     break;
                 case Mode.Move:
-                    Tile tile = Core.Model.GetTile(pos);
-                    //If you go back, make the arrow smaller.
-                    if (indicators.Count > 0) ClearIndicators(); 
-                    if (tile.IsPartOfArrowPath)
-                    {
-                        if (ArrowBuilder.CanGoBack(tile))
-                        {
-                            Cursor.SetPosition(pos);
-                            ArrowBuilder.TryToGoBack(tile);
-                        }
-                    }
+                    Tile tile = Core.Model.GetTile(pos);                  
                     //Draws an Arrow on the tile, if it is reachable.
-                    else if (SelectedUnit.CanReachTile(tile) && ArrowBuilder.EnoughMovePointsRemaining(tile, SelectedUnit))
-                    {
-                        ArrowBuilder.CreateNextPart(tile);
-                        Cursor.SetPosition(pos);
-                    }
-                    else if(SelectedUnit.CanReachTile(tile))
+                    //if (SelectedUnit.CanReachTile(tile) && ArrowBuilder.EnoughMovePointsRemaining(tile, SelectedUnit) && !ArrowBuilder.IsPartOfArrowPath(tile))
+                    //{
+                    //    ArrowBuilder.Add(tile);
+                    //    Cursor.SetPosition(pos);
+                    //}
+                    //else if(ArrowBuilder.IsPartOfArrowPath(tile))
+                    //{
+                    //    ArrowBuilder.Remove(tile);
+                    //    Cursor.SetPosition(pos);
+                    //}
+                    //else 
+                    if(SelectedUnit.CanReachTile(tile))
                     {
                         Cursor.SetPosition(pos);
                         Tile start = SelectedUnit.CurrentTile;
                         Tile end = tile;
                         Core.Model.AStar.CalcPath(SelectedUnit.data.moveType, start, end);
+                        //ClearIndicators();
                         //IndicatePath(Core.Model.AStar.finalPath);
-                        ArrowBuilder.CreateGraphics(Core.Model.AStar.finalPath);
+                        ArrowBuilder.UpdatePathGFX(Core.Model.AStar.finalPath);
                         Core.Model.AStar.Reset();
                     }                    
                     break;
@@ -700,22 +698,25 @@ public class Controller : MonoBehaviour
     public void CalcShortestPath(UnitMoveType moveType, Tile start, Tile end)
     {
         Core.Model.AStar.CalcPath(moveType, start, end);
-        List<Tile> finalPath = Core.Model.AStar.finalPath; 
-        
-        for (int i = 0; i < finalPath.Count; i++)
-        {
-            if(i== 0) Instantiate(redCross, finalPath[i].transform.position, Quaternion.identity);
-            Instantiate(pathIndicator, finalPath[i].transform.position, Quaternion.identity);
-            if (i == finalPath.Count -1) Instantiate(redCross, finalPath[i].transform.position, Quaternion.identity);
-        }
+        List<Tile> finalPath = Core.Model.AStar.finalPath;
+        IndicatePath(finalPath);
     }
     public void IndicatePath(List<Tile> path)
     {
+        float offset = 1;
         for (int i = 0; i < path.Count; i++)
         {
-            if (i == 0) indicators.Add(Instantiate(redCross, path[i].transform.position, Quaternion.identity));
+            if (i == 0)
+            {
+                Vector3 position = new Vector3(path[i].transform.position.x, offset, path[i].transform.position.z);
+                indicators.Add(Instantiate(startIndicator, position, Quaternion.identity));
+            }
             indicators.Add(Instantiate(pathIndicator, path[i].transform.position, Quaternion.identity));
-            if (i == path.Count - 1) indicators.Add(Instantiate(redCross, path[i].transform.position, Quaternion.identity));
+            if (i == path.Count - 1)
+            {
+                Vector3 position = new Vector3(path[i].transform.position.x, offset, path[i].transform.position.z);
+                indicators.Add(Instantiate(endIndicator, position, Quaternion.identity));
+            }
         }
     }
     public void ClearIndicators()

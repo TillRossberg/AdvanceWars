@@ -367,7 +367,8 @@ public class Unit : MonoBehaviour
 
     public bool IsMyEnemy(Unit unit)
     {
-        if (enemyTeams.Contains(unit.team)) return true;
+        if (unit == null) return false;
+        if (enemyTeams.Contains(unit.team)) return true;   
         else return false;
     }
     //Checks if an enemy is standing on this tile.

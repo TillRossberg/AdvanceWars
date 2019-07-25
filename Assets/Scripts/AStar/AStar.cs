@@ -39,7 +39,7 @@ public class AStar
                 //check all neighbors of current
                 foreach (Tile neighbor in currentTile.Neighbors)
                 {
-                    if(neighbor.data.GetMovementCost(moveType) > 0)//Make sure impassable terrain is ignored
+                    if(neighbor.data.GetMovementCost(moveType) > 0 && !Core.Controller.SelectedUnit.IsMyEnemy(neighbor.UnitHere))//Make sure impassable terrain is ignored and you cannot go through enemy units.
                     {
                         if (!closedList.Contains(neighbor))
                         {
@@ -54,7 +54,7 @@ public class AStar
                                 openList.Add(neighbor);
                             }
                             //vielleicht fehler, sollte es nicht von neighbor zu end sein?
-                            neighbor.H = Vector3.Distance(currentTile.transform.position, endTile.transform.position);
+                            neighbor.H = Vector3.Distance(neighbor.transform.position, endTile.transform.position);
                             neighbor.F = neighbor.H + neighbor.G;
                             neighbor.PreviousTile = currentTile;
                         }
@@ -81,7 +81,6 @@ public class AStar
     List<Tile> ReconstructPath(Tile currentTile, Tile startTile)
     {
         List<Tile> path = new List<Tile>();
-        path.Add(currentTile);
         while (currentTile.PreviousTile != null)
         {
             path.Add(currentTile);

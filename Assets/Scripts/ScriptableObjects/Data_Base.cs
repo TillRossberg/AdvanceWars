@@ -14,7 +14,9 @@ public class Data_Base : ScriptableObject
     public GameObject reachableTilePrefab;
     public GameObject attackableTilePrefab;
     public GameObject fogOfWarTilePrefab;
-    public GameObject arrowPartPrefab;
+    public GameObject ArrowHead;
+    public GameObject ArrowTail;
+    public GameObject ArrowCurve;
     public float arrowPathHeight;    
     [Header("Commander")]
     public List<Sprite> commanderThumbs;

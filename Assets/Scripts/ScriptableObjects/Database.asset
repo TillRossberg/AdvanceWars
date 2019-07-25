@@ -22,7 +22,11 @@ MonoBehaviour:
     type: 3}
   fogOfWarTilePrefab: {fileID: 1517181847272604, guid: 1e55daabda982fa49b44c2cccfcd3019,
     type: 3}
-  arrowPartPrefab: {fileID: 6772187975548061667, guid: b46c131b1896eab4786d7af940b7ee71,
+  ArrowHead: {fileID: 9085554607548049547, guid: fee58b58c74369c41a0f06994418271a,
+    type: 3}
+  ArrowTail: {fileID: 2185409036810057586, guid: fab3260a7cf1f1c4ca2e95281a83f2c0,
+    type: 3}
+  ArrowCurve: {fileID: 1055998205815286785, guid: b85cf23e63298824d9ca3dafd23492d7,
     type: 3}
   arrowPathHeight: 0
   commanderThumbs:
