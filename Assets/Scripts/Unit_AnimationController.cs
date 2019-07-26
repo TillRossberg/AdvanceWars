@@ -28,7 +28,7 @@ public class Unit_AnimationController : MonoBehaviour
 
     public void InitMovement()
     {
-        wayPointList = Core.Controller.ArrowBuilder.CreateMovementPath();
+        wayPointList = Core.Controller.ArrowBuilder.CreateMovementPath();      
         wayPointIndex = 1;//Starts at one because the first entry is the current position of the unit.
         target = wayPointList[wayPointIndex];//Set the first target for the movement.
         lookingDirection = (wayPointList[wayPointIndex] - transform.position).normalized;//Vector from our position to the target.
@@ -79,7 +79,7 @@ public class Unit_AnimationController : MonoBehaviour
                     IsMovingToTarget = false;
                     wayPointIndex = 1;
                     unit.DisplayHealth(true);
-                    OnReachedLastWayPoint();                    
+                    OnReachedLastWayPoint();
                 }
                 else
                 //Keep on moving

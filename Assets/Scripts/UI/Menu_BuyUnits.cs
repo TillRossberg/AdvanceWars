@@ -49,7 +49,7 @@ public class Menu_BuyUnits : MonoBehaviour
             Core.Controller.ActiveTeam.SubtractMoney(unitCost);
             Core.Model.CreateUnit(type, Core.Controller.ActiveTeam, _productionPosition, Direction.North);
             //TODO: make unit face enemy hq        
-            Core.Controller.Cursor.BlockInput(0.1f);
+            Core.Controller.BlockInputFor(0.1f);
             Hide();
         }
         else
@@ -98,7 +98,7 @@ public class Menu_BuyUnits : MonoBehaviour
     void CreateUnitSelectors(List<UnitType> units)
     {
         if (_selectors.Count > 0) ClearSelectors();
-        selectorParent.GetComponent<RectTransform>().sizeDelta = new Vector2(unitSelectorPrefab.GetComponent<RectTransform>().sizeDelta.x, (units.Count + 1) * unitSelectorPrefab.GetComponent<RectTransform>().sizeDelta.y);
+        selectorParent.GetComponent<RectTransform>().sizeDelta = new Vector2(20, (units.Count + 1) * unitSelectorPrefab.GetComponent<RectTransform>().sizeDelta.y);
         foreach (UnitType type in units)
         {
             Menu_BuyUnits_Selection selector = Instantiate(unitSelectorPrefab, selectorParent);

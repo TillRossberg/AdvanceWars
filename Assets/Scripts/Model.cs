@@ -13,7 +13,6 @@ public class Model : MonoBehaviour
     public Data_Map MapData { get { return _mapData; } }
     public Calculations_Battle BattleCalculations { get; private set; }
     public AStar AStar { get; private set; }
-
     #endregion
     #region Fields
     public List<List<Tile>> MapMatrix { get; private set; }
@@ -33,17 +32,13 @@ public class Model : MonoBehaviour
     public Transform fogOfWarParent;
     public Transform arrowPathParent;
     #endregion
-
        
     #region Init Methods
     public void Init()
-    {
-       
-       
+    {      
         BattleCalculations = new Calculations_Battle();
         AStar = new AStar();
     }
-
     public void InitMap()
     {
         CreateEmptyMatrix(_mapData.gridWidth, _mapData.gridHeight, _mapData.baseType);
@@ -89,6 +84,11 @@ public class Model : MonoBehaviour
     {
         return MapMatrix[position.x][position.y];
     }
+    public Tile GetTile(int x, int y)
+    {
+        return MapMatrix[x][y];
+    }
+
     public void ChangeTile(TileType type, Vector2Int position, int rotation)
     {
         Destroy(MapMatrix[position.x][position.y].gameObject);
@@ -273,26 +273,33 @@ public class Model : MonoBehaviour
         CreateUnit(UnitType.Bomber, Core.Model.teams[0], new Vector2Int(7, 4), Direction.East);
         //Blue
         CreateUnit(UnitType.APC, Core.Model.teams[1], new Vector2Int(14, 4), Direction.North);
-        CreateUnit(UnitType.Infantry, Core.Model.teams[1], new Vector2Int(3, 3), Direction.North);
-        CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(9, 3), Direction.North);
-        CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(10, 4), Direction.North);
-        CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(9, 5), Direction.North);
-        CreateUnit(UnitType.Cruiser, Core.Model.teams[1], new Vector2Int(11, 10), Direction.North);
-        CreateUnit(UnitType.Cruiser, Core.Model.teams[1], new Vector2Int(10, 10), Direction.North);
-        SetUnitTypeHealth(Core.Model.teams[1], UnitType.Infantry, 1);
+        //CreateUnit(UnitType.Infantry, Core.Model.teams[1], new Vector2Int(3, 3), Direction.North);
+        //CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(9, 3), Direction.North);
+        //CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(10, 4), Direction.North);
+        //CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(9, 5), Direction.North);
+        //CreateUnit(UnitType.Cruiser, Core.Model.teams[1], new Vector2Int(11, 10), Direction.North);
+        //CreateUnit(UnitType.Cruiser, Core.Model.teams[1], new Vector2Int(10, 10), Direction.North);
+        //SetUnitTypeHealth(Core.Model.teams[1], UnitType.Infantry, 1);
 
 
     }
     public void LoadLevel03(int width, int height)
     {
         CreateEmptyMatrix(width, height, TileType.Plain);
-        DrawY(TileType.Forest, 3, 0, 2);
-        DrawY(TileType.Forest, 4, 0, 2);
-        DrawY(TileType.Forest, 5, 0, 2);
-        DrawY(TileType.Forest, 6, 0, 2);
-        DrawY(TileType.Road, 2, 0, 2);
-        DrawY(TileType.Road, 7, 0, 2);
-        DrawX(TileType.Road, 1, 2, 7);
+        DrawY(TileType.River, 3, 0, 2);
+        DrawY(TileType.River, 3, 3, 2);
+        DrawY(TileType.Mountain, 1, 1, 3);
+        DrawY(TileType.Mountain, 5, 1, 3);
+
+        ChangeTile(TileType.HQ, new Vector2Int(0, 2), 0);
+        ChangeTile(TileType.HQ, new Vector2Int(6, 2), 0);
+
+        Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(0, 2)));
+        Core.Controller.Occupy(teams[1], GetTile(new Vector2Int(6, 2)));
+
+        CreateUnit(UnitType.Tank, Core.Model.teams[0], new Vector2Int(2, 2), Direction.East);
+        CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(4, 1), Direction.West);
+
         //ChangeTile(TileType.Mountain, new Vector2Int(5,0), 0);
         SetNeighbors(MapMatrix);
     }

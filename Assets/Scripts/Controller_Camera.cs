@@ -31,29 +31,29 @@ public class Controller_Camera : MonoBehaviour
     void Update()
     {
         float speed = CameraSpeed * Time.deltaTime;
-        if(Active)
+        if (Active)
         {
             #region Right Stick
             //Right
-            if (Input.GetAxis("Right Stick Horizontal") > 0)
+            if (Input.GetAxis("Right Stick Horizontal") > 0 || Input.GetKey(KeyCode.Keypad6))
             {
                 if(IsInHorizontalBounds()) RotateHorizontal(-speed);
                 else CorrectHorizontalBounds();
             }
             //Left
-            else if (Input.GetAxis("Right Stick Horizontal") < 0)
+            else if (Input.GetAxis("Right Stick Horizontal") < 0 || Input.GetKey(KeyCode.Keypad4))
             {
                 if (IsInHorizontalBounds()) RotateHorizontal(speed);
                 else CorrectHorizontalBounds();
             }
             //Up
-            else if (Input.GetAxis("Right Stick Vertical") > 0)
+            else if (Input.GetAxis("Right Stick Vertical") > 0 || Input.GetKey(KeyCode.Keypad8))
             {
                 if (IsInVerticalBounds()) RotateVertical(speed);
                 else CorrectVerticalBounds();
             }
             //Down
-            else if (Input.GetAxis("Right Stick Vertical") < 0)
+            else if (Input.GetAxis("Right Stick Vertical") < 0 || Input.GetKey(KeyCode.Keypad2))
             {
                 if (IsInVerticalBounds()) RotateVertical(-speed);
                 else CorrectVerticalBounds();

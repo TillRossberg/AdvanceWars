@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using System;
 public class Unit : MonoBehaviour
 {
     #region References
@@ -24,7 +24,7 @@ public class Unit : MonoBehaviour
     float counter = 0;//Counts the iterations of the calcReachableArea algorithm.
     #endregion
     #region States
-    public bool hasTurn = false;//The unit is ready for action.
+    public bool HasTurn = false;//The unit is ready for action.
     public bool CanMove = false;//States if the unit has already moved this turn.
     public bool CanFire = false;//Some units can't fire after they have moved.
     public bool IsInterrupted { get; private set; }//If we move through terrain that is covered by fog of war, we can be interrupted by an invisible enemy unit that is on our arrowpath.   
@@ -44,7 +44,8 @@ public class Unit : MonoBehaviour
     public int fuel;
     public bool WantsToBeLoaded = false;
     public bool WantsToUnite = false;
-    #endregion    
+    #endregion
+    
 
     #region Basic Methods
     public void Init()
@@ -71,14 +72,14 @@ public class Unit : MonoBehaviour
     {
         CanMove = true;
         CanFire = true;
-        hasTurn = true;
+        HasTurn = true;
         IsInterrupted = false;
     }
     public void Deactivate()
     {
         CanMove = false;
         CanFire = false;
-        hasTurn = false;
+        HasTurn = false;
     }
 
     public void SetVisibility(bool value)
@@ -194,6 +195,9 @@ public class Unit : MonoBehaviour
     //Move the unit to a field and align it so it faces away, from where it came.
     public void MoveTo(Vector2Int newPos)
     {
+        //Calculate path
+        Core.Model.AStar.CalcPath(data.moveType, CurrentTile, Core.Model.GetTile(newPos), true);
+        Core.Controller.ArrowBuilder.SetPath(Core.Model.AStar.FinalPath);       
         //Setup the sequencer for the movement animation.
         AnimationController.InitMovement();
         IsInterrupted = Core.Controller.ArrowBuilder.GetInterruption();
@@ -215,10 +219,10 @@ public class Unit : MonoBehaviour
             else
             {
                 FindAttackableEnemies(Core.Controller.SelectedTile.Position);
-                Core.View.ContextMenu.Show(this);
+                if (!team.IsAI) Core.View.ContextMenu.Show(this);
             }
         }
-        else GetInterrupted();
+        else BeInterrupted();
         WantsToBeLoaded = false;
         WantsToUnite = false;
     }
@@ -701,7 +705,7 @@ public class Unit : MonoBehaviour
     }
     #endregion
     #region Interuption
-    public void GetInterrupted()
+    public void BeInterrupted()
     {
         ConfirmPosition(_interruptionTile.Position);
         _interruptionTile = null;

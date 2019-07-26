@@ -14,16 +14,21 @@ public class Team: MonoBehaviour
     public int Money { get; private set; }
     public List<Unit> Units = new List<Unit>();
     int _unitIndex = 0;
-    public List<Tile> ownedProperties = new List<Tile>();    
-
+    public List<Tile> ownedProperties = new List<Tile>();
+    #endregion
+    #region AI
+    public bool IsAI;
+    public AI AI { get; private set; }
     #endregion
     #region Basic
     public void Init()
     {
         Money = Core.Model.MapSettings.startMoney;
-        if(Units.Count > 0)
+        if(Units.Count > 0)AssignTeamColor(Units);
+        if (IsAI)
         {
-            AssignTeamColor(Units);
+            AI = GetComponent<AI>();
+            AI.Init(this);
         }
     }  
    
@@ -72,7 +77,7 @@ public class Team: MonoBehaviour
     }
     public bool HasActiveUnits()
     {
-        foreach (Unit item in Units) if (item.hasTurn) return true;       
+        foreach (Unit item in Units) if (item.HasTurn) return true;       
         return false;
     }
     public Unit GetNextActiveUnit()
@@ -82,7 +87,7 @@ public class Team: MonoBehaviour
         if (_unitIndex >= Units.Count) _unitIndex = 0;
         for (int i = _unitIndex; i < Units.Count; i++)
         {
-            if(Units[i].hasTurn)
+            if(Units[i].HasTurn)
             {
                 unit = Units[i];
                 _unitIndex = i;
@@ -98,7 +103,7 @@ public class Team: MonoBehaviour
         if (_unitIndex < 0) _unitIndex = Units.Count - 1;
         for (int i = _unitIndex; i >= 0; i--)
         {
-            if (Units[i].hasTurn)
+            if (Units[i].HasTurn)
             {
                 unit = Units[i];
                 _unitIndex = i;

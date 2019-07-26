@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 using TMPro;
 public class Controller_Cursor : MonoBehaviour
 {
-    bool _canInput = true;
+    bool _inputBlocked = true;
     float _inputDelay;
     bool _horAxisInUse;
     bool _vertAxisInUse;
@@ -28,7 +28,7 @@ public class Controller_Cursor : MonoBehaviour
 
     private void Update()
     {
-        if (_canInput)
+        if (!_inputBlocked)
         {
             #region Movement
             //Up
@@ -146,17 +146,17 @@ public class Controller_Cursor : MonoBehaviour
     }
     public void BlockInput(bool value)
     {
-        _canInput = !value;
+        _inputBlocked = value;
     }
     public void BlockInput(float duration)
     {
-        _canInput = false;
+        BlockInput(true);
         StartCoroutine(ActivateInput(duration));
     }
     IEnumerator ActivateInput(float time)
     {
         yield return new WaitForSeconds(time);
-        _canInput = true;
+        BlockInput(false);
     }
     #region Text
     public void ShowEstimatedDamage(Unit attacker, Unit defender, Tile defendingTile)
@@ -175,7 +175,7 @@ public class Controller_Cursor : MonoBehaviour
     }
     #endregion
     #region Cursor Gfx
-    private void DisplayCursorGfx(bool value)
+    public void DisplayCursorGfx(bool value)
     {
         gfx.GetComponent<MeshRenderer>().enabled = value;
     }

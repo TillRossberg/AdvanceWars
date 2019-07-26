@@ -38,10 +38,10 @@ public class Controller : MonoBehaviour
         Core.Model.CreateTeam(Core.Model.Database.premadeTeams[1]);
         Core.Model.teams[0].AddEnemyTeam(Core.Model.teams[1]);
         Core.Model.teams[1].AddEnemyTeam(Core.Model.teams[0]);
-        Core.Model.InitTeams();
         //Core.Model.LoadLevel01(15, 15);
-        Core.Model.LoadLevel02(19, 13);
-        //Core.Model.LoadLevel03(8, 4);
+        //Core.Model.LoadLevel02(19, 13);
+        Core.Model.LoadLevel03(7, 5);
+        Core.Model.InitTeams();
         Cursor = CreateCursor(new Vector2Int(1, 1));
         Core.Model.SetupRandomSuccession();
         ActiveTeam = Core.Model.Succession[0];
@@ -64,6 +64,111 @@ public class Controller : MonoBehaviour
         ActivateUnits(ActiveTeam);
     }
     #endregion
+    #region Turn
+    //Start turn
+    public void StartTurn()
+    {
+        ActivateUnits(ActiveTeam);
+        Core.View.UpdateFogOfWar(ActiveTeam);//Set fog of war for this team.
+
+        //Subtract fuel.
+
+        //Give rations from properties and APCs.
+
+        GiveMoneyForProperties(ActiveTeam);//Give money for properties.
+
+        //Repair units.
+
+        //Subtract money for repairing units.
+        Core.View.CommanderPanel.UpdateDisplay();//Update the GUI for the active team.
+        if(ActiveTeam.IsAI)
+        {
+            Core.View.StatusPanel.Hide();
+            BlockInput(true);
+            Cursor.DisplayCursorGfx(false);
+            StartCoroutine(ActiveTeam.AI.StartTurnDelayed(.1f));
+        }
+        else
+        {
+            Cursor.SetPosition(ActiveTeam.Units[0].Position);//Set cursors position to first unit
+            BlockInput(false);
+            Cursor.DisplayCursorGfx(true);
+        }
+    }
+    IEnumerator StartTurnDelayed(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        StartTurn();
+    }
+    //End turn
+    public void EndTurn()
+    {
+        BlockInputFor(.5f);
+        Deselect();
+        DeactivateUnits(ActiveTeam);
+        if (Core.Model.IsLastInSuccession(ActiveTeam)) EndRound(); //Increase Round nr., change weather
+        ActiveTeam = Core.Model.GetNextTeamInSuccession();
+        StartTurn();
+        //StartTurn();//For some reason the first unit is instantly selected!?!? So a delay is necessary -.-
+    }
+
+
+    //Give money for each property the team owns. 
+    void GiveMoneyForProperties(Team team)
+    {
+        team.AddMoney(team.ownedProperties.Count * Core.Model.MapSettings.moneyIncrement);
+    }
+
+    //Sets all the units of a team so they have a turn, can move and fire.
+    void ActivateUnits(Team team)
+    {
+        foreach (Unit unit in team.Units)
+        {
+            if (unit != null) unit.Activate();
+        }
+    }
+
+    //Set the properties of all units of a team so they don't have a turn.
+    void DeactivateUnits(Team team)
+    {
+        foreach (Unit unit in team.Units)
+        {
+            if (unit != null) unit.Deactivate();
+        }
+    }
+
+    //When all teams had their turn: change the weather (if random was selected), increase the round counter, check if the battle duration is ecxeeded
+    void EndRound()
+    {
+        RoundCounter++;
+        if (RoundCounter == Core.Model.MapSettings.battleDuration && Core.Model.MapSettings.battleDuration > 4)//Minimum for the duration of the battle is 5 rounds, if below this winning condition will never trigger.
+        {
+            //TODO: decide if more than two teams are playing and then only remove the defeated team from the map.
+
+            //TODO: If the maximum amount of rounds has passed, check who won the game. (Depending on the occupied properties)
+            Debug.Log("One of the teams won... I think...");
+        }
+        if (Core.Model.MapSettings.randomWeather) ChangeWeather(GetRandomWeather());
+    }
+
+    //Count the properties of all the teams and the team with the most wins.
+    //TODO: !WORKING (try to solve this with only two teams first)
+    Team GetTeamWithMostProperties()
+    {
+        Team winner = null;
+        int highestPropertyCount = 0;
+        foreach (Team team in Core.Model.teams)
+        {
+            int propertyCount = team.ownedProperties.Count;
+            if (propertyCount > highestPropertyCount)
+            {
+                highestPropertyCount = propertyCount;
+                winner = team;
+            }
+        }
+        return winner;
+    }
+    #endregion   
     #region A-Button Methods
     public void AButton()
     {
@@ -146,7 +251,7 @@ public class Controller : MonoBehaviour
                 UnloadUnit(_targetTile);
                 break;
         }
-        Cursor.BlockInput(0.2f);
+        BlockInputFor(0.2f);
     }
     #endregion
     #region B-Button Methods
@@ -260,7 +365,8 @@ public class Controller : MonoBehaviour
                     CyclePositions(_tilesToCycle, pos);
                     break;
                 case Mode.Move:
-                    Tile tile = Core.Model.GetTile(pos);                  
+                    Tile tile = Core.Model.GetTile(pos);             
+                    //TODO: Adapt movement arrow, so you can chose your own path. (avoid interuption)
                     //Draws an Arrow on the tile, if it is reachable.
                     //if (SelectedUnit.CanReachTile(tile) && ArrowBuilder.EnoughMovePointsRemaining(tile, SelectedUnit) && !ArrowBuilder.IsPartOfArrowPath(tile))
                     //{
@@ -278,11 +384,11 @@ public class Controller : MonoBehaviour
                         Cursor.SetPosition(pos);
                         Tile start = SelectedUnit.CurrentTile;
                         Tile end = tile;
-                        Core.Model.AStar.CalcPath(SelectedUnit.data.moveType, start, end);
+                        Core.Model.AStar.Reset();
+                        Core.Model.AStar.CalcPath(SelectedUnit.data.moveType, start, end, true);
                         //ClearIndicators();
                         //IndicatePath(Core.Model.AStar.finalPath);
-                        ArrowBuilder.UpdatePathGFX(Core.Model.AStar.finalPath);
-                        Core.Model.AStar.Reset();
+                        ArrowBuilder.SetPath(Core.Model.AStar.FinalPath);                        
                     }                    
                     break;
                 case Mode.BuyMenu:
@@ -461,14 +567,11 @@ public class Controller : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
     }
-
     public void WaitButton()
     {
         SelectedUnit.Wait();
         Deselect();
-    }
-
-
+    }    
     public void OccupyButton()
     {
         OccupyAction(SelectedUnit, Core.Model.GetTile(Cursor.Position));
@@ -501,100 +604,6 @@ public class Controller : MonoBehaviour
         SelectedUnit.Deactivate();
         Deselect();
         Core.View.ContextMenu.Hide();
-    }
-    #endregion   
-    #region Turn
-    //Start turn
-    public void StartTurn()
-    {
-        ActivateUnits(ActiveTeam);
-        Core.View.UpdateFogOfWar(ActiveTeam);//Set fog of war for this team.
-
-        //Subtract fuel.
-
-        //Give rations from properties and APCs.
-
-        GiveMoneyForProperties(ActiveTeam);//Give money for properties.
-
-        //Repair units.
-
-        //Subtract money for repairing units.
-
-        Core.View.CommanderPanel.UpdateDisplay();//Update the GUI for the active team.
-        Cursor.SetPosition(ActiveTeam.Units[0].Position);//Set cursors position to first unit
-    }
-    IEnumerator StartTurnDelayed(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        StartTurn();
-    }
-    //End turn
-    public void EndTurn()
-    {
-        Cursor.BlockInput(.5f);
-        Deselect();
-        DeactivateUnits(ActiveTeam);
-        if (Core.Model.IsLastInSuccession(ActiveTeam)) EndRound(); //Increase Round nr., change weather
-        ActiveTeam = Core.Model.GetNextTeamInSuccession();
-        StartTurn();
-        //StartTurn();//For some reason the first unit is instantly selected!?!? So a delay is necessary -.-
-    }
-
-
-    //Give money for each property the team owns. 
-    void GiveMoneyForProperties(Team team)
-    {
-        team.AddMoney(team.ownedProperties.Count * Core.Model.MapSettings.moneyIncrement);
-    }
-
-    //Sets all the units of a team so they have a turn, can move and fire.
-    void ActivateUnits(Team team)
-    {
-        foreach (Unit unit in team.Units)
-        {
-            if (unit != null) unit.Activate();
-        }
-    }
-
-    //Set the properties of all units of a team so they don't have a turn.
-    void DeactivateUnits(Team team)
-    {
-        foreach (Unit unit in team.Units)
-        {
-            if (unit != null) unit.Deactivate();
-        }
-    }
-
-    //When all teams had their turn: change the weather (if random was selected), increase the round counter, check if the battle duration is ecxeeded
-    void EndRound()
-    {
-        RoundCounter++;
-        if (RoundCounter == Core.Model.MapSettings.battleDuration && Core.Model.MapSettings.battleDuration > 4)//Minimum for the duration of the battle is 5 rounds, if below this winning condition will never trigger.
-        {
-            //TODO: decide if more than two teams are playing and then only remove the defeated team from the map.
-
-            //TODO: If the maximum amount of rounds has passed, check who won the game. (Depending on the occupied properties)
-            Debug.Log("One of the teams won... I think...");
-        }
-        if (Core.Model.MapSettings.randomWeather) ChangeWeather(GetRandomWeather());
-    }
-
-    //Count the properties of all the teams and the team with the most wins.
-    //TODO: !WORKING (try to solve this with only two teams first)
-    Team GetTeamWithMostProperties()
-    {
-        Team winner = null;
-        int highestPropertyCount = 0;
-        foreach (Team team in Core.Model.teams)
-        {
-            int propertyCount = team.ownedProperties.Count;
-            if (propertyCount > highestPropertyCount)
-            {
-                highestPropertyCount = propertyCount;
-                winner = team;
-            }
-        }
-        return winner;
     }
     #endregion   
     #region Occupy Property
@@ -697,8 +706,8 @@ public class Controller : MonoBehaviour
     #region A*
     public void CalcShortestPath(UnitMoveType moveType, Tile start, Tile end)
     {
-        Core.Model.AStar.CalcPath(moveType, start, end);
-        List<Tile> finalPath = Core.Model.AStar.finalPath;
+        Core.Model.AStar.CalcPath(moveType, start, end, true);
+        List<Tile> finalPath = Core.Model.AStar.FinalPath;
         IndicatePath(finalPath);
     }
     public void IndicatePath(List<Tile> path)

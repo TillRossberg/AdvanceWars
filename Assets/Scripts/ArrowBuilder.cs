@@ -18,7 +18,6 @@ public class ArrowBuilder
     Tile _interruptTile;
     #endregion
 
-
     #region Arrow Path
     //Initiate the arrowBuilder with the start point of the path.
     public void StartPath(Unit unit)
@@ -38,6 +37,11 @@ public class ArrowBuilder
         Path.Remove(tile);
         momMovementPoints += tile.data.GetMovementCost(Core.Controller.SelectedUnit.data.moveType);
         UpdatePathGFX(Path);
+    }
+    public void SetPath(List<Tile> tiles)
+    {
+        Path = tiles;
+        UpdatePathGFX(tiles);
     }
     public void UpdatePathGFX(List<Tile> path)
     {
@@ -132,17 +136,7 @@ public class ArrowBuilder
         }
         else throw new System.Exception("No matching case for arrow change found!");
         return newRotation;
-    }
-
-   
-
-
-
-    public bool EnoughMovePointsRemaining(Tile tile, Unit unit)
-    {
-        if ((momMovementPoints - tile.data.GetMovementCost(unit.data.moveType)) >= 0) return true;
-        else return false;            
-    }
+    } 
     #endregion
     #region Movement Path
     //Calculates a direct path from the arrow path. I.e.: combine arrow parts that are in a straight line to be just one checkpoint for the movement.
@@ -151,18 +145,20 @@ public class ArrowBuilder
         List<Vector3> movementPath = new List<Vector3>();
         //TODO: implement the height for mountains and rivers!--> Linerenderer!!!
         AddWaypoint(movementPath, Path[0].Position);
-        for (int i = 1; i < Path.Count; i++)
+        for (int i = 1; i < Path.Count - 1; i++)
         {
-            Tile tile = Path[i];
-            if (!IsEnemyUnitHere(tile))
+            Tile previous = Path[i - 1];
+            Tile current = Path[i];
+            Tile next = Path[i + 1];
+            if (!IsEnemyUnitHere(current))
             {
-                if (!IsInStraightLine(tile, Path[i - 1])) AddWaypoint(movementPath, tile.Position);      
+                if (!IsInStraightLine(previous, next)) AddWaypoint(movementPath, current.Position);      
             }
             else
             {
-                AddWaypoint(movementPath, Path[i - 1].Position);
+                AddWaypoint(movementPath, previous.Position);
                 _isInterrupted = true;
-                _interruptTile = Path[i - 1];
+                _interruptTile = previous;
             }
         }
         if(!_isInterrupted) AddWaypoint(movementPath, Path[Path.Count - 1].Position);//Endpoint        
@@ -178,10 +174,20 @@ public class ArrowBuilder
 
     #endregion
     #region Conditions
-    bool IsInStraightLine(Tile current, Tile previous)
+    public bool EnoughMovePointsRemaining(Tile tile, Unit unit)
     {
-        if (current.Position.x == previous.Position.x) return true;
-        else if (current.Position.y == previous.Position.y) return true;
+        if ((momMovementPoints - tile.data.GetMovementCost(unit.data.moveType)) >= 0) return true;
+        else return false;
+    }
+    public bool IsPartOfArrowPath(Tile tile)
+    {
+        if (Path.Contains(tile)) return true;
+        else return false;
+    }
+    bool IsInStraightLine(Tile previous, Tile next)
+    {
+        if (previous.Position.x == next.Position.x) return true;
+        else if (previous.Position.y == next.Position.y) return true;
         else return false;
     }
     bool IsEnemyUnitHere(Tile tile)
@@ -189,12 +195,8 @@ public class ArrowBuilder
         if (tile.UnitHere != null && Core.Controller.SelectedUnit.IsMyEnemy(tile.UnitHere)) return true;
         else return false;
     }  
-    public bool IsPartOfArrowPath(Tile tile)
-    {
-        if (Path.Contains(tile)) return true;
-        else return false;
-    }
     #endregion
+
     public void ResetAll()
     {
         _interruptTile = null;
@@ -203,7 +205,6 @@ public class ArrowBuilder
         maxMovementPoints = 0;
         Path.Clear();
         ResetPathGFX();
-    }
-    
+    }  
    
 }

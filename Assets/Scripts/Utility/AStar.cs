@@ -4,10 +4,11 @@ using UnityEngine;
 
 public class AStar
 {
-    public List<Tile> finalPath = new List<Tile>();
+    public List<Tile> FinalPath = new List<Tile>();
 
-    public void CalcPath(UnitMoveType moveType, Tile startTile, Tile endTile)
+    public void CalcPath(UnitMoveType moveType, Tile startTile, Tile endTile, bool considerEnemyUnits)
     {
+        Reset();
         int counter = 0;
 
         //Init
@@ -31,7 +32,7 @@ public class AStar
                 if (currentTile == endTile)
                 {
                     List<Tile> pathFromTheEnd = ReconstructPath(currentTile, startTile);
-                    finalPath = InvertOrder(pathFromTheEnd);
+                    FinalPath = InvertOrder(pathFromTheEnd);
                     finished = true;
                 }
                 openList.RemoveAt(winner);
@@ -39,7 +40,7 @@ public class AStar
                 //check all neighbors of current
                 foreach (Tile neighbor in currentTile.Neighbors)
                 {
-                    if(neighbor.data.GetMovementCost(moveType) > 0 && !Core.Controller.SelectedUnit.IsMyEnemy(neighbor.UnitHere))//Make sure impassable terrain is ignored and you cannot go through enemy units.
+                    if (neighbor.data.GetMovementCost(moveType) > 0 && (!considerEnemyUnits || !Core.Controller.SelectedUnit.IsMyEnemy(neighbor.UnitHere)))//Make sure impassable terrain is ignored and you cannot go through enemy units.
                     {
                         if (!closedList.Contains(neighbor))
                         {
@@ -64,6 +65,7 @@ public class AStar
             else
             {
                 finished = true;
+                Debug.Log("No path found!");
             }
             counter++;
             if (counter > 1000)
@@ -100,11 +102,10 @@ public class AStar
         }
         return tempList;
     }
-    //Create a list of tiles of the node list.
     
     public void Reset()
     {
-        finalPath.Clear();
+        FinalPath.Clear();
         for (int x = 0; x < Core.Model.MapMatrix.Count; x++)
         {
             for (int y = 0; y < Core.Model.MapMatrix[x].Count; y++)
