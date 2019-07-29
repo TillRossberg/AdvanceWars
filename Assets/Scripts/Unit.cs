@@ -364,6 +364,10 @@ public class Unit : MonoBehaviour
             }
         }
     }
+    public List<Unit> GetAttackableUnits()
+    {
+        return _attackableUnits;
+    }
     public void ClearAttackableEnemies()
     {
         _attackableUnits.Clear();

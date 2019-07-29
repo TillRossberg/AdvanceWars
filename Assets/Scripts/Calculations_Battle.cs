@@ -40,24 +40,28 @@ public class Calculations_Battle
     //Calculate the damage inflicted, based on the attacker, defender, the chosen General(will be added later!) and the cover of the tiles they stand on.
     public int CalcDamage(Unit attacker, Unit defender, Tile defendingTile)
     {
+        return CalcDamage(attacker, attacker.health, defender, defendingTile);
+    }    
+    public int CalcDamage(Unit attacker, int attackerHP, Unit defender, Tile defendingTile)
+    {
         float Damage;//Damage that will be inflicted.
         float BaseDamage = attacker.data.GetDamageAgainst(defender.data.type);//Base damage of the unit. (Depends on the unit it fights against.)
-        if(BaseDamage > 0)
+        if (BaseDamage > 0)
         {
             float dmgModifierAttacker = 1; // Attacking CO attack value.(Will vary later ^^)
             int RandomNumber = Random.Range(0, 10); //Random number between 0-9 to vary the damage.
-            int AttackerHP = attacker.health; //Attacker HP
             float dmgModifierDefender = 1; // Defending CO attack value.(Will vary later ^^)
             float dmgReductionCover = _coverRatings[defendingTile.data.cover]; //Defending terrain stars.    
             float DefenderHp = defender.health; //HP of the defender.
 
-            Debug.Log("Damage = (BaseDamage:" + BaseDamage + " + RandomNumber:" + RandomNumber + ") * AttackerHp/100:" + AttackerHP / 100 + " * dmgReductionCover:" + dmgReductionCover);
-            return (int)(Damage = (BaseDamage + RandomNumber) * AttackerHP / 100 * dmgReductionCover * dmgModifierAttacker * dmgModifierDefender);
+            //Debug.Log("Damage = (BaseDamage:" + BaseDamage + " + RandomNumber:" + RandomNumber + ") * AttackerHp/100:" + AttackerHP / 100 + " * dmgReductionCover:" + dmgReductionCover);
+            //return (int)(Damage = (BaseDamage + RandomNumber) * AttackerHP / 100 * dmgReductionCover * dmgModifierAttacker * dmgModifierDefender);
+            return (int)(Damage = (BaseDamage) * attackerHP / 100 * dmgReductionCover * dmgModifierAttacker * dmgModifierDefender);
         }
         else
         {
             Debug.Log("BattleMode: Invalid base damage, i.e. can't attack this unit!");
             return 0;
         }
-    }    
+    }
 }

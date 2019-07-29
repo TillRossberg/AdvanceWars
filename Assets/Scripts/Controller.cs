@@ -39,8 +39,8 @@ public class Controller : MonoBehaviour
         Core.Model.teams[0].AddEnemyTeam(Core.Model.teams[1]);
         Core.Model.teams[1].AddEnemyTeam(Core.Model.teams[0]);
         //Core.Model.LoadLevel01(15, 15);
-        //Core.Model.LoadLevel02(19, 13);
-        Core.Model.LoadLevel03(7, 5);
+        Core.Model.LoadLevel02(19, 13);
+        //Core.Model.LoadLevel03(7, 5);
         Core.Model.InitTeams();
         Cursor = CreateCursor(new Vector2Int(1, 1));
         Core.Model.SetupRandomSuccession();
