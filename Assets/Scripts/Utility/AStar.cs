@@ -4,9 +4,14 @@ using UnityEngine;
 
 public class AStar
 {
-    public List<Tile> FinalPath = new List<Tile>();
+    List<Tile> FinalPath = new List<Tile>();
+    public List<Tile> GetPath(Unit unit, Tile startTile, Tile endTile, bool considerEnemyUnits)
+    {
+        CalcPath(unit, startTile, endTile, considerEnemyUnits);
+        return FinalPath;
+    }
 
-    public void CalcPath(UnitMoveType moveType, Tile startTile, Tile endTile, bool considerEnemyUnits)
+    public void CalcPath(Unit unit, Tile startTile, Tile endTile, bool considerEnemyUnits)
     {
         Reset();
         int counter = 0;
@@ -40,11 +45,11 @@ public class AStar
                 //check all neighbors of current
                 foreach (Tile neighbor in currentTile.Neighbors)
                 {
-                    if (neighbor.data.GetMovementCost(moveType) > 0 && (!considerEnemyUnits || !Core.Controller.SelectedUnit.IsMyEnemy(neighbor.UnitHere)))//Make sure impassable terrain is ignored and you cannot go through enemy units.
+                    if (neighbor.data.GetMovementCost(unit.data.moveType) > 0 && (!considerEnemyUnits || !unit.IsMyEnemy(neighbor.UnitHere)))//Make sure impassable terrain is ignored and you cannot go through enemy units.
                     {
                         if (!closedList.Contains(neighbor))
                         {
-                            float tempG = currentTile.G + neighbor.data.GetMovementCost(moveType);
+                            float tempG = currentTile.G + neighbor.data.GetMovementCost(unit.data.moveType);
                             if (openList.Contains(neighbor))
                             {
                                 if (tempG < neighbor.G) neighbor.G = tempG;
@@ -103,7 +108,7 @@ public class AStar
         return tempList;
     }
     
-    public void Reset()
+    void Reset()
     {
         FinalPath.Clear();
         for (int x = 0; x < Core.Model.MapMatrix.Count; x++)

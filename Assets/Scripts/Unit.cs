@@ -133,7 +133,7 @@ public class Unit : MonoBehaviour
         if (health <= 0)
         {
             health = 0;
-            KillUnit();
+            Core.Controller.KillUnit(this);
         }
     }
     public void SetHealth(int amount)
@@ -168,36 +168,15 @@ public class Unit : MonoBehaviour
     }
     #endregion
     #region Kill Unit Methods
-    //Destroys the unit
-    public void KillUnit()
-    {
-        //Set the unit standing on this tile as null.
-        Core.Model.GetTile(Position).UnitHere = null;
-        //TODO: Boom animation
-
-        //Remove unit from team list
-        team.Units.Remove(this);
-        //If this was the last unit of the player the game is lost.
-        if (team.Units.Count <= 0)
-        {
-            Core.View.VictoryScreen.Show(team.EnemyTeams[0]);
-        }
-        //Finally delete the unit.
-        Destroy(this.gameObject);
-    }
-    public IEnumerator KillUnitDelayed(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        KillUnit();
-    }
+    
     #endregion
     #region Movement
     //Move the unit to a field and align it so it faces away, from where it came.
     public void MoveTo(Vector2Int newPos)
     {
         //Calculate path
-        Core.Model.AStar.CalcPath(data.moveType, CurrentTile, Core.Model.GetTile(newPos), true);
-        Core.Controller.ArrowBuilder.SetPath(Core.Model.AStar.FinalPath);       
+        List<Tile> path = Core.Model.AStar.GetPath(this, CurrentTile, Core.Model.GetTile(newPos), true);
+        Core.Controller.ArrowBuilder.SetPath(path);       
         //Setup the sequencer for the movement animation.
         AnimationController.InitMovement();
         IsInterrupted = Core.Controller.ArrowBuilder.GetInterruption();
@@ -218,7 +197,7 @@ public class Unit : MonoBehaviour
             else if (WantsToUnite) Core.View.ContextMenu.ShowUniteButton();
             else
             {
-                FindAttackableEnemies(Core.Controller.SelectedTile.Position);
+                GetAttackableEnemies(Core.Controller.SelectedTile.Position);
                 if (!team.IsAI) Core.View.ContextMenu.Show(this);
             }
         }
@@ -253,7 +232,7 @@ public class Unit : MonoBehaviour
     public void SetCurrentTile(Vector2Int pos)
     {
         this.CurrentTile = Core.Model.GetTile(pos);
-        Core.Model.GetTile(pos).UnitHere = null;
+        Core.Model.GetTile(pos).UnitHere = this;
     }
     //Resets the position and rotation of the unit to where it was before. (If we click the right mouse button or close the menu after we successfully moved it somewhere.)
     public void ResetPosition()
@@ -352,7 +331,7 @@ public class Unit : MonoBehaviour
     #endregion
     #region Enemy
     //Checks the attackable tiles for enemies.
-    public void FindAttackableEnemies(Vector2Int pos)
+    public void GetAttackableEnemies(Vector2Int pos)
     {
         CalcAttackableArea(pos);
         foreach (Tile tile in _attackableTiles)
@@ -407,47 +386,58 @@ public class Unit : MonoBehaviour
     #region Attackable Area
     public void ShowAttackableTiles(Vector2Int pos)
     {
-        CalcAttackableArea(pos);
-        CreateAttackableTilesGfx();
+        ClearAttackableTiles();
+        if (data.directAttack) CreateAttackableTilesGfx(GetAttackableTilesDirectAttack2(pos));
+        else if (data.directAttack) CreateAttackableTilesGfx(GetAttackableTilesRangedAttack());
     }
+    //Creates a list of tiles the unit can attack.
+    void CalcAttackableArea(Vector2Int position)
+    {
+        ClearAttackableTiles();
+        if (data.directAttack) _attackableTiles = GetAttackableTilesDirectAttack1(position);
+        else if (data.rangeAttack) _attackableTiles = GetAttackableTilesRangedAttack();
+    }       
     public void ClearAttackableTiles()
     {
         foreach (GameObject gfx in _attackableTilesGfx) Destroy(gfx.gameObject);
         _attackableTilesGfx.Clear();
         _attackableTiles.Clear();
     }
-    public void ToggleAttackableTilesVisiblity()
-    {
-        if(_attackableTiles.Count > 0)
-        {
-
-        }
-        else
-        {
-
-        }
-    }
-    //Creates a list of tiles the unit can attack.
-    void CalcAttackableArea(Vector2Int position)
-    {
-        if (data.directAttack) FindAttackableTilesForDirectAttack(position);
-        else if (data.rangeAttack) FindAttackableTilesForRangedAttack();
-    }
-
     //Calculates the attackable tiles for direct attack units.
-    void FindAttackableTilesForDirectAttack(Vector2Int position)
+    List<Tile> GetAttackableTilesDirectAttack1(Vector2Int position)
     {
+        List<Tile> tempList = new List<Tile>();
         Vector2Int left = new Vector2Int(position.x - 1, position.y);
-        TryToAddAttackableTile(left);
+        TryToAddAttackableTile(left, tempList);
         Vector2Int right = new Vector2Int(position.x + 1, position.y);
-        TryToAddAttackableTile(right);
+        TryToAddAttackableTile(right, tempList);
         Vector2Int Top = new Vector2Int(position.x, position.y + 1);
-        TryToAddAttackableTile(Top);
+        TryToAddAttackableTile(Top, tempList);
         Vector2Int Bottom = new Vector2Int(position.x, position.y - 1);
-        TryToAddAttackableTile(Bottom);
+        TryToAddAttackableTile(Bottom, tempList);
+        return tempList;
     }
-    void FindAttackableTilesForRangedAttack()
+    List<Tile> GetAttackableTilesDirectAttack2(Vector2Int pos)
     {
+        ClearAttackableTiles();
+        ClearReachableTiles();
+        CalcReachableArea(pos, data.moveDist, data.moveType, null);
+        return AddUpAttackableTile(_reachableTiles);
+    }
+    List<Tile> AddUpAttackableTile(List<Tile> reachableTiles)
+    {
+        List<Tile> tempList = new List<Tile>();
+
+        foreach (Tile item in reachableTiles)
+        {
+            foreach (Tile neighbor in item.Neighbors) if(!reachableTiles.Contains(neighbor) && !tempList.Contains(neighbor)) tempList.Add(neighbor);
+            tempList.Add(item);
+        }      
+        return tempList;
+    }
+    List<Tile> GetAttackableTilesRangedAttack()
+    {
+        List<Tile> tempList = new List<Tile>();
         //First we mark every visible tile as attackable...
         for (int i = 1; i <= data.maxRange; i++)
         {
@@ -455,36 +445,36 @@ public class Unit : MonoBehaviour
             Vector2Int testPosition = new Vector2Int(this.Position.x + i, this.Position.y);
             if (Core.Model.IsOnMap(testPosition))
             {
-                TryToAddAttackableTile(testPosition);
+                TryToAddAttackableTile(testPosition, tempList);
                 for (int j = 1; j <= data.maxRange - i; j++)
                 {
                     //... and up.
                     testPosition = new Vector2Int(this.Position.x + i, this.Position.y + j);
-                    TryToAddAttackableTile(testPosition);
+                    TryToAddAttackableTile(testPosition, tempList);
                     //... and down.
                     testPosition = new Vector2Int(this.Position.x + i, this.Position.y - j);
-                    TryToAddAttackableTile(testPosition);
+                    TryToAddAttackableTile(testPosition, tempList);
                 }
             }
             //Left...
             testPosition = new Vector2Int(this.Position.x - i, this.Position.y);
             if (Core.Model.IsOnMap(testPosition))
             {
-                TryToAddAttackableTile(testPosition);
+                TryToAddAttackableTile(testPosition, tempList);
                 for (int j = 1; j <= data.maxRange - i; j++)
                 {
                     //... and up.
                     testPosition = new Vector2Int(this.Position.x - i, this.Position.y + j);
-                    TryToAddAttackableTile(testPosition);
+                    TryToAddAttackableTile(testPosition, tempList);
                     //... and down.
                     testPosition = new Vector2Int(this.Position.x - i, this.Position.y - j);
-                    TryToAddAttackableTile(testPosition);
+                    TryToAddAttackableTile(testPosition, tempList);
                 }
             }
             testPosition = new Vector2Int(this.Position.x, this.Position.y + i);
-            TryToAddAttackableTile(testPosition);
+            TryToAddAttackableTile(testPosition, tempList);
             testPosition = new Vector2Int(this.Position.x, this.Position.y - i);
-            TryToAddAttackableTile(testPosition);
+            TryToAddAttackableTile(testPosition, tempList);
         }
         //...then we remove all tiles in the minimum range. (Need a better solution for this!)
         for (int i = 1; i < data.minRange; i++)
@@ -493,63 +483,71 @@ public class Unit : MonoBehaviour
             Vector2Int testPosition = new Vector2Int(this.Position.x + i, this.Position.y);
             if (Core.Model.IsOnMap(testPosition))
             {
-                TryToRemoveAttackableTile(testPosition);
+                TryToRemoveAttackableTile(testPosition, tempList);
                 for (int j = 1; j < data.minRange - i; j++)
                 {
                     //... and up.
                     testPosition = new Vector2Int(this.Position.x + i, this.Position.y + j);
-                    TryToRemoveAttackableTile(testPosition);
+                    TryToRemoveAttackableTile(testPosition, tempList);
                     //... and down.
                     testPosition = new Vector2Int(this.Position.x + i, this.Position.y - j);
-                    TryToRemoveAttackableTile(testPosition);
+                    TryToRemoveAttackableTile(testPosition, tempList);
                 }
             }
             //Left...
             testPosition = new Vector2Int(this.Position.x - i, this.Position.y);
             if (Core.Model.IsOnMap(testPosition))
             {
-                TryToRemoveAttackableTile(testPosition);
+                TryToRemoveAttackableTile(testPosition, tempList);
                 for (int j = 1; j < data.minRange - i; j++)
                 {
                     //... and up.
                     testPosition = new Vector2Int(this.Position.x - i, this.Position.y + j);
-                    TryToRemoveAttackableTile(testPosition);
+                    TryToRemoveAttackableTile(testPosition, tempList);
                     //... and down.
                     testPosition = new Vector2Int(this.Position.x - i, this.Position.y - j);
-                    TryToRemoveAttackableTile(testPosition);
+                    TryToRemoveAttackableTile(testPosition, tempList);
                 }
             }
             //Up
             testPosition = new Vector2Int(this.Position.x, this.Position.y + i);
-            if (Core.Model.IsOnMap(testPosition)) TryToRemoveAttackableTile(testPosition);
+            if (Core.Model.IsOnMap(testPosition)) TryToRemoveAttackableTile(testPosition, tempList);
             //Down
             testPosition = new Vector2Int(this.Position.x, this.Position.y - i);
-            if (Core.Model.IsOnMap(testPosition)) TryToRemoveAttackableTile(testPosition);
+            if (Core.Model.IsOnMap(testPosition)) TryToRemoveAttackableTile(testPosition, tempList);
         }
+        return tempList;
     }
-    void TryToAddAttackableTile(Vector2Int position)
+    void TryToAddAttackableTile(Vector2Int position, List<Tile> tiles)
     {
         if (Core.Model.IsOnMap(position))
         {
             Tile tile = Core.Model.GetTile(position);
-            _attackableTiles.Add(tile);
+            tiles.Add(tile);
         }
     }
-    void TryToRemoveAttackableTile(Vector2Int position)
+    void TryToRemoveAttackableTile(Vector2Int position, List<Tile> tiles)
     {
         if (Core.Model.IsOnMap(position))
         {
             Tile tile = Core.Model.GetTile(position);
-            _attackableTiles.Remove(tile);
+            tiles.Remove(tile);
         }
     }
 
     //Creates the graphics for the tiles, that can be attacked by the unit.
-    void CreateAttackableTilesGfx()
+    void CreateAttackableTilesGfx(List< Tile> tiles)
     {
-        foreach (Tile tile in _attackableTiles) _attackableTilesGfx.Add(Instantiate(Core.Model.Database.attackableTilePrefab, new Vector3(tile.Position.x, 0.1f, tile.Position.y), Quaternion.identity, this.transform));        
-    }    
-
+        foreach (Tile tile in tiles) _attackableTilesGfx.Add(Instantiate(Core.Model.Database.attackableTilePrefab, new Vector3(tile.Position.x, 0.1f, tile.Position.y), Quaternion.identity, this.transform));        
+    }
+    public List<Unit> GetReachableEnemies(Vector2Int pos)
+    {
+        List<Unit> tempList = new List<Unit>();
+        ClearReachableTiles();
+        CalcAttackableArea(pos);
+        foreach (Tile item in _attackableTiles) if (IsMyEnemy(item.UnitHere)) tempList.Add(item.UnitHere);
+        return tempList;
+    }
     #endregion
     #region Reachable Area
     public void ShowReachableArea()
@@ -571,7 +569,7 @@ public class Unit : MonoBehaviour
         if (cameFromTile != null)
         {
             movementPoints = movementPoints - tile.data.GetMovementCost(moveType);
-            //TODO: add fuel
+            //TODO: also implement fuel
         }
 
         //If enough movement points are left and the tile is passable (we can move through our own units, but are blocked by enemies), do the recursion.
@@ -596,6 +594,7 @@ public class Unit : MonoBehaviour
         if (_reachableTiles.Contains(tile)) return true;
         else return false;
     }
+   
     #endregion
     #region Visible Area
     //Calculates the visible area of this unit depending on its vision range and marks the visible tiles in the graph.
@@ -700,7 +699,7 @@ public class Unit : MonoBehaviour
     {       
         unit.AddHealth(this.health);
         unit.UpdateHealth();
-        this.KillUnit();
+        Core.Controller.KillUnit(this);
     }
     public bool CanUnite(Unit unit)
     {

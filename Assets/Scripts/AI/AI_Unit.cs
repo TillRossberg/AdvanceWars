@@ -4,46 +4,102 @@ using UnityEngine;
 using System;
 public class AI_Unit 
 {
-    event Action OnOrderFinished;
+    AI ai;
     public Unit Unit;
-    public Unit target;
+    public Unit attackTarget;
     public Tile moveTarget;
-    List<IOrder> Orders = new List<IOrder>();
-    int _orderIndex;
-    public void Init(Unit unit)
+
+    bool _move = true;
+    bool _act = true;
+
+    public event Action OnAllOrdersFinished;
+
+    #region Basic Methods
+    public AI_Unit(Unit unit, AI ai)
     {
         this.Unit = unit;
+        this.ai = ai;
+    }   
+    public void Reset()
+    {
+        _move = true;
+        _act = true;
+    }
+
+
+    #endregion
+    public void Start()
+    {
+        Core.Controller.Cursor.SetPosition(Unit.Position);//Focus camera on the unit.
+        Core.Controller.SelectedUnit = Unit;
+        Continue();
+    }
+    public void Continue()
+    {
+
+        if (_move)
+        {
+            //move action   
+            if (moveTarget != null)
+            {
+                Debug.Log(Unit + " starts to move!");
+
+                Core.Controller.SelectedTile = Core.Model.GetTile(moveTarget.Position);
+                Unit.MoveTo(moveTarget.Position);
+            }
+            else
+            {
+                Debug.Log(Unit + " has no move target!");
+                _move = false;
+                Continue();
+            }
+        }
+        else if (_act)
+        {
+            Debug.Log(Unit + " starts to act!");
+            Unit.Wait();
+            _act = false;
+            Continue();
+        }
+        else Exit();
     }
     public void Exit()
+    {        
+        Core.Controller.Deselect();
+        OnAllOrdersFinished();
+    }
+
+
+    #region Move to position
+    public void MoveFinished()
+    {
+        Debug.Log(Unit + " finished movement!");
+        _move = false;
+        Continue();
+    }
+    #endregion
+    #region Act
+    public void ActFinished()
+    {
+        Debug.Log(Unit + " finished acting!");
+        Continue();
+    }
+    #endregion
+    #region Move to enmey HQ
+    
+    
+    #endregion
+    #region Act
+    public void Attack()
     {
 
     }
+    #endregion
+    #region Protect a Unit
 
-    public void AddOrder(IOrder order)
-    {
-        Orders.Add(order);
-    }
-    public void StartExecutingOrders()
-    {
-        _orderIndex = 0;
-        if(Orders.Count > 0)
-        {
-            Orders[_orderIndex].Init(this);
-            _orderIndex++;
-        }
-        else Debug.Log(Unit + " doesnt have any orders!");
-    }
-    public void ExecuteNextOrder()
-    {
-        if(_orderIndex < Orders.Count - 1)
-        {
-            Orders[_orderIndex].Init(this);
-            _orderIndex++;
-        }
-        else
-        {
+    #endregion
+    #region Stay out of range (of visible units)
 
-            Debug.Log(Unit + " executed all orders!");
-        }
-    }
+    #endregion
+    
 }

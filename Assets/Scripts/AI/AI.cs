@@ -6,8 +6,10 @@ using System;
 public class AI : MonoBehaviour
 {
     Team team;
+    public List<AI_Unit> aiUnits;
     public Tile enemyHQ;
-    event Action AllUnitsMoved;
+
+    event Action OnAllUnitsMoved;
     bool decisionPhase = true;
     public bool unitPhase = true;
     bool buyPhase = true;
@@ -16,29 +18,28 @@ public class AI : MonoBehaviour
     public void Init(Team team)
     {
         this.team = team;
-        AllUnitsMoved += ExecuteTurn;
-        SubscribeForUnitEvents();
-        enemyHQ = FindEnemyHQ(team);
+        aiUnits = InitAIUnits(team.Units);
+        enemyHQ = GetEnemyHQ(team);
+        OnAllUnitsMoved += ContinueTurn;
     }
+    List<AI_Unit> InitAIUnits(List<Unit> units)
+    {
+        List<AI_Unit> tempList = new List<AI_Unit>();
+        foreach (Unit item in units)
+        {
+            AI_Unit newUnit = new AI_Unit(item, this);
+            tempList.Add(newUnit);
+            newUnit.OnAllOrdersFinished += ActivateNextUnit;
+            newUnit.Unit.AnimationController.OnReachedLastWayPoint += newUnit.MoveFinished;
+        }
+        return tempList;
+    }
+
     void OnDestroy()
     {
-        AllUnitsMoved -= ExecuteTurn;
-        UnSubscribeForUnitEvents();
+        OnAllUnitsMoved -= ContinueTurn;        
     }
-    void SubscribeForUnitEvents()
-    {
-        foreach (Unit unit in team.Units)
-        {
-            unit.AnimationController.OnReachedLastWayPoint += MoveFinished;
-        }
-    }
-    void UnSubscribeForUnitEvents()
-    {
-        foreach (Unit unit in team.Units)
-        {
-            unit.AnimationController.OnReachedLastWayPoint -= MoveFinished;
-        }
-    }
+    
     void ResetPhases()
     {
         decisionPhase = true;
@@ -46,7 +47,7 @@ public class AI : MonoBehaviour
         buyPhase = true;
     }
     #endregion
-    
+
     public IEnumerator StartTurnDelayed(float delay)
     {
         yield return new WaitForSeconds(delay);
@@ -57,11 +58,12 @@ public class AI : MonoBehaviour
         Debug.Log("========================");
         Debug.Log("AI starts turn!");
         //Analyze situation
-        ExecuteTurn();
+        ContinueTurn();
     }
-    public void ExecuteTurn()
+    public void ContinueTurn()
     {
-        Debug.Log("AI executes turn!");
+        Debug.Log("AI continues turn!");
+        //Scout before make decisions?
         //Decide what to do
         if (decisionPhase) Decide();
         //Make moves for units
@@ -78,122 +80,139 @@ public class AI : MonoBehaviour
         Core.Controller.EndTurnButton();
     }
     #region Decision Methods
-    void Decide()       
+    void Decide()
     {
+        Debug.Log("-----------------------");
         Debug.Log("AI decides!");
-        foreach (Unit unit in team.Units)
+        foreach (AI_Unit aiUnit in aiUnits)
         {
-            //Can I make a valuable attack?
-            unit.FindAttackableEnemies(unit.Position);
-            List<Unit> valueTargets = GetValueTargets(unit, unit.GetAttackableUnits());
             //Do I protect someone?
+            //Can I make a valuable attack?
+            aiUnit.Unit.GetAttackableEnemies(aiUnit.Unit.Position);
+            List<ValueTarget> valueTargets = GetValueTargets(aiUnit.Unit, aiUnit.Unit.GetAttackableUnits());
 
-            //Keep on moving to enmey HQ.
+            if (valueTargets.Count > 0) GetMostValuableTarget(valueTargets);
+
+            //Keep on moving to enemy HQ.
+            aiUnit.moveTarget = GetClosestTileOnPathToEnemyHQ(aiUnit.Unit, enemyHQ);
         }
         decisionPhase = false;
-        ExecuteTurn();
+        ContinueTurn();
     }
-    List<Unit> GetValueTargets(Unit attacker, List<Unit> units)
+    List<ValueTarget> GetValueTargets(Unit attacker, List<Unit> units)
     {
-        List<Unit> valueTargets = new List<Unit>();
+        List<ValueTarget> valueTargets = new List<ValueTarget>();
         foreach (Unit defender in units)
         {
             int attackerDamage = Core.Model.BattleCalculations.CalcDamage(attacker, defender, defender.CurrentTile);
-            int defenderDamage = Core.Model.BattleCalculations.CalcDamage(defender, defender.health - attackerDamage,  attacker, defender.CurrentTile);
+            int defenderDamage = Core.Model.BattleCalculations.CalcDamage(defender, defender.health - attackerDamage, attacker, defender.CurrentTile);
             float attackerValue = GetDamageValue(attackerDamage, defender);
             float defenderValue = GetDamageValue(defenderDamage, attacker);
-            if (attackerValue > defenderValue) valueTargets.Add(defender);
+            if (attackerValue > defenderValue)
+            {
+                valueTargets.Add(new ValueTarget(defender, attackerValue));
+            }
             //if (attackerDamage > defender.health) valueTargets.Add(defender);// Also consider if you would kill a unit, it should be a value target.
         }
         return valueTargets;
     }
     float GetDamageValue(int damage, Unit defender)
     {
-         return damage / 100 * defender.data.cost;        
+        return damage / 100 * defender.data.cost;
     }
-    
+    Unit GetMostValuableTarget(List<ValueTarget> valueTargets)
+    {
+        if (valueTargets.Count > 0)
+        {
+            ValueTarget mostValuableTarget = new ValueTarget();
+            float highestValue = 0;
+            foreach (ValueTarget item in valueTargets)
+            {
+                if (item.Value > highestValue)
+                {
+                    mostValuableTarget = item;
+                    highestValue = item.Value;
+                }
+            }
+            return mostValuableTarget.Unit;
+        }
+        throw new System.Exception("Value targets list is empty!");
+    }
+
     #endregion
     #region Unit Methods
     void ActivateNextUnit()
     {
-        Core.Controller.SelectedUnit = GetNextUnusedUnit(team.Units);
-        if (Core.Controller.SelectedUnit != null)
+        AI_Unit nextUnit = GetNextUnusedUnit(aiUnits);
+        if (nextUnit != null)
         {
-            MoveToHQ(Core.Controller.SelectedUnit);
+            nextUnit.Start();
         }
         else
         {
             unitPhase = false;
-            AllUnitsMoved();
+            OnAllUnitsMoved();
         }
-    }
-    void MoveToHQ(Unit unit)        
-    {
-        Debug.Log("--------------------");
-        Debug.Log(unit + " moves to enemy HQ.");
-        //find path to hq
-        Core.Model.AStar.CalcPath(unit.data.moveType, unit.CurrentTile, enemyHQ, true);
-        if (Core.Model.AStar.FinalPath.Count == 0) Core.Model.AStar.CalcPath(unit.data.moveType, unit.CurrentTile, enemyHQ, true);
-        //if path is blocked by enemy or ally OR movement cost to the HQ are not enough, find the closest reachable tile
-        Tile tile = FindReachableTile(Core.Model.AStar.FinalPath, unit);
-        Debug.Log("path length: " + Core.Model.AStar.FinalPath.Count);
-        Debug.Log("target tile: " + tile);
-
-        Vector2Int targetPos = tile.Position;
-        //focus on unit
-        Core.Controller.Cursor.SetPosition(unit.Position);
-        //move action        
-        Core.Controller.SelectedTile = Core.Model.GetTile(targetPos);
-        unit.MoveTo(targetPos);
-    }
-    void MoveFinished()
-    {
-        Debug.Log("Movement finished!");
-        Action(Core.Controller.SelectedUnit);
-    }       
-    void Action(Unit unit)        
-    {
-        Debug.Log(unit + " acts.");
-        unit.Wait();
-        ActionFinished();
-    }
-    void ActionFinished()
-    {
-        Core.Controller.SelectedUnit = null;
-        Core.Controller.SelectedTile = null;
-        ActivateNextUnit();
-    }
-    
-    Unit GetNextUnusedUnit(List<Unit> units)
-    {
-        foreach (Unit unit in units) if (unit.HasTurn) return unit;        
-        return null;
-    }
+    }    
     #endregion
     #region Buy Methods
     void BuyUnits()        
     {
+        Debug.Log("-----------------------");
+        Debug.Log("AI wants to buy units!");
         buyPhase = false;
-        ExecuteTurn();
+        ContinueTurn();
     }
     #endregion
     #region Stuff
-    Tile FindEnemyHQ(Team ownTeam)
+    public void RemoveAllAIUnits(List<Unit> units)
+    {
+        foreach (Unit item in units) RemoveAIUnit(item);       
+    }
+    public void RemoveAIUnit(Unit unit)
+    {
+        AI_Unit unitToRemove = GetUnit(unit);
+        unitToRemove.OnAllOrdersFinished -= ActivateNextUnit;
+        unitToRemove.Unit.AnimationController.OnReachedLastWayPoint -= unitToRemove.MoveFinished;
+        aiUnits.Remove(unitToRemove);
+    }
+    #endregion
+    #region Getter
+    AI_Unit GetUnit(Unit unit)
+    {
+        foreach (AI_Unit item in aiUnits)if (item.Unit == unit) return item;       
+        throw new System.Exception("AI unit not found!");
+    }
+    AI_Unit GetNextUnusedUnit(List<AI_Unit> units)
+    {
+        foreach (AI_Unit aiUnit in units) if (aiUnit.Unit.HasTurn) return aiUnit;        
+        return null;
+    }
+    Tile GetEnemyHQ(Team ownTeam)
     {
         foreach (Tile tile in ownTeam.EnemyTeams[0].ownedProperties) if (tile.data.type == TileType.HQ) return tile;        
         throw new System.Exception(ownTeam + " :No enemy HQ found!");
     }
+    #endregion
+    #region Calc way to HQ
+    Tile GetClosestTileOnPathToEnemyHQ(Unit unit, Tile enemyHQ)
+    {
+        //find path to hq
+        List<Tile> path = Core.Model.AStar.GetPath(unit, unit.CurrentTile, enemyHQ, true);
+        if (path.Count == 0) path = Core.Model.AStar.GetPath(unit, unit.CurrentTile, enemyHQ, false);//If all paths to the enemy HQ are blocked by enemies, ignore them.
+        return FindReachableTile(path, unit);
+    }
+    //Find a tile on the path that can be reached with the remaining movement points AND that is not blocked by an enemy.
     Tile FindReachableTile(List<Tile> path, Unit unit)
     {
         int movementPoints = unit.data.moveDist;
         for (int i = 1; i < path.Count; i++)
         {
             movementPoints -= path[i].data.GetMovementCost(unit.data.moveType);
-            if (movementPoints <= 0 || i == path.Count - 1) return path[i];           
+            if (movementPoints <= 0 || i == path.Count - 1) return path[i];
             if (unit.IsMyEnemy(path[i].UnitHere)) return path[i - 1];
-        }       
+        }
         throw new System.Exception("Error in finding reachable tile on path!");
     }
     #endregion
-
 }

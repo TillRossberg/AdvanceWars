@@ -206,7 +206,7 @@ public class Controller : MonoBehaviour
                 //Reset Cursor
                 Cursor.SetPosition(attacker.Position);
                 Cursor.SetCursorGfx(0);
-                Cursor.HideEstimnatedDamage();
+                Cursor.HideEstimatedDamage();
                 //End turn for attacking unit
                 attacker.Wait();
                 ResetTilesToCycle();
@@ -219,7 +219,7 @@ public class Controller : MonoBehaviour
                     //Click on self
                     if (unitHere == SelectedUnit)
                     {
-                        SelectedUnit.FindAttackableEnemies(SelectedUnit.Position);
+                        SelectedUnit.GetAttackableEnemies(SelectedUnit.Position);
                         Core.View.ContextMenu.Show(SelectedUnit);
                     }
                     //Click on transporter
@@ -269,7 +269,7 @@ public class Controller : MonoBehaviour
                 ResetTilesToCycle();
                 Cursor.SetPosition(GetSelectedPosition());
                 Cursor.SetCursorGfx(0);
-                Cursor.HideEstimnatedDamage();
+                Cursor.HideEstimatedDamage();
                 Core.View.ContextMenu.Show(SelectedUnit);
                 break;
             case Mode.Move:
@@ -318,7 +318,7 @@ public class Controller : MonoBehaviour
         Unit unit = Core.Model.GetTile(Cursor.Position).UnitHere;
         if (unit != null)
         {
-            Select(unit);
+            SelectedUnit = unit;
             unit.ShowAttackableTiles(unit.Position);
         }
     }
@@ -384,11 +384,9 @@ public class Controller : MonoBehaviour
                         Cursor.SetPosition(pos);
                         Tile start = SelectedUnit.CurrentTile;
                         Tile end = tile;
-                        Core.Model.AStar.Reset();
-                        Core.Model.AStar.CalcPath(SelectedUnit.data.moveType, start, end, true);
                         //ClearIndicators();
                         //IndicatePath(Core.Model.AStar.finalPath);
-                        ArrowBuilder.SetPath(Core.Model.AStar.FinalPath);                        
+                        ArrowBuilder.SetPath(Core.Model.AStar.GetPath(SelectedUnit, start, end, true));                        
                     }                    
                     break;
                 case Mode.BuyMenu:
@@ -580,7 +578,7 @@ public class Controller : MonoBehaviour
     }
     public void RangeButton()
     {
-        SelectedUnit.ToggleAttackableTilesVisiblity();
+
     }
     //Pause Menu
     public void EndTurnButton()
@@ -703,13 +701,7 @@ public class Controller : MonoBehaviour
         _tilesToCycle.Clear();
     }
     #endregion
-    #region A*
-    public void CalcShortestPath(UnitMoveType moveType, Tile start, Tile end)
-    {
-        Core.Model.AStar.CalcPath(moveType, start, end, true);
-        List<Tile> finalPath = Core.Model.AStar.FinalPath;
-        IndicatePath(finalPath);
-    }
+    #region A*    
     public void IndicatePath(List<Tile> path)
     {
         float offset = 1;
@@ -747,8 +739,37 @@ public class Controller : MonoBehaviour
         Cursor.BlockInput(value);
     }
     #endregion
+    #region Kill Unit
+    //Destroys the unit
+    public void KillUnit(Unit unit)
+    {
+        //Set the unit standing on this tile as null.
+        Core.Model.GetTile(unit.Position).UnitHere = null;
+        //TODO: Boom animation
+
+        //Remove unit from team list
+        unit.team.Units.Remove(unit);
+        //If this was the last unit of the player the game is lost.
+        if (unit.team.Units.Count <= 0)
+        {
+            Core.View.VictoryScreen.Show(unit.team.EnemyTeams[0]);
+        }
+        //If the unit is AI controlled, clear the AI logic for this unit.
+        if(unit.team.IsAI)
+        {
+            unit.team.AI.RemoveAIUnit(unit);
+        }
+        //Finally delete the unit.
+        Destroy(this.gameObject);
+    }
+    public IEnumerator KillUnitDelayed(Unit unit, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        KillUnit(unit);
+    }
+    #endregion
     #region Debug
-    public void killAllEnemies()
+    public void KillAllEnemies()
     {
         List<Team> enemyTeams = ActiveTeam.EnemyTeams;
         for (int i = 0; i < enemyTeams.Count; i++)
@@ -756,7 +777,7 @@ public class Controller : MonoBehaviour
             for (int j = 0; j < enemyTeams[i].Units.Count; j++)
             {
                 Unit unit = enemyTeams[i].Units[j];
-                unit.KillUnitDelayed(UnityEngine.Random.Range(1.1f, 2.5f));
+                StartCoroutine(Core.Controller.KillUnitDelayed(unit, UnityEngine.Random.Range(1.1f, 2.5f)));
             }
         }
     }

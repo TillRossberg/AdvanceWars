@@ -123,10 +123,7 @@ public class Controller_Cursor : MonoBehaviour
         #region Debug
         if (Input.GetKeyDown(KeyCode.N))
         {
-            Tile start = Core.Model.GetTile(new Vector2Int(0, 0));
-            Tile end = Core.Model.GetTile(new Vector2Int(7, 0));
-
-            Core.Controller.CalcShortestPath(UnitMoveType.Wheels, start, end);
+           
 
         }
         if (Input.GetKeyDown(KeyCode.S))
@@ -165,7 +162,7 @@ public class Controller_Cursor : MonoBehaviour
         string damage = Core.Model.BattleCalculations.CalcDamage(attacker, defender, defendingTile).ToString();
         estimatedDamage.text = damage + "% !";
     }
-    public void HideEstimnatedDamage()       
+    public void HideEstimatedDamage()       
     {
         estimatedDamage.gameObject.SetActive(false);
     }
