@@ -90,9 +90,10 @@ public class Controller : MonoBehaviour
         }
         else
         {
-            Cursor.SetPosition(ActiveTeam.Units[0].Position);//Set cursors position to first unit
+            Core.View.StatusPanel.Show();
             BlockInput(false);
             Cursor.DisplayCursorGfx(true);
+            Cursor.SetPosition(ActiveTeam.Units[0].Position);//Set cursors position to first unit
         }
     }
     IEnumerator StartTurnDelayed(float delay)
@@ -197,18 +198,8 @@ public class Controller : MonoBehaviour
                 else Core.View.TileDetails.Show(currentTile);
                 break;
             case Mode.Fire:
-                Unit attacker = SelectedUnit;
-                Unit defender = _targetTile.UnitHere;
-                //TODO: Align the units to face each other.
-
-                //Battle
-                Core.Model.BattleCalculations.Fight(attacker, defender);
-                //Reset Cursor
-                Cursor.SetPosition(attacker.Position);
-                Cursor.SetCursorGfx(0);
+                SelectedUnit.RotateAndAttack(_targetTile.UnitHere);
                 Cursor.HideEstimatedDamage();
-                //End turn for attacking unit
-                attacker.Wait();
                 ResetTilesToCycle();
                 Deselect();
                 break;
@@ -755,12 +746,12 @@ public class Controller : MonoBehaviour
             Core.View.VictoryScreen.Show(unit.team.EnemyTeams[0]);
         }
         //If the unit is AI controlled, clear the AI logic for this unit.
-        if(unit.team.IsAI)
+        if (unit.team.IsAI)
         {
             unit.team.AI.RemoveAIUnit(unit);
         }
         //Finally delete the unit.
-        Destroy(this.gameObject);
+        Destroy(unit.gameObject);
     }
     public IEnumerator KillUnitDelayed(Unit unit, float delay)
     {

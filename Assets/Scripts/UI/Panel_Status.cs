@@ -34,7 +34,7 @@ public class Panel_Status : MonoBehaviour
         {
             Unit unit = tile.UnitHere;
             this.unitName.text = unit.data.unitName;
-            this.unitThumb.sprite = unit.data.redThumbNail;
+            this.unitThumb.sprite = unit.data.GetThumbNail(unit.team);
             this.health.text = unit.GetCorrectedHealth().ToString();
             this.ammo.text = unit.ammo.ToString();
             this.fuel.text = unit.fuel.ToString();

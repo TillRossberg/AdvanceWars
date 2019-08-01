@@ -27,7 +27,7 @@ MonoBehaviour:
   minRange: 1
   maxRange: 1
   cost: 7000
-  primaryWeapon: 2
+  primaryWeapon: 3
   primaryAmmo: 9
   secondaryWeapon: 1
   secondaryAmmo: 0

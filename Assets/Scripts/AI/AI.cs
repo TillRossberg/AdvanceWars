@@ -31,10 +31,22 @@ public class AI : MonoBehaviour
             tempList.Add(newUnit);
             newUnit.OnAllOrdersFinished += ActivateNextUnit;
             newUnit.Unit.AnimationController.OnReachedLastWayPoint += newUnit.MoveFinished;
+            newUnit.Unit.AnimationController.OnRotationComplete += newUnit.RotateFinished;
         }
         return tempList;
     }
-
+    public void RemoveAllAIUnits(List<Unit> units)
+    {
+        foreach (Unit item in units) RemoveAIUnit(item);
+    }
+    public void RemoveAIUnit(Unit unit)
+    {
+        AI_Unit unitToRemove = GetUnit(unit);
+        unitToRemove.OnAllOrdersFinished -= ActivateNextUnit;
+        unitToRemove.Unit.AnimationController.OnReachedLastWayPoint -= unitToRemove.MoveFinished;
+        unitToRemove.Unit.AnimationController.OnRotationComplete -= unitToRemove.RotateFinished;
+        aiUnits.Remove(unitToRemove);
+    }
     void OnDestroy()
     {
         OnAllUnitsMoved -= ContinueTurn;        
@@ -45,6 +57,10 @@ public class AI : MonoBehaviour
         decisionPhase = true;
         unitPhase = true;
         buyPhase = true;
+    }
+    void ResetUnits()        
+    {
+        foreach (AI_Unit item in aiUnits)item.Reset();       
     }
     #endregion
 
@@ -62,7 +78,7 @@ public class AI : MonoBehaviour
     }
     public void ContinueTurn()
     {
-        Debug.Log("AI continues turn!");
+        //Debug.Log("AI continues turn!");
         //Scout before make decisions?
         //Decide what to do
         if (decisionPhase) Decide();
@@ -77,6 +93,7 @@ public class AI : MonoBehaviour
     {
         Debug.Log("AI ends turn!");
         ResetPhases();
+        ResetUnits();
         Core.Controller.EndTurnButton();
     }
     #region Decision Methods
@@ -88,26 +105,52 @@ public class AI : MonoBehaviour
         {
             //Do I protect someone?
             //Can I make a valuable attack?
-            aiUnit.Unit.GetAttackableEnemies(aiUnit.Unit.Position);
-            List<ValueTarget> valueTargets = GetValueTargets(aiUnit.Unit, aiUnit.Unit.GetAttackableUnits());
+            if(aiUnit.moveTarget == null)
+            {
+                List<ValueTarget> valueTargets = GetValueTargets(aiUnit.Unit, aiUnit.GetAttackableEnemies());
 
-            if (valueTargets.Count > 0) GetMostValuableTarget(valueTargets);
-
+                Debug.Log("value targets count: " + valueTargets.Count);
+                if (valueTargets.Count > 0)
+                {
+                    aiUnit.attackTarget = GetMostValuableTarget(valueTargets);
+                    Debug.Log(aiUnit.Unit + " wants to attack: " + aiUnit.attackTarget);
+                    aiUnit.moveTarget = GetAttackTile(aiUnit, aiUnit.attackTarget);
+                }
+            }
             //Keep on moving to enemy HQ.
-            aiUnit.moveTarget = GetClosestTileOnPathToEnemyHQ(aiUnit.Unit, enemyHQ);
+            if(aiUnit.moveTarget == null && aiUnit.Unit.Position != enemyHQ.Position)
+            {
+                aiUnit.moveTarget = GetClosestTileOnPathToEnemyHQ(aiUnit.Unit, enemyHQ);
+            }
         }
         decisionPhase = false;
         ContinueTurn();
+    }
+    #region High Value Attack Targets
+    Tile GetAttackTile(AI_Unit aiUnit, Unit target)
+    {
+        List<Tile> path = Core.Model.AStar.GetPath(aiUnit.Unit, aiUnit.Unit.CurrentTile, target.CurrentTile, false);
+
+        Debug.Log("Path length: " + path.Count);
+        return path[path.Count - 2];
     }
     List<ValueTarget> GetValueTargets(Unit attacker, List<Unit> units)
     {
         List<ValueTarget> valueTargets = new List<ValueTarget>();
         foreach (Unit defender in units)
         {
+            Debug.Log("defender: " + defender);
             int attackerDamage = Core.Model.BattleCalculations.CalcDamage(attacker, defender, defender.CurrentTile);
-            int defenderDamage = Core.Model.BattleCalculations.CalcDamage(defender, defender.health - attackerDamage, attacker, defender.CurrentTile);
+            Debug.Log("attacker damage: " + attackerDamage);
+            int defenderDamage = 0;
+            if(defender.data.directAttack) defenderDamage = Core.Model.BattleCalculations.CalcDamage(defender, defender.health - attackerDamage, attacker, defender.CurrentTile);
+            Debug.Log("defender damage: " + defenderDamage);
             float attackerValue = GetDamageValue(attackerDamage, defender);
+
+            Debug.Log("attacker value = " + attackerValue);
             float defenderValue = GetDamageValue(defenderDamage, attacker);
+
+            Debug.Log("defender value = " + defenderValue);
             if (attackerValue > defenderValue)
             {
                 valueTargets.Add(new ValueTarget(defender, attackerValue));
@@ -118,26 +161,23 @@ public class AI : MonoBehaviour
     }
     float GetDamageValue(int damage, Unit defender)
     {
-        return damage / 100 * defender.data.cost;
+        return damage / 100f * defender.data.cost;
     }
     Unit GetMostValuableTarget(List<ValueTarget> valueTargets)
-    {
-        if (valueTargets.Count > 0)
+    {        
+        ValueTarget mostValuableTarget = new ValueTarget();
+        float highestValue = 0;
+        foreach (ValueTarget item in valueTargets)
         {
-            ValueTarget mostValuableTarget = new ValueTarget();
-            float highestValue = 0;
-            foreach (ValueTarget item in valueTargets)
+            if (item.Value > highestValue)
             {
-                if (item.Value > highestValue)
-                {
-                    mostValuableTarget = item;
-                    highestValue = item.Value;
-                }
+                mostValuableTarget = item;
+                highestValue = item.Value;
             }
-            return mostValuableTarget.Unit;
         }
-        throw new System.Exception("Value targets list is empty!");
+        return mostValuableTarget.Unit;      
     }
+    #endregion
 
     #endregion
     #region Unit Methods
@@ -165,17 +205,8 @@ public class AI : MonoBehaviour
     }
     #endregion
     #region Stuff
-    public void RemoveAllAIUnits(List<Unit> units)
-    {
-        foreach (Unit item in units) RemoveAIUnit(item);       
-    }
-    public void RemoveAIUnit(Unit unit)
-    {
-        AI_Unit unitToRemove = GetUnit(unit);
-        unitToRemove.OnAllOrdersFinished -= ActivateNextUnit;
-        unitToRemove.Unit.AnimationController.OnReachedLastWayPoint -= unitToRemove.MoveFinished;
-        aiUnits.Remove(unitToRemove);
-    }
+   
+    
     #endregion
     #region Getter
     AI_Unit GetUnit(Unit unit)
@@ -197,9 +228,9 @@ public class AI : MonoBehaviour
     #region Calc way to HQ
     Tile GetClosestTileOnPathToEnemyHQ(Unit unit, Tile enemyHQ)
     {
-        //find path to hq
         List<Tile> path = Core.Model.AStar.GetPath(unit, unit.CurrentTile, enemyHQ, true);
-        if (path.Count == 0) path = Core.Model.AStar.GetPath(unit, unit.CurrentTile, enemyHQ, false);//If all paths to the enemy HQ are blocked by enemies, ignore them.
+        //If all paths to the enemy HQ are blocked by enemies, ignore them.
+        if (path.Count == 0) path = Core.Model.AStar.GetPath(unit, unit.CurrentTile, enemyHQ, false);
         return FindReachableTile(path, unit);
     }
     //Find a tile on the path that can be reached with the remaining movement points AND that is not blocked by an enemy.

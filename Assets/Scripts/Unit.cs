@@ -45,7 +45,7 @@ public class Unit : MonoBehaviour
     public bool WantsToBeLoaded = false;
     public bool WantsToUnite = false;
     #endregion
-    
+
 
     #region Basic Methods
     public void Init()
@@ -54,10 +54,13 @@ public class Unit : MonoBehaviour
         ammo = data.primaryAmmo;
         fuel = data.maxFuel;
         AnimationController.OnReachedLastWayPoint += MoveToFinished;
+        AnimationController.OnRotationComplete += RotateToFinished;
     }
     private void OnDestroy()
     {
         AnimationController.OnReachedLastWayPoint -= MoveToFinished;
+        AnimationController.OnRotationComplete -= RotateToFinished;
+
     }
     //Ends the turn for the unit.
     public void Wait()
@@ -133,8 +136,14 @@ public class Unit : MonoBehaviour
         if (health <= 0)
         {
             health = 0;
-            Core.Controller.KillUnit(this);
+            AnimationController.PlayDestroyEffect();
+            StartCoroutine(KillDelayed(this, AnimationController.DestroyEffect.main.duration / 2));
         }
+    }
+    IEnumerator KillDelayed(Unit unit, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        Core.Controller.KillUnit(this);
     }
     public void SetHealth(int amount)
     {
@@ -144,15 +153,8 @@ public class Unit : MonoBehaviour
     //Displays the actual lifepoints in the "3D"TextMesh
     public void DisplayHealth(bool value)
     {
-        if (value)
-        {
-            healthText.gameObject.SetActive(true);
-            UpdateHealth();
-        }
-        else
-        {
-            healthText.gameObject.SetActive(false);
-        }
+        healthText.gameObject.SetActive(value);
+        UpdateHealth();      
     }
     //If the health goes below five the value will be rounded to 0, but we dont want that!
     public int GetCorrectedHealth()
@@ -168,15 +170,16 @@ public class Unit : MonoBehaviour
     }
     #endregion
     #region Kill Unit Methods
-    
+
     #endregion
     #region Movement
+    
     //Move the unit to a field and align it so it faces away, from where it came.
     public void MoveTo(Vector2Int newPos)
     {
         //Calculate path
         List<Tile> path = Core.Model.AStar.GetPath(this, CurrentTile, Core.Model.GetTile(newPos), true);
-        Core.Controller.ArrowBuilder.SetPath(path);       
+        Core.Controller.ArrowBuilder.SetPath(path);
         //Setup the sequencer for the movement animation.
         AnimationController.InitMovement();
         IsInterrupted = Core.Controller.ArrowBuilder.GetInterruption();
@@ -249,7 +252,17 @@ public class Unit : MonoBehaviour
     }
 
     #endregion
-    #region Rotation
+    #region Rotation    
+    public void RotateAndAttack(Unit unit)
+    {
+        DisplayHealth(false);
+        AnimationController.InitRotation(unit);
+        Wait();
+    }
+    void RotateToFinished(Unit unit)
+    {
+        Attack(unit);
+    }
     //Rotate the unit so it faces north, east, south or west.
     public void RotateUnit(Direction newDirection)
     {
@@ -331,17 +344,21 @@ public class Unit : MonoBehaviour
     #endregion
     #region Enemy
     //Checks the attackable tiles for enemies.
-    public void GetAttackableEnemies(Vector2Int pos)
+    public List<Unit> GetAttackableEnemies(Vector2Int pos)
     {
+        List<Unit> tempList = new List<Unit>();
         CalcAttackableArea(pos);
+        ClearAttackableEnemies();
         foreach (Tile tile in _attackableTiles)
         {
             if (IsVisibleEnemyHere(tile))
             {
                 Unit enemy = tile.UnitHere;
-                if (data.GetDamageAgainst(enemy.data.type) > 0) _attackableUnits.Add(enemy);
+                if (data.GetDamageAgainst(enemy.data.type) > 0) tempList.Add(enemy);
             }
         }
+        _attackableUnits = tempList;
+        return tempList;
     }
     public List<Unit> GetAttackableUnits()
     {
@@ -355,11 +372,11 @@ public class Unit : MonoBehaviour
     public bool IsMyEnemy(Unit unit)
     {
         if (unit == null) return false;
-        if (enemyTeams.Contains(unit.team)) return true;   
+        if (enemyTeams.Contains(unit.team)) return true;
         else return false;
     }
     //Checks if an enemy is standing on this tile.
-    bool IsVisibleEnemyHere(Tile tile)
+    public bool IsVisibleEnemyHere(Tile tile)
     {
         if (tile.UnitHere != null && tile.IsVisible)
         {
@@ -383,12 +400,22 @@ public class Unit : MonoBehaviour
         else return false;
     }
     #endregion
+    #region Attack
+    public void Attack(Unit unit)
+    {
+        Core.Model.BattleCalculations.Fight(this, unit);
+        unit.AnimationController.PlayDamageEffect();
+        Core.Controller.Cursor.SetPosition(Position);
+        Core.Controller.Cursor.SetCursorGfx(0);
+    }
+   
+    #endregion
     #region Attackable Area
     public void ShowAttackableTiles(Vector2Int pos)
     {
         ClearAttackableTiles();
         if (data.directAttack) CreateAttackableTilesGfx(GetAttackableTilesDirectAttack2(pos));
-        else if (data.directAttack) CreateAttackableTilesGfx(GetAttackableTilesRangedAttack());
+        else if (data.rangeAttack) CreateAttackableTilesGfx(GetAttackableTilesRangedAttack());
     }
     //Creates a list of tiles the unit can attack.
     void CalcAttackableArea(Vector2Int position)
@@ -417,7 +444,7 @@ public class Unit : MonoBehaviour
         TryToAddAttackableTile(Bottom, tempList);
         return tempList;
     }
-    List<Tile> GetAttackableTilesDirectAttack2(Vector2Int pos)
+    public List<Tile> GetAttackableTilesDirectAttack2(Vector2Int pos)
     {
         ClearAttackableTiles();
         ClearReachableTiles();
@@ -427,15 +454,16 @@ public class Unit : MonoBehaviour
     List<Tile> AddUpAttackableTile(List<Tile> reachableTiles)
     {
         List<Tile> tempList = new List<Tile>();
-
         foreach (Tile item in reachableTiles)
         {
-            foreach (Tile neighbor in item.Neighbors) if(!reachableTiles.Contains(neighbor) && !tempList.Contains(neighbor)) tempList.Add(neighbor);
+            foreach (Tile neighbor in item.Neighbors)
+                if (!reachableTiles.Contains(neighbor) && !tempList.Contains(neighbor))
+                    tempList.Add(neighbor);
             tempList.Add(item);
         }      
         return tempList;
     }
-    List<Tile> GetAttackableTilesRangedAttack()
+    public List<Tile> GetAttackableTilesRangedAttack()
     {
         List<Tile> tempList = new List<Tile>();
         //First we mark every visible tile as attackable...
@@ -571,7 +599,6 @@ public class Unit : MonoBehaviour
             movementPoints = movementPoints - tile.data.GetMovementCost(moveType);
             //TODO: also implement fuel
         }
-
         //If enough movement points are left and the tile is passable (we can move through our own units, but are blocked by enemies), do the recursion.
         if ((movementPoints >= 0) && (tile.data.GetMovementCost(moveType) > 0) && !IsVisibleEnemyHere(tile))
         {

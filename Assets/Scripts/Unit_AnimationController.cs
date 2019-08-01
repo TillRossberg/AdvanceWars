@@ -7,6 +7,8 @@ public class Unit_AnimationController : MonoBehaviour
 {
     #region References
     Unit unit;
+    public ParticleSystem DamageEffect;
+    public ParticleSystem DestroyEffect;
     #endregion
     Vector3 target;
     List<Vector3> wayPointList = new List<Vector3>();
@@ -18,13 +20,17 @@ public class Unit_AnimationController : MonoBehaviour
     Quaternion startRotation;
     Quaternion endRotation;
     Vector3 lookingDirection;
-    
+    Unit _rotationTarget;
+
     //States
     bool move = false;
     bool rotate = false;
     public bool IsMovingToTarget { get; private set; }
-    //events
+    public bool IsRotatingToTarget { get; private set; }
+    #region Events
     public event Action OnReachedLastWayPoint;
+    public event Action<Unit> OnRotationComplete ;
+    #endregion
 
     public void InitMovement()
     {
@@ -37,10 +43,19 @@ public class Unit_AnimationController : MonoBehaviour
         IsMovingToTarget = true; //Init the sequencer in the update function...
         rotate = true;//...and start rotating towards the first waypoint.            
     }
+    public void InitRotation(Unit targetUnit)
+    {
+        lookingDirection = (targetUnit.transform.position - transform.position).normalized;
+        startRotation = Quaternion.LookRotation(this.transform.position);
+        endRotation = Quaternion.LookRotation(lookingDirection);
+        IsRotatingToTarget = true;
+        _rotationTarget = targetUnit;
+    }
     private void Start()
     {
         unit = this.GetComponent<Unit>();
         IsMovingToTarget = false;
+        IsRotatingToTarget = false;
     }
     // Update is called once per frame
     void Update()
@@ -94,8 +109,38 @@ public class Unit_AnimationController : MonoBehaviour
                 }
             }            
         }
+        if (IsRotatingToTarget)
+        {
+            startRotation = this.transform.rotation;
+            transform.rotation = Quaternion.Slerp(startRotation, endRotation, rotationSpeed * Time.deltaTime);
+            if (RotationComplete())
+            {
+                IsRotatingToTarget = false;
+                unit.DisplayHealth(true);
+                OnRotationComplete(_rotationTarget);
+            }
+        }
     }
 
+    #region Effects
+    public void PlayDestroyEffect()
+    {
+        DestroyEffect.gameObject.SetActive(true);
+        DestroyEffect.Play();
+    }
+    public void PlayDamageEffect()
+    {
+        DamageEffect.gameObject.SetActive(true);
+        DamageEffect.Play();
+        StartCoroutine(StopDamageEffectDelayed(DamageEffect.main.duration));
+    }
+    IEnumerator StopDamageEffectDelayed(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        DamageEffect.Stop();
+        DamageEffect.gameObject.SetActive(false);
+    }
+    #endregion
     #region Conditions
     //TODO: Move to Animation Controller
     private bool WayPointReached(Vector3 nextWaypoint)
@@ -109,6 +154,5 @@ public class Unit_AnimationController : MonoBehaviour
         if (Vector3.Angle(this.transform.forward, lookingDirection) < 1) return true;       
         else return false;      
     }
-
     #endregion
 }

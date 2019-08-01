@@ -1,7 +1,7 @@
 ﻿
 public class ValueTarget 
 {
-   public Unit Unit;
+    public Unit Unit;
     public float Value;
     public ValueTarget(Unit unit, float value)
     {
