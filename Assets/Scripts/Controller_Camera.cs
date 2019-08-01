@@ -14,7 +14,7 @@ public class Controller_Camera : MonoBehaviour
     float minHorizontalAngle = 5;
     float maxHorizontalAngle = 175;
     float minVerticalAngle = 5;
-    float maxVerticalAngle = 90;
+    float maxVerticalAngle = 70;
     float minZoomDistance = 1;
     float maxZoomDistance = 12;
     Camera mainCamera;

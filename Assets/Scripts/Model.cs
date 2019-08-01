@@ -240,22 +240,22 @@ public class Model : MonoBehaviour
         //Red
         ChangeTile(TileType.HQ, new Vector2Int(2, 4), 0);
         ChangeTile(TileType.Airport, new Vector2Int(2, 6), 0);
-        ChangeTile(TileType.Airport, new Vector2Int(2, 2), 0);
+        ChangeTile(TileType.City, new Vector2Int(2, 2), 0);
         ChangeTile(TileType.Facility, new Vector2Int(6, 4), 0);
         ChangeTile(TileType.Port, new Vector2Int(4, 7), 0);
         Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(2, 4)));
         Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(2, 6)));
-        Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(2, 2)));
+        //Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(2, 2)));
         Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(6, 4)));
         Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(4, 7)));
         //Blue
         ChangeTile(TileType.HQ, new Vector2Int(16, 4), 0);
         ChangeTile(TileType.Airport, new Vector2Int(16, 2), 0);
-        ChangeTile(TileType.Airport, new Vector2Int(16, 6), 0);
+        ChangeTile(TileType.City, new Vector2Int(16, 6), 0);
         ChangeTile(TileType.Facility, new Vector2Int(12, 4), 0);
         ChangeTile(TileType.Port, new Vector2Int(14, 7), 0);
         Core.Controller.Occupy(teams[1], GetTile(new Vector2Int(16, 4)));
-        Core.Controller.Occupy(teams[1], GetTile(new Vector2Int(16, 6)));
+        //Core.Controller.Occupy(teams[1], GetTile(new Vector2Int(16, 6)));
         Core.Controller.Occupy(teams[1], GetTile(new Vector2Int(16, 2)));
         Core.Controller.Occupy(teams[1], GetTile(new Vector2Int(12, 4)));
         Core.Controller.Occupy(teams[1], GetTile(new Vector2Int(14, 7)));
@@ -265,7 +265,7 @@ public class Model : MonoBehaviour
         //Units
         //Red
         //CreateUnit(UnitType.APC, Core.Model.teams[0], new Vector2Int(4, 4), Direction.North);
-        //CreateUnit(UnitType.Mech, Core.Model.teams[0], new Vector2Int(10, 3), Direction.North);
+        CreateUnit(UnitType.Infantry, Core.Model.teams[0], new Vector2Int(4, 3), Direction.North);
         CreateUnit(UnitType.Titantank, Core.Model.teams[0], new Vector2Int(8, 3), Direction.North);
         CreateUnit(UnitType.Rockets, Core.Model.teams[0], new Vector2Int(11, 5), Direction.North);
         CreateUnit(UnitType.Battleship, Core.Model.teams[0], new Vector2Int(7, 10), Direction.North);
@@ -274,7 +274,8 @@ public class Model : MonoBehaviour
         //CreateUnit(UnitType.Tank, Core.Model.teams[0], new Vector2Int(7, 4), Direction.East);
         //Blue
         //CreateUnit(UnitType.APC, Core.Model.teams[1], new Vector2Int(14, 4), Direction.North);
-        //CreateUnit(UnitType.Infantry, Core.Model.teams[1], new Vector2Int(3, 3), Direction.North);
+        CreateUnit(UnitType.Infantry, Core.Model.teams[1], new Vector2Int(3, 5), Direction.North);
+        CreateUnit(UnitType.Infantry, Core.Model.teams[1], new Vector2Int(3, 6), Direction.North);
         CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(12, 3), Direction.North);
         //CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(10, 4), Direction.North);
         //CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(9, 5), Direction.North);

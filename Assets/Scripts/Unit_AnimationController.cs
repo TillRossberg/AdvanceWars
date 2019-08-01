@@ -151,7 +151,7 @@ public class Unit_AnimationController : MonoBehaviour
     //If the forward vector of the unit aligns with the vector from the unit to the target, we finished the rotation.
     private bool RotationComplete()
     {
-        if (Vector3.Angle(this.transform.forward, lookingDirection) < 1) return true;       
+        if (Vector3.Angle(this.transform.forward, lookingDirection) < 0.5) return true;       
         else return false;      
     }
     #endregion

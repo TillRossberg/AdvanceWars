@@ -228,6 +228,7 @@ public class Controller : MonoBehaviour
                 //...or select an empty tile you want to go to.
                 else
                 {
+                    if(SelectedUnit.CurrentTile.IsProperty()) StopOccupation(SelectedUnit.CurrentTile);
                     Select(currentTile);
                     SelectedUnit.MoveTo(currentTile.Position);
                 }
@@ -599,18 +600,11 @@ public class Controller : MonoBehaviour
     //Adds a property to a team.
     public void OccupyAction(Unit unit, Tile tile)
     {
-
-        Debug.Log(tile.Property.TakeOverCounter);
-        tile.Property.TakeOverCounter -= unit.GetCorrectedHealth();
-        if (tile.Property.TakeOverCounter <= 0)
-        {
-            tile.Property.TakeOverCounter = 0;
-            Occupy(unit.team, tile);
-        }
+        tile.Property.DecreaseTakeOverPoints(unit);                
     }
     public void StopOccupation(Tile tile)
     {
-        tile.GetComponent<Property>().ResetTakeOverCounter();
+        tile.GetComponent<Property>().Reset();
     }
     public void Occupy(Team newOwner, Tile tile)
     {

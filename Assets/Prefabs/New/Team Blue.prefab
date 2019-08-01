@@ -41,7 +41,7 @@ PrefabInstance:
     - target: {fileID: 2525944439473362184, guid: 1af4522836d6cc141bd6c1e9832da9aa,
         type: 3}
       propertyPath: IsAI
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6683122760643651934, guid: 1af4522836d6cc141bd6c1e9832da9aa,
         type: 3}

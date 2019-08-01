@@ -34,7 +34,7 @@ public class Tile : MonoBehaviour
         if (this.GetComponent<Property>())
         {
             Property = GetComponent<Property>();
-            Property.TakeOverCounter = data.maxTakeOverPoints;
+            Property.Init(data.maxTakeOverPoints);
         }
     }
     private void OnMouseDown()
