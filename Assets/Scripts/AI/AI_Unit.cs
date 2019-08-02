@@ -6,12 +6,14 @@ public class AI_Unit
 {
     AI ai;
     public Unit Unit;
-    public Unit attackTarget;
-    public Tile moveTarget;
+    public Unit AttackTarget;
+    public Tile MoveTarget;
+    public Tile OccupyTarget;
+    public bool IsOccupying = false;
 
-    bool _move = true;
-    bool _rotate = true;
-    bool _act = true; 
+    bool move = true;
+    bool rotate = true;
+    bool act = true; 
 
     public event Action OnAllOrdersFinished;
 
@@ -23,10 +25,11 @@ public class AI_Unit
     }   
     public void Reset()
     {
-        _move = true;
-        _act = true;
-        attackTarget = null;
-        moveTarget = null;
+        move = true;
+        act = true;
+        rotate = true;
+        AttackTarget = null;
+        MoveTarget = null;
     }
     #endregion
     #region Main function
@@ -38,13 +41,14 @@ public class AI_Unit
     }
     public void Continue()
     {
-        if (_move) Move();
-        else if (_rotate) Rotate();
-        else if (_act) Act();
+        if (move) Move();
+        else if (rotate) Rotate();
+        else if (act) Act();
         else Exit();
     }
     public void Exit()
-    {        
+    {
+        Unit.Wait();
         Core.Controller.Deselect();
         OnAllOrdersFinished();
     }
@@ -55,44 +59,45 @@ public class AI_Unit
     void Move()
     {
         //move action   
-        if (moveTarget != null)
+        if (MoveTarget != null)
         {
-            Debug.Log(Unit + " starts to move!");
-            Core.Controller.SelectedTile = Core.Model.GetTile(moveTarget.Position);
-            Unit.MoveTo(moveTarget.Position);
+            Debug.Log(Unit + " starts to move to : " + MoveTarget.Position);
+            Core.Controller.SelectedTile = Core.Model.GetTile(MoveTarget.Position);
+            Unit.MoveTo(MoveTarget.Position);
         }
         else
         {
             Debug.Log(Unit + " has no move target!");
-            _move = false;
+            move = false;
             Continue();
         }
     }
     public void MoveFinished()
     {
         Debug.Log(Unit + " finished movement!");
-        _move = false;
+        Unit.ConfirmPosition(MoveTarget.Position);
+        move = false;
         Continue();
     }
     #endregion
     #region Rotate to target
     void Rotate()
     {
-        if (attackTarget != null)
+        if (AttackTarget != null)
         {
-            Unit.RotateAndAttack(attackTarget);
+            Unit.RotateAndAttack(AttackTarget);
         }
         else
         {
             Debug.Log(Unit + " hast no attack target!");
-            _rotate = false;
+            rotate = false;
             Continue();
         }
     }
     public void RotateFinished(Unit unit)
     {
         Debug.Log(Unit + " finished rotation!");
-        _rotate = false;
+        rotate = false;
         Continue();
     }
     #endregion
@@ -100,11 +105,14 @@ public class AI_Unit
     void Act()
     {
         Debug.Log(Unit + " starts to act!");       
-        if(attackTarget == null)
+        if(AttackTarget == null)
         {
-            Unit.Wait();
+            if(IsOccupying)
+            {
+                
+            }            
         }       
-        _act = false;
+        act = false;
         Continue();
     }
 

@@ -216,7 +216,7 @@ public class Controller : MonoBehaviour
                     //Click on transporter
                     else if (SelectedUnit.IsInMyTeam(unitHere) && unitHere.CanLoadtUnits())
                     {
-                        if ((unitHere.data.type == UnitType.APC || unitHere.data.type == UnitType.TCopter) && SelectedUnit.IsInfantryUnit()) SelectedUnit.MoveUnitToLoad(Cursor.Position);
+                        if ((unitHere.data.type == UnitType.APC || unitHere.data.type == UnitType.TCopter) && SelectedUnit.IsInfantry()) SelectedUnit.MoveUnitToLoad(Cursor.Position);
                         if (unitHere.data.type == UnitType.Lander && SelectedUnit.IsGroundUnit()) SelectedUnit.MoveUnitToLoad(Cursor.Position);
                         if (unitHere.data.type == UnitType.Cruiser && SelectedUnit.IsCopterUnit()) SelectedUnit.MoveUnitToLoad(Cursor.Position);
                     }
@@ -622,7 +622,7 @@ public class Controller : MonoBehaviour
         {
             //TODO: decide if more than two teams are playing and then only remove the defeated team from the map.
             //TODO: winning animationstuff
-            Debug.Log(ActiveTeam + " wins the game by capturing the enmy HQ! Wuhuuu!!");
+            Core.View.VictoryScreen.Show(ActiveTeam);
         }
         //If you reach the necessary amount of properties you also win the game.
         //!WORKING
@@ -630,7 +630,7 @@ public class Controller : MonoBehaviour
         {
             //TODO: decide if more than two teams are playing and then only remove the defeated team from the map.
             //TODO: winning animationstuff
-            Debug.Log(ActiveTeam + " wins the game by getting " + Core.Model.MapSettings.propertiesToWin + " properties! Wuhuuu!!");
+            Core.View.VictoryScreen.Show(ActiveTeam);
 
         }
     }

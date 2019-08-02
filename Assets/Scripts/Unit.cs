@@ -261,6 +261,8 @@ public class Unit : MonoBehaviour
     }
     void RotateToFinished(Unit unit)
     {
+
+        Debug.Log("attacking:  " + unit);
         Attack(unit);
     }
     //Rotate the unit so it faces north, east, south or west.
@@ -715,7 +717,7 @@ public class Unit : MonoBehaviour
         if (data.type == UnitType.BCopter || data.type == UnitType.TCopter) return true;
         else return false;
     }
-    public bool IsInfantryUnit()
+    public bool IsInfantry()
     {
         if (data.type == UnitType.Infantry || data.type == UnitType.Mech) return true;
         else return false;
@@ -747,5 +749,12 @@ public class Unit : MonoBehaviour
     }
 
 
+    #endregion
+    #region Conditions
+    public bool IsAt(Tile tile)
+    {
+        if (CurrentTile == tile) return true;
+        else return false;        
+    }
     #endregion
 }

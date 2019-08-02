@@ -21,11 +21,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 5881984158663844341, guid: 1af4522836d6cc141bd6c1e9832da9aa,
-        type: 3}
-      propertyPath: m_Name
-      value: Team Blue
-      objectReference: {fileID: 0}
     - target: {fileID: 2525944439473362184, guid: 1af4522836d6cc141bd6c1e9832da9aa,
         type: 3}
       propertyPath: data
@@ -41,7 +36,12 @@ PrefabInstance:
     - target: {fileID: 2525944439473362184, guid: 1af4522836d6cc141bd6c1e9832da9aa,
         type: 3}
       propertyPath: IsAI
-      value: 0
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5881984158663844341, guid: 1af4522836d6cc141bd6c1e9832da9aa,
+        type: 3}
+      propertyPath: m_Name
+      value: Team Blue
       objectReference: {fileID: 0}
     - target: {fileID: 6683122760643651934, guid: 1af4522836d6cc141bd6c1e9832da9aa,
         type: 3}

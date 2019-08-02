@@ -18,7 +18,7 @@ public class Unit_AnimationController : MonoBehaviour
     float rotationSpeed = 7;
 
     Quaternion startRotation;
-    Quaternion endRotation;
+    Quaternion endRotation;    
     Vector3 lookingDirection;
     Unit _rotationTarget;
 
@@ -38,15 +38,16 @@ public class Unit_AnimationController : MonoBehaviour
         wayPointIndex = 1;//Starts at one because the first entry is the current position of the unit.
         target = wayPointList[wayPointIndex];//Set the first target for the movement.
         lookingDirection = (wayPointList[wayPointIndex] - transform.position).normalized;//Vector from our position to the target.
-        startRotation = Quaternion.LookRotation(this.transform.position);
+        startRotation = Quaternion.LookRotation(this.transform.forward);
         endRotation = Quaternion.LookRotation(lookingDirection);//The actual rotation we need to look at the target
+
         IsMovingToTarget = true; //Init the sequencer in the update function...
         rotate = true;//...and start rotating towards the first waypoint.            
     }
     public void InitRotation(Unit targetUnit)
     {
         lookingDirection = (targetUnit.transform.position - transform.position).normalized;
-        startRotation = Quaternion.LookRotation(this.transform.position);
+        startRotation = Quaternion.LookRotation(this.transform.forward);
         endRotation = Quaternion.LookRotation(lookingDirection);
         IsRotatingToTarget = true;
         _rotationTarget = targetUnit;
@@ -113,8 +114,12 @@ public class Unit_AnimationController : MonoBehaviour
         {
             startRotation = this.transform.rotation;
             transform.rotation = Quaternion.Slerp(startRotation, endRotation, rotationSpeed * Time.deltaTime);
-            if (RotationComplete())
+            if (RotationComplete() || lookingDirection == Vector3.zero)
             {
+
+                Debug.Log("start rotation: " + startRotation);
+
+                Debug.Log("end rotation: " + endRotation);
                 IsRotatingToTarget = false;
                 unit.DisplayHealth(true);
                 OnRotationComplete(_rotationTarget);
