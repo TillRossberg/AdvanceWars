@@ -54,9 +54,9 @@ public class Calculations_Battle
             float dmgReductionCover = _coverRatings[defendingTile.data.cover]; //Defending terrain stars.    
             float DefenderHp = defender.health; //HP of the defender.
 
-            //Debug.Log("Damage = (BaseDamage:" + BaseDamage + " + RandomNumber:" + RandomNumber + ") * AttackerHp/100:" + AttackerHP / 100 + " * dmgReductionCover:" + dmgReductionCover);
+            //Debug.Log("Damage = (BaseDamage:" + BaseDamage + ") * AttackerHp/100:" + attackerHP / 100 + " * dmgReductionCover:" + dmgReductionCover);
             //return (int)(Damage = (BaseDamage + RandomNumber) * AttackerHP / 100 * dmgReductionCover * dmgModifierAttacker * dmgModifierDefender);
-            return (int)(Damage = (BaseDamage) * attackerHP / 100 * dmgReductionCover * dmgModifierAttacker * dmgModifierDefender);
+            return Mathf.RoundToInt(Damage = (BaseDamage) * attackerHP / 100 * dmgReductionCover * dmgModifierAttacker * dmgModifierDefender);
         }
         else
         {

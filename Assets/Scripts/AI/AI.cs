@@ -11,6 +11,7 @@ public class AI : MonoBehaviour
     public Tile enemyHQ;
     #endregion
     #region Fields
+    enum Tactic { AttackOnPath, HoldPosition}
     event Action OnAllUnitsMoved;
     bool decisionPhase = true;
     public bool unitPhase = true;
@@ -32,9 +33,7 @@ public class AI : MonoBehaviour
         {
             AI_Unit newUnit = new AI_Unit(item, this);
             tempList.Add(newUnit);
-            newUnit.OnAllOrdersFinished += ActivateNextUnit;
-            //newUnit.Unit.AnimationController.OnReachedLastWayPoint += newUnit.MoveFinished;
-            newUnit.Unit.AnimationController.OnRotationComplete += newUnit.RotateFinished;
+            newUnit.OnAllOrdersFinished += ActivateNextUnit;           
         }
         return tempList;
     }
@@ -46,8 +45,7 @@ public class AI : MonoBehaviour
     {
         AI_Unit unitToRemove = GetUnit(unit);
         unitToRemove.OnAllOrdersFinished -= ActivateNextUnit;
-        //unitToRemove.Unit.AnimationController.OnReachedLastWayPoint -= unitToRemove.MoveFinished;
-        unitToRemove.Unit.AnimationController.OnRotationComplete -= unitToRemove.RotateFinished;
+        unitToRemove.ClearOrders();       
         aiUnits.Remove(unitToRemove);
     }
     void OnDestroy()
@@ -62,8 +60,6 @@ public class AI : MonoBehaviour
     }
     void ResetUnits()        
     {
-
-        Debug.Log("resetting units");
         foreach (AI_Unit item in aiUnits)item.Reset();       
     }
     #endregion
@@ -105,15 +101,49 @@ public class AI : MonoBehaviour
     {
         foreach (AI_Unit aiUnit in aiUnits)
         {
-            if(aiUnit.HasNoOrders())
+            ApplyTactic(Tactic.AttackOnPath, aiUnit, enemyHQ);
+            if (aiUnit.HasNoOrders())
             {
-                aiUnit.AddOrder(new Move(aiUnit, enemyHQ));
-                aiUnit.AddOrder(new Occupy(aiUnit, enemyHQ));
+                //Tile unitPos = Core.Model.GetTile(new Vector2Int(5, 3));
+                //Tile attackPos = Core.Model.GetTile(new Vector2Int(9, 3));
+                //aiUnit.AddOrder(new Move(aiUnit, attackPos));
+                //aiUnit.AddOrder(new Attack(aiUnit, unitPos.UnitHere));
             }
         }
         decisionPhase = false;
         ContinueTurn();
     }
+
+    void ApplyTactic(Tactic tactic, AI_Unit aiUnit, Tile target)
+    {
+        aiUnit.ClearOrders();
+        switch (tactic)
+        {
+            case Tactic.AttackOnPath:
+                List<ValueTarget> valueTargets = GetValueTargets(aiUnit.Unit, aiUnit.GetAttackableEnemies());                
+                if (valueTargets.Count > 0)
+                {
+                    Unit highValueTarget = GetMostValuableTarget(valueTargets);
+                    List<AI_Unit> attackingUnits = GetAttackingUnits(highValueTarget);
+                    if (attackingUnits.Count == 0 || attackingUnits.Count > 0 && CanSurviveAttack(highValueTarget, attackingUnits))
+                    {
+                        aiUnit.AddOrder(new Move(aiUnit, GetAttackTile(aiUnit, highValueTarget)));
+                        aiUnit.AddOrder(new Attack(aiUnit, highValueTarget));
+                    }
+                    else aiUnit.AddOrder(new Move(aiUnit, target));
+                }
+                else
+                {
+                    aiUnit.AddOrder(new Move(aiUnit, target));
+                }
+                break;
+            case Tactic.HoldPosition:
+                break;
+            default:
+                break;
+        }
+    }
+
     void Decide()
     {
         Debug.Log("-----------------------");
@@ -252,6 +282,28 @@ public class AI : MonoBehaviour
             }
         }
         return mostValuableTarget.Unit;      
+    }   
+    List<AI_Unit> GetAttackingUnits(Unit unit)
+    {
+        List<AI_Unit> tempList = new List<AI_Unit>();
+        foreach (AI_Unit aiUnit in aiUnits)
+        {
+            foreach (Order order in aiUnit.Orders)
+            {
+                if (order.AttackTarget == unit) tempList.Add(aiUnit);
+            }
+        }
+        return tempList;
+    }
+    bool CanSurviveAttack(Unit defender, List<AI_Unit> attackers)
+    {
+        int health = defender.health;
+        foreach (AI_Unit attacker in attackers)
+        {
+            health -= Core.Model.BattleCalculations.CalcDamage(attacker.Unit, defender, defender.CurrentTile);
+        }
+        if (health > 0) return true;
+        else return false;
     }
     #endregion
     #region Path Finding Methods
@@ -265,6 +317,8 @@ public class AI : MonoBehaviour
     //Find a tile on the path that can be reached with the remaining movement points AND that is not blocked by an enemy.
     Tile FindReachableTile(List<Tile> path, Unit unit)
     {
+
+        Debug.Log("path lenght: " + path.Count);
         int movementPoints = unit.data.moveDist;
         for (int i = 1; i < path.Count; i++)
         {

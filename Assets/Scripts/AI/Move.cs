@@ -25,17 +25,13 @@ public class Move: Order
     {
         if (OrderFinished)
         {
-
             Debug.Log(aiUnit.Unit + " has finished the move order.");
             Exit();
             return;
         }
         Core.Controller.Cursor.SetPosition(aiUnit.Unit.Position);
         Core.Controller.SelectedUnit = aiUnit.Unit;
-        Continue();
-    }
-    public override void Continue()
-    {
+
         currentPosition = GetClosestTileOnPathToTarget(aiUnit.Unit, targetTile);
         if (currentPosition.UnitHere != null && !aiUnit.Unit.IsMyEnemy(currentPosition.UnitHere))
         {
@@ -44,7 +40,11 @@ public class Move: Order
         Core.Controller.SelectedTile = Core.Model.GetTile(currentPosition.Position);
         aiUnit.Unit.MoveTo(currentPosition.Position);
 
-        Debug.Log(aiUnit.Unit + " moves to: " + currentPosition);
+        Debug.Log(aiUnit.Unit + " moves to: " + currentPosition);       
+    }
+    public override void Continue()
+    {
+
     }
     public override void Exit()
     {
@@ -64,6 +64,7 @@ public class Move: Order
     //Find a tile on the path that can be reached with the remaining movement points AND that is not blocked by an enemy.
     Tile FindReachableTile(List<Tile> path, Unit unit)
     {
+        if (path.Count == 1) return path[0];
         int movementPoints = unit.data.moveDist;
         for (int i = 1; i < path.Count; i++)
         {
@@ -73,10 +74,10 @@ public class Move: Order
         }
         throw new System.Exception("Error in finding reachable tile on path!");
     }
+    
+
 
     #region not in use  
-
-
-    public override Unit AttackTarget { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
+    public override Unit AttackTarget { get ; set; }
     #endregion
 }

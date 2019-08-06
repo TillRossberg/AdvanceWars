@@ -19,6 +19,8 @@ public class Occupy : Order
         if(aiUnit.Unit.IsAt(targetTile))
         {
             Continue();
+
+            Debug.Log(aiUnit.Unit + " captures property.");
         }
         else
         {
@@ -43,7 +45,7 @@ public class Occupy : Order
         targetTile.Property.OnAnimationFinished -= Exit;
     }
     #region not in use
-    public override Unit AttackTarget { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
+    public override Unit AttackTarget { get ; set ; }
 
     #endregion
 }

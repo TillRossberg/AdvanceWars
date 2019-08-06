@@ -67,6 +67,7 @@ public class AI_Unit
         }
         else
         {
+            if (AllOrdersFinished()) ClearOrders();
             OnAllOrdersFinished();
         }
     }
@@ -82,10 +83,7 @@ public class AI_Unit
     }
     public void ClearOrders()
     {
-        foreach (Order item in Orders)
-        {
-            item.Terminate();
-        }
+        foreach (Order item in Orders)item.Terminate();      
         Orders.Clear();
     }
     public bool IsLastOrder(Order order)
@@ -98,6 +96,11 @@ public class AI_Unit
     {
         if (Orders.Count == 0) return true;
         else return false;
+    }
+    bool AllOrdersFinished()
+    {
+        foreach (Order item in Orders)if (!item.OrderFinished) return false;        
+        return true;
     }
     #endregion
 

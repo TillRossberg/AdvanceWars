@@ -30,6 +30,7 @@ public class Unit_AnimationController : MonoBehaviour
     #region Events
     public event Action OnReachedLastWayPoint;
     public event Action<Unit> OnRotationComplete ;
+    public event Action OnAttackAnimationComplete;
     #endregion
 
     public void InitMovement()
@@ -116,10 +117,8 @@ public class Unit_AnimationController : MonoBehaviour
             transform.rotation = Quaternion.Slerp(startRotation, endRotation, rotationSpeed * Time.deltaTime);
             if (RotationComplete() || lookingDirection == Vector3.zero)
             {
-
-                Debug.Log("start rotation: " + startRotation);
-
-                Debug.Log("end rotation: " + endRotation);
+                //Debug.Log("start rotation: " + startRotation);
+                //Debug.Log("end rotation: " + endRotation);
                 IsRotatingToTarget = false;
                 unit.DisplayHealth(true);
                 OnRotationComplete(_rotationTarget);
@@ -144,6 +143,15 @@ public class Unit_AnimationController : MonoBehaviour
         yield return new WaitForSeconds(delay);
         DamageEffect.Stop();
         DamageEffect.gameObject.SetActive(false);
+    }
+    public void PlayAttackAnimation()
+    {
+        StartCoroutine(StopAttackAnimation(1));
+    }
+    IEnumerator StopAttackAnimation(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        OnAttackAnimationComplete();
     }
     #endregion
     #region Conditions

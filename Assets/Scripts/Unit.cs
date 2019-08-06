@@ -168,10 +168,7 @@ public class Unit : MonoBehaviour
         healthText.transform.SetPositionAndRotation(new Vector3(this.transform.position.x - 0.4f, this.transform.position.y, this.transform.position.z - 0.2f), Quaternion.Euler(90, 0, 0));
         healthText.text = GetCorrectedHealth().ToString();
     }
-    #endregion
-    #region Kill Unit Methods
-
-    #endregion
+    #endregion   
     #region Movement
     
     //Move the unit to a field and align it so it faces away, from where it came.
@@ -261,8 +258,6 @@ public class Unit : MonoBehaviour
     }
     void RotateToFinished(Unit unit)
     {
-
-        Debug.Log("attacking:  " + unit);
         Attack(unit);
     }
     //Rotate the unit so it faces north, east, south or west.
@@ -407,6 +402,7 @@ public class Unit : MonoBehaviour
     {
         Core.Model.BattleCalculations.Fight(this, unit);
         unit.AnimationController.PlayDamageEffect();
+        this.AnimationController.PlayAttackAnimation();
         Core.Controller.Cursor.SetPosition(Position);
         Core.Controller.Cursor.SetCursorGfx(0);
     }
