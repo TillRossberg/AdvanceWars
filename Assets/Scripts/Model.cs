@@ -268,7 +268,7 @@ public class Model : MonoBehaviour
         ChangeTile(TileType.Facility, new Vector2Int(12, 4), 0);
         ChangeTile(TileType.Port, new Vector2Int(14, 7), 0);
         Core.Controller.Occupy(teams[1], GetTile(new Vector2Int(16, 4)));
-        //Core.Controller.Occupy(teams[1], GetTile(new Vector2Int(16, 6)));
+        Core.Controller.Occupy(teams[1], GetTile(new Vector2Int(16, 6)));
         Core.Controller.Occupy(teams[1], GetTile(new Vector2Int(16, 2)));
         Core.Controller.Occupy(teams[1], GetTile(new Vector2Int(12, 4)));
         Core.Controller.Occupy(teams[1], GetTile(new Vector2Int(14, 7)));
@@ -279,7 +279,7 @@ public class Model : MonoBehaviour
         //Red
         //CreateUnit(UnitType.APC, Core.Model.teams[0], new Vector2Int(4, 4), Direction.North);
         //CreateUnit(UnitType.Infantry, Core.Model.teams[0], new Vector2Int(4, 3), Direction.North);
-        //CreateUnit(UnitType.Titantank, Core.Model.teams[0], new Vector2Int(8, 3), Direction.North);
+        CreateUnit(UnitType.Titantank, Core.Model.teams[0], new Vector2Int(8, 3), Direction.North);
         CreateUnit(UnitType.Rockets, Core.Model.teams[0], new Vector2Int(11, 5), Direction.North);
         //CreateUnit(UnitType.Battleship, Core.Model.teams[0], new Vector2Int(7, 10), Direction.North);
         //CreateUnit(UnitType.Battleship, Core.Model.teams[0], new Vector2Int(6, 10), Direction.North);
@@ -287,9 +287,9 @@ public class Model : MonoBehaviour
         //CreateUnit(UnitType.Tank, Core.Model.teams[0], new Vector2Int(7, 4), Direction.East);
         //Blue
         //CreateUnit(UnitType.APC, Core.Model.teams[1], new Vector2Int(14, 4), Direction.North);
-        CreateUnit(UnitType.Infantry, Core.Model.teams[1], new Vector2Int(3, 5), Direction.North);
+        CreateUnit(UnitType.Infantry, Core.Model.teams[1], new Vector2Int(3, 3), Direction.North);
         //CreateUnit(UnitType.Infantry, Core.Model.teams[1], new Vector2Int(3, 6), Direction.North);
-        CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(12, 3), Direction.North);
+        //CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(12, 3), Direction.North);
         //CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(10, 4), Direction.North);
         //CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(9, 5), Direction.North);
         //CreateUnit(UnitType.Cruiser, Core.Model.teams[1], new Vector2Int(11, 10), Direction.North);

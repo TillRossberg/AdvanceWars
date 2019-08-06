@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-public class AI_Unit 
+public class AI_Unit
 {
+    public List<Order> Orders = new List<Order>();
+    int orderIndex = 0;
     AI ai;
     public Unit Unit;
     public Unit AttackTarget;
@@ -13,8 +15,9 @@ public class AI_Unit
 
     bool move = true;
     bool rotate = true;
-    bool act = true; 
+    bool act = true;
 
+    public event Action OnOrderFinished;
     public event Action OnAllOrdersFinished;
 
     #region Basic Methods
@@ -22,7 +25,7 @@ public class AI_Unit
     {
         this.Unit = unit;
         this.ai = ai;
-    }   
+    }
     public void Reset()
     {
         move = true;
@@ -30,6 +33,7 @@ public class AI_Unit
         rotate = true;
         AttackTarget = null;
         MoveTarget = null;
+        orderIndex = 0;
     }
     #endregion
     #region Main function
@@ -53,9 +57,55 @@ public class AI_Unit
         OnAllOrdersFinished();
     }
     #endregion
-
+    #region Order functions
+    public void ExecuteNextOrder()
+    {
+        if (orderIndex < Orders.Count)
+        {
+            Order nextOrder = GetNextOrder();
+            nextOrder.Start();
+        }
+        else
+        {
+            OnAllOrdersFinished();
+        }
+    }
+    Order GetNextOrder()
+    {
+        Order order = Orders[orderIndex];
+        orderIndex++;
+        return order;
+    }
+    public void AddOrder(Order order)
+    {
+        Orders.Add(order);
+    }
+    public void ClearOrders()
+    {
+        foreach (Order item in Orders)
+        {
+            item.Terminate();
+        }
+        Orders.Clear();
+    }
+    public bool IsLastOrder(Order order)
+    {
+        int index = Orders.IndexOf(order);
+        if (index == Orders.Count - 1) return true;
+        else return false;
+    }
+    public bool HasNoOrders()
+    {
+        if (Orders.Count == 0) return true;
+        else return false;
+    }
+    #endregion
 
     #region Move to position
+    public void Move(Tile position)
+    {
+
+    }
     void Move()
     {
         //move action   
@@ -107,9 +157,9 @@ public class AI_Unit
         Debug.Log(Unit + " starts to act!");       
         if(AttackTarget == null)
         {
-            if(IsOccupying)
+            if(IsOccupying && Unit.IsAt(OccupyTarget))
             {
-                
+                Core.Controller.OccupyAction(Unit, OccupyTarget);
             }            
         }       
         act = false;
@@ -160,6 +210,5 @@ public class AI_Unit
     #endregion
     #region Stay out of range (of visible units)
 
-    #endregion
-    
+    #endregion  
 }

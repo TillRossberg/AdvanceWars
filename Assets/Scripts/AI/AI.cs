@@ -33,7 +33,7 @@ public class AI : MonoBehaviour
             AI_Unit newUnit = new AI_Unit(item, this);
             tempList.Add(newUnit);
             newUnit.OnAllOrdersFinished += ActivateNextUnit;
-            newUnit.Unit.AnimationController.OnReachedLastWayPoint += newUnit.MoveFinished;
+            //newUnit.Unit.AnimationController.OnReachedLastWayPoint += newUnit.MoveFinished;
             newUnit.Unit.AnimationController.OnRotationComplete += newUnit.RotateFinished;
         }
         return tempList;
@@ -46,7 +46,7 @@ public class AI : MonoBehaviour
     {
         AI_Unit unitToRemove = GetUnit(unit);
         unitToRemove.OnAllOrdersFinished -= ActivateNextUnit;
-        unitToRemove.Unit.AnimationController.OnReachedLastWayPoint -= unitToRemove.MoveFinished;
+        //unitToRemove.Unit.AnimationController.OnReachedLastWayPoint -= unitToRemove.MoveFinished;
         unitToRemove.Unit.AnimationController.OnRotationComplete -= unitToRemove.RotateFinished;
         aiUnits.Remove(unitToRemove);
     }
@@ -62,6 +62,8 @@ public class AI : MonoBehaviour
     }
     void ResetUnits()        
     {
+
+        Debug.Log("resetting units");
         foreach (AI_Unit item in aiUnits)item.Reset();       
     }
     #endregion
@@ -80,10 +82,9 @@ public class AI : MonoBehaviour
     }
     public void ContinueTurn()
     {
-        //Debug.Log("AI continues turn!");
         //Scout before make decisions?
         //Decide what to do
-        if (decisionPhase) Decide();
+        if (decisionPhase) DecideII();
         //Make moves for units
         else if (unitPhase) ActivateNextUnit();
         //Buy new units
@@ -99,7 +100,19 @@ public class AI : MonoBehaviour
         Core.Controller.EndTurnButton();
     }
     #endregion
-    #region Decision Methods
+    #region Decision Phase
+    void DecideII()
+    {
+        foreach (AI_Unit aiUnit in aiUnits)
+        {
+            if(aiUnit.HasNoOrders())
+            {
+                aiUnit.AddOrder(new Move(aiUnit, enemyHQ));
+            }
+        }
+        decisionPhase = false;
+        ContinueTurn();
+    }
     void Decide()
     {
         Debug.Log("-----------------------");
@@ -120,29 +133,40 @@ public class AI : MonoBehaviour
                     aiUnit.MoveTarget = GetAttackTile(aiUnit, aiUnit.AttackTarget);
                 }
             }
+            //Occupy properties
             if (aiUnit.MoveTarget == null && aiUnit.Unit.IsInfantry())
             {
                 if (aiUnit.OccupyTarget == null)
                 {
-                    Tile targetTile = GetClosestFreeProperty(aiUnit.Unit);
-                    if (targetTile != null)
+                    Tile occupyTarget = GetClosestFreeProperty(aiUnit.Unit);
+                    if (occupyTarget != null)
                     {
-                        aiUnit.OccupyTarget = targetTile;
-                        aiUnit.MoveTarget = GetClosestTileOnPathToTarget(aiUnit.Unit, targetTile);
+                        aiUnit.OccupyTarget = occupyTarget;
+                        aiUnit.MoveTarget = GetClosestTileOnPathToTarget(aiUnit.Unit, occupyTarget);
+                        aiUnit.IsOccupying = true;
                     }
                     else
                     {
-                        
+                        occupyTarget = GetClosestEnemyProperty(aiUnit.Unit);
+                        aiUnit.MoveTarget = GetClosestTileOnPathToTarget(aiUnit.Unit, occupyTarget);
+                        aiUnit.IsOccupying = true;
                     }
                 }
                 else
                 {
-                    if (!aiUnit.Unit.IsAt(aiUnit.OccupyTarget)) aiUnit.MoveTarget = aiUnit.OccupyTarget;
+                    if (aiUnit.Unit.IsAt(aiUnit.OccupyTarget))
+                    {
+                        if (aiUnit.OccupyTarget.Property.OwningTeam == aiUnit.Unit.team)
+                        {
+                            aiUnit.IsOccupying = false;
+                            aiUnit.OccupyTarget = null;
+                        }
+                    }
+                    else aiUnit.MoveTarget = aiUnit.OccupyTarget;                   
                 }
-
             }
             //Keep on moving to enemy HQ.
-            if(aiUnit.MoveTarget == null && aiUnit.Unit.Position != enemyHQ.Position)
+            if(aiUnit.MoveTarget == null && aiUnit.Unit.Position != enemyHQ.Position && !aiUnit.IsOccupying)
             {
                 aiUnit.MoveTarget = GetClosestTileOnPathToTarget(aiUnit.Unit, enemyHQ);
             }
@@ -150,6 +174,35 @@ public class AI : MonoBehaviour
         decisionPhase = false;
         ContinueTurn();
     }
+    #endregion
+    #region Unit Phase
+    void ActivateNextUnit()
+    {
+        Core.Controller.Deselect();
+        AI_Unit nextUnit = GetNextUnusedUnit(aiUnits);
+        if (nextUnit != null)
+        {
+            Core.Controller.SelectedUnit = nextUnit.Unit;
+            Debug.Log("--->" + nextUnit.Unit + " has its turn.");
+            nextUnit.ExecuteNextOrder();
+        }
+        else
+        {
+            unitPhase = false;
+            OnAllUnitsMoved();
+        }
+    }    
+    #endregion
+    #region Buy Phase
+    void BuyUnits()        
+    {
+        Debug.Log("-----------------------");
+        Debug.Log("AI wants to buy units!");
+        buyPhase = false;
+        ContinueTurn();
+    }
+    #endregion    
+
     #region Find Attack Target Methods
     Tile GetAttackTile(AI_Unit aiUnit, Unit target)
     {
@@ -200,32 +253,6 @@ public class AI : MonoBehaviour
         return mostValuableTarget.Unit;      
     }
     #endregion
-
-    #endregion
-    #region Unit Methods
-    void ActivateNextUnit()
-    {
-        AI_Unit nextUnit = GetNextUnusedUnit(aiUnits);
-        if (nextUnit != null)
-        {
-            nextUnit.Start();
-        }
-        else
-        {
-            unitPhase = false;
-            OnAllUnitsMoved();
-        }
-    }    
-    #endregion
-    #region Buy Methods
-    void BuyUnits()        
-    {
-        Debug.Log("-----------------------");
-        Debug.Log("AI wants to buy units!");
-        buyPhase = false;
-        ContinueTurn();
-    }
-    #endregion    
     #region Path Finding Methods
     Tile GetClosestTileOnPathToTarget(Unit unit, Tile targetTile)
     {
