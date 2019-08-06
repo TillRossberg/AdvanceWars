@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using System;
 public class Property : MonoBehaviour
 {
     public TextMeshPro TakeOverPointsText;
@@ -17,6 +18,7 @@ public class Property : MonoBehaviour
     int _maxTakeOverPoints;
     bool _animationRunning = false;
     Unit _occupyingUnit;
+    public event Action OnAnimationFinished;
 
     public void Init(int maxTakeOverPoints)
     {
@@ -61,6 +63,7 @@ public class Property : MonoBehaviour
                     Reset();
                 }
                 ShowTakeOverGfx(false);
+                OnAnimationFinished();
                 _animationRunning = false;
             }
         }

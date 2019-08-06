@@ -564,8 +564,7 @@ public class Controller : MonoBehaviour
     }    
     public void OccupyButton()
     {
-        OccupyAction(SelectedUnit, Core.Model.GetTile(Cursor.Position));
-        SelectedUnit.Wait();
+        OccupyAction(SelectedUnit, Core.Model.GetTile(Cursor.Position));        
         Deselect();
     }
     public void RangeButton()
@@ -600,7 +599,8 @@ public class Controller : MonoBehaviour
     //Adds a property to a team.
     public void OccupyAction(Unit unit, Tile tile)
     {
-        tile.Property.DecreaseTakeOverPoints(unit);                
+        tile.Property.DecreaseTakeOverPoints(unit);
+        unit.Wait();
     }
     public void StopOccupation(Tile tile)
     {

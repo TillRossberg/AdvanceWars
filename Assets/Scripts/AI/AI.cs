@@ -108,6 +108,7 @@ public class AI : MonoBehaviour
             if(aiUnit.HasNoOrders())
             {
                 aiUnit.AddOrder(new Move(aiUnit, enemyHQ));
+                aiUnit.AddOrder(new Occupy(aiUnit, enemyHQ));
             }
         }
         decisionPhase = false;

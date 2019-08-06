@@ -2,7 +2,7 @@
 {
     public abstract AI_Unit aiUnit { get; set; }
     public abstract Unit AttackTarget { get; set; }
-    public abstract Tile MoveTarget { get; set; }
+    public abstract Tile targetTile { get; set; }
     public abstract bool OrderFinished { get; set; }
     public abstract void Start();   
     public abstract void Continue();
@@ -11,7 +11,7 @@
     public Order(AI_Unit aiUnit, Tile tile)
     {
         this.aiUnit = aiUnit;
-        this.MoveTarget = tile;
+        this.targetTile = tile;
     }
     public Order(AI_Unit aiUnit, Unit unit)
     {

@@ -32,7 +32,7 @@ public class Unit : MonoBehaviour
     #endregion
     #region Tiles
     List<Unit> _attackableUnits = new List<Unit>();
-    List<Tile> _attackableTiles = new List<Tile>();
+    List<Tile> attackableTiles = new List<Tile>();
     List<GameObject> _attackableTilesGfx = new List<GameObject>();
     bool _isShowingAttackableTiles = false;
     List<Tile> _reachableTiles = new List<Tile>();
@@ -351,7 +351,7 @@ public class Unit : MonoBehaviour
         List<Unit> tempList = new List<Unit>();
         CalcAttackableArea(pos);
         ClearAttackableEnemies();
-        foreach (Tile tile in _attackableTiles)
+        foreach (Tile tile in attackableTiles)
         {
             if (IsVisibleEnemyHere(tile))
             {
@@ -423,14 +423,14 @@ public class Unit : MonoBehaviour
     void CalcAttackableArea(Vector2Int position)
     {
         ClearAttackableTiles();
-        if (data.directAttack) _attackableTiles = GetAttackableTilesDirectAttack1(position);
-        else if (data.rangeAttack) _attackableTiles = GetAttackableTilesRangedAttack();
+        if (data.directAttack) attackableTiles = GetAttackableTilesDirectAttack1(position);
+        else if (data.rangeAttack) attackableTiles = GetAttackableTilesRangedAttack();
     }       
     public void ClearAttackableTiles()
     {
         foreach (GameObject gfx in _attackableTilesGfx) Destroy(gfx.gameObject);
         _attackableTilesGfx.Clear();
-        _attackableTiles.Clear();
+        attackableTiles.Clear();
     }
     //Calculates the attackable tiles for direct attack units.
     List<Tile> GetAttackableTilesDirectAttack1(Vector2Int position)
@@ -575,7 +575,7 @@ public class Unit : MonoBehaviour
         List<Unit> tempList = new List<Unit>();
         ClearReachableTiles();
         CalcAttackableArea(pos);
-        foreach (Tile item in _attackableTiles) if (IsMyEnemy(item.UnitHere)) tempList.Add(item.UnitHere);
+        foreach (Tile item in attackableTiles) if (IsMyEnemy(item.UnitHere)) tempList.Add(item.UnitHere);
         return tempList;
     }
     #endregion
@@ -755,6 +755,19 @@ public class Unit : MonoBehaviour
     {
         if (CurrentTile == tile) return true;
         else return false;        
+    }
+    public bool CanAttack(Unit unit)
+    {
+        if(data.directAttack)
+        {
+            foreach (Tile item in CurrentTile.Neighbors)if (item.UnitHere == unit) return true;           
+        }
+        if(data.rangeAttack)
+        {
+            CalcAttackableArea(this.Position);
+            foreach (Tile item in attackableTiles)if (item.UnitHere == unit) return true;          
+        }
+        return false;
     }
     #endregion
 }

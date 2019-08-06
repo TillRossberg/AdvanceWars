@@ -287,7 +287,7 @@ public class Model : MonoBehaviour
         //CreateUnit(UnitType.Tank, Core.Model.teams[0], new Vector2Int(7, 4), Direction.East);
         //Blue
         //CreateUnit(UnitType.APC, Core.Model.teams[1], new Vector2Int(14, 4), Direction.North);
-        CreateUnit(UnitType.Infantry, Core.Model.teams[1], new Vector2Int(3, 3), Direction.North);
+        CreateUnit(UnitType.Infantry, Core.Model.teams[1], new Vector2Int(8, 4), Direction.North);
         //CreateUnit(UnitType.Infantry, Core.Model.teams[1], new Vector2Int(3, 6), Direction.North);
         //CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(12, 3), Direction.North);
         //CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(10, 4), Direction.North);

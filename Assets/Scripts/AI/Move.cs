@@ -1,10 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class Move: Order
 {
-    public override Tile MoveTarget { get ; set; }
+    public override Tile targetTile { get ; set; }
     public override AI_Unit aiUnit { get ; set ; }
     public override bool OrderFinished { get ; set ; }
     Tile currentPosition;
@@ -12,7 +11,7 @@ public class Move: Order
     public Move(AI_Unit aiUnit, Tile tile)
     {
         this.aiUnit = aiUnit;
-        this.MoveTarget = tile;
+        this.targetTile = tile;
         OrderFinished = false;
         aiUnit.Unit.AnimationController.OnReachedLastWayPoint += Exit;
     }
@@ -37,7 +36,7 @@ public class Move: Order
     }
     public override void Continue()
     {
-        currentPosition = GetClosestTileOnPathToTarget(aiUnit.Unit, MoveTarget);
+        currentPosition = GetClosestTileOnPathToTarget(aiUnit.Unit, targetTile);
         if (currentPosition.UnitHere != null && !aiUnit.Unit.IsMyEnemy(currentPosition.UnitHere))
         {
             //Avoid moving to a tile on wich a friendly unit stands
@@ -50,7 +49,7 @@ public class Move: Order
     public override void Exit()
     {
         aiUnit.Unit.ConfirmPosition(currentPosition.Position);
-        if (aiUnit.Unit.IsAt(MoveTarget))OrderFinished = true;
+        if (aiUnit.Unit.IsAt(targetTile))OrderFinished = true;
         if (aiUnit.IsLastOrder(this)) aiUnit.Unit.Wait();
         aiUnit.ExecuteNextOrder();
     }
