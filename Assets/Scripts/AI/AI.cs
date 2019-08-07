@@ -127,9 +127,9 @@ public class AI : MonoBehaviour
                     List<AI_Unit> attackingUnits = GetAttackingUnits(highValueTarget);
                     if (attackingUnits.Count == 0 || attackingUnits.Count > 0 && CanSurviveAttack(highValueTarget, attackingUnits))
                     {
-                        aiUnit.AddOrder(new Move(aiUnit, GetAttackTile(aiUnit, highValueTarget)));
                         aiUnit.AddOrder(new Attack(aiUnit, highValueTarget));
                     }
+                    //The enemy wouldnt survive, so just move on to 
                     else aiUnit.AddOrder(new Move(aiUnit, target));
                 }
                 else

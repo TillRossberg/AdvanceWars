@@ -5,18 +5,18 @@ using UnityEngine;
 public class Occupy : Order
 {
     public override AI_Unit aiUnit { get ; set ; }
-    public override Tile targetTile { get ; set ; }
+    public override Tile MoveTarget { get ; set ; }
     public override bool OrderFinished { get ; set ; }
 
     public Occupy(AI_Unit aiUnit, Tile tile)
     {
         this.aiUnit = aiUnit;
-        targetTile = tile;
-        targetTile.Property.OnAnimationFinished += Exit;
+        MoveTarget = tile;
+        MoveTarget.Property.OnAnimationFinished += Exit;
     }
     public override void Start()
     {
-        if(aiUnit.Unit.IsAt(targetTile))
+        if(aiUnit.Unit.IsAt(MoveTarget))
         {
             Continue();
 
@@ -30,11 +30,11 @@ public class Occupy : Order
     }
     public override void Continue()
     {
-        Core.Controller.OccupyAction(aiUnit.Unit, targetTile);
+        Core.Controller.OccupyAction(aiUnit.Unit, MoveTarget);
     }
     public override void Exit()
     {
-        if(targetTile.Property.OwningTeam == aiUnit.Unit.team)
+        if(MoveTarget.Property.OwningTeam == aiUnit.Unit.team)
         {
             OrderFinished = true;
         }
@@ -42,7 +42,7 @@ public class Occupy : Order
     }
     public override void Terminate()
     {
-        targetTile.Property.OnAnimationFinished -= Exit;
+        MoveTarget.Property.OnAnimationFinished -= Exit;
     }
     #region not in use
     public override Unit AttackTarget { get ; set ; }

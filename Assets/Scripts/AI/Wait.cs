@@ -4,7 +4,7 @@ public class Wait : Order
 {
     public override AI_Unit aiUnit { get; set ; }
     public override Unit AttackTarget { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
-    public override Tile targetTile { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
+    public override Tile MoveTarget { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
     public override bool OrderFinished { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
 
     public Wait(AI_Unit aiUnit)
