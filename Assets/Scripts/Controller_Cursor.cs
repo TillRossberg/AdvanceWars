@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using TMPro;
+using System.Linq;
 public class Controller_Cursor : MonoBehaviour
 {
     bool _inputBlocked = true;
@@ -123,12 +124,23 @@ public class Controller_Cursor : MonoBehaviour
         #region Debug
         if (Input.GetKeyDown(KeyCode.N))
         {
-           
+            List<Tile> tiles = Core.Model.GetTilesInRadius(Core.Model.GetTile(8, 4), 3);
+            Core.Controller.IndicateTiles(tiles);
 
         }
         if (Input.GetKeyDown(KeyCode.S))
         {
-
+            List<int> ints = new List<int>();
+            ints.Add(5);
+            ints.Add(2);
+            ints.Add(17);
+            ints.Add(3);
+            int[] integers = ints.OrderBy(h => h).ToArray();
+            ints = new List<int>(integers);
+            foreach (var item in ints)
+            {
+                Debug.Log(item);
+            }
         }
 
         #endregion

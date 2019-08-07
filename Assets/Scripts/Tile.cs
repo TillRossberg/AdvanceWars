@@ -149,6 +149,16 @@ public class Tile : MonoBehaviour
         if (Property != null) return true;
         else return false;
     }
+    public bool IsAllyHere(Unit unit)
+    {
+        if (UnitHere != null && !unit.IsMyEnemy(UnitHere)) return true;
+        else return false;
+    }
+    public bool IsEnemyHere(Unit unit)
+    {
+        if (UnitHere != null && unit.IsMyEnemy(UnitHere)) return true;
+        else return false;
+    }
     #endregion
     #region A*
     public void ResetAStar()

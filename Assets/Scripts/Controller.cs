@@ -705,14 +705,7 @@ public class Controller : MonoBehaviour
             }
         }
     }
-    public void ClearIndicators()
-    {
-        foreach (GameObject gameObject in indicators)
-        {
-            Destroy(gameObject);
-        }
-        indicators.Clear();
-    }
+    
     #endregion
     #region Utility
     public void BlockInputFor(float duration)
@@ -765,6 +758,19 @@ public class Controller : MonoBehaviour
                 StartCoroutine(Core.Controller.KillUnitDelayed(unit, UnityEngine.Random.Range(1.1f, 2.5f)));
             }
         }
+    }
+    public void IndicateTiles(List<Tile> tiles)
+    {
+        ClearIndicators();
+        for (int i = 0; i < tiles.Count; i++)
+        {            
+            indicators.Add(Instantiate(pathIndicator, tiles[i].transform.position, Quaternion.identity));           
+        }
+    }
+    public void ClearIndicators()
+    {
+        foreach (GameObject gameObject in indicators)Destroy(gameObject);    
+        indicators.Clear();
     }
     #endregion
 }

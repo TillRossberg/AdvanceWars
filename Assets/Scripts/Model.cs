@@ -95,11 +95,13 @@ public class Model : MonoBehaviour
     }
     public Tile GetTile(Vector2Int position)
     {
-        return MapMatrix[position.x][position.y];
+        if (IsOnMap(position)) return MapMatrix[position.x][position.y];
+        else return null;
     }
+    
     public Tile GetTile(int x, int y)
     {
-        return MapMatrix[x][y];
+        return GetTile(new Vector2Int(x, y));
     }
 
     public void ChangeTile(TileType type, Vector2Int position, int rotation)
@@ -123,6 +125,77 @@ public class Model : MonoBehaviour
                 matrix[i][j].SetNeighbors();
             }
         }
+    }
+    
+    public List<Tile> GetTilesInRadius(Tile center, int radius)
+    {
+        List<Tile> tempList = new List<Tile>();
+        int centerX = center.Position.x;
+        int centerY = center.Position.y;
+
+        for (int i = 1; i <= radius; i++)
+        {
+            Tile up = Core.Model.GetTile(centerX, centerY + i);
+            Tile down = Core.Model.GetTile(centerX, centerY - i);
+            Tile right = Core.Model.GetTile(centerX + i, centerY);
+            Tile left = Core.Model.GetTile(centerX - i, centerY);
+
+            Tile upRight = Core.Model.GetTile(centerX + i, centerY + i);
+            Tile upLeft = Core.Model.GetTile(centerX - i, centerY + i);
+            Tile downRight = Core.Model.GetTile(centerX + i, centerY - i);
+            Tile downLeft = Core.Model.GetTile(centerX - i, centerY - i);
+
+            TryToAdd(up, tempList);
+            TryToAdd(down, tempList);
+            TryToAdd(right, tempList);
+            TryToAdd(left, tempList);
+
+            TryToAdd(upRight, tempList);
+            TryToAdd(upLeft, tempList);
+            TryToAdd(downRight, tempList);
+            TryToAdd(downLeft, tempList);
+            if (i > 1)
+            {
+                for (int j = 1; j < i; j++)
+                {
+                    if (left != null)
+                    {
+                        Tile aboveLeft = Core.Model.GetTile(left.Position.x, left.Position.y + j);
+                        Tile belowLeft = Core.Model.GetTile(left.Position.x, left.Position.y - j);
+                        TryToAdd(aboveLeft, tempList);
+                        TryToAdd(belowLeft, tempList);
+
+                    }
+                    if (right != null)
+                    {
+                        Tile aboveRight = Core.Model.GetTile(right.Position.x, right.Position.y + j);
+                        Tile belowRight = Core.Model.GetTile(right.Position.x, right.Position.y - j);
+                        TryToAdd(aboveRight, tempList);
+                        TryToAdd(belowRight, tempList);
+                    }
+                    if (up != null)
+                    {
+                        Tile rightUp = Core.Model.GetTile(up.Position.x + j, up.Position.y);
+                        Tile leftUp = Core.Model.GetTile(up.Position.x - j, up.Position.y);
+                        TryToAdd(rightUp, tempList);
+                        TryToAdd(leftUp, tempList);
+
+                    }
+                    if (down != null)
+                    {
+                        Tile leftRight = Core.Model.GetTile(down.Position.x + j, down.Position.y);
+                        Tile leftDown = Core.Model.GetTile(down.Position.x - j, down.Position.y);
+                        TryToAdd(leftRight, tempList);
+                        TryToAdd(leftDown, tempList);
+                    }
+                }
+            }
+        }
+        return tempList;
+    }
+    void TryToAdd(Tile tile, List<Tile> tiles)
+    {
+        if (tile != null) tiles.Add(tile);
     }
     #endregion
     #region Unit Methods
@@ -288,7 +361,8 @@ public class Model : MonoBehaviour
         //CreateUnit(UnitType.Tank, Core.Model.teams[0], new Vector2Int(7, 4), Direction.East);
         //Blue
         CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(14, 4), Direction.North);
-        CreateUnit(UnitType.Infantry, Core.Model.teams[1], new Vector2Int(14, 3), Direction.North);
+        CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(14, 3), Direction.North);
+        CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(12, 6), Direction.North);
         //CreateUnit(UnitType.Infantry, Core.Model.teams[1], new Vector2Int(3, 6), Direction.North);
         //CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(12, 3), Direction.North);
         //CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(10, 4), Direction.North);
