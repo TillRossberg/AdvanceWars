@@ -14,15 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   redThumbNail: {fileID: 21300000, guid: a52d931215372f94a8a818faf47e6529, type: 3}
   blueThumbNail: {fileID: 21300000, guid: 0fe2ea8febd07234b8d2a25121dbedd4, type: 3}
-  mesh: {fileID: 0}
-  material: {fileID: 0}
   unitName: Artillery
-  type: 3
+  type: 4
   moveType: 2
   description: 
   directAttack: 0
   rangeAttack: 1
-  maxAmmo: 0
   maxFuel: 50
   moveDist: 5
   visionRange: 1

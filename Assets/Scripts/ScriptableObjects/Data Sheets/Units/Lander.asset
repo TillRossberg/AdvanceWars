@@ -15,7 +15,7 @@ MonoBehaviour:
   redThumbNail: {fileID: 21300000, guid: a11164a5a899a324e85992b06c26102e, type: 3}
   blueThumbNail: {fileID: 21300000, guid: bc79cd3690028bd47987ed5616dc6bcb, type: 3}
   unitName: Landing Ship
-  type: 15
+  type: 16
   moveType: 4
   description: 
   directAttack: 0

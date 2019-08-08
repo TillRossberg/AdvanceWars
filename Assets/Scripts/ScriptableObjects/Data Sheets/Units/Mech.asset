@@ -15,7 +15,7 @@ MonoBehaviour:
   redThumbNail: {fileID: 21300000, guid: c7b40815d817b5e40b04318c534f54a8, type: 3}
   blueThumbNail: {fileID: 21300000, guid: ecaec1dda25c714488b2495d600b2093, type: 3}
   unitName: Anti Tank
-  type: 10
+  type: 11
   moveType: 0
   description: 
   directAttack: 1

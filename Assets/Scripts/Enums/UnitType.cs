@@ -1,5 +1,6 @@
 ﻿public enum UnitType 
 {
+    Null,
     AntiAir,
     APC,
     Tank,

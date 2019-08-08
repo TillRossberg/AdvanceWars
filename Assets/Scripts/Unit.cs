@@ -708,16 +708,6 @@ public class Unit : MonoBehaviour
         Deactivate();
     }
     
-    public bool IsCopterUnit()
-    {
-        if (data.type == UnitType.BCopter || data.type == UnitType.TCopter) return true;
-        else return false;
-    }
-    public bool IsInfantry()
-    {
-        if (data.type == UnitType.Infantry || data.type == UnitType.Mech) return true;
-        else return false;
-    }
     #endregion
     #region Unite Methods
     public void Unite(Unit unit)
@@ -747,6 +737,16 @@ public class Unit : MonoBehaviour
 
     #endregion
     #region Conditions
+    public bool IsCopterUnit()
+    {
+        if (data.type == UnitType.BCopter || data.type == UnitType.TCopter) return true;
+        else return false;
+    }
+    public bool IsInfantry()
+    {
+        if (data.type == UnitType.Infantry || data.type == UnitType.Mech) return true;
+        else return false;
+    }
     public bool IsAt(Tile tile)
     {
         if (CurrentTile == tile) return true;
@@ -767,8 +767,6 @@ public class Unit : MonoBehaviour
     }
     public bool IsInRadius(Tile tile, float radius)
     {
-
-        Debug.Log("radius : " + Vector3.Distance(CurrentTile.transform.position, tile.transform.position));
         if (Vector3.Distance(CurrentTile.transform.position, tile.transform.position) <= radius) return true;
         else return false;
     }

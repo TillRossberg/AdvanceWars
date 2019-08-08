@@ -15,7 +15,7 @@ MonoBehaviour:
   redThumbNail: {fileID: 21300000, guid: b98b966276ca7fc4e8438bc7af11984d, type: 3}
   blueThumbNail: {fileID: 21300000, guid: cf1ada3b98576604b8bd7d29cda04733, type: 3}
   unitName: Infantry
-  type: 8
+  type: 9
   moveType: 0
   description: 
   directAttack: 1

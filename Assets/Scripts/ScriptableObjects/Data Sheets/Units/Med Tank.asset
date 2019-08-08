@@ -15,7 +15,7 @@ MonoBehaviour:
   redThumbNail: {fileID: 21300000, guid: c1065f9916abd064e97ba0bd26bb04c5, type: 3}
   blueThumbNail: {fileID: 21300000, guid: b2ad18325b67d8c448248ec8d8d1795e, type: 3}
   unitName: Heavy Tank
-  type: 9
+  type: 10
   moveType: 2
   description: 
   directAttack: 1

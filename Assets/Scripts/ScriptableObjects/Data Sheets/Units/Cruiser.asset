@@ -15,7 +15,7 @@ MonoBehaviour:
   redThumbNail: {fileID: 21300000, guid: 0e2baeffc76c0df4d8bd23cf58bc5e5c, type: 3}
   blueThumbNail: {fileID: 21300000, guid: efcdd84973fd0794897d45dcc816b882, type: 3}
   unitName: Cruiser
-  type: 17
+  type: 18
   moveType: 5
   description: 
   directAttack: 1

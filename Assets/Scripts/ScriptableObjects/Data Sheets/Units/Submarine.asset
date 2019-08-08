@@ -15,7 +15,7 @@ MonoBehaviour:
   redThumbNail: {fileID: 21300000, guid: 0f77fe444b48c4048a50f5dceedf7899, type: 3}
   blueThumbNail: {fileID: 21300000, guid: 92f59e0e0545eab41accb5df560806f1, type: 3}
   unitName: Submarine
-  type: 18
+  type: 19
   moveType: 5
   description: 
   directAttack: 0

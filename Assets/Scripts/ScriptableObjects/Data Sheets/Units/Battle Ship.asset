@@ -15,7 +15,7 @@ MonoBehaviour:
   redThumbNail: {fileID: 21300000, guid: 4fdbbf0b0b869d74eb1d0c98d4fcc813, type: 3}
   blueThumbNail: {fileID: 21300000, guid: b62e2bb21381e6042a5f4f9c0f0141b9, type: 3}
   unitName: Battle Ship
-  type: 16
+  type: 17
   moveType: 5
   description: 
   directAttack: 0

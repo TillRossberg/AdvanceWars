@@ -40,8 +40,9 @@ public class Controller : MonoBehaviour
         Core.Model.teams[1].AddEnemyTeam(Core.Model.teams[0]);
         //Core.Model.LoadLevel01(15, 15);
         Core.Model.LoadLevel02(19, 13);
-        //Core.Model.LoadLevel03(7, 5);
         Core.Model.InitTeams();
+        Core.Model.LoadLevel02Units();
+        //Core.Model.LoadLevel03(7, 5);
         Cursor = CreateCursor(new Vector2Int(1, 1));
         Core.Model.SetupRandomSuccession();
         ActiveTeam = Core.Model.Succession[0];
@@ -117,7 +118,7 @@ public class Controller : MonoBehaviour
     //Give money for each property the team owns. 
     void GiveMoneyForProperties(Team team)
     {
-        team.AddMoney(team.ownedProperties.Count * Core.Model.MapSettings.moneyIncrement);
+        team.AddMoney(team.OwnedProperties.Count * Core.Model.MapSettings.moneyIncrement);
     }
 
     //Sets all the units of a team so they have a turn, can move and fire.
@@ -160,7 +161,7 @@ public class Controller : MonoBehaviour
         int highestPropertyCount = 0;
         foreach (Team team in Core.Model.teams)
         {
-            int propertyCount = team.ownedProperties.Count;
+            int propertyCount = team.OwnedProperties.Count;
             if (propertyCount > highestPropertyCount)
             {
                 highestPropertyCount = propertyCount;
@@ -609,13 +610,13 @@ public class Controller : MonoBehaviour
     public void Occupy(Team newOwner, Tile tile)
     {
         //If it was occupied by another team, delete it from their property list.
-        if (tile.Property.OwningTeam != null) tile.Property.OwningTeam.ownedProperties.Remove(tile);
+        if (tile.Property.OwningTeam != null) tile.Property.OwningTeam.OwnedProperties.Remove(tile);
         //Introduce the new owner to the tile.
         tile.Property.OwningTeam = newOwner;
         //Set the color of the property to the occupying team color.
         tile.SetColor(newOwner.Data.color);
         //Add the tile to the new owners properties.
-        newOwner.ownedProperties.Add(tile);
+        newOwner.OwnedProperties.Add(tile);
         //If you occupy the enemies HQ, you win the game.
         //TODO: find a better place for this
         if (tile.data.type == TileType.HQ && Core.Controller.RoundCounter > 1)
@@ -626,7 +627,7 @@ public class Controller : MonoBehaviour
         }
         //If you reach the necessary amount of properties you also win the game.
         //!WORKING
-        if (Core.Model.MapSettings.propertiesToWin > 11 && newOwner.ownedProperties.Count == Core.Model.MapSettings.propertiesToWin)
+        if (Core.Model.MapSettings.propertiesToWin > 11 && newOwner.OwnedProperties.Count == Core.Model.MapSettings.propertiesToWin)
         {
             //TODO: decide if more than two teams are playing and then only remove the defeated team from the map.
             //TODO: winning animationstuff

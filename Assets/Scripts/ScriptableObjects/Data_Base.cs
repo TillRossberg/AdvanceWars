@@ -86,6 +86,7 @@ public class Data_Base : ScriptableObject
         GameObject unit = null;
         switch (type)
         {
+            case UnitType.Null: unit = null; break;
             case UnitType.AntiAir: unit = anitAirPrefab; break;
             case UnitType.APC: unit = APCPrefab; break;
             case UnitType.Tank: unit = tankPrefab; break;
@@ -108,8 +109,11 @@ public class Data_Base : ScriptableObject
             case UnitType.Pipe: unit = pipePrefab; break;
             default: throw new System.Exception("Unittype not found: " + type.ToString());
         }
-        if (unit != null) return unit;
-        else throw new System.Exception("Unit prefab " + type.ToString() + " not set!");
+        return unit; 
+    }
+    public int GetUnitCost(UnitType type)
+    {
+        return GetUnitPrefab(type).GetComponent<Unit>().data.cost;
     }
     public Sprite GetCommanderThumb(CommanderType type)
     {

@@ -14,15 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   redThumbNail: {fileID: 21300000, guid: 8bd9e89aad12eb54ea57277ab6da0873, type: 3}
   blueThumbNail: {fileID: 21300000, guid: 5f76b4a0e44c7cb46a1385f21ae61fad, type: 3}
-  mesh: {fileID: 0}
-  material: {fileID: 0}
   unitName: APC
-  type: 1
+  type: 2
   moveType: 2
   description: 
   directAttack: 0
   rangeAttack: 0
-  maxAmmo: 0
   maxFuel: 70
   moveDist: 6
   visionRange: 1

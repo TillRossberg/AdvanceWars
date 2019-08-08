@@ -15,7 +15,7 @@ MonoBehaviour:
   redThumbNail: {fileID: 21300000, guid: b93e2e47754f1ce41b85340678f8b21c, type: 3}
   blueThumbNail: {fileID: 21300000, guid: b5ea7f416adb6f3478a01072c3492067, type: 3}
   unitName: Recon
-  type: 7
+  type: 8
   moveType: 3
   description: 
   directAttack: 1

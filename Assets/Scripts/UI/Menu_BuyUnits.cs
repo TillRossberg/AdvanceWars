@@ -24,13 +24,13 @@ public class Menu_BuyUnits : MonoBehaviour
     public Menu_BuyUnits_Selection unitSelectorPrefab;
     //Fields
     List<UnitType> _availableUnits = new List<UnitType>();
-    Vector2Int _productionPosition;
+    public Vector2Int ProductionPosition;
 
     public void Show(Tile tile)
     {
         this.gameObject.SetActive(true);
         Core.Controller.CurrentMode = Controller.Mode.BuyMenu;
-        _productionPosition = tile.Position;
+        ProductionPosition = tile.Position;
         SetAvailableUnits(tile);
         CreateUnitSelectors(_availableUnits);
         Core.View.HighlightFirstMenuItem(selectorParent);
@@ -41,23 +41,16 @@ public class Menu_BuyUnits : MonoBehaviour
         Core.Controller.CurrentMode = Controller.Mode.Normal;
     }
 
-    public void Buy(UnitType type)
+    public Unit Buy(UnitType type, Vector2Int position, Team team)
     {
-        int unitCost = Core.Model.Database.GetUnitPrefab(type).GetComponent<Unit>().data.cost;
-        if (unitCost <= Core.Controller.ActiveTeam.Money)
-        {
-            Core.Controller.ActiveTeam.SubtractMoney(unitCost);
-            Core.Model.CreateUnit(type, Core.Controller.ActiveTeam, _productionPosition, Direction.North);
-            //TODO: make unit face enemy hq        
-            Core.Controller.BlockInputFor(0.1f);
-            Hide();
-        }
-        else
-        {
-            Core.AudioManager.PlayNopeSound();
-        }
+        team.SubtractMoney(Core.Model.Database.GetUnitCost(type));
+        return Core.Model.CreateUnit(type, position, Direction.North);
     }
-
+    public bool CanAffordUnit(UnitType type, Team team)
+    {       
+        if (Core.Model.Database.GetUnitCost(type) <= team.Money) return true;
+        else return false;
+    }
 
     public void UpdateDetails(UnitType type)
     {

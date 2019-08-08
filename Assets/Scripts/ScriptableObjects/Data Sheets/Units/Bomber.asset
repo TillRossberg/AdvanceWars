@@ -15,7 +15,7 @@ MonoBehaviour:
   redThumbNail: {fileID: 21300000, guid: b49f4348f797203409375052237eb92f, type: 3}
   blueThumbNail: {fileID: 21300000, guid: b62b5a0fc37a7014d8fede3903ed8701, type: 3}
   unitName: Bomber
-  type: 13
+  type: 14
   moveType: 6
   description: 
   directAttack: 1

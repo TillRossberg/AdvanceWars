@@ -14,7 +14,7 @@ public class Team: MonoBehaviour
     public int Money { get; private set; }
     public List<Unit> Units = new List<Unit>();
     int _unitIndex = 0;
-    public List<Tile> ownedProperties = new List<Tile>();
+    public List<Tile> OwnedProperties = new List<Tile>();
     #endregion
     #region AI
     public bool IsAI;
@@ -46,11 +46,13 @@ public class Team: MonoBehaviour
     //Add an unit to the team, set its color to the teamcolor and pass information about the own team and the enemy team to the unit.
     public void AddUnit(Unit unitToAdd)
     {
+        unitToAdd.transform.parent = this.transform;
         Units.Add(unitToAdd);
         unitToAdd.team = this;
         unitToAdd.enemyTeams = EnemyTeams;
         unitToAdd.SetTeamColor(Data.color);
         Data.IncUnitsBuilt(unitToAdd.data.type);
+        if(IsAI) AI.AddAIUnit(unitToAdd);          
     }     
     //Deletes a unit completely with all references. (Sure?)
     public void DestroyUnit(Unit unit)

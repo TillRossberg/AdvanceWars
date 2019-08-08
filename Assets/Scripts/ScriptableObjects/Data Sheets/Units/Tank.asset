@@ -15,7 +15,7 @@ MonoBehaviour:
   redThumbNail: {fileID: 21300000, guid: ebbd0fddcf6a1c449abb543ab4dad4e4, type: 3}
   blueThumbNail: {fileID: 21300000, guid: 893ac4d0410db8c41943b8fc3099ece7, type: 3}
   unitName: Tank
-  type: 2
+  type: 3
   moveType: 2
   description: The Tank is the basic ground vehicle, useful in its mobility due to
     its tracks and its versatility of being able to attack a large number of units.

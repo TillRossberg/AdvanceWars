@@ -200,17 +200,17 @@ public class Model : MonoBehaviour
     #endregion
     #region Unit Methods
     //Create a unit for the given team, position and rotation.
-    public void CreateUnit(UnitType type, Team team, Vector2Int position, Direction facingDirection)
+    public Unit CreateUnit(UnitType type, Vector2Int position, Direction facingDirection)
     {
         //Create the Unit
-        Unit unit = Instantiate(Core.Model.Database.GetUnitPrefab(type), new Vector3(position.x, tileHeight, position.y), Quaternion.Euler(0, 0, 0), team.transform).GetComponent<Unit>();
+        Unit unit = Instantiate(Core.Model.Database.GetUnitPrefab(type), new Vector3(position.x, tileHeight, position.y), Quaternion.Euler(0, 0, 0)).GetComponent<Unit>();
         unit.Init();
         //Position and rotation
         unit.RotateUnit(facingDirection);
         unit.Position = position;
         unit.CurrentTile = GetTile(position);
-        team.AddUnit(unit);
         GetTile(position).UnitHere = unit;//Pass the unit to the tile it stands on
+        return unit;
     }
     #endregion
     #region Team Methods
@@ -291,13 +291,7 @@ public class Model : MonoBehaviour
         Core.Controller.Occupy(teams[1], GetTile(new Vector2Int(8, 8)));
         ChangeTile(TileType.Road, new Vector2Int(7, 6), 0);
         SetNeighbors(MapMatrix);
-        CreateUnit(UnitType.APC, Core.Model.teams[0], new Vector2Int(0, 0), Direction.North);
-        CreateUnit(UnitType.APC, Core.Model.teams[0], new Vector2Int(1, 0), Direction.North);
-        CreateUnit(UnitType.APC, Core.Model.teams[0], new Vector2Int(0, 1), Direction.North);
-        CreateUnit(UnitType.Infantry, Core.Model.teams[0], new Vector2Int(0, 2), Direction.North);
-        CreateUnit(UnitType.APC, Core.Model.teams[1], new Vector2Int(5, 10), Direction.West);
-        CreateUnit(UnitType.Rockets, Core.Model.teams[1], new Vector2Int(3, 3), Direction.North);
-        CreateUnit(UnitType.Infantry, Core.Model.teams[1], new Vector2Int(5, 11), Direction.West);
+        
     }
     public void LoadLevel02(int width, int height)
     {
@@ -347,31 +341,6 @@ public class Model : MonoBehaviour
         Core.Controller.Occupy(teams[1], GetTile(new Vector2Int(14, 7)));
 
         SetNeighbors(MapMatrix);
-
-        //Units
-        //Red
-        //CreateUnit(UnitType.APC, Core.Model.teams[0], new Vector2Int(4, 4), Direction.North);
-        //CreateUnit(UnitType.Infantry, Core.Model.teams[0], new Vector2Int(4, 3), Direction.North);
-        CreateUnit(UnitType.Tank, Core.Model.teams[0], new Vector2Int(15, 3), Direction.North);
-        //CreateUnit(UnitType.Rockets, Core.Model.teams[0], new Vector2Int(5, 5), Direction.North);
-        //CreateUnit(UnitType.Tank, Core.Model.teams[0], new Vector2Int(5, 2), Direction.North);
-        //CreateUnit(UnitType.Battleship, Core.Model.teams[0], new Vector2Int(7, 10), Direction.North);
-        //CreateUnit(UnitType.Battleship, Core.Model.teams[0], new Vector2Int(6, 10), Direction.North);
-        //SetUnitTypeHealth(Core.Model.teams[0], UnitType.Battleship, 25);
-        //CreateUnit(UnitType.Tank, Core.Model.teams[0], new Vector2Int(7, 4), Direction.East);
-        //Blue
-        CreateUnit(UnitType.Infantry, Core.Model.teams[1], new Vector2Int(6, 4), Direction.North);
-        CreateUnit(UnitType.Infantry, Core.Model.teams[1], new Vector2Int(8, 4), Direction.North);
-        CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(8, 3), Direction.North);
-        //CreateUnit(UnitType.Infantry, Core.Model.teams[1], new Vector2Int(3, 6), Direction.North);
-        //CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(12, 3), Direction.North);
-        //CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(10, 4), Direction.North);
-        //CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(9, 5), Direction.North);
-        //CreateUnit(UnitType.Cruiser, Core.Model.teams[1], new Vector2Int(11, 10), Direction.North);
-        //CreateUnit(UnitType.Cruiser, Core.Model.teams[1], new Vector2Int(10, 10), Direction.North);
-        //SetUnitTypeHealth(Core.Model.teams[1], UnitType.Infantry, 1);
-
-
     }
     public void LoadLevel03(int width, int height)
     {
@@ -387,13 +356,26 @@ public class Model : MonoBehaviour
         Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(0, 2)));
         Core.Controller.Occupy(teams[1], GetTile(new Vector2Int(6, 2)));
 
-        CreateUnit(UnitType.Tank, Core.Model.teams[0], new Vector2Int(2, 2), Direction.East);
-        CreateUnit(UnitType.Tank, Core.Model.teams[1], new Vector2Int(4, 1), Direction.West);
+        CreateUnit(UnitType.Tank,  new Vector2Int(2, 2), Direction.East);
+        CreateUnit(UnitType.Tank,  new Vector2Int(4, 1), Direction.West);
 
         //ChangeTile(TileType.Mountain, new Vector2Int(5,0), 0);
         SetNeighbors(MapMatrix);
     }
 
+    public void LoadLevel02Units()
+    {
+        //Red
+        teams[0].AddUnit(CreateUnit(UnitType.Infantry, new Vector2Int(4, 3), Direction.North));
+        teams[0].AddUnit(CreateUnit(UnitType.Tank, new Vector2Int(15, 3), Direction.North));
+        teams[0].AddUnit(CreateUnit(UnitType.Rockets, new Vector2Int(5, 5), Direction.North));
+        //SetUnitTypeHealth(Core.Model.teams[0], UnitType.Battleship, 25);
+
+        //Blue
+        teams[1].AddUnit(CreateUnit(UnitType.Infantry, new Vector2Int(6, 4), Direction.North));
+        teams[1].AddUnit(CreateUnit(UnitType.Infantry, new Vector2Int(8, 4), Direction.North));
+        SetUnitTypeHealth(Core.Model.teams[1], UnitType.Infantry, 40);
+    }
     void DrawX(TileType type, int startX, int startY, int length)
     {
         for (int i = 0; i < length; i++)

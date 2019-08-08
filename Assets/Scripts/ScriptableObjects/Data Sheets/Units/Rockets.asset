@@ -15,7 +15,7 @@ MonoBehaviour:
   redThumbNail: {fileID: 21300000, guid: 17c1c3fc50f502d478e5bd7426e0c62c, type: 3}
   blueThumbNail: {fileID: 21300000, guid: 0602050f18754d748bc227550a75ec05, type: 3}
   unitName: Rockets
-  type: 4
+  type: 5
   moveType: 3
   description: 
   directAttack: 0

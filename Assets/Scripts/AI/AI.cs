@@ -7,7 +7,8 @@ public class AI : MonoBehaviour
 {
     #region References
     Team team;
-    public List<AI_Unit> aiUnits;
+    public List<AI_UnitSet> UnitSets;
+    public List<AI_Unit> AiUnits = new List<AI_Unit>();
     public Tile enemyHQ;
     #endregion
     #region Fields
@@ -23,20 +24,19 @@ public class AI : MonoBehaviour
     public void Init(Team team)
     {
         this.team = team;
-        aiUnits = InitAIUnits(team.Units);
+        //InitAIUnits(team.Units);
         enemyHQ = GetEnemyHQ(team);
         OnAllUnitsMoved += ContinueTurn;
     }
-    List<AI_Unit> InitAIUnits(List<Unit> units)
+    public void AddAIUnit(Unit unit)
     {
-        List<AI_Unit> tempList = new List<AI_Unit>();
-        foreach (Unit item in units)
-        {
-            AI_Unit newUnit = new AI_Unit(item, this);
-            tempList.Add(newUnit);
-            newUnit.OnAllOrdersFinished += ActivateNextUnit;           
-        }
-        return tempList;
+        AI_Unit newUnit = new AI_Unit(unit, this);
+        AiUnits.Add(newUnit);
+        newUnit.OnAllOrdersFinished += ActivateNextUnit;           
+    }
+    void InitAIUnits(List<Unit> units)
+    {
+        foreach (Unit item in units) AddAIUnit(item);     
     }
     public void RemoveAllAIUnits(List<Unit> units)
     {
@@ -47,7 +47,7 @@ public class AI : MonoBehaviour
         AI_Unit unitToRemove = GetUnit(unit);
         unitToRemove.OnAllOrdersFinished -= ActivateNextUnit;
         unitToRemove.ClearOrders();       
-        aiUnits.Remove(unitToRemove);
+        AiUnits.Remove(unitToRemove);
     }
     void OnDestroy()
     {
@@ -61,7 +61,7 @@ public class AI : MonoBehaviour
     }
     void ResetUnits()        
     {
-        foreach (AI_Unit item in aiUnits)item.Reset();       
+        foreach (AI_Unit item in AiUnits)item.Reset();       
     }
     #endregion
     #region Main Methods
@@ -100,7 +100,7 @@ public class AI : MonoBehaviour
     #region Decision Phase
     void DecideII()
     {
-        foreach (AI_Unit aiUnit in aiUnits)
+        foreach (AI_Unit aiUnit in AiUnits)
         {
             ApplyTactic(Tactic.AttackOnPath, aiUnit, enemyHQ);
             if (aiUnit.HasNoOrders())
@@ -117,6 +117,8 @@ public class AI : MonoBehaviour
                 {
                     if(GetCapturingUnit(enemyHQ) == null)
                     {
+
+                        Debug.Log("no one captures hq");
                         //occupy hq
                         aiUnit.ClearOrders();
                         aiUnit.AddOrder(new Move(aiUnit, enemyHQ));
@@ -191,7 +193,7 @@ public class AI : MonoBehaviour
     void ActivateNextUnit()
     {
         Core.Controller.Deselect();
-        AI_Unit nextUnit = GetNextUnusedUnit(aiUnits);
+        AI_Unit nextUnit = GetNextUnusedUnit(AiUnits);
         if (nextUnit != null)
         {
             Core.Controller.SelectedUnit = nextUnit.Unit;
@@ -201,18 +203,50 @@ public class AI : MonoBehaviour
         else
         {
             unitPhase = false;
-            OnAllUnitsMoved();
+            OnAllUnitsMoved?.Invoke();
         }
-    }    
+    }
     #endregion
     #region Buy Phase
-    void BuyUnits()        
+    void BuyUnits()
     {
         Debug.Log("-----------------------");
-        Debug.Log("AI wants to buy units!");
+        Debug.Log("AI wants to buy: " + GetNextUnitToBuy(UnitSets[0]));
+        //Ground Units
+        foreach (AI_UnitSet set in UnitSets)
+        {
+            Tile facility = GetFreeFacility();
+            UnitType newType = GetNextUnitToBuy(set);
+            if(facility != null && newType != UnitType.Null && Core.View.BuyMenu.CanAffordUnit(newType, team))
+            {
+                Unit newUnit = Core.View.BuyMenu.Buy(newType, facility.Position, team);
+
+                Debug.Log("new unit : " + newUnit);
+                team.AddUnit(newUnit);
+                set.AddUnit(newUnit);
+            }
+        }
+
+        //Air Units
+        //Naval Units
         buyPhase = false;
         ContinueTurn();
     }
+    UnitType GetNextUnitToBuy(AI_UnitSet set)
+    {        
+        UnitType nextType = set.GetNextType();
+        if (nextType != UnitType.Null) return nextType;        
+        return UnitType.Null;
+    }
+    Tile GetFreeFacility()
+    {
+        foreach (Tile tile in team.OwnedProperties)
+        {
+            if (tile.UnitHere == null && tile.data.type == TileType.Facility) return tile;
+        }
+        return null;
+    }
+
     #endregion    
 
     #region Find Attack Target Methods
@@ -267,7 +301,7 @@ public class AI : MonoBehaviour
     List<AI_Unit> GetAttackingUnits(Unit unit)
     {
         List<AI_Unit> tempList = new List<AI_Unit>();
-        foreach (AI_Unit aiUnit in aiUnits)
+        foreach (AI_Unit aiUnit in AiUnits)
         {
             foreach (Order order in aiUnit.Orders)
             {
@@ -292,7 +326,7 @@ public class AI : MonoBehaviour
     {
         if (tile.GetComponent<Property>())
         {
-            foreach (AI_Unit aiUnit in aiUnits)
+            foreach (AI_Unit aiUnit in AiUnits)
             {
                 foreach (Order order in aiUnit.Orders)
                 {
@@ -339,7 +373,7 @@ public class AI : MonoBehaviour
     #region Getter
     AI_Unit GetUnit(Unit unit)
     {
-        foreach (AI_Unit item in aiUnits)if (item.Unit == unit) return item;       
+        foreach (AI_Unit item in AiUnits)if (item.Unit == unit) return item;       
         throw new System.Exception("AI unit not found!");
     }
     AI_Unit GetNextUnusedUnit(List<AI_Unit> units)
@@ -349,7 +383,7 @@ public class AI : MonoBehaviour
     }
     Tile GetEnemyHQ(Team ownTeam)
     {
-        foreach (Tile tile in ownTeam.EnemyTeams[0].ownedProperties) if (tile.data.type == TileType.HQ) return tile;        
+        foreach (Tile tile in ownTeam.EnemyTeams[0].OwnedProperties) if (tile.data.type == TileType.HQ) return tile;        
         throw new System.Exception(ownTeam + " :No enemy HQ found!");
     }
     #endregion
