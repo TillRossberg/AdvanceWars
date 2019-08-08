@@ -117,6 +117,7 @@ public class AI_Unit
     //Find a tile on the path that can be reached with the remaining movement points AND that is not blocked by an enemy.
     Tile FindReachableTile(List<Tile> path, Unit unit)
     {
+
         if (path.Count == 1) return path[0];
         int movementPoints = unit.data.moveDist;
         for (int i = 1; i < path.Count; i++)
@@ -124,7 +125,7 @@ public class AI_Unit
             movementPoints -= path[i].data.GetMovementCost(unit.data.moveType);
             if (movementPoints <= 0 || i == path.Count - 1) return path[i];
             if (unit.IsMyEnemy(path[i].UnitHere)) return path[i - 1];
-        }
+        }       
         throw new System.Exception("Error in finding reachable tile on path!");
     }
     //Since an ally stands on the original target, we need to find a position around that target, where we can move to.
@@ -170,12 +171,19 @@ public class AI_Unit
         }
         return tempList;
     }
-
     Tile GetFreeTile(List<Tile> tiles)
     {
         foreach (Tile item in tiles) if (item.UnitHere == null) return item;
         return null;
     }
+    public Tile GetRandomFreeReachableTile(List<Tile> tiles, Unit unit)
+    {
+        List<Tile> tempList = new List<Tile>();
+        foreach (Tile tile in tiles)if (tile.UnitHere == null && tile.data.GetMovementCost(unit.data.moveType) > 0) tempList.Add(tile);
+        if (tempList.Count == 0) return null;       
+        else return tempList[UnityEngine.Random.Range(0, tempList.Count)];
+    }
+    
     List<Tile> SortTilesByDistance(Tile tile, List<Tile> tiles)
     {
         Dictionary<Tile, float> TileDistance = new Dictionary<Tile, float>();

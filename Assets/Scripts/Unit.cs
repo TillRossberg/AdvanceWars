@@ -765,5 +765,12 @@ public class Unit : MonoBehaviour
         }
         return false;
     }
+    public bool IsInRadius(Tile tile, float radius)
+    {
+
+        Debug.Log("radius : " + Vector3.Distance(CurrentTile.transform.position, tile.transform.position));
+        if (Vector3.Distance(CurrentTile.transform.position, tile.transform.position) <= radius) return true;
+        else return false;
+    }
     #endregion
 }

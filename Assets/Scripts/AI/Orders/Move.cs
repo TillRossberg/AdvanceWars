@@ -3,7 +3,7 @@ using UnityEngine;
 using System.Linq;
 public class Move: Order
 {
-    public override Tile MoveTarget { get ; set; }
+    public override Tile TargetTile { get ; set; }
     public override AI_Unit aiUnit { get ; set ; }
     public override bool OrderFinished { get ; set ; }
     Tile currentTarget;
@@ -11,7 +11,7 @@ public class Move: Order
     public Move(AI_Unit aiUnit, Tile tile)
     {
         this.aiUnit = aiUnit;
-        this.MoveTarget = tile;
+        this.TargetTile = tile;
         OrderFinished = false;
         aiUnit.Unit.AnimationController.OnReachedLastWayPoint += Exit;
     }
@@ -31,12 +31,12 @@ public class Move: Order
             Exit();
             return;
         }
-        currentTarget = aiUnit.GetClosestTileOnPathToTarget(aiUnit.Unit, MoveTarget);
+        currentTarget = aiUnit.GetClosestTileOnPathToTarget(aiUnit.Unit, TargetTile);
         //Avoid moving to a tile on wich a friendly unit stands
         if (currentTarget.IsAllyHere(aiUnit.Unit))
         {
             Debug.Log(aiUnit.Unit + " :ally detected!");
-            Tile newTarget = aiUnit.GetClosestFreeTileAround(MoveTarget, aiUnit.Unit.CurrentTile);
+            Tile newTarget = aiUnit.GetClosestFreeTileAround(TargetTile, aiUnit.Unit.CurrentTile);
             if (newTarget != null) currentTarget = aiUnit.GetClosestTileOnPathToTarget(aiUnit.Unit, newTarget);
             else currentTarget = aiUnit.Unit.CurrentTile;
         }
@@ -52,7 +52,7 @@ public class Move: Order
     public override void Exit()
     {
         aiUnit.Unit.ConfirmPosition(currentTarget.Position);
-        if (aiUnit.Unit.IsAt(MoveTarget))OrderFinished = true;
+        if (aiUnit.Unit.IsAt(TargetTile))OrderFinished = true;
         if (aiUnit.IsLastOrder(this)) aiUnit.Unit.Wait();
         aiUnit.ExecuteNextOrder();
     }
@@ -61,6 +61,6 @@ public class Move: Order
 
 
     #region not in use  
-    public override Unit AttackTarget { get ; set; }
+    public override Unit TargetUnit { get ; set; }
     #endregion
 }

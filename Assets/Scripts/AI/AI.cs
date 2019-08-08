@@ -11,10 +11,11 @@ public class AI : MonoBehaviour
     public Tile enemyHQ;
     #endregion
     #region Fields
-    enum Tactic { AttackOnPath, HoldPosition}
+    int enemyHQRadius = 4;//In this radius we consider units as near the HQ.
+    enum Tactic { AttackOnPath, HoldPosition, CaptureHQ}
     event Action OnAllUnitsMoved;
     bool decisionPhase = true;
-    public bool unitPhase = true;
+    bool unitPhase = true;
     bool buyPhase = true;
     #endregion
 
@@ -109,6 +110,40 @@ public class AI : MonoBehaviour
                 //aiUnit.AddOrder(new Move(aiUnit, attackPos));
                 //aiUnit.AddOrder(new Attack(aiUnit, unitPos.UnitHere));
             }
+            if(aiUnit.Unit.IsInRadius(enemyHQ, enemyHQRadius))
+            {
+                Debug.Log(aiUnit.Unit + " is in radius of enemy HQ.");
+                if(aiUnit.Unit.IsInfantry())
+                {
+                    if(GetCapturingUnit(enemyHQ) == null)
+                    {
+                        //occupy hq
+                        aiUnit.ClearOrders();
+                        aiUnit.AddOrder(new Move(aiUnit, enemyHQ));
+                        aiUnit.AddOrder(new Occupy(aiUnit, enemyHQ));
+                    }
+                    else
+                    {
+                        AI_Unit capturingUnit = GetCapturingUnit(enemyHQ);
+                        //check for hp of the occuping unit and unite to increase capture speed
+                        if(capturingUnit.Unit.data.type == aiUnit.Unit.data.type && capturingUnit.Unit.health < 70)
+                        {
+                            Debug.Log(aiUnit.Unit + " wants to unite with " + capturingUnit.Unit + " to increase capture speed!");
+                        }
+                    }
+                }
+                else
+                {
+                    //find random position around hq
+                    Tile freeTileAroundHQ = aiUnit.GetRandomFreeReachableTile(Core.Model.GetTilesInRadius(enemyHQ, enemyHQRadius), aiUnit.Unit);
+                    if(freeTileAroundHQ != null)
+                    { 
+                        aiUnit.ClearOrders();
+                        aiUnit.AddOrder(new Move(aiUnit, freeTileAroundHQ));
+                    }
+                    else Debug.Log("No free tile around HQ found!");                    
+                }
+            }
         }
         decisionPhase = false;
         ContinueTurn();
@@ -120,7 +155,7 @@ public class AI : MonoBehaviour
         switch (tactic)
         {
             case Tactic.AttackOnPath:
-                List<ValueTarget> valueTargets = GetValueTargets(aiUnit.Unit, aiUnit.GetAttackableEnemies());                
+                List<ValueTarget> valueTargets = GetValueTargets(aiUnit.Unit, aiUnit.GetAttackableEnemies());
                 if (valueTargets.Count > 0)
                 {
                     Unit highValueTarget = GetMostValuableTarget(valueTargets);
@@ -139,72 +174,18 @@ public class AI : MonoBehaviour
                 break;
             case Tactic.HoldPosition:
                 break;
+            case Tactic.CaptureHQ:
+                if (aiUnit.Unit.IsInfantry())
+                {
+
+                }
+                else throw new System.Exception("Unit is not infantry!");
+                break;
             default:
                 break;
         }
     }
 
-    void Decide()
-    {
-        Debug.Log("-----------------------");
-        Debug.Log("AI decides!");
-        foreach (AI_Unit aiUnit in aiUnits)
-        {
-            //Do I protect someone?
-            //Can I make a valuable attack?
-            if(aiUnit.MoveTarget == null)
-            {
-                List<ValueTarget> valueTargets = GetValueTargets(aiUnit.Unit, aiUnit.GetAttackableEnemies());
-
-                //Debug.Log("value targets count: " + valueTargets.Count);
-                if (valueTargets.Count > 0)
-                {
-                    aiUnit.AttackTarget = GetMostValuableTarget(valueTargets);
-                    Debug.Log(aiUnit.Unit + " wants to attack: " + aiUnit.AttackTarget);
-                    aiUnit.MoveTarget = GetAttackTile(aiUnit, aiUnit.AttackTarget);
-                }
-            }
-            //Occupy properties
-            if (aiUnit.MoveTarget == null && aiUnit.Unit.IsInfantry())
-            {
-                if (aiUnit.OccupyTarget == null)
-                {
-                    Tile occupyTarget = GetClosestFreeProperty(aiUnit.Unit);
-                    if (occupyTarget != null)
-                    {
-                        aiUnit.OccupyTarget = occupyTarget;
-                        aiUnit.MoveTarget = GetClosestTileOnPathToTarget(aiUnit.Unit, occupyTarget);
-                        aiUnit.IsOccupying = true;
-                    }
-                    else
-                    {
-                        occupyTarget = GetClosestEnemyProperty(aiUnit.Unit);
-                        aiUnit.MoveTarget = GetClosestTileOnPathToTarget(aiUnit.Unit, occupyTarget);
-                        aiUnit.IsOccupying = true;
-                    }
-                }
-                else
-                {
-                    if (aiUnit.Unit.IsAt(aiUnit.OccupyTarget))
-                    {
-                        if (aiUnit.OccupyTarget.Property.OwningTeam == aiUnit.Unit.team)
-                        {
-                            aiUnit.IsOccupying = false;
-                            aiUnit.OccupyTarget = null;
-                        }
-                    }
-                    else aiUnit.MoveTarget = aiUnit.OccupyTarget;                   
-                }
-            }
-            //Keep on moving to enemy HQ.
-            if(aiUnit.MoveTarget == null && aiUnit.Unit.Position != enemyHQ.Position && !aiUnit.IsOccupying)
-            {
-                aiUnit.MoveTarget = GetClosestTileOnPathToTarget(aiUnit.Unit, enemyHQ);
-            }
-        }
-        decisionPhase = false;
-        ContinueTurn();
-    }
     #endregion
     #region Unit Phase
     void ActivateNextUnit()
@@ -290,7 +271,7 @@ public class AI : MonoBehaviour
         {
             foreach (Order order in aiUnit.Orders)
             {
-                if (order.AttackTarget == unit) tempList.Add(aiUnit);
+                if (order.TargetUnit == unit) tempList.Add(aiUnit);
             }
         }
         return tempList;
@@ -305,31 +286,26 @@ public class AI : MonoBehaviour
         if (health > 0) return true;
         else return false;
     }
-    #endregion
-    #region Path Finding Methods
-    Tile GetClosestTileOnPathToTarget(Unit unit, Tile targetTile)
-    {
-        List<Tile> path = Core.Model.AStar.GetPath(unit, unit.CurrentTile, targetTile, true);
-        //If all paths to the enemy HQ are blocked by enemies, ignore them.
-        if (path.Count == 0) path = Core.Model.AStar.GetPath(unit, unit.CurrentTile, targetTile, false);
-        return FindReachableTile(path, unit);
-    }
-    //Find a tile on the path that can be reached with the remaining movement points AND that is not blocked by an enemy.
-    Tile FindReachableTile(List<Tile> path, Unit unit)
-    {
-
-        Debug.Log("path lenght: " + path.Count);
-        int movementPoints = unit.data.moveDist;
-        for (int i = 1; i < path.Count; i++)
-        {
-            movementPoints -= path[i].data.GetMovementCost(unit.data.moveType);
-            if (movementPoints <= 0 || i == path.Count - 1) return path[i];
-            if (unit.IsMyEnemy(path[i].UnitHere)) return path[i - 1];
-        }
-        throw new System.Exception("Error in finding reachable tile on path!");
-    }
-    #endregion
+    #endregion    
     #region Occupy Methods
+    AI_Unit GetCapturingUnit(Tile tile)
+    {
+        if (tile.GetComponent<Property>())
+        {
+            foreach (AI_Unit aiUnit in aiUnits)
+            {
+                foreach (Order order in aiUnit.Orders)
+                {
+                    if(order.GetType() == typeof(Occupy))
+                    {
+                        if (order.TargetTile == tile) return aiUnit;                        
+                    }
+                }
+            }
+            return null;
+        }
+        else throw new System.Exception("Tile is not a property!");
+    }
     Tile GetClosestFreeProperty(Unit unit)
     {
         List<Tile> allProperties = Core.Model.GetProperties();

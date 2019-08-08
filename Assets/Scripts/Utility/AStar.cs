@@ -13,6 +13,10 @@ public class AStar
 
     public void CalcPath(Unit unit, Tile startTile, Tile endTile, bool considerEnemyUnits)
     {
+
+        //Debug.Log("start: " + startTile);
+
+        //Debug.Log("end: " + endTile);
         Reset();
         int counter = 0;
 

@@ -96,7 +96,7 @@ public class Unit_AnimationController : MonoBehaviour
                     IsMovingToTarget = false;
                     wayPointIndex = 1;
                     unit.DisplayHealth(true);
-                    OnReachedLastWayPoint();
+                    OnReachedLastWayPoint?.Invoke();
                 }
                 else
                 //Keep on moving
@@ -121,7 +121,7 @@ public class Unit_AnimationController : MonoBehaviour
                 //Debug.Log("end rotation: " + endRotation);
                 IsRotatingToTarget = false;
                 unit.DisplayHealth(true);
-                OnRotationComplete(_rotationTarget);
+                OnRotationComplete?.Invoke(_rotationTarget);
             }
         }
     }
@@ -151,7 +151,8 @@ public class Unit_AnimationController : MonoBehaviour
     IEnumerator StopAttackAnimation(float delay)
     {
         yield return new WaitForSeconds(delay);
-        OnAttackAnimationComplete();
+
+        OnAttackAnimationComplete?.Invoke();
     }
     #endregion
     #region Conditions

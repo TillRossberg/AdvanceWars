@@ -5,56 +5,56 @@ using UnityEngine;
 public class Attack : Order
 {
     public override AI_Unit aiUnit { get; set; }
-    public override Unit AttackTarget { get; set; }
-    public override Tile MoveTarget { get ; set ; }
+    public override Unit TargetUnit { get; set; }
+    public override Tile TargetTile { get ; set ; }
     public override bool OrderFinished { get ; set; }
     public Attack(AI_Unit aiUnit, Unit unit)
     {
         this.aiUnit = aiUnit;
-        AttackTarget = unit;
+        TargetUnit = unit;
         aiUnit.Unit.AnimationController.OnAttackAnimationComplete += Exit;
         aiUnit.Unit.AnimationController.OnReachedLastWayPoint += Continue;
     }
 
     public override void Start()
     {        
-        if (AttackTarget == null)
+        if (TargetUnit == null)
         {
             OrderFinished = true;
             Debug.Log(aiUnit.Unit + " attack target is null.");
             Exit();
         }
         //Can we attack before moving?...
-        else if(aiUnit.Unit.CanAttack(AttackTarget) && aiUnit.Unit.CanFire)AttackEm(AttackTarget);   
+        else if(aiUnit.Unit.CanAttack(TargetUnit) && aiUnit.Unit.CanFire)AttackEm(TargetUnit);   
         //...if not we move and...
         else
         {
-            MoveTarget = aiUnit.GetClosestFreeTileAround(AttackTarget.CurrentTile, aiUnit.Unit.CurrentTile);
-            MoveTarget = aiUnit.GetClosestTileOnPathToTarget(aiUnit.Unit, MoveTarget);
+            TargetTile = aiUnit.GetClosestFreeTileAround(TargetUnit.CurrentTile, aiUnit.Unit.CurrentTile);
+            TargetTile = aiUnit.GetClosestTileOnPathToTarget(aiUnit.Unit, TargetTile);
             //Avoid moving to a tile on wich a friendly unit stands
-            if (MoveTarget.IsAllyHere(aiUnit.Unit))
+            if (TargetTile.IsAllyHere(aiUnit.Unit))
             {
                 Debug.Log(aiUnit.Unit + " :ally detected!");
-                Tile newTarget = aiUnit.GetClosestFreeTileAround(MoveTarget, aiUnit.Unit.CurrentTile);
-                if (newTarget != null) MoveTarget = aiUnit.GetClosestTileOnPathToTarget(aiUnit.Unit, newTarget);
-                else MoveTarget = aiUnit.Unit.CurrentTile;
+                Tile newTarget = aiUnit.GetClosestFreeTileAround(TargetTile, aiUnit.Unit.CurrentTile);
+                if (newTarget != null) TargetTile = aiUnit.GetClosestTileOnPathToTarget(aiUnit.Unit, newTarget);
+                else TargetTile = aiUnit.Unit.CurrentTile;
             }
-            Core.Controller.SelectedTile = Core.Model.GetTile(MoveTarget.Position);
-            aiUnit.Unit.MoveTo(MoveTarget.Position);
-            Debug.Log(aiUnit.Unit + " moves to: " + MoveTarget + " and wants to attack");
+            Core.Controller.SelectedTile = Core.Model.GetTile(TargetTile.Position);
+            aiUnit.Unit.MoveTo(TargetTile.Position);
+            Debug.Log(aiUnit.Unit + " moves to: " + TargetTile + " and wants to attack");
         }            
     }
     public override void Continue()
     {
-        aiUnit.Unit.ConfirmPosition(MoveTarget.Position);
+        aiUnit.Unit.ConfirmPosition(TargetTile.Position);
         //...try again after moving.
-        if (aiUnit.Unit.CanAttack(AttackTarget) && aiUnit.Unit.CanFire)AttackEm(AttackTarget);      
+        if (aiUnit.Unit.CanAttack(TargetUnit) && aiUnit.Unit.CanFire)AttackEm(TargetUnit);      
         else Exit();
     }
 
     public override void Exit()
     {
-        if(AttackTarget != null && AttackTarget.health <= 0)
+        if(TargetUnit != null && TargetUnit.health <= 0)
         {
             OrderFinished = true;
             Debug.Log(aiUnit.Unit + " attack target successfully destroyed.");
