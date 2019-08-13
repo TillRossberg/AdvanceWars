@@ -46,8 +46,6 @@ public class Team: MonoBehaviour
     //Add an unit to the team, set its color to the teamcolor and pass information about the own team and the enemy team to the unit.
     public void AddUnit(Unit unit)
     {
-
-        Debug.Log("adding " + unit + " to team!");
         unit.transform.parent = this.transform;
         Units.Add(unit);
         unit.team = this;

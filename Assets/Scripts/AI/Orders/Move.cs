@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
-using System.Linq;
+﻿using UnityEngine;
 public class Move: Order
 {
     public override Tile TargetTile { get ; set; }
@@ -24,7 +22,6 @@ public class Move: Order
     public override void Start()
     {
         Debug.Log("--> Move");
-
         Core.Controller.Cursor.SetPosition(aiUnit.Unit.Position);
         Core.Controller.SelectedUnit = aiUnit.Unit;
         if (OrderFinished)

@@ -5,21 +5,17 @@ using System;
 using System.Linq;
 public class AI_Unit
 {
-    public List<Order> Orders = new List<Order>();
-    int orderIndex = 0;
+    #region References
     AI ai;
     public Unit Unit;
-    public Unit AttackTarget;
-    public Tile MoveTarget;
-    public Tile OccupyTarget;
-    public bool IsOccupying = false;
-
-    bool move = true;
-    bool rotate = true;
-    bool act = true;
-
-    public event Action OnOrderFinished;
+    #endregion
+    #region Fields
+    public List<Order> Orders = new List<Order>();
+    int orderIndex = 0;  
+    #endregion
+    #region Events
     public event Action OnAllOrdersFinished;
+    #endregion
 
     #region Basic Methods
     public AI_Unit(Unit unit, AI ai)
@@ -28,37 +24,11 @@ public class AI_Unit
         this.ai = ai;
     }
     public void Reset()
-    {
-        move = true;
-        act = true;
-        rotate = true;
-        AttackTarget = null;
-        MoveTarget = null;
+    {        
         orderIndex = 0;
     }
-    #endregion
-    #region Main function
-    public void Start()
-    {
-        Core.Controller.Cursor.SetPosition(Unit.Position);//Focus camera on the unit.
-        Core.Controller.SelectedUnit = Unit;
-        Continue();
-    }
-    public void Continue()
-    {
-        if (move) Move();
-        else if (rotate) Rotate();
-        else if (act) Act();
-        else Exit();
-    }
-    public void Exit()
-    {
-        Unit.Wait();
-        Core.Controller.Deselect();
-        OnAllOrdersFinished();
-    }
-    #endregion
-    #region Order functions
+    #endregion   
+    #region Order Methods
     public void ExecuteNextOrder()
     {
         if (orderIndex < Orders.Count)
@@ -156,7 +126,7 @@ public class AI_Unit
             radius++;
             counter++;
             if (freeTile != null) finished = true;
-            if ((radius > (Core.Model.MapMatrix.Count / 2) && radius > (Core.Model.MapMatrix[0].Count) / 2)) finished = true;
+            if ((radius > Core.Model.MapMatrix.Count && radius > Core.Model.MapMatrix[0].Count)) finished = true;
             //TODO: test for safe removal
             if (counter > 1000)
             {
@@ -206,82 +176,7 @@ public class AI_Unit
     {
         return Vector3.Distance(tile1.transform.position, tile2.transform.position);
     }
-    #endregion
-    #region Move to position
-    public void Move(Tile position)
-    {
-
-    }
-    void Move()
-    {
-        //move action   
-        if (MoveTarget != null)
-        {
-            Debug.Log(Unit + " starts to move to : " + MoveTarget.Position);
-            Core.Controller.SelectedTile = Core.Model.GetTile(MoveTarget.Position);
-            Unit.MoveTo(MoveTarget.Position);
-        }
-        else
-        {
-            Debug.Log(Unit + " has no move target!");
-            move = false;
-            Continue();
-        }
-    }
-    public void MoveFinished()
-    {
-        Debug.Log(Unit + " finished movement!");
-        Unit.ConfirmPosition(MoveTarget.Position);
-        move = false;
-        Continue();
-    }
-    #endregion
-    #region Rotate to target
-    void Rotate()
-    {
-        if (AttackTarget != null)
-        {
-            Unit.RotateAndAttack(AttackTarget);
-        }
-        else
-        {
-            Debug.Log(Unit + " hast no attack target!");
-            rotate = false;
-            Continue();
-        }
-    }
-    public void RotateFinished(Unit unit)
-    {
-        Debug.Log(Unit + " finished rotation!");
-        rotate = false;
-        Continue();
-    }
-    #endregion
-    #region Act
-    void Act()
-    {
-        Debug.Log(Unit + " starts to act!");       
-        if(AttackTarget == null)
-        {
-            if(IsOccupying && Unit.IsAt(OccupyTarget))
-            {
-                Core.Controller.OccupyAction(Unit, OccupyTarget);
-            }            
-        }       
-        act = false;
-        Continue();
-    }
-
-    public void ActFinished()
-    {
-        Debug.Log(Unit + " finished acting!");
-        Continue();
-    }
-    #endregion
-    #region Move to enmey HQ
-    
-    
-    #endregion
+    #endregion     
     #region Get Attackable Enemies    
     public List<Unit> GetAttackableEnemies()
     {
@@ -307,10 +202,4 @@ public class AI_Unit
         return attackableEnemies;
     }
     #endregion
-    #region Protect a Unit
-
-    #endregion
-    #region Stay out of range (of visible units)
-
-    #endregion  
 }

@@ -15,17 +15,19 @@ public class AI : MonoBehaviour
     public List<AI_UnitSet> UnitSets = new List<AI_UnitSet>();
     int enemyHQRadius = 4;//In this radius we consider units as near the HQ.
     enum Tactic { AttackOnPath, HoldPosition, CaptureHQ}
-    event Action OnAllUnitsMoved;
     bool decisionPhase = true;
     bool unitPhase = true;
     bool buyPhase = true;
+    #endregion
+    #region Events
+    event Action OnAllUnitsMoved;
+
     #endregion
 
     #region Basic Methods
     public void Init(Team team)
     {
         this.team = team;
-        //InitAIUnits(team.Units);
         enemyHQ = GetEnemyHQ(team);
         OnAllUnitsMoved += ContinueTurn;
         InitUnitSets();
@@ -62,7 +64,7 @@ public class AI : MonoBehaviour
     {
         //Scout before make decisions?
         //Decide what to do
-        if (decisionPhase) DecideII();
+        if (decisionPhase) Decide();
         //Make moves for units
         else if (unitPhase) ActivateNextUnit();
         //Buy new units
@@ -79,7 +81,7 @@ public class AI : MonoBehaviour
     }
     #endregion
     #region Decision Phase
-    void DecideII()
+    void Decide()
     {
         foreach (AI_Unit aiUnit in AiUnits)
         {
@@ -194,8 +196,8 @@ public class AI : MonoBehaviour
         //Ground Units
         foreach (AI_UnitSet set in UnitSets)
         {
-            List<Tile> freeFacilities = GetFreeFacilities();
-            foreach (Tile facility in freeFacilities)
+            List<Tile> productionBuildings = GetFreeProductionBuildings();
+            foreach (Tile facility in productionBuildings)
             {
                 UnitType newType = set.GetNextAffordableInPreset(team);
                 if (newType != UnitType.Null && facility.CanProduce(newType)) 
@@ -203,9 +205,7 @@ public class AI : MonoBehaviour
                     Buy(newType, facility, team, set);
                 }
             }
-        }        
-        //Air Units
-        //Naval Units
+        }                
         buyPhase = false;
         ContinueTurn();
     }
@@ -218,12 +218,12 @@ public class AI : MonoBehaviour
         set.Add(newUnit);
     }
     
-    List<Tile> GetFreeFacilities()
+    List<Tile> GetFreeProductionBuildings()
     {
         List<Tile> tempList = new List<Tile>();
         foreach (Tile tile in team.OwnedProperties)
         {
-            if (tile.UnitHere == null && tile.data.type == TileType.Facility) tempList.Add(tile);
+            if (tile.UnitHere == null && (tile.data.type == TileType.Facility || tile.data.type == TileType.Airport || tile.data.type == TileType.Port)) tempList.Add(tile);
         }
         return tempList;
     }
@@ -248,11 +248,7 @@ public class AI : MonoBehaviour
         AI_Unit newUnit = new AI_Unit(unit, this);
         AiUnits.Add(newUnit);
         newUnit.OnAllOrdersFinished += ActivateNextUnit;
-    }
-    void InitAIUnits(List<Unit> units)
-    {
-        foreach (Unit item in units) AddAIUnit(item);
-    }
+    }    
     public void RemoveAllAIUnits(List<Unit> units)
     {
         foreach (Unit item in units) RemoveAIUnit(item);
