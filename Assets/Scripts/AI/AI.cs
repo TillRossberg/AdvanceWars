@@ -54,7 +54,7 @@ public class AI : MonoBehaviour
     public void StartTurn()
     {
         Debug.Log("========================");
-        Debug.Log("AI starts turn!");
+        Debug.Log("AI: " + team + " starts turn!");
         //Analyze situation
         ContinueTurn();
     }
@@ -194,32 +194,38 @@ public class AI : MonoBehaviour
         //Ground Units
         foreach (AI_UnitSet set in UnitSets)
         {
-            Tile facility = GetFreeFacility();
-            UnitType newType = set.GetNextInPreset();
-            if(facility != null && newType != UnitType.Null && Core.View.BuyMenu.CanAffordUnit(newType, team))
+            List<Tile> freeFacilities = GetFreeFacilities();
+            foreach (Tile facility in freeFacilities)
             {
-                Core.Controller.Cursor.SetPosition(facility.Position);
-                Unit newUnit = Core.View.BuyMenu.Buy(newType, facility.Position, team);
-                Debug.Log("AI buys : " + newUnit);
-                team.AddUnit(newUnit);
-                set.Add(newUnit);
+                UnitType newType = set.GetNextAffordableInPreset(team);
+                if (newType != UnitType.Null && facility.CanProduce(newType)) 
+                {
+                    Buy(newType, facility, team, set);
+                }
             }
-            set.LogUnits();
         }        
-
         //Air Units
         //Naval Units
         buyPhase = false;
         ContinueTurn();
     }
-    
-    Tile GetFreeFacility()
+    void Buy(UnitType unitType, Tile tile, Team team, AI_UnitSet set)
     {
+        Core.Controller.Cursor.SetPosition(tile.Position);
+        Unit newUnit = Core.View.BuyMenu.Buy(unitType, tile.Position, team);
+        Debug.Log("AI buys : " + newUnit);
+        team.AddUnit(newUnit);
+        set.Add(newUnit);
+    }
+    
+    List<Tile> GetFreeFacilities()
+    {
+        List<Tile> tempList = new List<Tile>();
         foreach (Tile tile in team.OwnedProperties)
         {
-            if (tile.UnitHere == null && tile.data.type == TileType.Facility) return tile;
+            if (tile.UnitHere == null && tile.data.type == TileType.Facility) tempList.Add(tile);
         }
-        return null;
+        return tempList;
     }
 
     #endregion

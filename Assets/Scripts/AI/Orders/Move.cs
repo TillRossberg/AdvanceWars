@@ -23,6 +23,8 @@ public class Move: Order
     #endregion
     public override void Start()
     {
+        Debug.Log("--> Move");
+
         Core.Controller.Cursor.SetPosition(aiUnit.Unit.Position);
         Core.Controller.SelectedUnit = aiUnit.Unit;
         if (OrderFinished)
@@ -35,15 +37,17 @@ public class Move: Order
         //Avoid moving to a tile on wich a friendly unit stands
         if (currentTarget.IsAllyHere(aiUnit.Unit))
         {
-            Debug.Log(aiUnit.Unit + " :ally detected!");
-            Tile newTarget = aiUnit.GetClosestFreeTileAround(TargetTile, aiUnit.Unit.CurrentTile);
+            Debug.Log(aiUnit.Unit + " :ally detected at : " +  currentTarget);
+            Tile newTarget = aiUnit.GetClosestFreeTileAround(currentTarget, aiUnit.Unit.CurrentTile);
             if (newTarget != null) currentTarget = aiUnit.GetClosestTileOnPathToTarget(aiUnit.Unit, newTarget);
             else currentTarget = aiUnit.Unit.CurrentTile;
+
+            Debug.Log("Alternativeley moving to: "  + currentTarget);
         }
         Core.Controller.SelectedTile = Core.Model.GetTile(currentTarget.Position);
+        Debug.Log(aiUnit.Unit + " moves to: " + currentTarget);       
         aiUnit.Unit.MoveTo(currentTarget.Position);
 
-        Debug.Log(aiUnit.Unit + " moves to: " + currentTarget);       
     }
     public override void Continue()
     {

@@ -21,7 +21,12 @@ public class Data_Team : ScriptableObject
     int _unitsBuiltCounter = 0;//Counts the overall created units.
     int _unitsKilledCounter = 0;//Counts how many unit this team destroyed.  
     #endregion
-
+    #region Basic Methods
+    private void OnEnable()
+    {
+        _unitsBuilt = new List<int>() { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    }
+    #endregion
     #region Available Units
     //Add an unit type to the available units list.
     public void AddAvailableUnit(UnitType myUnittype, UnitCategory category)

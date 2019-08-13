@@ -11,15 +11,13 @@ public class AStar
         return FinalPath;
     }
 
-    public void CalcPath(Unit unit, Tile startTile, Tile endTile, bool considerEnemyUnits)
+    void CalcPath(Unit unit, Tile startTile, Tile endTile, bool considerEnemyUnits)
     {
-
+        //Debug.Log("consider enemies " + considerEnemyUnits);
         //Debug.Log("start: " + startTile);
-
         //Debug.Log("end: " + endTile);
         Reset();
         int counter = 0;
-
         //Init
         List<Tile> openList = new List<Tile>();
         List<Tile> closedList = new List<Tile>();      
@@ -77,7 +75,7 @@ public class AStar
                 Debug.Log("No path found!");
             }
             counter++;
-            if (counter > 1000)
+            if (counter > 3000)
             {
                 finished = true;
                 throw new System.Exception("A* execution took too long!");

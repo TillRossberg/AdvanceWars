@@ -6,6 +6,7 @@ public class AI_UnitSet
 {
     public AI_UnitPreset Preset;
     List<Unit> setUnits;
+
     public AI_UnitSet(AI_UnitPreset preset)
     {
         this.Preset = preset;
@@ -14,13 +15,12 @@ public class AI_UnitSet
 
     public void Add(Unit unit)
     {
-        Debug.Log("trying to add " + unit);
         for (int i = 0; i < Preset.Types.Count; i++)
         {
             if (unit.data.type == Preset.Types[i] && setUnits[i] == null)
             {
                 setUnits[i] = unit;
-                Debug.Log("Adding " + unit + " to set @ " + i);
+
                 return;
             }
         }
@@ -31,11 +31,11 @@ public class AI_UnitSet
         int unitIndex = setUnits.IndexOf(unit);
         setUnits[unitIndex] = null;
     }
-    public UnitType GetNextInPreset()
+    public UnitType GetNextAffordableInPreset(Team team)
     {
         for (int i = 0; i < Preset.Types.Count; i++)
         {
-            if (setUnits[i] == null) return Preset.Types[i];
+            if (setUnits[i] == null && Core.View.BuyMenu.CanAffordUnit(Preset.Types[i], team)) return Preset.Types[i];
         }
         return UnitType.Null;
     }

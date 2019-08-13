@@ -109,22 +109,27 @@ public class AI_Unit
     #region Pathfinding
     public Tile GetClosestTileOnPathToTarget(Unit unit, Tile targetTile)
     {
+        Debug.Log(unit + " wants to move to " + targetTile);
         List<Tile> path = Core.Model.AStar.GetPath(unit, unit.CurrentTile, targetTile, true);
         //If all paths to the target are blocked by enemies, ignore the enemies. (The enemies on the path will be taken into account later.)
-        if (path.Count == 0) path = Core.Model.AStar.GetPath(unit, unit.CurrentTile, targetTile, false);
+
+        if (path.Count == 0)
+        {
+            Debug.Log("path count: " + path.Count + ", trying again!");
+            path = Core.Model.AStar.GetPath(unit, unit.CurrentTile, targetTile, false);
+        }
         return FindReachableTile(path, unit);
     }
     //Find a tile on the path that can be reached with the remaining movement points AND that is not blocked by an enemy.
     Tile FindReachableTile(List<Tile> path, Unit unit)
     {
-
         if (path.Count == 1) return path[0];
         int movementPoints = unit.data.moveDist;
         for (int i = 1; i < path.Count; i++)
         {
             movementPoints -= path[i].data.GetMovementCost(unit.data.moveType);
-            if (movementPoints <= 0 || i == path.Count - 1) return path[i];
             if (unit.IsMyEnemy(path[i].UnitHere)) return path[i - 1];
+            if (movementPoints <= 0 || i == path.Count - 1) return path[i];
         }       
         throw new System.Exception("Error in finding reachable tile on path!");
     }
@@ -135,7 +140,7 @@ public class AI_Unit
         bool finished = false;
         int radius = 1;
         int counter = 0;
-        float distance = Vector3.Distance(ownPosition.transform.position, target.transform.position);
+        float maxDistance = Vector3.Distance(ownPosition.transform.position, target.transform.position);
         Tile freeTile = null;
         //repeat until a free tile was found, if none is found and you have searched the whole map return null
         while (!finished)
@@ -143,9 +148,9 @@ public class AI_Unit
             //get all tiles in the radius around the original
             List<Tile> tilesInRadius = Core.Model.GetTilesInRadius(target, radius);
             //reduce this list to tiles hat are not farther away than our original target
-            List<Tile> closerTiles = GetTilesThatAreCloser(target, distance, tilesInRadius);
+            List<Tile> closerTiles = GetTilesThatAreCloser(ownPosition, maxDistance, tilesInRadius);
             //Sort the tiles by distance to the own position
-            List<Tile> sortedClosestTiles = SortTilesByDistance(ownPosition, closerTiles);
+            //List<Tile> sortedClosestTiles = SortTilesByDistance(ownPosition, closerTiles);
             //finally try to find a free tile 
             freeTile = GetFreeTile(closerTiles);
             radius++;
@@ -155,10 +160,12 @@ public class AI_Unit
             //TODO: test for safe removal
             if (counter > 1000)
             {
-                Debug.Log("Reached closest free tile expired counter!");
+                Debug.Log("Reached closest free tile expire counter!");
                 finished = true;
             }
         }
+
+        Debug.Log("free tile: " + freeTile);
         return freeTile;
     }
     //We reduce the list to tiles that are closer to the pivot than the maximum distance.
@@ -173,7 +180,7 @@ public class AI_Unit
     }
     Tile GetFreeTile(List<Tile> tiles)
     {
-        foreach (Tile item in tiles) if (item.UnitHere == null) return item;
+        foreach (Tile item in tiles) if (item.UnitHere == null && item.data.GetMovementCost(Unit.data.moveType) > 0) return item;
         return null;
     }
     public Tile GetRandomFreeReachableTile(List<Tile> tiles, Unit unit)
@@ -275,11 +282,7 @@ public class AI_Unit
     
     
     #endregion
-    #region Act
-    public void Attack()
-    {
-
-    }
+    #region Get Attackable Enemies    
     public List<Unit> GetAttackableEnemies()
     {
         List<Unit> attackableEnemies = new List<Unit>();

@@ -144,6 +144,51 @@ public class Tile : MonoBehaviour
             default: return false;
         }
     }
+    public bool CanProduce(UnitType type)
+    {
+        if (!IsProperty()) return false;
+        if (data.type == TileType.Facility)
+        {
+            switch (type)
+            {
+                case UnitType.AntiAir: return true;
+                case UnitType.APC: return true;
+                case UnitType.Tank: return true;
+                case UnitType.Artillery: return true;
+                case UnitType.Rockets: return true;
+                case UnitType.Missiles: return true;
+                case UnitType.Titantank: return true;
+                case UnitType.Recon: return true;
+                case UnitType.Infantry: return true;
+                case UnitType.MdTank: return true;
+                case UnitType.Mech: return true;
+                default: return false;
+            }
+        }
+        else if (data.type == TileType.Airport)
+        {
+            switch (type)
+            {
+                case UnitType.TCopter: return true;
+                case UnitType.BCopter: return true;
+                case UnitType.Bomber: return true;
+                case UnitType.Fighter: return true;
+                default: return false;
+            }
+        }
+        else if (data.type == TileType.Port)
+        {
+            switch (type)
+            {
+                case UnitType.Lander: return true;
+                case UnitType.Battleship: return true;
+                case UnitType.Cruiser: return true;
+                case UnitType.Sub: return true;
+                default: return false;
+            }
+        }
+        else return false;
+    }
     public bool IsProperty()
     {
         if (Property != null) return true;

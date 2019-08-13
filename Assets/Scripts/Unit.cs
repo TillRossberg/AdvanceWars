@@ -169,8 +169,7 @@ public class Unit : MonoBehaviour
         healthText.text = GetCorrectedHealth().ToString();
     }
     #endregion   
-    #region Movement
-    
+    #region Movement    
     //Move the unit to a field and align it so it faces away, from where it came.
     public void MoveTo(Vector2Int newPos)
     {

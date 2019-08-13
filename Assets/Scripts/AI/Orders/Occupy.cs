@@ -16,7 +16,9 @@ public class Occupy : Order
     }
     public override void Start()
     {
-        if(aiUnit.Unit.IsAt(TargetTile))
+        Debug.Log("--> Occupy");
+
+        if (aiUnit.Unit.IsAt(TargetTile))
         {
             Continue();
 

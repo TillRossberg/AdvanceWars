@@ -17,7 +17,8 @@ public class Attack : Order
     }
 
     public override void Start()
-    {        
+    {
+        Debug.Log("--> Attack");
         if (TargetUnit == null)
         {
             OrderFinished = true;

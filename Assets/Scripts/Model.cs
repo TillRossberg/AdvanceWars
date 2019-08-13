@@ -321,23 +321,31 @@ public class Model : MonoBehaviour
         ChangeTile(TileType.HQ, new Vector2Int(2, 4), 0);
         ChangeTile(TileType.Airport, new Vector2Int(2, 6), 0);
         ChangeTile(TileType.City, new Vector2Int(2, 2), 0);
+        ChangeTile(TileType.Facility, new Vector2Int(6, 2), 0);
         ChangeTile(TileType.Facility, new Vector2Int(6, 4), 0);
+        ChangeTile(TileType.Facility, new Vector2Int(6, 6), 0);
         ChangeTile(TileType.Port, new Vector2Int(4, 7), 0);
         Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(2, 4)));
         Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(2, 6)));
         //Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(2, 2)));
+        Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(6, 2)));
         Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(6, 4)));
+        Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(6, 6)));
         Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(4, 7)));
         //Blue
         ChangeTile(TileType.HQ, new Vector2Int(16, 4), 0);
         ChangeTile(TileType.Airport, new Vector2Int(16, 2), 0);
         ChangeTile(TileType.City, new Vector2Int(16, 6), 0);
+        ChangeTile(TileType.Facility, new Vector2Int(12, 2), 0);
         ChangeTile(TileType.Facility, new Vector2Int(12, 4), 0);
+        ChangeTile(TileType.Facility, new Vector2Int(12, 6), 0);
         ChangeTile(TileType.Port, new Vector2Int(14, 7), 0);
         Core.Controller.Occupy(teams[1], GetTile(new Vector2Int(16, 4)));
         Core.Controller.Occupy(teams[1], GetTile(new Vector2Int(16, 6)));
         Core.Controller.Occupy(teams[1], GetTile(new Vector2Int(16, 2)));
+        Core.Controller.Occupy(teams[1], GetTile(new Vector2Int(12, 2)));
         Core.Controller.Occupy(teams[1], GetTile(new Vector2Int(12, 4)));
+        Core.Controller.Occupy(teams[1], GetTile(new Vector2Int(12, 6)));
         Core.Controller.Occupy(teams[1], GetTile(new Vector2Int(14, 7)));
 
         SetNeighbors(MapMatrix);
