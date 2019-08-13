@@ -7,11 +7,12 @@ public class AI : MonoBehaviour
 {
     #region References
     Team team;
-    public List<AI_UnitSet> UnitSets;
-    public List<AI_Unit> AiUnits = new List<AI_Unit>();
-    public Tile enemyHQ;
     #endregion
     #region Fields
+    public List<AI_Unit> AiUnits = new List<AI_Unit>();
+    public Tile enemyHQ;
+    public List<AI_UnitPreset> UnitPresets;
+    public List<AI_UnitSet> UnitSets = new List<AI_UnitSet>();
     int enemyHQRadius = 4;//In this radius we consider units as near the HQ.
     enum Tactic { AttackOnPath, HoldPosition, CaptureHQ}
     event Action OnAllUnitsMoved;
@@ -27,28 +28,8 @@ public class AI : MonoBehaviour
         //InitAIUnits(team.Units);
         enemyHQ = GetEnemyHQ(team);
         OnAllUnitsMoved += ContinueTurn;
-    }
-    public void AddAIUnit(Unit unit)
-    {
-        AI_Unit newUnit = new AI_Unit(unit, this);
-        AiUnits.Add(newUnit);
-        newUnit.OnAllOrdersFinished += ActivateNextUnit;           
-    }
-    void InitAIUnits(List<Unit> units)
-    {
-        foreach (Unit item in units) AddAIUnit(item);     
-    }
-    public void RemoveAllAIUnits(List<Unit> units)
-    {
-        foreach (Unit item in units) RemoveAIUnit(item);
-    }
-    public void RemoveAIUnit(Unit unit)
-    {
-        AI_Unit unitToRemove = GetUnit(unit);
-        unitToRemove.OnAllOrdersFinished -= ActivateNextUnit;
-        unitToRemove.ClearOrders();       
-        AiUnits.Remove(unitToRemove);
-    }
+        InitUnitSets();
+    }   
     void OnDestroy()
     {
         OnAllUnitsMoved -= ContinueTurn;        
@@ -116,9 +97,7 @@ public class AI : MonoBehaviour
                 if(aiUnit.Unit.IsInfantry())
                 {
                     if(GetCapturingUnit(enemyHQ) == null)
-                    {
-
-                        Debug.Log("no one captures hq");
+                    {   
                         //occupy hq
                         aiUnit.ClearOrders();
                         aiUnit.AddOrder(new Move(aiUnit, enemyHQ));
@@ -211,33 +190,29 @@ public class AI : MonoBehaviour
     void BuyUnits()
     {
         Debug.Log("-----------------------");
-        Debug.Log("AI wants to buy: " + GetNextUnitToBuy(UnitSets[0]));
+        Debug.Log("AI wants to buy units.");
         //Ground Units
         foreach (AI_UnitSet set in UnitSets)
         {
             Tile facility = GetFreeFacility();
-            UnitType newType = GetNextUnitToBuy(set);
+            UnitType newType = set.GetNextInPreset();
             if(facility != null && newType != UnitType.Null && Core.View.BuyMenu.CanAffordUnit(newType, team))
             {
+                Core.Controller.Cursor.SetPosition(facility.Position);
                 Unit newUnit = Core.View.BuyMenu.Buy(newType, facility.Position, team);
-
-                Debug.Log("new unit : " + newUnit);
+                Debug.Log("AI buys : " + newUnit);
                 team.AddUnit(newUnit);
-                set.AddUnit(newUnit);
+                set.Add(newUnit);
             }
-        }
+            set.LogUnits();
+        }        
 
         //Air Units
         //Naval Units
         buyPhase = false;
         ContinueTurn();
     }
-    UnitType GetNextUnitToBuy(AI_UnitSet set)
-    {        
-        UnitType nextType = set.GetNextType();
-        if (nextType != UnitType.Null) return nextType;        
-        return UnitType.Null;
-    }
+    
     Tile GetFreeFacility()
     {
         foreach (Tile tile in team.OwnedProperties)
@@ -247,8 +222,44 @@ public class AI : MonoBehaviour
         return null;
     }
 
-    #endregion    
-
+    #endregion
+    #region Unit Presets Methods
+    void InitUnitSets()
+    {
+        foreach (AI_UnitPreset item in UnitPresets)
+        {
+            UnitSets.Add(new AI_UnitSet(item));
+        }
+    }
+    void RemoveFromUnitSets(Unit unit)
+    {
+        foreach (AI_UnitSet set in UnitSets)if (set.Contains(unit)) set.Remove(unit);      
+    }
+    #endregion
+    #region AI Unit Methods
+    public void AddAIUnit(Unit unit)
+    {
+        AI_Unit newUnit = new AI_Unit(unit, this);
+        AiUnits.Add(newUnit);
+        newUnit.OnAllOrdersFinished += ActivateNextUnit;
+    }
+    void InitAIUnits(List<Unit> units)
+    {
+        foreach (Unit item in units) AddAIUnit(item);
+    }
+    public void RemoveAllAIUnits(List<Unit> units)
+    {
+        foreach (Unit item in units) RemoveAIUnit(item);
+    }
+    public void RemoveAIUnit(Unit unit)
+    {
+        AI_Unit unitToRemove = GetUnit(unit);
+        unitToRemove.OnAllOrdersFinished -= ActivateNextUnit;
+        unitToRemove.ClearOrders();
+        AiUnits.Remove(unitToRemove);
+        RemoveFromUnitSets(unit);
+    }
+    #endregion
     #region Find Attack Target Methods
     Tile GetAttackTile(AI_Unit aiUnit, Unit target)
     {

@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2cf139bc8281737499c1dca8f9b93d2d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  UnitSets: []
   enemyHQ: {fileID: 0}
+  UnitPresets: []
 --- !u!1001 &4834872357952993039
 PrefabInstance:
   m_ObjectHideFlags: 0

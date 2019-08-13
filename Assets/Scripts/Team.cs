@@ -44,21 +44,16 @@ public class Team: MonoBehaviour
       
     #region Units
     //Add an unit to the team, set its color to the teamcolor and pass information about the own team and the enemy team to the unit.
-    public void AddUnit(Unit unitToAdd)
+    public void AddUnit(Unit unit)
     {
-        unitToAdd.transform.parent = this.transform;
-        Units.Add(unitToAdd);
-        unitToAdd.team = this;
-        unitToAdd.enemyTeams = EnemyTeams;
-        unitToAdd.SetTeamColor(Data.color);
-        Data.IncUnitsBuilt(unitToAdd.data.type);
-        if(IsAI) AI.AddAIUnit(unitToAdd);          
-    }     
-    //Deletes a unit completely with all references. (Sure?)
-    public void DestroyUnit(Unit unit)
-    {
-        GameObject.Destroy(unit.gameObject);        
-    }
+        unit.transform.parent = this.transform;
+        Units.Add(unit);
+        unit.team = this;
+        unit.enemyTeams = EnemyTeams;
+        unit.SetTeamColor(Data.color);
+        Data.IncUnitsBuilt(unit.data.type);
+        if(IsAI) AI.AddAIUnit(unit);          
+    }        
     public bool IsInMyTeam(Unit unitToTest)
     {
         if(Units.Contains(unitToTest)) return true;      

@@ -722,10 +722,10 @@ public class Controller : MonoBehaviour
     //Destroys the unit
     public void KillUnit(Unit unit)
     {
+        Tile tile = Core.Model.GetTile(unit.Position);
+        if (tile.IsProperty()) tile.Property.Reset();
         //Set the unit standing on this tile as null.
-        Core.Model.GetTile(unit.Position).UnitHere = null;
-        //TODO: Boom animation
-
+        tile.UnitHere = null;
         //Remove unit from team list
         unit.team.Units.Remove(unit);
         //If this was the last unit of the player the game is lost.

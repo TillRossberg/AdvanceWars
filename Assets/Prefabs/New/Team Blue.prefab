@@ -12,9 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2cf139bc8281737499c1dca8f9b93d2d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  UnitSets:
-  - {fileID: 11400000, guid: 16ad76d8e6aa34f4eb1ad4caf6a2660d, type: 2}
   enemyHQ: {fileID: 0}
+  UnitPresets:
+  - {fileID: 11400000, guid: e68028618bec0bb449b0b7b88a20339f, type: 2}
+  - {fileID: 11400000, guid: 651052a4facb19a4db2179cf442ff9a2, type: 2}
 --- !u!1001 &4049087027514651941
 PrefabInstance:
   m_ObjectHideFlags: 0
