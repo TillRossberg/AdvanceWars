@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11bbbdd0c78ea2d4da3107a0ea121dd3, type: 3}
   m_Name: Tanks and Artillery 01
   m_EditorClassIdentifier: 
-  Types: 0300000004000000
+  Types: 030000000300000004000000

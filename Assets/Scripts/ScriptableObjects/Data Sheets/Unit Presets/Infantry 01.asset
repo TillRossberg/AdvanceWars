@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11bbbdd0c78ea2d4da3107a0ea121dd3, type: 3}
   m_Name: Infantry 01
   m_EditorClassIdentifier: 
-  Types: 090000000b000000
+  Types: 09000000090000000b000000

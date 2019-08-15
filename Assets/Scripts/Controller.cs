@@ -41,7 +41,7 @@ public class Controller : MonoBehaviour
         //Core.Model.LoadLevel01(15, 15);
         Core.Model.LoadLevel02(19, 13);
         Core.Model.InitTeams();
-        //Core.Model.LoadLevel02Units();
+        Core.Model.LoadLevel02Units();
         //Core.Model.LoadLevel03(7, 5);
         Cursor = CreateCursor(new Vector2Int(1, 1));
         Core.Model.SetupRandomSuccession();
