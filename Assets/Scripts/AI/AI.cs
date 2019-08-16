@@ -11,16 +11,16 @@ public class AI : MonoBehaviour
     #region Fields
     public List<AI_Unit> AiUnits = new List<AI_Unit>();
     public Tile enemyHQ;
+    public List<POI> POIs = new List<POI>();
     public List<AI_UnitPreset> UnitPresets;
     public List<AI_UnitSet> UnitSets = new List<AI_UnitSet>();
     int enemyHQRadius = 4;//In this radius we consider units as near the HQ.
-    enum Tactic { AttackOnPath, HoldPosition, CaptureHQ}
+    enum Strategy { FrontalAttack, HoldPOIs, Siege, Guerilla, AttackFromBehind}
     bool decisionPhase = true;
     bool unitPhase = true;
     bool buyPhase = true;
     #endregion
     #region Events
-    event Action OnAllUnitsMoved;
 
     #endregion
 
@@ -29,12 +29,10 @@ public class AI : MonoBehaviour
     {
         this.team = team;
         enemyHQ = GetEnemyHQ(team);
-        OnAllUnitsMoved += ContinueTurn;
         InitUnitSets();
     }   
     void OnDestroy()
     {
-        OnAllUnitsMoved -= ContinueTurn;        
     }    
     void ResetPhases()
     {
@@ -58,6 +56,7 @@ public class AI : MonoBehaviour
         Debug.Log("========================");
         Debug.Log("AI: " + team + " starts turn!");
         //Analyze situation
+        //Change strategy
         ContinueTurn();
     }
     public void ContinueTurn()
@@ -85,7 +84,7 @@ public class AI : MonoBehaviour
     {
         foreach (AI_Unit aiUnit in AiUnits)
         {
-            ApplyTactic(Tactic.AttackOnPath, aiUnit, enemyHQ);
+            ApplyTactic(Strategy.FrontalAttack, aiUnit, enemyHQ);
             if (aiUnit.HasNoOrders())
             {
                 //Tile unitPos = Core.Model.GetTile(new Vector2Int(5, 3));
@@ -132,12 +131,12 @@ public class AI : MonoBehaviour
         ContinueTurn();
     }
 
-    void ApplyTactic(Tactic tactic, AI_Unit aiUnit, Tile target)
+    void ApplyTactic(Strategy tactic, AI_Unit aiUnit, Tile target)
     {
         aiUnit.ClearOrders();
         switch (tactic)
         {
-            case Tactic.AttackOnPath:
+            case Strategy.FrontalAttack:
                 List<ValueTarget> valueTargets = GetValueTargets(aiUnit.Unit, aiUnit.GetAttackableEnemies());
                 if (valueTargets.Count > 0)
                 {
@@ -155,9 +154,9 @@ public class AI : MonoBehaviour
                     aiUnit.AddOrder(new Move(aiUnit, target));
                 }
                 break;
-            case Tactic.HoldPosition:
+            case Strategy.HoldPOIs:
                 break;
-            case Tactic.CaptureHQ:
+            case Strategy.Siege:
                 if (aiUnit.Unit.IsInfantry())
                 {
 
@@ -184,7 +183,7 @@ public class AI : MonoBehaviour
         else
         {
             unitPhase = false;
-            OnAllUnitsMoved?.Invoke();
+            ContinueTurn();
         }
     }
     #endregion

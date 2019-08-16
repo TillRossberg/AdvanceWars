@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Calculations_Battle
 {
-    List<float> _coverRatings = new List<float>() { 0.9f, 0.85f, 0.8f, 0.7f, 0.5f };
+    List<float> _coverRatings = new List<float>() { 1.0f, 0.85f, 0.8f, 0.7f, 0.5f };
 
     //Lets two units battle!! The fun part :)
     public void Fight(Unit attacker, Unit defender)
