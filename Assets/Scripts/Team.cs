@@ -53,7 +53,7 @@ public class Team: MonoBehaviour
         unit.SetTeamColor(Data.color);
         Data.IncUnitsBuilt(unit.data.type);
         unit.name = unit.data.name + Data.GetUnitsBuiltCount(unit.data.type);
-        if(IsAI) AI.AddAIUnit(unit);          
+        if(IsAI) AI.AddAIUnit(unit, null);          
     }        
     public bool IsInMyTeam(Unit unitToTest)
     {

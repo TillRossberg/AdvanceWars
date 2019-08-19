@@ -9,11 +9,10 @@ public class AI : MonoBehaviour
     Team team;
     #endregion
     #region Fields
-    public List<AI_Unit> AiUnits = new List<AI_Unit>();
+    public List<AI_Squad> Squads = new List<AI_Squad>();
     public Tile enemyHQ;
     public List<POI> POIs = new List<POI>();
     public List<AI_UnitPreset> UnitPresets;
-    public List<AI_UnitSet> UnitSets = new List<AI_UnitSet>();
     int enemyHQRadius = 4;//In this radius we consider units as near the HQ.
     enum Strategy { FrontalAttack, HoldPOIs, Siege, Guerilla, AttackFromBehind}
     bool decisionPhase = true;
@@ -29,7 +28,7 @@ public class AI : MonoBehaviour
     {
         this.team = team;
         enemyHQ = GetEnemyHQ(team);
-        InitUnitSets();
+        InitSquads();
     }   
     void OnDestroy()
     {
@@ -41,8 +40,8 @@ public class AI : MonoBehaviour
         buyPhase = true;
     }
     void ResetUnits()        
-    {
-        foreach (AI_Unit item in AiUnits)item.Reset();       
+    {        
+        foreach (AI_Squad item in Squads) item.ResetUnits();        
     }
     #endregion
     #region Main Methods
@@ -173,7 +172,7 @@ public class AI : MonoBehaviour
     void ActivateNextUnit()
     {
         Core.Controller.Deselect();
-        AI_Unit nextUnit = GetNextUnusedUnit(AiUnits);
+        AI_Unit nextUnit = GetNextUnusedUnit(Squads);
         if (nextUnit != null)
         {
             Core.Controller.SelectedUnit = nextUnit.Unit;
@@ -193,28 +192,28 @@ public class AI : MonoBehaviour
         Debug.Log("-----------------------");
         Debug.Log("AI wants to buy units.");
         //Ground Units
-        foreach (AI_UnitSet set in UnitSets)
+        foreach (AI_Squad squad in Squads)
         {
             List<Tile> productionBuildings = GetFreeProductionBuildings();
             foreach (Tile facility in productionBuildings)
             {
-                UnitType newType = set.GetNextAffordableInPreset(team);
+                UnitType newType = squad.GetNextAffordableInPreset(team);
                 if (newType != UnitType.Null && facility.CanProduce(newType)) 
                 {
-                    Buy(newType, facility, team, set);
+                    Buy(newType, facility, team, squad);
                 }
             }
         }                
         buyPhase = false;
         ContinueTurn();
     }
-    void Buy(UnitType unitType, Tile tile, Team team, AI_UnitSet set)
+    void Buy(UnitType unitType, Tile tile, Team team, AI_Squad squad)
     {
         Core.Controller.Cursor.SetPosition(tile.Position);
         Unit newUnit = Core.View.BuyMenu.Buy(unitType, tile.Position, team);
         Debug.Log("AI buys : " + newUnit);
         team.AddUnit(newUnit);
-        set.Add(newUnit);
+        squad.Add(GetAIUnit(newUnit));
     }
     
     List<Tile> GetFreeProductionBuildings()
@@ -228,25 +227,32 @@ public class AI : MonoBehaviour
     }
 
     #endregion
-    #region Unit Presets Methods
-    void InitUnitSets()
-    {
+    #region Squad Methods
+    void InitSquads()
+    {       
+        //Create squads for the presets given.
         foreach (AI_UnitPreset item in UnitPresets)
         {
-            UnitSets.Add(new AI_UnitSet(item));
+            Squads.Add(new AI_Squad(this, item.Priority, item, item.StartTactic));
         }
     }
-    void RemoveFromUnitSets(Unit unit)
+    void CreateEmptySquad()
     {
-        foreach (AI_UnitSet set in UnitSets)if (set.Contains(unit)) set.Remove(unit);      
-    }
+        AI_Squad newSquad = new AI_Squad(this, 0, null, AI_Squad.Tactic.HoldPosition);
+        Squads.Add(newSquad);
+    }  
     #endregion
     #region AI Unit Methods
-    public void AddAIUnit(Unit unit)
+    public void AddAIUnit(Unit unit, AI_Squad squad)
     {
         AI_Unit newUnit = new AI_Unit(unit, this);
-        AiUnits.Add(newUnit);
         newUnit.OnAllOrdersFinished += ActivateNextUnit;
+        if(squad != null) squad.Add(newUnit);        
+        else
+        {
+            if(Squads.Count < 1)CreateEmptySquad();
+            Squads[0].Add(newUnit);
+        }
     }    
     public void RemoveAllAIUnits(List<Unit> units)
     {
@@ -254,11 +260,10 @@ public class AI : MonoBehaviour
     }
     public void RemoveAIUnit(Unit unit)
     {
-        AI_Unit unitToRemove = GetUnit(unit);
+        AI_Unit unitToRemove = GetAIUnit(unit);
         unitToRemove.OnAllOrdersFinished -= ActivateNextUnit;
         unitToRemove.ClearOrders();
-        AiUnits.Remove(unitToRemove);
-        RemoveFromUnitSets(unit);
+        GetAISquad(unit).Remove(unitToRemove);
     }
     #endregion
     #region Find Attack Target Methods
@@ -383,15 +388,33 @@ public class AI : MonoBehaviour
     }
     #endregion
     #region Getter
-    AI_Unit GetUnit(Unit unit)
+    AI_Unit GetAIUnit(Unit unit)
     {
-        foreach (AI_Unit item in AiUnits)if (item.Unit == unit) return item;       
+        foreach (AI_Squad squad in Squads)
+        {
+            AI_Unit aiUnit = squad.GetAIUnit(unit);
+            if (aiUnit != null) return aiUnit; 
+        }
         throw new System.Exception("AI unit not found!");
     }
-    AI_Unit GetNextUnusedUnit(List<AI_Unit> units)
+    AI_Squad GetAISquad(Unit unit)
     {
-        foreach (AI_Unit aiUnit in units) if (aiUnit.Unit.HasTurn) return aiUnit;        
+        foreach (AI_Squad squad in Squads)
+        {
+            AI_Unit aiUnit = squad.GetAIUnit(unit);
+            if (aiUnit != null) return squad;
+        }
+        throw new System.Exception("AI unit not found in on of the squads!");
+    }
+    AI_Unit GetNextUnusedUnit(List<AI_Squad> squads)
+    {
+        foreach (AI_Squad squad in squads)
+        {
+            AI_Unit nextUnit = squad.GetNextUnusedUnit();
+            if (nextUnit != null) return nextUnit;
+        }
         return null;
+       
     }
     Tile GetEnemyHQ(Team ownTeam)
     {
