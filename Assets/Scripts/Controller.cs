@@ -736,7 +736,7 @@ public class Controller : MonoBehaviour
         //If the unit is AI controlled, clear the AI logic for this unit.
         if (unit.team.IsAI)
         {
-            unit.team.AI.RemoveAIUnit(unit);
+            unit.team.AI.Remove(unit);
         }
         //Finally delete the unit.
         Destroy(unit.gameObject);

@@ -6,22 +6,20 @@ using System.Linq;
 public class AI_Unit
 {
     #region References
-    AI ai;
+    Squad squad;
     public Unit Unit;
     #endregion
     #region Fields
     public List<Order> Orders = new List<Order>();
     int orderIndex = 0;  
     #endregion
-    #region Events
-    public event Action OnAllOrdersFinished;
-    #endregion
+    
 
     #region Basic Methods
-    public AI_Unit(Unit unit, AI ai)
+    public AI_Unit(Unit unit, Squad squad)
     {
         this.Unit = unit;
-        this.ai = ai;
+        this.squad = squad;
     }
     public void Reset()
     {        
@@ -41,7 +39,7 @@ public class AI_Unit
         else
         {
             if (AllOrdersFinished()) ClearOrders();
-            OnAllOrdersFinished();
+            squad.Continue();
         }
     }
     Order GetNextOrder()

@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AI_UnitSet
+public class UnitSet
 {
-    public AI_UnitPreset Preset;
+    public UnitPreset Preset;
     List<Unit> setUnits;
 
-    public AI_UnitSet(AI_UnitPreset preset)
+    public UnitSet(UnitPreset preset)
     {
         this.Preset = preset;
         setUnits = new List<Unit>(new Unit[Preset.Types.Count]);

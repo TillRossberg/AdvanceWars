@@ -23,7 +23,7 @@ public class Menu_BuyUnits_Selection : MonoBehaviour, ISelectHandler
     {
         if (Core.View.BuyMenu.CanAffordUnit(_unitType, Core.Controller.ActiveTeam))
         {
-            Core.Controller.ActiveTeam.AddUnit(Core.View.BuyMenu.Buy(_unitType, Core.View.BuyMenu.ProductionPosition, Core.Controller.ActiveTeam));            
+            Core.Controller.ActiveTeam.Add(Core.View.BuyMenu.Buy(_unitType, Core.View.BuyMenu.ProductionPosition, Core.Controller.ActiveTeam));            
             //TODO: make unit face enemy hq        
             //TODO: play buy sound
             Core.Controller.BlockInputFor(0.1f);

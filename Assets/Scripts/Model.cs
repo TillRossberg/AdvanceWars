@@ -378,7 +378,7 @@ public class Model : MonoBehaviour
         //teams[0].AddUnit(CreateUnit(UnitType.Infantry, new Vector2Int(1, 1), Direction.South));
         //teams[0].AddUnit(CreateUnit(UnitType.Mech, new Vector2Int(2, 1), Direction.South));
         //teams[0].AddUnit(CreateUnit(UnitType.Recon, new Vector2Int(3, 1), Direction.South));
-        //teams[0].AddUnit(CreateUnit(UnitType.Tank, new Vector2Int(4, 1), Direction.South));
+        teams[0].Add(CreateUnit(UnitType.Tank, new Vector2Int(0, 1), Direction.South));
         //teams[0].AddUnit(CreateUnit(UnitType.MdTank, new Vector2Int(5, 1), Direction.South));
         //teams[0].AddUnit(CreateUnit(UnitType.Titantank, new Vector2Int(7, 1), Direction.South));
         //teams[0].AddUnit(CreateUnit(UnitType.APC, new Vector2Int(6, 1), Direction.South)); 
@@ -392,15 +392,15 @@ public class Model : MonoBehaviour
         //teams[0].AddUnit(CreateUnit(UnitType.Fighter, new Vector2Int(9, 5), Direction.East));
         //teams[0].AddUnit(CreateUnit(UnitType.Bomber, new Vector2Int(9, 7), Direction.East));
         //naval
-        teams[0].AddUnit(CreateUnit(UnitType.Lander, new Vector2Int(3, 9), Direction.South));
-        teams[0].AddUnit(CreateUnit(UnitType.Sub, new Vector2Int(5, 9), Direction.South));
-        teams[0].AddUnit(CreateUnit(UnitType.Cruiser, new Vector2Int(7, 9), Direction.South));
-        teams[0].AddUnit(CreateUnit(UnitType.Battleship, new Vector2Int(9, 9), Direction.South));
+        //teams[0].Add(CreateUnit(UnitType.Lander, new Vector2Int(3, 9), Direction.South));
+        //teams[0].Add(CreateUnit(UnitType.Sub, new Vector2Int(5, 9), Direction.South));
+        //teams[0].Add(CreateUnit(UnitType.Cruiser, new Vector2Int(7, 9), Direction.South));
+        //teams[0].Add(CreateUnit(UnitType.Battleship, new Vector2Int(9, 9), Direction.South));
         //SetUnitTypeHealth(Core.Model.teams[0], UnitType.Battleship, 25);
 
         //Blue
         //teams[1].AddUnit(CreateUnit(UnitType.Infantry, new Vector2Int(6, 4), Direction.North));
-        teams[1].AddUnit(CreateUnit(UnitType.Infantry, new Vector2Int(14, 4), Direction.North));
+        //teams[1].Add(CreateUnit(UnitType.Infantry, new Vector2Int(14, 4), Direction.North));
         SetUnitTypeHealth(Core.Model.teams[1], UnitType.Infantry, 40);
     }
     void DrawX(TileType type, int startX, int startY, int length)

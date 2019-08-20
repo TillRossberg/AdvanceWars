@@ -44,7 +44,7 @@ public class Team: MonoBehaviour
       
     #region Units
     //Add an unit to the team, set its color to the teamcolor and pass information about the own team and the enemy team to the unit.
-    public void AddUnit(Unit unit)
+    public void Add(Unit unit)
     {
         unit.transform.parent = this.transform;
         Units.Add(unit);
@@ -53,7 +53,6 @@ public class Team: MonoBehaviour
         unit.SetTeamColor(Data.color);
         Data.IncUnitsBuilt(unit.data.type);
         unit.name = unit.data.name + Data.GetUnitsBuiltCount(unit.data.type);
-        if(IsAI) AI.AddAIUnit(unit, null);          
     }        
     public bool IsInMyTeam(Unit unitToTest)
     {

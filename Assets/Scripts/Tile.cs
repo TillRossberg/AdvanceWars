@@ -37,53 +37,7 @@ public class Tile : MonoBehaviour
             Property.Init(data.maxTakeOverPoints);
         }
     }
-    private void OnMouseDown()
-    {
-        //myLevelManager.GetComponent<AnimController>().boom(xPos, yPos);
-        //Actions are only perfomed, if no menu is opened.
-
-        ////Move mode
-        //if(_manager.getGameFunctions().getCurrentMode() == GameFunctions.mode.move)
-        //{
-        //    Unit selectedUnit = _manager.getGameFunctions().getSelectedUnit().GetComponent<Unit>();
-        //    if((isPartOfArrowPath && unitStandingHere == null) || (isPartOfArrowPath && !isVisible))
-        //    {
-        //        //Move to the position and try to find units that can be attacked.
-        //        selectedUnit.moveUnitTo(this.xPos, this.yPos);
-        //        selectedUnit.FindAttackableTiles();
-        //        selectedUnit.FindAttackableEnemies();
-        //        //Delete the reachable tiles and the movement arrow.
-        //        _manager.getMapCreator().ResetReachableTiles();
-        //        _manager.getArrowBuilder().resetAll();                    
-        //    }
-        //}       
-
-
-    }
-
-    private void OnMouseEnter()
-    {
-        ////Actions are only perfomed, if the menu is not opened.
-        //if (!_manager.getContextMenu().isOpened && _manager.getGameFunctions().getCurrentMode() == GameFunctions.mode.move)
-        //{
-        //    //Draws an Arrow on the tile, if it is reachable
-        //    if (isReachable && !isPartOfArrowPath )
-        //    {
-        //        _manager.getArrowBuilder().createArrowPath(this);
-        //    }
-        //    //If you go back, make the arrow smaller.
-        //    if (isPartOfArrowPath)
-        //    {
-        //        _manager.getArrowBuilder().tryToGoBack(this);
-
-        //        //Resets the arrowPath if you hover over the unit again. (If this is the tile the unit stands on and an arrow has been drawn.)
-        //        if (this == _manager.getArrowBuilder().getArrowPath()[0].getTile() && _manager.getArrowBuilder().getArrowPath().Count > 2)
-        //        {
-        //            _manager.getArrowBuilder().resetArrowPath();
-        //        }
-        //    }
-        //}
-    }
+  
 
     public void SetNeighbors()
     {
