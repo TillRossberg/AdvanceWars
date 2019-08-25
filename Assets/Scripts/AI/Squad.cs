@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using System.Linq;
 public class Squad
 {
     #region References
@@ -15,7 +15,7 @@ public class Squad
     public Tile TargetTile;
     public POI POI;
     public int Priority = 0;
-    public enum Tactic { AdvancePosition, Rally, OccupyPOI, OccupyFreeProperties, OccupyEnemyProperties, HoldPosition, DefendPosition, WaitForReinforcements, Heal, Flee}
+    public enum Tactic { AdvancePosition, Rally, HoldPOI, OccupyNeutralProperties, OccupyEnemyProperties, HoldPosition, DefendPosition, WaitForReinforcements, Heal, Flee}
     public Tactic CurrentTactic;
 
     #endregion
@@ -48,7 +48,7 @@ public class Squad
     }
     void ResetUnits()
     {
-        foreach (AI_Unit item in Units) item.Reset();
+        foreach (AI_Unit item in Units)if(item != null) item.Reset();
     }
     #endregion
    
@@ -94,16 +94,18 @@ public class Squad
         switch (tactic)
         {
             case Tactic.AdvancePosition:
-                Advance(aiUnit);
+                AdvancePosition(aiUnit, TargetTile);
                 break;
             case Tactic.Rally:
                 break;
-            case Tactic.OccupyPOI:
-                OccupyPOI(aiUnit, POI.Center, POI.Radius);
+            case Tactic.HoldPOI:
+                HoldPOI(aiUnit, POI);
                 break;
-            case Tactic.OccupyFreeProperties:
+            case Tactic.OccupyNeutralProperties:
+                OccupyProperties(aiUnit, Core.Model.GetNeutralPorperties());
                 break;
             case Tactic.OccupyEnemyProperties:
+                OccupyProperties(aiUnit, aiUnit.Unit.enemyTeams[0].OwnedProperties);
                 break;
             case Tactic.HoldPosition:
                 break;
@@ -120,29 +122,37 @@ public class Squad
 
     #endregion
     #region Advance
-    void Advance(AI_Unit aiUnit)
+    void AdvancePosition(AI_Unit aiUnit, Tile target)
     {
-        List<ValueTarget> valueTargets = GetValueTargets(aiUnit.Unit, aiUnit.GetAttackableEnemies());
-        if (valueTargets.Count > 0)
+        Unit highValueTarget = GetHighValueTarget(aiUnit);
+        if (highValueTarget != null)
         {
-            Unit highValueTarget = GetMostValuableTarget(valueTargets);
-            List<AI_Unit> attackingUnits = ai.GetAttackingUnits(highValueTarget);
-            if (attackingUnits.Count == 0 || attackingUnits.Count > 0 && CanSurviveAttack(highValueTarget, attackingUnits))
-            {
-                aiUnit.AddOrder(new Attack(aiUnit, highValueTarget));
-            }
-            //The enemy wouldnt survive, so just move on to 
-            else aiUnit.AddOrder(new Move(aiUnit, TargetTile));
+            aiUnit.AddOrder(new Move(aiUnit, highValueTarget));
+            aiUnit.AddOrder(new Attack(aiUnit, highValueTarget));
         }
         else
         {
-            aiUnit.AddOrder(new Move(aiUnit, TargetTile));
-        }
+            aiUnit.AddOrder(new Move(aiUnit, target));
+        }        
     }
     Tile GetAttackTile(AI_Unit aiUnit, Unit target)
     {
         List<Tile> path = Core.Model.AStar.GetPath(aiUnit.Unit, aiUnit.Unit.CurrentTile, target.CurrentTile, false);
         return path[path.Count - 2];
+    }
+    public Unit GetHighValueTarget(AI_Unit aiUnit)
+    {
+        List<ValueTarget> valueTargets = GetValueTargets(aiUnit.Unit, aiUnit.GetAttackableEnemies());
+        foreach (ValueTarget item in valueTargets)
+        {
+            List<AI_Unit> attackingUnits = ai.GetAttackingUnits(item.Unit);
+            if (attackingUnits.Count == 0 || (attackingUnits.Count > 0 && CanSurviveAttack(item.Unit, attackingUnits)))
+            {
+                Debug.Log(aiUnit.Unit + " has " + valueTargets.Count + " valuable targets and wants to attack " + item.Unit);
+                return item.Unit;
+            }            
+        }       
+        return null;
     }
     List<ValueTarget> GetValueTargets(Unit attacker, List<Unit> units)
     {
@@ -165,10 +175,13 @@ public class Squad
             {
                 valueTargets.Add(new ValueTarget(defender, attackerValue));
             }
-            //if (attackerDamage > defender.health) valueTargets.Add(defender);// Also consider if you would kill a unit, it should be a value target.
+            //TODO: if (attackerDamage > defender.health) valueTargets.Add(new ValueTarget(defender, attackerValue));// Also consider if you would kill a unit, it should be a value target.
         }
+        //valueTargets = valueTargets.OrderBy(h>=h.Value).ToList();???????
+        valueTargets.Sort((x, y) => y.Value.CompareTo(x.Value));
         return valueTargets;
     }
+    
     float GetDamageValue(int damage, Unit defender)
     {
         return damage / 100f * defender.data.cost;
@@ -191,70 +204,95 @@ public class Squad
     bool CanSurviveAttack(Unit defender, List<AI_Unit> attackers)
     {
         int health = defender.health;
+        int damage = 0;
+        Debug.Log("defender health = " + health);
         foreach (AI_Unit attacker in attackers)
         {
-            health -= Core.Model.BattleCalculations.CalcDamage(attacker.Unit, defender, defender.CurrentTile);
+            if (attacker.Unit.CanFire)
+            {
+                damage += Core.Model.BattleCalculations.CalcDamage(attacker.Unit, defender, defender.CurrentTile);
+                health -= Core.Model.BattleCalculations.CalcDamage(attacker.Unit, defender, defender.CurrentTile);
+            }
         }
+        Debug.Log("attack damage = " + damage);
+
         if (health > 0) return true;
         else return false;
     }
     #endregion
-    #region Occupy POI
-    void OccupyPOI(AI_Unit aiUnit, Tile target, int radius)
+    #region Hold POI
+    void HoldPOI(AI_Unit aiUnit, POI poi)
     {
-        if (aiUnit.Unit.IsInRadius(target, radius))
+        if (aiUnit.Unit.IsInRadius(poi.Center, poi.Radius))
         {
-            Debug.Log(aiUnit.Unit + " is in radius of " + target + "!");
-            if (aiUnit.Unit.IsInfantry())
+            Debug.Log(aiUnit.Unit + " is in radius of " + poi.Center + "!");
+            //find random position around POI
+            aiUnit.AddOrder(new DefendPosition(aiUnit));
+        }
+        else
+        {
+            Tile freeTileAroundPOI = aiUnit.GetRandomFreeReachableTile(Core.Model.GetTilesInRadius(poi.Center, poi.Radius), aiUnit.Unit);
+            if (freeTileAroundPOI != null)
             {
-                if (ai.GetCapturingUnit(target) == null)
-                {
-                    //occupy hq
-                    aiUnit.ClearOrders();
-                    aiUnit.AddOrder(new Move(aiUnit, target));
-                    aiUnit.AddOrder(new Occupy(aiUnit, target));
-                }
-                else
-                {
-                    AI_Unit capturingUnit = ai.GetCapturingUnit(target);
-                    //check for hp of the occuping unit and unite to increase capture speed
-                    if (capturingUnit.Unit.data.type == aiUnit.Unit.data.type && capturingUnit.Unit.health < 70)
-                    {
-                        Debug.Log(aiUnit.Unit + " wants to unite with " + capturingUnit.Unit + " to increase capture speed!");
-                    }
-                }
+                aiUnit.AddOrder(new Move(aiUnit, freeTileAroundPOI));
             }
-            else
-            {
-                //find random position around hq
-                Tile freeTileAroundHQ = aiUnit.GetRandomFreeReachableTile(Core.Model.GetTilesInRadius(target, radius), aiUnit.Unit);
-                if (freeTileAroundHQ != null)
-                {
-                    aiUnit.ClearOrders();
-                    aiUnit.AddOrder(new Move(aiUnit, freeTileAroundHQ));
-                }
-                else Debug.Log("No free tile around HQ found!");
-            }
+            else Debug.Log("No free tile around POI found!");            
         }
     }
 
     #endregion
-    #region Occupy
-    
-    Tile GetClosestFreeProperty(Unit unit)
+    #region Occupy Properties    
+    void OccupyProperties(AI_Unit aiUnit, List<Tile> properties)
     {
-        List<Tile> allProperties = Core.Model.GetProperties();
-        List<Tile> freeProperties = new List<Tile>();
-        foreach (Tile item in allProperties) if (item.Property.OwningTeam == null) freeProperties.Add(item);
-        return GetClosestTile(unit.transform.position, freeProperties);
+        if (aiUnit.Unit.IsInfantry())
+        {
+            //Found a neutral property no one is already occupying...
+            List<Tile> sortedProperties = ai.SortTilesByDistance(aiUnit.Unit.CurrentTile, properties);
+            foreach (Tile tile in sortedProperties)
+            {
+                if (GetCapturingUnit(tile) == null)
+                {
+                    aiUnit.AddOrder(new Move(aiUnit, tile));
+                    aiUnit.AddOrder(new Occupy(aiUnit, tile));
+                    return;
+                }
+            }
+            //...if not, find a unit that may need help...
+            foreach (Tile tile in sortedProperties)
+            {
+                AI_Unit capturingUnit = GetCapturingUnit(tile);
+                if (capturingUnit.Unit.data.type == aiUnit.Unit.data.type && capturingUnit.Unit.health < 67)
+                {
+                    Debug.Log(aiUnit.Unit + " wants to unite with " + capturingUnit.Unit + " to increase capture speed!");
+                    aiUnit.AddOrder(new Wait(aiUnit));
+                    return;
+                }
+            }
+            //...if no one needs help, move on to hq
+            aiUnit.AddOrder(new Move(aiUnit, ai.enemyHQ));
+        }
+        else throw new System.Exception("Unit is not an infantry unit!");
+
     }
-    Tile GetClosestEnemyProperty(Unit unit)
+    AI_Unit GetCapturingUnit(Tile tile)
     {
-        List<Tile> allProperties = Core.Model.GetProperties();
-        List<Tile> enemyProperties = new List<Tile>();
-        foreach (Tile item in allProperties) if (unit.enemyTeams.Contains(item.Property.OwningTeam)) enemyProperties.Add(item);
-        return GetClosestTile(unit.transform.position, enemyProperties);
+        if (tile.GetComponent<Property>())
+        {
+            foreach (AI_Unit aiUnit in ai.GetAllUnits())
+            {
+                foreach (Order order in aiUnit.Orders)
+                {
+                    if (order.GetType() == typeof(Occupy))
+                    {
+                        if (order.TargetTile == tile) return aiUnit;
+                    }
+                }
+            }
+            return null;
+        }
+        else throw new System.Exception("Tile is not a property!");
     }
+
     Tile GetClosestTile(Vector3 position, List<Tile> tiles)
     {
         float shortestDistance = 99999;
@@ -270,6 +308,9 @@ public class Squad
         }
         return closestTile;
     }
+    #endregion    
+    #region Rally
+
     #endregion
 
     #region Unit Methods   
@@ -310,7 +351,11 @@ public class Squad
     }
     public AI_Unit GetAIUnit(Unit unit)
     {
-        foreach (AI_Unit item in Units) if (item.Unit == unit) return item;
+        foreach (AI_Unit item in Units)
+        {
+            if (item == null) Debug.Log("Unit is null!");
+            if (item.Unit == unit) return item;
+        }
         return null;
     }
     #endregion
@@ -336,6 +381,13 @@ public class Squad
                 else Debug.Log("unit is null!");
             }
 
+        }
+    }
+    void LogValueTargets(List<ValueTarget> valueTargets)
+    {
+        foreach (var item in valueTargets)
+        {
+            Debug.Log("Value: " + item.Value + " Unit: " + item.Unit);
         }
     }
     #endregion

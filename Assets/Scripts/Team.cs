@@ -42,7 +42,7 @@ public class Team: MonoBehaviour
     
     #endregion   
       
-    #region Units
+    #region Unit Methods
     //Add an unit to the team, set its color to the teamcolor and pass information about the own team and the enemy team to the unit.
     public void Add(Unit unit)
     {
@@ -110,7 +110,7 @@ public class Team: MonoBehaviour
         return unit;
     }
     #endregion
-    #region Money
+    #region Money Methods
     public void SetStartMoney(int amount) { Money = amount; }
 
     //Checks if enough money is on the account to do the deposit.
@@ -138,8 +138,7 @@ public class Team: MonoBehaviour
         }        
     }
 
-    #endregion
-    
+    #endregion   
     #region Enemy Teams
     //Add enemy team, but only if it is not already in the list and it is not THIS team.
     public void AddEnemyTeam(Team possibleEnemy)

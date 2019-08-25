@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyHQ: {fileID: 0}
   UnitPresets:
-  - {fileID: 11400000, guid: e68028618bec0bb449b0b7b88a20339f, type: 2}
+  - {fileID: 11400000, guid: 337861cec6fe3c040b6eed3d987fc51f, type: 2}
   enemyHQRadius: 4
   CurrentStrategy: 0
 --- !u!1001 &4049087027514651941

@@ -764,10 +764,14 @@ public class Unit : MonoBehaviour
         }
         return false;
     }
-    public bool IsInRadius(Tile tile, float radius)
+    public bool IsInRadius(Tile tile, int radius)
     {
-        if (Vector3.Distance(CurrentTile.transform.position, tile.transform.position) <= radius) return true;
-        else return false;
+        List<Tile> allTilesInRadius = Core.Model.GetTilesInRadius(tile, radius);
+        foreach (Tile item in allTilesInRadius)
+        {
+            if (item == CurrentTile) return true;
+        }
+        return false;
     }
     #endregion
 }

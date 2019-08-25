@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 public class Move: Order
 {
+    public override Unit TargetUnit { get ; set; }
     public override Tile TargetTile { get ; set; }
     public override AI_Unit aiUnit { get ; set ; }
     public override bool OrderFinished { get ; set ; }
@@ -13,6 +14,14 @@ public class Move: Order
         OrderFinished = false;
         aiUnit.Unit.AnimationController.OnReachedLastWayPoint += Exit;
     }
+    public Move(AI_Unit aiUnit, Unit unit)
+    {
+        this.aiUnit = aiUnit;
+        this.TargetUnit = unit;
+        OrderFinished = false;
+        aiUnit.Unit.AnimationController.OnReachedLastWayPoint += Exit;
+    }
+
     public override void Terminate()
     {
         aiUnit.Unit.AnimationController.OnReachedLastWayPoint -= Exit;
@@ -24,12 +33,25 @@ public class Move: Order
         Debug.Log("--> Move");
         Core.Controller.Cursor.SetPosition(aiUnit.Unit.Position);
         Core.Controller.SelectedUnit = aiUnit.Unit;
-        if (OrderFinished)
+        //Reached target unit?
+        if (TargetUnit != null)
         {
-            Debug.Log(aiUnit.Unit + " has finished the move order.");
+            if(aiUnit.Unit.IsMyEnemy(TargetUnit) && aiUnit.Unit.CanAttack(TargetUnit))
+            {
+                Debug.Log(aiUnit.Unit + " reached target unit!");
+                Exit();
+                return;
+            }
+            TargetTile = TargetUnit.CurrentTile;
+        }
+        //Reached target tile
+        else if (aiUnit.Unit.IsAt(TargetTile))
+        {
+            Debug.Log(aiUnit.Unit + " reached target tile!");
             Exit();
             return;
         }
+        //Find a way
         currentTarget = aiUnit.GetClosestTileOnPathToTarget(aiUnit.Unit, TargetTile);
         //Avoid moving to a tile on wich a friendly unit stands
         if (currentTarget.IsAllyHere(aiUnit.Unit))
@@ -38,8 +60,6 @@ public class Move: Order
             Tile newTarget = aiUnit.GetClosestFreeTileAround(currentTarget, aiUnit.Unit.CurrentTile);
             if (newTarget != null) currentTarget = aiUnit.GetClosestTileOnPathToTarget(aiUnit.Unit, newTarget);
             else currentTarget = aiUnit.Unit.CurrentTile;
-
-            Debug.Log("Alternativeley moving to: "  + currentTarget);
         }
         Core.Controller.SelectedTile = Core.Model.GetTile(currentTarget.Position);
         Debug.Log(aiUnit.Unit + " moves to: " + currentTarget);       
@@ -52,16 +72,8 @@ public class Move: Order
     }
     public override void Exit()
     {
-        aiUnit.Unit.ConfirmPosition(currentTarget.Position);
-        if (aiUnit.Unit.IsAt(TargetTile))OrderFinished = true;
+        if(currentTarget != null) aiUnit.Unit.ConfirmPosition(currentTarget.Position);
         if (aiUnit.IsLastOrder(this)) aiUnit.Unit.Wait();
         aiUnit.ExecuteNextOrder();
-    }
-    
-    
-
-
-    #region not in use  
-    public override Unit TargetUnit { get ; set; }
-    #endregion
+    }  
 }

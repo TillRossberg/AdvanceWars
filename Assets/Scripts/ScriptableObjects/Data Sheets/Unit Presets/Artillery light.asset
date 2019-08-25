@@ -10,6 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 11bbbdd0c78ea2d4da3107a0ea121dd3, type: 3}
-  m_Name: Infantry 02
+  m_Name: Artillery light
   m_EditorClassIdentifier: 
-  Types: 09000000090000000b0000000b000000
+  Type: 4
+  StartTactic: 0
+  Types: 0400000004000000
+  Priority: 0

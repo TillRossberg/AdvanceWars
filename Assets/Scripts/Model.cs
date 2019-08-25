@@ -23,6 +23,9 @@ public class Model : MonoBehaviour
     #region Team fields
     public List<Team> teams = new List<Team>();
     #endregion
+    #region AI Fields
+    public List<POI> POIs = new List<POI>();
+    #endregion
     #region Succession Fields    
     public List<Team> Succession { get; private set; }
     int _successionCounter = 0;
@@ -67,7 +70,9 @@ public class Model : MonoBehaviour
         if (position.x >= 0 && position.x < MapMatrix.Count && position.y >= 0 && position.y < MapMatrix[0].Count) return true;
         else return false;
     }
-    public List<Tile> GetProperties()
+    #endregion
+    #region Property Methods
+    public List<Tile> GetAllProperties()
     {
         List<Tile> tempList = new List<Tile>();
         for (int x = 0; x < MapMatrix.Count; x++)
@@ -80,6 +85,12 @@ public class Model : MonoBehaviour
         }
         return tempList;
     }
+    public List<Tile> GetNeutralPorperties()
+    {
+        List<Tile> tempList = new List<Tile>();
+        foreach (Tile item in GetAllProperties())if (item.Property.OwningTeam == null) tempList.Add(item);
+        return tempList;
+    }   
     #endregion
     #region Tile Methods
     Tile CreateTile(TileType type, Vector2Int position, int rotation)
@@ -198,6 +209,28 @@ public class Model : MonoBehaviour
         if (tile != null) tiles.Add(tile);
     }
     #endregion
+    #region POI Methods
+    void CreatePOI(POI.Type type, Tile tile, int radius)
+    {
+        POIs.Add(new POI(type, tile, radius));
+    }
+    public POI GetClosestPOI(Tile tile, List<POI> pois)
+    {
+        if (pois.Count < 1) throw new System.Exception("No POIs set!");
+        float shortestDistance = 999999;
+        POI closestPOI = null; 
+        foreach (POI item in pois)
+        {
+            float distance = Vector3.Distance(tile.transform.position, item.Center.transform.position);
+            if(distance < shortestDistance)
+            {
+                shortestDistance = distance;
+                closestPOI = item;
+            }
+        }
+        return closestPOI;
+    }
+    #endregion
     #region Unit Methods
     //Create a unit for the given team, position and rotation.
     public Unit CreateUnit(UnitType type, Vector2Int position, Direction facingDirection)
@@ -250,7 +283,7 @@ public class Model : MonoBehaviour
     }
 
     #endregion
-    #region Succession
+    #region Succession Methods
     //Defines the order in wich the teams have their turns. (TODO: find a better way to solve this...)
     public void SetupRandomSuccession()
     {
@@ -317,17 +350,24 @@ public class Model : MonoBehaviour
 
 
         //Properties
+        //Neutral
+        //ChangeTile(TileType.City, new Vector2Int(8, 1), 0);
+        ChangeTile(TileType.City, new Vector2Int(8, 4), 0);
+        //ChangeTile(TileType.City, new Vector2Int(8, 7), 0);
+        //ChangeTile(TileType.City, new Vector2Int(10, 1), 0);
+        ChangeTile(TileType.City, new Vector2Int(10, 4), 0);
+        //ChangeTile(TileType.City, new Vector2Int(10, 7), 0);
         //Red
         ChangeTile(TileType.HQ, new Vector2Int(2, 4), 0);
-        ChangeTile(TileType.Airport, new Vector2Int(2, 6), 0);
-        ChangeTile(TileType.City, new Vector2Int(2, 2), 0);
+        ChangeTile(TileType.Airport, new Vector2Int(2, 2), 0);
+        ChangeTile(TileType.City, new Vector2Int(2, 6), 0);
         ChangeTile(TileType.Facility, new Vector2Int(6, 2), 0);
         ChangeTile(TileType.Facility, new Vector2Int(6, 4), 0);
         ChangeTile(TileType.Facility, new Vector2Int(6, 6), 0);
         ChangeTile(TileType.Port, new Vector2Int(4, 7), 0);
         Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(2, 4)));
         Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(2, 6)));
-        //Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(2, 2)));
+        Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(2, 2)));
         Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(6, 2)));
         Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(6, 4)));
         Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(6, 6)));
@@ -347,7 +387,9 @@ public class Model : MonoBehaviour
         Core.Controller.Occupy(teams[1], GetTile(new Vector2Int(12, 4)));
         Core.Controller.Occupy(teams[1], GetTile(new Vector2Int(12, 6)));
         Core.Controller.Occupy(teams[1], GetTile(new Vector2Int(14, 7)));
-
+        //POIs
+        CreatePOI(POI.Type.Hotspot, GetTile(9, 3), 1);
+        //CreatePOI(POI.Type.Hotspot, GetTile(9, 5), 1);
         SetNeighbors(MapMatrix);
     }
     public void LoadLevel03(int width, int height)
@@ -374,11 +416,13 @@ public class Model : MonoBehaviour
     public void LoadLevel02Units()
     {
         //Red
+        teams[0].Add(CreateUnit(UnitType.Tank, new Vector2Int(2, 5), Direction.South));
+        //teams[0].Add(CreateUnit(UnitType.Artillery, new Vector2Int(8, 3), Direction.South));
+        //teams[0].Add(CreateUnit(UnitType.Infantry, new Vector2Int(5, 3), Direction.South));
         //ground
         //teams[0].AddUnit(CreateUnit(UnitType.Infantry, new Vector2Int(1, 1), Direction.South));
         //teams[0].AddUnit(CreateUnit(UnitType.Mech, new Vector2Int(2, 1), Direction.South));
         //teams[0].AddUnit(CreateUnit(UnitType.Recon, new Vector2Int(3, 1), Direction.South));
-        teams[0].Add(CreateUnit(UnitType.Tank, new Vector2Int(0, 1), Direction.South));
         //teams[0].AddUnit(CreateUnit(UnitType.MdTank, new Vector2Int(5, 1), Direction.South));
         //teams[0].AddUnit(CreateUnit(UnitType.Titantank, new Vector2Int(7, 1), Direction.South));
         //teams[0].AddUnit(CreateUnit(UnitType.APC, new Vector2Int(6, 1), Direction.South)); 
@@ -401,7 +445,7 @@ public class Model : MonoBehaviour
         //Blue
         //teams[1].AddUnit(CreateUnit(UnitType.Infantry, new Vector2Int(6, 4), Direction.North));
         //teams[1].Add(CreateUnit(UnitType.Infantry, new Vector2Int(14, 4), Direction.North));
-        SetUnitTypeHealth(Core.Model.teams[1], UnitType.Infantry, 40);
+        //SetUnitTypeHealth(Core.Model.teams[1], UnitType.Infantry, 40);
     }
     void DrawX(TileType type, int startX, int startY, int length)
     {

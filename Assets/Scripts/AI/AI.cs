@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-
+using System.Linq;
 public class AI : MonoBehaviour
 {
     #region References
@@ -101,6 +101,31 @@ public class AI : MonoBehaviour
         {
             //evaluate and adapt tactics
             squad.TargetTile = enemyHQ;
+            switch (squad.Preset.Type)
+            {
+                case UnitPresetType.InfantrySquad:
+                    //There are free properties
+                    if(GetNeutralProperties().Count > 0) squad.CurrentTactic = Squad.Tactic.OccupyNeutralProperties;                 
+                    //No free properties left, start capturing enemy properties
+                    else squad.CurrentTactic = Squad.Tactic.OccupyEnemyProperties;                   
+                    break;
+                case UnitPresetType.InfantryAndMechSquad:
+                    break;
+                case UnitPresetType.TankSquad:
+                    break;
+                case UnitPresetType.HeavyTankSquad:
+                    break;
+                case UnitPresetType.ArtillerySquad:
+                    break;
+                case UnitPresetType.HeavyArtillerySquad:
+                    squad.CurrentTactic = Squad.Tactic.HoldPOI;
+
+                    Debug.Log("Poi center" + Core.Model.POIs[0].Center);
+                    squad.POI = Core.Model.POIs[0];
+                    break;
+                default:
+                    break;
+            }
         }        
         decisionPhase = false;
         ContinueTurn();
@@ -177,26 +202,34 @@ public class AI : MonoBehaviour
         Squad squad = GetSquad(unit);
         squad.Remove(unitToRemove);
     }
-    #endregion     
-    #region Getter    
-    public AI_Unit GetCapturingUnit(Tile tile)
+    #endregion
+    #region Property Methods
+    List<Tile> GetNeutralProperties()
     {
-        if (tile.GetComponent<Property>())
+        List<Tile> tempList = new List<Tile>();
+        foreach (Tile item in Core.Model.GetAllProperties())
         {
-            foreach (AI_Unit aiUnit in GetAllUnits())
-            {
-                foreach (Order order in aiUnit.Orders)
-                {
-                    if(order.GetType() == typeof(Occupy))
-                    {
-                        if (order.TargetTile == tile) return aiUnit;                        
-                    }
-                }
-            }
-            return null;
+            if (item.Property.OwningTeam == null) tempList.Add(item);
         }
-        else throw new System.Exception("Tile is not a property!");
+        return tempList;
     }
+
+
+    #endregion
+    #region Utility
+    public List<Tile> SortTilesByDistance(Tile tile, List<Tile> tiles)
+    {
+        Dictionary<Tile, float> TileDistance = new Dictionary<Tile, float>();
+        foreach (Tile item in tiles) TileDistance.Add(item, Vector3.Distance(tile.transform.position, item.transform.position));
+        var tempList = TileDistance.ToList();
+        tempList = TileDistance.OrderBy(h => h.Value).ToList();
+        List<Tile> tempList2 = new List<Tile>();
+        foreach (var item in tempList) tempList2.Add(item.Key);
+        return tempList2;
+    }
+    #endregion
+    #region Getter    
+    
     public List<AI_Unit> GetAttackingUnits(Unit unit)
     {
         List<AI_Unit> tempList = new List<AI_Unit>();
@@ -204,7 +237,7 @@ public class AI : MonoBehaviour
         {
             foreach (Order order in aiUnit.Orders)
             {
-                if (order.TargetUnit == unit) tempList.Add(aiUnit);
+                if (order.GetType() == typeof(Attack) && order.TargetUnit == unit) tempList.Add(aiUnit);
             }
         }
         return tempList;
@@ -232,10 +265,12 @@ public class AI : MonoBehaviour
         foreach (Tile tile in ownTeam.EnemyTeams[0].OwnedProperties) if (tile.data.type == TileType.HQ) return tile;        
         throw new System.Exception(ownTeam + " :No enemy HQ found!");
     }
-    List<AI_Unit> GetAllUnits()
+    public List<AI_Unit> GetAllUnits()
     {
         List<AI_Unit> tempList = new List<AI_Unit>();
-        foreach (Squad squad in Squads)foreach (AI_Unit unit in squad.Units)tempList.Add(unit);   
+        foreach (Squad squad in Squads)
+            foreach (AI_Unit unit in squad.Units)
+                if(unit != null) tempList.Add(unit);   
         return tempList;
     }
     #endregion

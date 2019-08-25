@@ -6,7 +6,7 @@ using System.Linq;
 public class AI_Unit
 {
     #region References
-    Squad squad;
+    public Squad Squad;
     public Unit Unit;
     #endregion
     #region Fields
@@ -19,7 +19,7 @@ public class AI_Unit
     public AI_Unit(Unit unit, Squad squad)
     {
         this.Unit = unit;
-        this.squad = squad;
+        this.Squad = squad;
     }
     public void Reset()
     {        
@@ -29,7 +29,7 @@ public class AI_Unit
     #region Order Methods
     public void ExecuteNextOrder()
     {
-        if (orderIndex < Orders.Count)
+        if (Orders.Count > 0 && orderIndex < Orders.Count)
         {
             Core.Controller.Cursor.SetPosition(Unit.Position);
             Core.Controller.SelectedUnit = Unit;
@@ -38,8 +38,7 @@ public class AI_Unit
         }
         else
         {
-            if (AllOrdersFinished()) ClearOrders();
-            squad.Continue();
+            Squad.Continue();
         }
     }
     Order GetNextOrder()
@@ -62,17 +61,7 @@ public class AI_Unit
         int index = Orders.IndexOf(order);
         if (index == Orders.Count - 1) return true;
         else return false;
-    }
-    public bool HasNoOrders()
-    {
-        if (Orders.Count == 0) return true;
-        else return false;
-    }
-    bool AllOrdersFinished()
-    {
-        foreach (Order item in Orders)if (!item.OrderFinished) return false;        
-        return true;
-    }
+    }   
     #endregion
     #region Pathfinding
     public Tile GetClosestTileOnPathToTarget(Unit unit, Tile targetTile)
@@ -83,7 +72,6 @@ public class AI_Unit
 
         if (path.Count == 0)
         {
-            Debug.Log("path count: " + path.Count + ", trying again!");
             path = Core.Model.AStar.GetPath(unit, unit.CurrentTile, targetTile, false);
         }
         return FindReachableTile(path, unit);
@@ -132,8 +120,6 @@ public class AI_Unit
                 finished = true;
             }
         }
-
-        Debug.Log("free tile: " + freeTile);
         return freeTile;
     }
     //We reduce the list to tiles that are closer to the pivot than the maximum distance.
@@ -157,19 +143,8 @@ public class AI_Unit
         foreach (Tile tile in tiles)if (tile.UnitHere == null && tile.data.GetMovementCost(unit.data.moveType) > 0) tempList.Add(tile);
         if (tempList.Count == 0) return null;       
         else return tempList[UnityEngine.Random.Range(0, tempList.Count)];
-    }
-    
-    List<Tile> SortTilesByDistance(Tile tile, List<Tile> tiles)
-    {
-        Dictionary<Tile, float> TileDistance = new Dictionary<Tile, float>();
-        foreach (Tile item in tiles) TileDistance.Add(item, Vector3.Distance(tile.transform.position, item.transform.position));
-        var tempList = TileDistance.ToList();
-        tempList = TileDistance.OrderBy(h => h.Value).ToList();
-        List<Tile> tempList2 = new List<Tile>();
-        foreach (var item in tempList) tempList2.Add(item.Key);
-        return tempList2;
-    }
-
+    }  
+   
     float GetDistance(Tile tile1, Tile tile2)
     {
         return Vector3.Distance(tile1.transform.position, tile2.transform.position);
