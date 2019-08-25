@@ -12,9 +12,7 @@ public class AI_Unit
     #region Fields
     public List<Order> Orders = new List<Order>();
     int orderIndex = 0;  
-    #endregion
-    
-
+    #endregion   
     #region Basic Methods
     public AI_Unit(Unit unit, Squad squad)
     {
@@ -36,10 +34,7 @@ public class AI_Unit
             Order nextOrder = GetNextOrder();
             nextOrder.Start();
         }
-        else
-        {
-            Squad.Continue();
-        }
+        else Squad.Continue();      
     }
     Order GetNextOrder()
     {

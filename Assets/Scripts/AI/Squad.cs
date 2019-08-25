@@ -204,18 +204,13 @@ public class Squad
     bool CanSurviveAttack(Unit defender, List<AI_Unit> attackers)
     {
         int health = defender.health;
-        int damage = 0;
-        Debug.Log("defender health = " + health);
         foreach (AI_Unit attacker in attackers)
         {
             if (attacker.Unit.CanFire)
             {
-                damage += Core.Model.BattleCalculations.CalcDamage(attacker.Unit, defender, defender.CurrentTile);
                 health -= Core.Model.BattleCalculations.CalcDamage(attacker.Unit, defender, defender.CurrentTile);
             }
         }
-        Debug.Log("attack damage = " + damage);
-
         if (health > 0) return true;
         else return false;
     }
