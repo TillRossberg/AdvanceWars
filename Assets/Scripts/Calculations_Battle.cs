@@ -19,14 +19,14 @@ public class Calculations_Battle
         //2. The defender loses health.
         defender.SubtractHealth(attackerDamage);
         //The defender only shoots back, if he is still alive and both units are direct attack units.
-        if (defender.health > 0 && (attacker.data.directAttack && defender.data.directAttack))
+        if (defender.Health > 0 && (attacker.data.directAttack && defender.data.directAttack))
         {
             //3. The defender shoots.
             int defenderDamage = CalcDamage(defender, attacker, attackerTile);
             Debug.Log("Defender: " + defender.name + " damage: " + defenderDamage);
             //4. The attacker loses health.
             attacker.SubtractHealth(defenderDamage);
-            if (attacker.health < 0)
+            if (attacker.Health < 0)
             {
                 defender.team.Data.IncUnitsKilledCount();
             }
@@ -40,7 +40,7 @@ public class Calculations_Battle
     //Calculate the damage inflicted, based on the attacker, defender, the chosen General(will be added later!) and the cover of the tiles they stand on.
     public int CalcDamage(Unit attacker, Unit defender, Tile defendingTile)
     {
-        return CalcDamage(attacker, attacker.health, defender, defendingTile);
+        return CalcDamage(attacker, attacker.Health, defender, defendingTile);
     }    
     public int CalcDamage(Unit attacker, int attackerHP, Unit defender, Tile defendingTile)
     {
@@ -52,7 +52,7 @@ public class Calculations_Battle
             int RandomNumber = Random.Range(0, 10); //Random number between 0-9 to vary the damage.
             float dmgModifierDefender = 1; // Defending CO attack value.(Will vary later ^^)
             float dmgReductionCover = _coverRatings[defendingTile.data.cover]; //Defending terrain stars.    
-            float DefenderHp = defender.health; //HP of the defender.
+            float DefenderHp = defender.Health; //HP of the defender.
 
             //Debug.Log("Damage = (BaseDamage:" + BaseDamage + ") * AttackerHp/100:" + attackerHP / 100 + " * dmgReductionCover:" + dmgReductionCover);
             //return (int)(Damage = (BaseDamage + RandomNumber) * AttackerHP / 100 * dmgReductionCover * dmgModifierAttacker * dmgModifierDefender);

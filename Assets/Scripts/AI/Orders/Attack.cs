@@ -34,7 +34,7 @@ public class Attack : Order
     }
     public override void Exit()
     {
-        if(TargetUnit != null && TargetUnit.health <= 0)
+        if(TargetUnit != null && TargetUnit.Health <= 0)
         {
             OrderFinished = true;
             Debug.Log(aiUnit.Unit + " attack target successfully destroyed.");

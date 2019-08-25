@@ -81,6 +81,8 @@ public class Controller : MonoBehaviour
         //Repair units.
 
         //Subtract money for repairing units.
+        ActiveTeam.RepairUnits();
+
         Core.View.CommanderPanel.UpdateDisplay();//Update the GUI for the active team.
         if(ActiveTeam.IsAI)
         {

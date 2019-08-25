@@ -39,7 +39,7 @@ public class Unit : MonoBehaviour
     List<GameObject> _reachableTilesGfx = new List<GameObject>();
     #endregion
     #region Properties
-    public int health = 100;
+    public int Health = 100;
     public int ammo;
     public int fuel;
     public bool WantsToBeLoaded = false;
@@ -126,16 +126,17 @@ public class Unit : MonoBehaviour
     #region Health Methods
     public void AddHealth(int healing)
     {
-        if ((health + healing) <= 100) health += healing;
-        else health = 100;
+        if ((Health + healing) <= 100) Health += healing;
+        else Health = 100;
+        UpdateHealth();
     }
     public void SubtractHealth(int healthToSubtract)
     {
-        health = health - healthToSubtract;
-        DisplayHealth(true);
-        if (health <= 0)
+        Health = Health - healthToSubtract;
+        UpdateHealth();
+        if (Health <= 0)
         {
-            health = 0;
+            Health = 0;
             AnimationController.PlayDestroyEffect();
             StartCoroutine(KillDelayed(this, AnimationController.DestroyEffect.main.duration / 2));
         }
@@ -147,7 +148,7 @@ public class Unit : MonoBehaviour
     }
     public void SetHealth(int amount)
     {
-        health = amount;
+        Health = amount;
         UpdateHealth();
     }
     //Displays the actual lifepoints in the "3D"TextMesh
@@ -159,7 +160,7 @@ public class Unit : MonoBehaviour
     //If the health goes below five the value will be rounded to 0, but we dont want that!
     public int GetCorrectedHealth()
     {
-        if (health > 10) return (int)(health / 10);
+        if (Health > 10) return (int)(Health / 10);
         else return 1;
     }
     void UpdateHealth()
@@ -711,13 +712,13 @@ public class Unit : MonoBehaviour
     #region Unite Methods
     public void Unite(Unit unit)
     {       
-        unit.AddHealth(this.health);
+        unit.AddHealth(this.Health);
         unit.UpdateHealth();
         Core.Controller.KillUnit(this);
     }
     public bool CanUnite(Unit unit)
     {
-        if (unit.data.type == data.type && health < 100) return true;
+        if (unit.data.type == data.type && Health < 100) return true;
         else return false;
     }
     #endregion

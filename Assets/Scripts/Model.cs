@@ -417,6 +417,7 @@ public class Model : MonoBehaviour
     {
         //Red
         teams[0].Add(CreateUnit(UnitType.Tank, new Vector2Int(2, 5), Direction.South));
+        SetUnitTypeHealth(Core.Model.teams[0], UnitType.Tank, 40);
         //teams[0].Add(CreateUnit(UnitType.Artillery, new Vector2Int(8, 3), Direction.South));
         //teams[0].Add(CreateUnit(UnitType.Infantry, new Vector2Int(5, 3), Direction.South));
         //ground
@@ -445,7 +446,6 @@ public class Model : MonoBehaviour
         //Blue
         //teams[1].AddUnit(CreateUnit(UnitType.Infantry, new Vector2Int(6, 4), Direction.North));
         //teams[1].Add(CreateUnit(UnitType.Infantry, new Vector2Int(14, 4), Direction.North));
-        //SetUnitTypeHealth(Core.Model.teams[1], UnitType.Infantry, 40);
     }
     void DrawX(TileType type, int startX, int startY, int length)
     {

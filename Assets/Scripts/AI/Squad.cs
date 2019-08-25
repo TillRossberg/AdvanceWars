@@ -163,7 +163,7 @@ public class Squad
             int attackerDamage = Core.Model.BattleCalculations.CalcDamage(attacker, defender, defender.CurrentTile);
             //Debug.Log("attacker damage: " + attackerDamage);
             int defenderDamage = 0;
-            if (defender.data.directAttack) defenderDamage = Core.Model.BattleCalculations.CalcDamage(defender, defender.health - attackerDamage, attacker, defender.CurrentTile);
+            if (defender.data.directAttack) defenderDamage = Core.Model.BattleCalculations.CalcDamage(defender, defender.Health - attackerDamage, attacker, defender.CurrentTile);
             //Debug.Log("defender damage: " + defenderDamage);
             float attackerValue = GetDamageValue(attackerDamage, defender);
 
@@ -203,7 +203,7 @@ public class Squad
     
     bool CanSurviveAttack(Unit defender, List<AI_Unit> attackers)
     {
-        int health = defender.health;
+        int health = defender.Health;
         foreach (AI_Unit attacker in attackers)
         {
             if (attacker.Unit.CanFire)
@@ -256,7 +256,7 @@ public class Squad
             foreach (Tile tile in sortedProperties)
             {
                 AI_Unit capturingUnit = GetCapturingUnit(tile);
-                if (capturingUnit.Unit.data.type == aiUnit.Unit.data.type && capturingUnit.Unit.health < 67)
+                if (capturingUnit.Unit.data.type == aiUnit.Unit.data.type && capturingUnit.Unit.Health < 67)
                 {
                     Debug.Log(aiUnit.Unit + " wants to unite with " + capturingUnit.Unit + " to increase capture speed!");
                     aiUnit.AddOrder(new Wait(aiUnit));
