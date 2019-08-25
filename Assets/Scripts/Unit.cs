@@ -34,9 +34,8 @@ public class Unit : MonoBehaviour
     List<Unit> _attackableUnits = new List<Unit>();
     List<Tile> attackableTiles = new List<Tile>();
     List<GameObject> _attackableTilesGfx = new List<GameObject>();
-    bool _isShowingAttackableTiles = false;
-    List<Tile> _reachableTiles = new List<Tile>();
-    List<GameObject> _reachableTilesGfx = new List<GameObject>();
+    List<Tile> reachableTiles = new List<Tile>();
+    List<GameObject> reachableTilesGfx = new List<GameObject>();
     #endregion
     #region Properties
     public int Health = 100;
@@ -412,14 +411,14 @@ public class Unit : MonoBehaviour
     public void ShowAttackableTiles(Vector2Int pos)
     {
         ClearAttackableTiles();
-        if (data.directAttack) CreateAttackableTilesGfx(GetAttackableTilesDirectAttack2(pos));
+        if (data.directAttack) CreateAttackableTilesGfx(GetAttackableTilesDirectAttack(pos));
         else if (data.rangeAttack) CreateAttackableTilesGfx(GetAttackableTilesRangedAttack());
     }
     //Creates a list of tiles the unit can attack.
     void CalcAttackableArea(Vector2Int position)
     {
         ClearAttackableTiles();
-        if (data.directAttack) attackableTiles = GetAttackableTilesDirectAttack1(position);
+        if (data.directAttack) attackableTiles = new List<Tile>(CurrentTile.Neighbors);
         else if (data.rangeAttack) attackableTiles = GetAttackableTilesRangedAttack();
     }       
     public void ClearAttackableTiles()
@@ -427,27 +426,13 @@ public class Unit : MonoBehaviour
         foreach (GameObject gfx in _attackableTilesGfx) Destroy(gfx.gameObject);
         _attackableTilesGfx.Clear();
         attackableTiles.Clear();
-    }
-    //Calculates the attackable tiles for direct attack units.
-    List<Tile> GetAttackableTilesDirectAttack1(Vector2Int position)
-    {
-        List<Tile> tempList = new List<Tile>();
-        Vector2Int left = new Vector2Int(position.x - 1, position.y);
-        TryToAddAttackableTile(left, tempList);
-        Vector2Int right = new Vector2Int(position.x + 1, position.y);
-        TryToAddAttackableTile(right, tempList);
-        Vector2Int Top = new Vector2Int(position.x, position.y + 1);
-        TryToAddAttackableTile(Top, tempList);
-        Vector2Int Bottom = new Vector2Int(position.x, position.y - 1);
-        TryToAddAttackableTile(Bottom, tempList);
-        return tempList;
-    }
-    public List<Tile> GetAttackableTilesDirectAttack2(Vector2Int pos)
+    }  
+    public List<Tile> GetAttackableTilesDirectAttack(Vector2Int pos)
     {
         ClearAttackableTiles();
         ClearReachableTiles();
         CalcReachableArea(pos, data.moveDist, data.moveType, null);
-        return AddUpAttackableTile(_reachableTiles);
+        return AddUpAttackableTile(reachableTiles);
     }
     List<Tile> AddUpAttackableTile(List<Tile> reachableTiles)
     {
@@ -575,17 +560,20 @@ public class Unit : MonoBehaviour
         return tempList;
     }
     #endregion
-    #region Reachable Area
+    #region Reachable Area Methods
     public void ShowReachableArea()
     {
+        ClearReachableTiles();
         CalcReachableArea(this.Position, data.moveDist, data.moveType, null);
+
         CreateReachableTilesGfx();
     }
     public void ClearReachableTiles()
     {
-        foreach (GameObject gfx in _reachableTilesGfx) Destroy(gfx.gameObject);        
-        _reachableTilesGfx.Clear();
-        _reachableTiles.Clear();
+        foreach (GameObject gfx in reachableTilesGfx) Destroy(gfx.gameObject);        
+        reachableTilesGfx.Clear();
+        reachableTiles.Clear();
+        Core.Model.ResetAStar();
     }
     //Calculate how far you can move from a certain position depending on your movement points.
     void CalcReachableArea(Vector2Int position, int movementPoints, UnitMoveType moveType, Tile cameFromTile)
@@ -600,8 +588,7 @@ public class Unit : MonoBehaviour
         //If enough movement points are left and the tile is passable (we can move through our own units, but are blocked by enemies), do the recursion.
         if ((movementPoints >= 0) && (tile.data.GetMovementCost(moveType) > 0) && !IsVisibleEnemyHere(tile))
         {
-            if (!_reachableTiles.Contains(tile)) _reachableTiles.Add(tile);
-
+            if (!reachableTiles.Contains(tile)) reachableTiles.Add(tile);
             //The tile was reached, so test all its neighbors for reachability. Ignore the tile you came from.
             foreach (Tile neighbor in tile.Neighbors)
             {
@@ -612,14 +599,29 @@ public class Unit : MonoBehaviour
     //Draws the tiles, that can be reached.
     void CreateReachableTilesGfx()
     {
-        foreach (Tile tile in _reachableTiles)_reachableTilesGfx.Add(Instantiate(Core.Model.Database.reachableTilePrefab, new Vector3(tile.Position.x, 0, tile.Position.y), Quaternion.identity, this.transform));       
+        foreach (Tile tile in reachableTiles)reachableTilesGfx.Add(Instantiate(Core.Model.Database.reachableTilePrefab, new Vector3(tile.Position.x, 0, tile.Position.y), Quaternion.identity, this.transform));       
     }
     public bool CanReachTile(Tile tile)
     {
-        if (_reachableTiles.Contains(tile)) return true;
+        if (reachableTiles.Contains(tile)) return true;
         else return false;
     }
-   
+    public List<Tile> GetReachableTiles()
+    {
+        ClearReachableTiles();
+        CalcReachableArea(this.Position, data.moveDist, data.moveType, null);
+        return reachableTiles;
+    }
+    public List<Tile> GetOwnReachableProperties()
+    {
+        List<Tile> tempList = new List<Tile>();
+        foreach (Tile tile in GetReachableTiles())
+        {
+            if (tile.IsProperty() && team.OwnedProperties.Contains(tile)) tempList.Add(tile);
+        }
+        return tempList;
+    }
+    
     #endregion
     #region Visible Area
     //Calculates the visible area of this unit depending on its vision range and marks the visible tiles in the graph.

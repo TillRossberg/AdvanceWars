@@ -11,7 +11,8 @@ public class AI_Unit
     #endregion
     #region Fields
     public List<Order> Orders = new List<Order>();
-    int orderIndex = 0;  
+    int orderIndex = 0;
+    public bool IsHealing = false;
     #endregion   
     #region Basic Methods
     public AI_Unit(Unit unit, Squad squad)
@@ -146,13 +147,14 @@ public class AI_Unit
     }
     #endregion     
     #region Get Attackable Enemies    
-    public List<Unit> GetAttackableEnemies()
+    public List<Unit> GetAttackableEnemies(bool withMovement)
     {
         List<Unit> attackableEnemies = new List<Unit>();
         List<Tile> attackableTiles = new List<Tile>();
         if (Unit.data.directAttack)
         {
-            attackableTiles = Unit.GetAttackableTilesDirectAttack2(Unit.Position);
+            if (withMovement) attackableTiles = Unit.GetAttackableTilesDirectAttack(Unit.Position);
+            else attackableTiles = Unit.CurrentTile.Neighbors;
 
             foreach (Tile tile in attackableTiles)
             {

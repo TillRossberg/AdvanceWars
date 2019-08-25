@@ -113,12 +113,6 @@ public class AStar
     void Reset()
     {
         FinalPath.Clear();
-        for (int x = 0; x < Core.Model.MapMatrix.Count; x++)
-        {
-            for (int y = 0; y < Core.Model.MapMatrix[x].Count; y++)
-            {
-                Core.Model.MapMatrix[x][y].ResetAStar();
-            }
-        }
+        Core.Model.ResetAStar();
     }
 }

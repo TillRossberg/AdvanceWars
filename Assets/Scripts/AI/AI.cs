@@ -119,9 +119,11 @@ public class AI : MonoBehaviour
                     break;
                 case UnitPresetType.HeavyArtillerySquad:
                     squad.CurrentTactic = Squad.Tactic.HoldPOI;
-
                     Debug.Log("Poi center" + Core.Model.POIs[0].Center);
                     squad.POI = Core.Model.POIs[0];
+                    if (squad.IsSlightlyInjured()) squad.CurrentTactic = Squad.Tactic.Heal;
+                    else if (squad.IsBadlyInjured()) squad.CurrentTactic = Squad.Tactic.Flee;
+
                     break;
                 default:
                     break;

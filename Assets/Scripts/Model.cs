@@ -70,6 +70,16 @@ public class Model : MonoBehaviour
         if (position.x >= 0 && position.x < MapMatrix.Count && position.y >= 0 && position.y < MapMatrix[0].Count) return true;
         else return false;
     }
+    public void ResetAStar()
+    {
+        for (int x = 0; x < MapMatrix.Count; x++)
+        {
+            for (int y = 0; y < MapMatrix[x].Count; y++)
+            {
+                MapMatrix[x][y].ResetAStar();
+            }
+        }
+    }
     #endregion
     #region Property Methods
     public List<Tile> GetAllProperties()
@@ -137,7 +147,27 @@ public class Model : MonoBehaviour
             }
         }
     }
-    
+    public List<Tile> GetFreeTiles(List<Tile> tiles)
+    {
+        List<Tile> tempList = new List<Tile>();
+        foreach (Tile item in tiles)if (item.UnitHere == null) tempList.Add(item);
+        return tempList;
+    }
+    public Tile GetClosestTile(Tile pivot, List<Tile> tiles)
+    {
+        Tile closestTile = null;
+        float shortestDistance = 999999;
+        foreach (Tile item in tiles)
+        {
+            float distance = Vector3.Distance(pivot.transform.position, item.transform.position);
+            if(distance < shortestDistance)
+            {
+                shortestDistance = distance;
+                closestTile = item;
+            }
+        }
+        return closestTile;
+    }
     public List<Tile> GetTilesInRadius(Tile center, int radius)
     {
         List<Tile> tempList = new List<Tile>();
@@ -417,7 +447,7 @@ public class Model : MonoBehaviour
     {
         //Red
         teams[0].Add(CreateUnit(UnitType.Tank, new Vector2Int(2, 5), Direction.South));
-        SetUnitTypeHealth(Core.Model.teams[0], UnitType.Tank, 40);
+        //SetUnitTypeHealth(Core.Model.teams[0], UnitType.Tank, 40);
         //teams[0].Add(CreateUnit(UnitType.Artillery, new Vector2Int(8, 3), Direction.South));
         //teams[0].Add(CreateUnit(UnitType.Infantry, new Vector2Int(5, 3), Direction.South));
         //ground

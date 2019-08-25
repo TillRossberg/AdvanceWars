@@ -15,12 +15,15 @@ public class Squad
     public Tile TargetTile;
     public POI POI;
     public int Priority = 0;
-    public enum Tactic { AdvancePosition, Rally, HoldPOI, OccupyNeutralProperties, OccupyEnemyProperties, HoldPosition, DefendPosition, WaitForReinforcements, Heal, Flee}
+    public enum Tactic { AdvancePosition, Rally, HoldPOI, OccupyNeutralProperties, OccupyEnemyProperties, HoldPosition, DefendPosition, WaitForReinforcements, Heal, Flee }
     public Tactic CurrentTactic;
+
+    public float SlightlyInjured = 0.67f;
+    public float BadlyInjured = 0.35f;
 
     #endregion
     #region Constructors
-    public Squad (AI ai, int priority, UnitPreset preset, Tactic tactic)
+    public Squad(AI ai, int priority, UnitPreset preset, Tactic tactic)
     {
         this.ai = ai;
         Priority = priority;
@@ -39,7 +42,7 @@ public class Squad
     #region Basic Methods
     public void Init()
     {
-        if (Preset != null) Units = new List<AI_Unit>(new AI_Unit[Preset.Types.Count]);      
+        if (Preset != null) Units = new List<AI_Unit>(new AI_Unit[Preset.Types.Count]);
     }
     public void Reset()
     {
@@ -48,17 +51,17 @@ public class Squad
     }
     void ResetUnits()
     {
-        foreach (AI_Unit item in Units)if(item != null) item.Reset();
+        foreach (AI_Unit item in Units) if (item != null) item.Reset();
     }
     #endregion
-   
+
     #region Main Methods
     public void Start()
     {
         Debug.Log("====>" + this.Preset.Type + " starts turn.");
         foreach (AI_Unit aiUnit in Units)
         {
-            if(aiUnit != null)ApplyTactic(CurrentTactic, aiUnit);             
+            if (aiUnit != null) ApplyTactic(CurrentTactic, aiUnit);
         }
         Continue();
     }
@@ -114,6 +117,21 @@ public class Squad
             case Tactic.WaitForReinforcements:
                 break;
             case Tactic.Heal:
+                if (aiUnit.Unit.Health < 67)
+                {
+                    if (aiUnit.Unit.Health < 34)
+                    {
+                        Flee(aiUnit);
+                        return;
+                    }
+                    Heal(aiUnit);
+                    return;
+                }
+                else 
+                {
+                    aiUnit.IsHealing = false;
+                }
+
                 break;
             case Tactic.Flee:
                 break;
@@ -124,7 +142,7 @@ public class Squad
     #region Advance
     void AdvancePosition(AI_Unit aiUnit, Tile target)
     {
-        Unit highValueTarget = GetHighValueTarget(aiUnit);
+        Unit highValueTarget = GetHighValueTarget(aiUnit, true);
         if (highValueTarget != null)
         {
             aiUnit.AddOrder(new Move(aiUnit, highValueTarget));
@@ -133,16 +151,16 @@ public class Squad
         else
         {
             aiUnit.AddOrder(new Move(aiUnit, target));
-        }        
+        }
     }
     Tile GetAttackTile(AI_Unit aiUnit, Unit target)
     {
         List<Tile> path = Core.Model.AStar.GetPath(aiUnit.Unit, aiUnit.Unit.CurrentTile, target.CurrentTile, false);
         return path[path.Count - 2];
     }
-    public Unit GetHighValueTarget(AI_Unit aiUnit)
+    public Unit GetHighValueTarget(AI_Unit aiUnit, bool withMovement)
     {
-        List<ValueTarget> valueTargets = GetValueTargets(aiUnit.Unit, aiUnit.GetAttackableEnemies());
+        List<ValueTarget> valueTargets = GetValueTargets(aiUnit.Unit, aiUnit.GetAttackableEnemies(withMovement));
         foreach (ValueTarget item in valueTargets)
         {
             List<AI_Unit> attackingUnits = ai.GetAttackingUnits(item.Unit);
@@ -150,8 +168,8 @@ public class Squad
             {
                 Debug.Log(aiUnit.Unit + " has " + valueTargets.Count + " valuable targets and wants to attack " + item.Unit);
                 return item.Unit;
-            }            
-        }       
+            }
+        }
         return null;
     }
     List<ValueTarget> GetValueTargets(Unit attacker, List<Unit> units)
@@ -181,26 +199,12 @@ public class Squad
         valueTargets.Sort((x, y) => y.Value.CompareTo(x.Value));
         return valueTargets;
     }
-    
+
     float GetDamageValue(int damage, Unit defender)
     {
         return damage / 100f * defender.data.cost;
-    }
-    Unit GetMostValuableTarget(List<ValueTarget> valueTargets)
-    {
-        ValueTarget mostValuableTarget = new ValueTarget();
-        float highestValue = 0;
-        foreach (ValueTarget item in valueTargets)
-        {
-            if (item.Value > highestValue)
-            {
-                mostValuableTarget = item;
-                highestValue = item.Value;
-            }
-        }
-        return mostValuableTarget.Unit;
-    }
-    
+    }    
+
     bool CanSurviveAttack(Unit defender, List<AI_Unit> attackers)
     {
         int health = defender.Health;
@@ -231,7 +235,7 @@ public class Squad
             {
                 aiUnit.AddOrder(new Move(aiUnit, freeTileAroundPOI));
             }
-            else Debug.Log("No free tile around POI found!");            
+            else Debug.Log("No free tile around POI found!");
         }
     }
 
@@ -287,27 +291,67 @@ public class Squad
         }
         else throw new System.Exception("Tile is not a property!");
     }
-
-    Tile GetClosestTile(Vector3 position, List<Tile> tiles)
+    #endregion
+    #region Heal & Flee Methods
+    void Heal(AI_Unit aiUnit)
     {
-        float shortestDistance = 99999;
-        Tile closestTile = null;
-        foreach (Tile item in tiles)
+        if(aiUnit.IsHealing)
         {
-            float distance = Vector3.Distance(position, item.transform.position);
-            if (distance < shortestDistance)
+            aiUnit.AddOrder(new HoldPosition(aiUnit));
+        }
+        else
+        {
+            Tile tile = GetFreeReachableProperty(aiUnit);
+            if(tile != null)
             {
-                closestTile = item;
-                shortestDistance = distance;
+                aiUnit.AddOrder(new Move(aiUnit, tile));
+                aiUnit.AddOrder(new HoldPosition(aiUnit));
+                aiUnit.IsHealing = true;
+            }
+            else
+            {
+                Debug.Log("No proper position found to heal up!");
             }
         }
-        return closestTile;
     }
-    #endregion    
-    #region Rally
+    void Flee(AI_Unit aiUnit)
+    {
 
+    }
+    Tile GetFreeReachableProperty(AI_Unit aiUnit)
+    {
+        List<Tile> reachableProperties = aiUnit.Unit.GetOwnReachableProperties();
+        List<Tile> freeReachableProperties = Core.Model.GetFreeTiles(reachableProperties);        
+        return Core.Model.GetClosestTile(aiUnit.Unit.CurrentTile, freeReachableProperties);
+    }
+    
+    
+
+    public bool IsSlightlyInjured()
+    {
+        if (GetSquadHealth() < SlightlyInjured) return true;
+        else return false;
+    }
+    public bool IsBadlyInjured()
+    {
+        if (GetSquadHealth() < BadlyInjured) return true;
+        else return false;
+    }
+    float GetSquadHealth()
+    {
+        float currentHealth = 0;
+        float maxHealth = 0;
+        foreach (AI_Unit unit in Units)
+        {
+            if(unit != null)
+            {
+                currentHealth += unit.Unit.Health;
+                maxHealth += 100;
+            }
+        }
+        return currentHealth / maxHealth;
+    }
     #endregion
-
     #region Unit Methods   
     public void Add(Unit unit)
     {
