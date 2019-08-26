@@ -20,8 +20,8 @@ public class Controller : MonoBehaviour
     public enum Mode { Normal, Fire, Move, BuyMenu, ContextMenu, UnloadUnit, ShowTileDetails };
     public Mode CurrentMode;
 
-    List<Tile> _tilesToCycle;
-    Tile _targetTile;
+    List<Tile> tilesToCycle;
+    Tile targetTile;
 
     #region Debug
     public GameObject pathIndicator;
@@ -31,6 +31,20 @@ public class Controller : MonoBehaviour
     #endregion
 
     #region Base Methods
+    public void Init()
+    {
+        ArrowBuilder = new ArrowBuilder(Core.Model.ArrowPathParent);
+        RoundCounter = 1;
+        CurrentMode = Mode.Normal;
+        currentWeather = Core.Model.MapData.startWeather;
+    }
+    //Define the succession and set the first team that has a turn.
+    public void InitSuccession()
+    {
+        Core.Model.SetupRandomSuccession();
+        ActiveTeam = Core.Model.Succession[0];
+        ActivateUnits(ActiveTeam);
+    }
     public void StartGame()
     {
         //Core.Model.InitMap();
@@ -50,20 +64,6 @@ public class Controller : MonoBehaviour
         //Core.AudioManager.PlayMusic(Core.Model.Database.sounds.music[0]);
     }
 
-    public void Init()
-    {
-        ArrowBuilder = new ArrowBuilder(Core.Model.arrowPathParent);
-        RoundCounter = 1;
-        CurrentMode = Mode.Normal;
-        currentWeather = Core.Model.MapData.startWeather;
-    }
-    //Define the succession and set the first team that has a turn.
-    public void InitSuccession()
-    {
-        Core.Model.SetupRandomSuccession();
-        ActiveTeam = Core.Model.Succession[0];
-        ActivateUnits(ActiveTeam);
-    }
     #endregion
     #region Turn
     //Start turn
@@ -201,7 +201,7 @@ public class Controller : MonoBehaviour
                 else Core.View.TileDetails.Show(currentTile);
                 break;
             case Mode.Fire:
-                SelectedUnit.RotateAndAttack(_targetTile.UnitHere);
+                SelectedUnit.RotateAndAttack(targetTile.UnitHere);
                 Cursor.HideEstimatedDamage();
                 ResetTilesToCycle();
                 Deselect();
@@ -243,7 +243,7 @@ public class Controller : MonoBehaviour
             case Mode.ContextMenu:
                 break;
             case Mode.UnloadUnit:
-                UnloadUnit(_targetTile);
+                UnloadUnit(targetTile);
                 break;
         }
         BlockInputFor(0.2f);
@@ -357,7 +357,7 @@ public class Controller : MonoBehaviour
                     Cursor.SetPosition(pos);
                     break;
                 case Mode.Fire:
-                    CyclePositions(_tilesToCycle, pos);
+                    CyclePositions(tilesToCycle, pos);
                     break;
                 case Mode.Move:
                     Tile tile = Core.Model.GetTile(pos);             
@@ -390,7 +390,7 @@ public class Controller : MonoBehaviour
                 case Mode.ContextMenu:
                     break;
                 case Mode.UnloadUnit:
-                    CyclePositions(_tilesToCycle, pos);
+                    CyclePositions(tilesToCycle, pos);
                     break;
                 default:
                     break;
@@ -409,7 +409,7 @@ public class Controller : MonoBehaviour
                 Tile nextTile = GetClosestTileRight(currentPos);
                 Cursor.SetPosition(nextTile.Position);
                 Cursor.ShowEstimatedDamage(SelectedUnit, nextTile.UnitHere, nextTile);
-                _targetTile = nextTile;
+                targetTile = nextTile;
             }
         }
         else if (newPos.x < currentPos.x)
@@ -419,7 +419,7 @@ public class Controller : MonoBehaviour
                 Tile nextTile = GetClosestTileLeft(currentPos);
                 Cursor.SetPosition(nextTile.Position);
                 Cursor.ShowEstimatedDamage(SelectedUnit, nextTile.UnitHere, nextTile);
-                _targetTile = nextTile;
+                targetTile = nextTile;
             }
         }
         else if (newPos.y > currentPos.y)
@@ -429,7 +429,7 @@ public class Controller : MonoBehaviour
                 Tile nextTile = GetClosestTileUp(currentPos);
                 Cursor.SetPosition(nextTile.Position);
                 Cursor.ShowEstimatedDamage(SelectedUnit, nextTile.UnitHere, nextTile);
-                _targetTile = nextTile;
+                targetTile = nextTile;
             }
         }
         else if (newPos.y < currentPos.y)
@@ -439,53 +439,53 @@ public class Controller : MonoBehaviour
                 Tile nextTile = GetClosestTileDown(currentPos);
                 Cursor.SetPosition(nextTile.Position);
                 Cursor.ShowEstimatedDamage(SelectedUnit, nextTile.UnitHere, nextTile);
-                _targetTile = nextTile;
+                targetTile = nextTile;
             }
         }
     }
     bool CanCycleRight(Vector2Int currentPos)
     {
-        foreach (Tile tile in _tilesToCycle) if (tile.Position.x > currentPos.x) return true;
+        foreach (Tile tile in tilesToCycle) if (tile.Position.x > currentPos.x) return true;
         return false;
     }
     bool CanCycleLeft(Vector2Int currentPos)
     {
-        foreach (Tile tile in _tilesToCycle) if (tile.Position.x < currentPos.x) return true;
+        foreach (Tile tile in tilesToCycle) if (tile.Position.x < currentPos.x) return true;
         return false;
     }
     bool CanCycleUp(Vector2Int currentPos)
     {
-        foreach (Tile tile in _tilesToCycle) if (tile.Position.y > currentPos.y) return true;
+        foreach (Tile tile in tilesToCycle) if (tile.Position.y > currentPos.y) return true;
         return false;
     }
     bool CanCycleDown(Vector2Int currentPos)
     {
-        foreach (Tile tile in _tilesToCycle) if (tile.Position.y < currentPos.y) return true;
+        foreach (Tile tile in tilesToCycle) if (tile.Position.y < currentPos.y) return true;
         return false;
     }
 
     Tile GetClosestTileRight(Vector2Int currentPos)
     {
         List<Tile> tempList = new List<Tile>();
-        foreach (Tile tile in _tilesToCycle) if (tile.Position.x > currentPos.x) tempList.Add(tile);
+        foreach (Tile tile in tilesToCycle) if (tile.Position.x > currentPos.x) tempList.Add(tile);
         return GetClosestTile(tempList, currentPos);
     }
     Tile GetClosestTileLeft(Vector2Int currentPos)
     {
         List<Tile> tempList = new List<Tile>();
-        foreach (Tile tile in _tilesToCycle) if (tile.Position.x < currentPos.x) tempList.Add(tile);
+        foreach (Tile tile in tilesToCycle) if (tile.Position.x < currentPos.x) tempList.Add(tile);
         return GetClosestTile(tempList, currentPos);
     }
     Tile GetClosestTileUp(Vector2Int currentPos)
     {
         List<Tile> tempList = new List<Tile>();
-        foreach (Tile tile in _tilesToCycle) if (tile.Position.y > currentPos.y) tempList.Add(tile);
+        foreach (Tile tile in tilesToCycle) if (tile.Position.y > currentPos.y) tempList.Add(tile);
         return GetClosestTile(tempList, currentPos);
     }
     Tile GetClosestTileDown(Vector2Int currentPos)
     {
         List<Tile> tempList = new List<Tile>();
-        foreach (Tile tile in _tilesToCycle) if (tile.Position.y < currentPos.y) tempList.Add(tile);
+        foreach (Tile tile in tilesToCycle) if (tile.Position.y < currentPos.y) tempList.Add(tile);
         return GetClosestTile(tempList, currentPos);
     }
 
@@ -530,7 +530,7 @@ public class Controller : MonoBehaviour
         if (SelectedTile != null) DeselectTile();
     }
     //Deselect an Unit.
-    public void DeselectUnit()
+    void DeselectUnit()
     {
         SelectedUnit.ClearAttackableTiles();
         SelectedUnit.ClearReachableTiles();
@@ -540,7 +540,7 @@ public class Controller : MonoBehaviour
         SelectedUnit = null;
     }
     //Deselect a Tile.
-    public void DeselectTile()
+    void DeselectTile()
     {
         SelectedTile = null;
     }
@@ -549,11 +549,11 @@ public class Controller : MonoBehaviour
     public void FireButton()
     {
         CurrentMode = Mode.Fire;
-        _tilesToCycle = SelectedUnit.GetAttackableEnemyTiles();
+        tilesToCycle = SelectedUnit.GetAttackableEnemyTiles();
         Cursor.SetCursorGfx(1);
-        Cursor.SetPosition(_tilesToCycle[0].Position);
-        Cursor.ShowEstimatedDamage(SelectedUnit, _tilesToCycle[0].UnitHere, _tilesToCycle[0]);
-        _targetTile = _tilesToCycle[0];
+        Cursor.SetPosition(tilesToCycle[0].Position);
+        Cursor.ShowEstimatedDamage(SelectedUnit, tilesToCycle[0].UnitHere, tilesToCycle[0]);
+        targetTile = tilesToCycle[0];
         Core.View.ContextMenu.Hide(Mode.Fire);
     }
     IEnumerator FireButtonDelayed(float delay)
@@ -569,12 +569,7 @@ public class Controller : MonoBehaviour
     {
         OccupyAction(SelectedUnit, Core.Model.GetTile(Cursor.Position));        
         Deselect();
-    }
-    public void RangeButton()
-    {
-
-    }
-    //Pause Menu
+    }  
     public void EndTurnButton()
     {
         StartCoroutine(EndTurnButtonDelayed(0.01f));
@@ -677,16 +672,16 @@ public class Controller : MonoBehaviour
     {
         SelectedUnit.ClearReachableTiles();
         Core.View.ContextMenu.Hide(Mode.UnloadUnit);
-        _tilesToCycle = SelectedUnit.GetComponent<Unit_Transporter>().GetPossibleDropOffPositions(GetSelectedPosition());
-        _targetTile = _tilesToCycle[0];
-        Cursor.SetPosition(_tilesToCycle[0].Position);
+        tilesToCycle = SelectedUnit.GetComponent<Unit_Transporter>().GetPossibleDropOffPositions(GetSelectedPosition());
+        targetTile = tilesToCycle[0];
+        Cursor.SetPosition(tilesToCycle[0].Position);
 
         CurrentMode = Mode.UnloadUnit;
     }
     void ResetTilesToCycle()
     {
-        _targetTile = null;
-        _tilesToCycle.Clear();
+        targetTile = null;
+        tilesToCycle.Clear();
     }
     #endregion
     #region A*    

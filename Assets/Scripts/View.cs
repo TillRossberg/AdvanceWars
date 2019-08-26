@@ -7,8 +7,8 @@ using System.Linq;
 public class View : MonoBehaviour
 {
     #region References
-    public Canvas canvas;    
-    public EventSystem eventSystem;
+    public Canvas Canvas;    
+    public EventSystem EventSystem;
     public Menu_BuyUnits BuyMenu;
     public Menu_Context ContextMenu;
     public Menu_Details_Tile TileDetails;
@@ -17,11 +17,11 @@ public class View : MonoBehaviour
     public Screen_Victory VictoryScreen;
     #endregion
     #region Parent Object Fields
-    public Transform reachableTilesParent;
-    public Transform attackablTilesParent;
+    public Transform ReachableTilesParent;
+    public Transform AttackablTilesParent;
     #endregion
-    public List<string> commanderNames { get; private set; }
-    public List<string> weatherNames { get; private set; }//List to hold the available weather types for creating the dropdown menu to chose from them.
+    List<string> commanderNames { get; set; }
+    List<string> weatherNames { get; set; }//List to hold the available weather types for creating the dropdown menu to chose from them.
 
     #region Tile Fields
     List<GameObject> reachableTilesGfx = new List<GameObject>();
@@ -33,7 +33,7 @@ public class View : MonoBehaviour
     {
         weatherNames = System.Enum.GetNames(typeof(Weather)).ToList<string>();
         commanderNames = System.Enum.GetNames(typeof(CommanderType)).ToList<string>();
-        if (!canvas.gameObject.activeSelf) canvas.gameObject.SetActive(true);
+        if (!Canvas.gameObject.activeSelf) Canvas.gameObject.SetActive(true);
         HideAll();
         StatusPanel.gameObject.SetActive(true);
         CommanderPanel.gameObject.SetActive(true);
@@ -47,7 +47,7 @@ public class View : MonoBehaviour
     }
     public void HideAll()
     {
-        for (int i = 0; i < canvas.transform.childCount; i++) canvas.transform.GetChild(i).gameObject.SetActive(false);            
+        for (int i = 0; i < Canvas.transform.childCount; i++) Canvas.transform.GetChild(i).gameObject.SetActive(false);            
     }     
     
     #region Fog of War
@@ -74,7 +74,7 @@ public class View : MonoBehaviour
     #region Select first menu item
     public void HighlightFirstMenuItem(Transform menutItemsParent)
     {
-        eventSystem.SetSelectedGameObject(null);
+        EventSystem.SetSelectedGameObject(null);
         StartCoroutine(SelectItemDelayed(0.0001f, menutItemsParent));
     }
     GameObject GetFirstActiveItem(Transform parent)
@@ -94,7 +94,7 @@ public class View : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
                 //Debug.Log(item.name);
-        eventSystem.SetSelectedGameObject(GetFirstActiveItem(menuParent));
+        EventSystem.SetSelectedGameObject(GetFirstActiveItem(menuParent));
     }
     #endregion
 }

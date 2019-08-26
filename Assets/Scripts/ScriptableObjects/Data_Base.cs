@@ -9,6 +9,10 @@ public class Data_Base : ScriptableObject
     [Header("General")]
     public Data_Sounds Sounds;
     public GameObject containerPrefab;
+    [Header("Utility")]
+    public float tileHeight = 0;
+    public float inputDelay = 0.145f;
+    public float buttonHoldDelay = 0.1f;
     [Header("Graphics")]
     public GameObject cursorPrefab;
     public GameObject reachableTilePrefab;

@@ -6,72 +6,73 @@ using TMPro;
 using System.Linq;
 public class Controller_Cursor : MonoBehaviour
 {
-    bool _inputBlocked = true;
-    float _inputDelay;
-    bool _horAxisInUse;
-    bool _vertAxisInUse;
-    bool _buttonPressed;
     public GameObject gfx;
     public TextMeshPro estimatedDamage;
     public Vector2Int Position { get; private set; }
     public List<Mesh> meshes;
 
-    float _buttonHoldDelay;
-    float _buttonPressedTimer = 0;
-    bool _holdingB = false;
+    bool inputBlocked = true;
+    float inputDelay;
+    bool horAxisInUse;
+    bool vertAxisInUse;
+    bool buttonPressed;
+
+    float buttonHoldDelay;
+    float buttonPressedTimer = 0;
+    bool holdingB = false;
 
     public void Init(Vector2Int position)
     {
         SetPosition(position);
-        _inputDelay = Core.Model.inputDelay;
-        _buttonHoldDelay = Core.Model.buttonHoldDelay;
+        inputDelay = Core.Model.Database.inputDelay;
+        buttonHoldDelay = Core.Model.Database.buttonHoldDelay;
     }
 
     private void Update()
     {
-        if (!_inputBlocked)
+        if (!inputBlocked)
         {
             #region Movement
             //Up
             if (Input.GetAxisRaw("Vertical") > 0)
             {
-                if (!_vertAxisInUse)
+                if (!vertAxisInUse)
                 {
-                    _vertAxisInUse = true;
+                    vertAxisInUse = true;
                     Core.Controller.GoTo(new Vector2Int(Position.x, Position.y + 1));
-                    StartCoroutine(ResetVerticalAxisInUseDelayed(_inputDelay));
+                    StartCoroutine(ResetVerticalAxisInUseDelayed(inputDelay));
                 }
             }
             else
             //Down
             if (Input.GetAxisRaw("Vertical") < 0)
             {
-                if (!_vertAxisInUse)
+                if (!vertAxisInUse)
                 {
-                    _vertAxisInUse = true;
+                    vertAxisInUse = true;
                     Core.Controller.GoTo(new Vector2Int(Position.x, Position.y - 1));
-                    StartCoroutine(ResetVerticalAxisInUseDelayed(_inputDelay));
+                    StartCoroutine(ResetVerticalAxisInUseDelayed(inputDelay));
                 }
             }
             //Left
             if (Input.GetAxisRaw("Horizontal") < 0)
             {
-                if (!_horAxisInUse)
+                if (!horAxisInUse)
                 {
-                    _horAxisInUse = true;
+                    horAxisInUse = true;
                     Core.Controller.GoTo(new Vector2Int(Position.x - 1, Position.y));
-                    StartCoroutine(ResetHorizontalAxisInUseDelayed(_inputDelay));
+                    StartCoroutine(ResetHorizontalAxisInUseDelayed(inputDelay));
                 }
             }
             else
             //Right
             if (Input.GetAxisRaw("Horizontal") > 0)
             {
-                if (!_horAxisInUse)
+                if (!horAxisInUse)
                 {
-                    _horAxisInUse = true;
+                    horAxisInUse = true;
                     Core.Controller.GoTo(new Vector2Int(Position.x + 1, Position.y));
-                    StartCoroutine(ResetHorizontalAxisInUseDelayed(_inputDelay));
+                    StartCoroutine(ResetHorizontalAxisInUseDelayed(inputDelay));
                 }
             }
 
@@ -79,35 +80,35 @@ public class Controller_Cursor : MonoBehaviour
             #region Buttons
             if (Input.GetButtonDown("Jump"))
             {
-                if (!_buttonPressed)
+                if (!buttonPressed)
                 {
                     Core.Controller.AButton();
-                    _buttonPressed = true;
-                    StartCoroutine(ResetButtonPressedDelayed(_inputDelay));
+                    buttonPressed = true;
+                    StartCoroutine(ResetButtonPressedDelayed(inputDelay));
                 }
             }
             if (Input.GetButtonDown("Cancel"))
             {
                 Core.Controller.BButton();
-                _buttonPressedTimer = 0;
+                buttonPressedTimer = 0;
             }
             //Holding B button
             if (Input.GetButton("Cancel"))
             {
-                _buttonPressedTimer += Time.deltaTime;
-                if (_buttonPressedTimer >= _buttonHoldDelay && !_holdingB)
+                buttonPressedTimer += Time.deltaTime;
+                if (buttonPressedTimer >= buttonHoldDelay && !holdingB)
                 {
                     Core.Controller.BButtonHold();
-                    _holdingB = true;
+                    holdingB = true;
                 }
             }
             if (Input.GetButtonUp("Cancel"))
             {
-                if (_buttonPressedTimer >= _buttonHoldDelay)
+                if (buttonPressedTimer >= buttonHoldDelay)
                 {
                     Core.Controller.BButtonReleased();
-                    _buttonPressedTimer = 0;
-                    _holdingB = false;
+                    buttonPressedTimer = 0;
+                    holdingB = false;
                 }
             }
             if(Input.GetButtonDown("RB"))
@@ -155,7 +156,7 @@ public class Controller_Cursor : MonoBehaviour
     }
     public void BlockInput(bool value)
     {
-        _inputBlocked = value;
+        inputBlocked = value;
     }
     public void BlockInput(float duration)
     {
@@ -177,11 +178,7 @@ public class Controller_Cursor : MonoBehaviour
     public void HideEstimatedDamage()       
     {
         estimatedDamage.gameObject.SetActive(false);
-    }
-    public void ShowTakeOverCounter()
-    {
-
-    }
+    }  
     #endregion
     #region Cursor Gfx
     public void DisplayCursorGfx(bool value)
@@ -198,11 +195,11 @@ public class Controller_Cursor : MonoBehaviour
     #region Input Delay
     void ResetVerticalAxisInUse()
     {
-        _vertAxisInUse = false;
+        vertAxisInUse = false;
     }
     void ResetHorizontalAxisInUse()
     {
-        _horAxisInUse = false;
+        horAxisInUse = false;
     }
 
     IEnumerator ResetVerticalAxisInUseDelayed(float delay)
@@ -218,7 +215,7 @@ public class Controller_Cursor : MonoBehaviour
 
     void ResetButtonPressed()
     {
-        _buttonPressed = false;
+        buttonPressed = false;
     }
     IEnumerator ResetButtonPressedDelayed(float delay)
     {

@@ -16,9 +16,7 @@ public class Model : MonoBehaviour
     #endregion
     #region Fields
     public List<List<Tile>> MapMatrix { get; private set; }
-    public float tileHeight = 0;
-    public float inputDelay = 0.145f;
-    public float buttonHoldDelay = 0.1f;
+   
     #endregion
     #region Team fields
     public List<Team> teams = new List<Team>();
@@ -28,12 +26,12 @@ public class Model : MonoBehaviour
     #endregion
     #region Succession Fields    
     public List<Team> Succession { get; private set; }
-    int _successionCounter = 0;
+    int successionCounter = 0;
     #endregion
     #region Parent Objects    
-    public Transform tileParent;
-    public Transform fogOfWarParent;
-    public Transform arrowPathParent;
+    public Transform TileParent;
+    public Transform FogOfWarParent;
+    public Transform ArrowPathParent;
     #endregion
        
     #region Init Methods
@@ -105,10 +103,10 @@ public class Model : MonoBehaviour
     #region Tile Methods
     Tile CreateTile(TileType type, Vector2Int position, int rotation)
     {
-        Tile newTile = Instantiate(Database.GetTilePrefab(type), new Vector3(position.x, tileHeight, position.y), Quaternion.Euler(new Vector3(0, rotation, 0)), tileParent).GetComponent<Tile>();
+        Tile newTile = Instantiate(Database.GetTilePrefab(type), new Vector3(position.x, Database.tileHeight, position.y), Quaternion.Euler(new Vector3(0, rotation, 0)), TileParent).GetComponent<Tile>();
         newTile.name += " at X: " + position.x + " Y: " + position.y;
         newTile.Position = position;
-        GameObject fogOfWarGfx = Instantiate(Database.fogOfWarTilePrefab, new Vector3(position.x, tileHeight, position.y), Quaternion.Euler(new Vector3(0, rotation, 0)), newTile.transform);
+        GameObject fogOfWarGfx = Instantiate(Database.fogOfWarTilePrefab, new Vector3(position.x, Database.tileHeight, position.y), Quaternion.Euler(new Vector3(0, rotation, 0)), newTile.transform);
         newTile.fogOfWarGfx = fogOfWarGfx;
         fogOfWarGfx.SetActive(false);
         newTile.Init();
@@ -266,7 +264,7 @@ public class Model : MonoBehaviour
     public Unit CreateUnit(UnitType type, Vector2Int position, Direction facingDirection)
     {
         //Create the Unit
-        Unit unit = Instantiate(Core.Model.Database.GetUnitPrefab(type), new Vector3(position.x, tileHeight, position.y), Quaternion.Euler(0, 0, 0)).GetComponent<Unit>();
+        Unit unit = Instantiate(Core.Model.Database.GetUnitPrefab(type), new Vector3(position.x, Database.tileHeight, position.y), Quaternion.Euler(0, 0, 0)).GetComponent<Unit>();
         unit.Init();
         //Position and rotation
         unit.RotateUnit(facingDirection);
@@ -306,12 +304,6 @@ public class Model : MonoBehaviour
         }
         throw new System.Exception("No such team found!");
     }
-
-    public Team GetTeam(int index)
-    {
-        return teams[index];
-    }
-
     #endregion
     #region Succession Methods
     //Defines the order in wich the teams have their turns. (TODO: find a better way to solve this...)

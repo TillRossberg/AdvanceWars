@@ -95,19 +95,19 @@ public class Menu_Context : MonoBehaviour
         if (activeUnit.data.rangeAttack) rangeButton.gameObject.SetActive(true);
     }
     
-
-    void AdaptBGPicSize()
-    {
-        int counter = 0;
-        float spacing = buttonParent.GetComponent<VerticalLayoutGroup>().spacing;
-        float buttonHeight = waitButton.rect.height;
-        for (int i = 0; i < buttonParent.childCount; i++)
-        {
-            if (buttonParent.GetChild(i).gameObject.activeSelf) counter++;
-        }
-        Debug.Log("active buttons: " + counter);
-        Debug.Log("size: " + (spacing + buttonHeight));       
-        bgPic.rectTransform.sizeDelta = new Vector2(this.GetComponent<RectTransform>().rect.size.x, counter * (buttonHeight + spacing) + buttonHeight + spacing);
-    }
+    //Not working!
+    //void AdaptBGPicSize()
+    //{
+    //    int counter = 0;
+    //    float spacing = buttonParent.GetComponent<VerticalLayoutGroup>().spacing;
+    //    float buttonHeight = waitButton.rect.height;
+    //    for (int i = 0; i < buttonParent.childCount; i++)
+    //    {
+    //        if (buttonParent.GetChild(i).gameObject.activeSelf) counter++;
+    //    }
+    //    Debug.Log("active buttons: " + counter);
+    //    Debug.Log("size: " + (spacing + buttonHeight));       
+    //    bgPic.rectTransform.sizeDelta = new Vector2(this.GetComponent<RectTransform>().rect.size.x, counter * (buttonHeight + spacing) + buttonHeight + spacing);
+    //}
 
 }

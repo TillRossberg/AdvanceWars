@@ -11,7 +11,7 @@ public class Menu_BuyUnits : MonoBehaviour
     public Image thumbNail;
     public TextMeshProUGUI movePoints;
     public TextMeshProUGUI visionPoints;
-    public TextMeshProUGUI fuelPoints;
+    public TextMeshProUGUI fuelPoints; 
     public TextMeshProUGUI range;
 
     public TextMeshProUGUI primaryWeaponName;
@@ -19,11 +19,11 @@ public class Menu_BuyUnits : MonoBehaviour
     public TextMeshProUGUI secondaryWeaponName;
     public TextMeshProUGUI secondaryWeaponAmount;
     //Unit selection
-    List<Menu_BuyUnits_Selection> _selectors = new List<Menu_BuyUnits_Selection>();
+    List<Menu_BuyUnits_Selection> selectors = new List<Menu_BuyUnits_Selection>();
     public Transform selectorParent;
     public Menu_BuyUnits_Selection unitSelectorPrefab;
     //Fields
-    List<UnitType> _availableUnits = new List<UnitType>();
+    List<UnitType> availableUnits = new List<UnitType>();
     public Vector2Int ProductionPosition;
 
     public void Show(Tile tile)
@@ -32,7 +32,7 @@ public class Menu_BuyUnits : MonoBehaviour
         Core.Controller.CurrentMode = Controller.Mode.BuyMenu;
         ProductionPosition = tile.Position;
         SetAvailableUnits(tile);
-        CreateUnitSelectors(_availableUnits);
+        CreateUnitSelectors(availableUnits);
         Core.View.HighlightFirstMenuItem(selectorParent);
     }  
     public void Hide()        
@@ -85,23 +85,23 @@ public class Menu_BuyUnits : MonoBehaviour
     }
     void SetAvailableUnits(List<UnitType> unitTypes)
     {
-        _availableUnits.Clear();
-        _availableUnits = new List<UnitType>(unitTypes);
+        availableUnits.Clear();
+        availableUnits = new List<UnitType>(unitTypes);
     }
     void CreateUnitSelectors(List<UnitType> units)
     {
-        if (_selectors.Count > 0) ClearSelectors();
+        if (selectors.Count > 0) ClearSelectors();
         selectorParent.GetComponent<RectTransform>().sizeDelta = new Vector2(20, (units.Count + 1) * unitSelectorPrefab.GetComponent<RectTransform>().sizeDelta.y);
         foreach (UnitType type in units)
         {
             Menu_BuyUnits_Selection selector = Instantiate(unitSelectorPrefab, selectorParent);
             selector.Init(Core.Model.Database.GetUnitPrefab(type).GetComponent<Unit>().data);
-            _selectors.Add(selector);
+            selectors.Add(selector);
         }
     }
     void ClearSelectors()
     {
-        foreach (Menu_BuyUnits_Selection selector in _selectors) Destroy(selector.gameObject);       
-        _selectors.Clear();
+        foreach (Menu_BuyUnits_Selection selector in selectors) Destroy(selector.gameObject);       
+        selectors.Clear();
     }
 }

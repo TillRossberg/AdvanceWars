@@ -14,15 +14,15 @@ public class ArrowBuilder
     int momMovementPoints = 0; //Momentary MovementPoints.    
     List<Tile> Path = new List<Tile>();//The path of the movement arrow.
     List<GameObject> PathGFX = new List<GameObject>();
-    bool _isInterrupted = false;
-    Tile _interruptTile;
+    bool isInterrupted = false;
+    Tile interruptTile;
     #endregion
 
     #region Arrow Path
     //Initiate the arrowBuilder with the start point of the path.
     public void StartPath(Unit unit)
     {
-        _isInterrupted = false;
+        isInterrupted = false;
         Path.Add(unit.CurrentTile);//Set this tile as startpoint of the arrowPath        
         momMovementPoints = maxMovementPoints = unit.data.moveDist;//Handover the maximum movement points of the unit.        
     }
@@ -157,11 +157,11 @@ public class ArrowBuilder
             else
             {
                 AddWaypoint(movementPath, previous.Position);
-                _isInterrupted = true;
-                _interruptTile = previous;
+                isInterrupted = true;
+                interruptTile = previous;
             }
         }
-        if(!_isInterrupted) AddWaypoint(movementPath, Path[Path.Count - 1].Position);//Endpoint        
+        if(!isInterrupted) AddWaypoint(movementPath, Path[Path.Count - 1].Position);//Endpoint        
         return movementPath;
     }
     void AddWaypoint(List<Vector3> wayPointList, Vector2Int position)
@@ -169,8 +169,8 @@ public class ArrowBuilder
         wayPointList.Add(new Vector3(position.x, 0, position.y));
     }
   
-    public bool GetInterruption(){return _isInterrupted;}
-    public Tile GetInterruptionTile() { return _interruptTile; }
+    public bool GetInterruption(){return isInterrupted;}
+    public Tile GetInterruptionTile() { return interruptTile; }
 
     #endregion
     #region Conditions
@@ -199,8 +199,8 @@ public class ArrowBuilder
 
     public void ResetAll()
     {
-        _interruptTile = null;
-        _isInterrupted = false;
+        interruptTile = null;
+        isInterrupted = false;
         momMovementPoints = 0;
         maxMovementPoints = 0;
         Path.Clear();

@@ -13,7 +13,7 @@ public class Team : MonoBehaviour
 
     public int Money { get; private set; }
     public List<Unit> Units = new List<Unit>();
-    int _unitIndex = 0;
+    int unitIndex = 0;
     public List<Tile> OwnedProperties = new List<Tile>();
     #endregion
     #region AI
@@ -80,14 +80,14 @@ public class Team : MonoBehaviour
     public Unit GetNextActiveUnit()
     {
         Unit unit = null;
-        _unitIndex++;
-        if (_unitIndex >= Units.Count) _unitIndex = 0;
-        for (int i = _unitIndex; i < Units.Count; i++)
+        unitIndex++;
+        if (unitIndex >= Units.Count) unitIndex = 0;
+        for (int i = unitIndex; i < Units.Count; i++)
         {
             if (Units[i].HasTurn)
             {
                 unit = Units[i];
-                _unitIndex = i;
+                unitIndex = i;
                 break;
             }
         }
@@ -96,14 +96,14 @@ public class Team : MonoBehaviour
     public Unit GetPreviousActiveUnit()
     {
         Unit unit = null;
-        _unitIndex--;
-        if (_unitIndex < 0) _unitIndex = Units.Count - 1;
-        for (int i = _unitIndex; i >= 0; i--)
+        unitIndex--;
+        if (unitIndex < 0) unitIndex = Units.Count - 1;
+        for (int i = unitIndex; i >= 0; i--)
         {
             if (Units[i].HasTurn)
             {
                 unit = Units[i];
-                _unitIndex = i;
+                unitIndex = i;
                 break;
             }
         }
@@ -157,7 +157,7 @@ public class Team : MonoBehaviour
     public void SetStartMoney(int amount) { Money = amount; }
 
     //Checks if enough money is on the account to do the deposit.
-    public bool EnoughMoney(int amount){return Money - amount >= 0? true : false;}
+    public bool HasEnoughMoney(int amount){return Money - amount >= 0? true : false;}
     
     //Adds funds to the team account.
     public void AddMoney(int amount)
@@ -170,7 +170,7 @@ public class Team : MonoBehaviour
     //Subtracts funds from the teams account.
     public void SubtractMoney(int amount)
     {
-        if(EnoughMoney(amount))
+        if(HasEnoughMoney(amount))
         {
             Money -= amount;
         }
