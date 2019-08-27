@@ -17,9 +17,10 @@ public class Squad
     public int Priority = 0;
     public enum Tactic { AdvancePosition, Rally, HoldPOI, OccupyNeutralProperties, OccupyEnemyProperties, HoldPosition, DefendPosition, WaitForReinforcements, Heal, Flee }
     public Tactic CurrentTactic;
+    public Tactic lastTactic;
 
-    public float SlightlyInjured = 0.67f;
-    public float BadlyInjured = 0.35f;
+    public float SlightlyInjured = 67f;
+    public float BadlyInjured = 35f;
 
     #endregion
     #region Constructors
@@ -61,7 +62,21 @@ public class Squad
         Debug.Log("====>" + this.Preset.Type + " starts turn.");
         foreach (AI_Unit aiUnit in Units)
         {
-            if (aiUnit != null) ApplyTactic(CurrentTactic, aiUnit);
+            if (aiUnit != null)
+            {
+                //if (aiUnit.Unit.Health < SlightlyInjured)
+                //{
+                //    Debug.Log(aiUnit.Unit + " is badly injured!");
+                //    lastTactic = CurrentTactic;
+                //    CurrentTactic = Tactic.Heal;
+                //}
+                //else if (aiUnit.Unit.Health >= 100 && aiUnit.IsHealing)
+                //{
+                //    aiUnit.IsHealing = false;
+                //    CurrentTactic = lastTactic;
+                //}
+                ApplyTactic(CurrentTactic, aiUnit);
+            }
         }
         Continue();
     }
@@ -104,11 +119,18 @@ public class Squad
             case Tactic.HoldPOI:
                 HoldPOI(aiUnit, POI);
                 break;
-            case Tactic.OccupyNeutralProperties:
-                OccupyProperties(aiUnit, Core.Model.GetNeutralPorperties());
+            case Tactic.OccupyNeutralProperties:                
+                Unit target = GetHighValueTarget(aiUnit, true);
+                if (!aiUnit.IsOccupying && target != null) Attack(aiUnit, target);
+                else OccupyProperties(aiUnit, Core.Model.GetNeutralPorperties());            
+                          
                 break;
             case Tactic.OccupyEnemyProperties:
-                OccupyProperties(aiUnit, aiUnit.Unit.enemyTeams[0].OwnedProperties);
+                target = GetHighValueTarget(aiUnit, true);
+                if (!aiUnit.IsOccupying && target != null) Attack(aiUnit, target);
+                else OccupyProperties(aiUnit, aiUnit.Unit.enemyTeams[0].OwnedProperties);       
+                    
+                                 
                 break;
             case Tactic.HoldPosition:
                 break;
@@ -117,21 +139,7 @@ public class Squad
             case Tactic.WaitForReinforcements:
                 break;
             case Tactic.Heal:
-                if (aiUnit.Unit.Health < 67)
-                {
-                    if (aiUnit.Unit.Health < 34)
-                    {
-                        Flee(aiUnit);
-                        return;
-                    }
-                    Heal(aiUnit);
-                    return;
-                }
-                else 
-                {
-                    aiUnit.IsHealing = false;
-                }
-
+                Heal(aiUnit);               
                 break;
             case Tactic.Flee:
                 break;
@@ -145,13 +153,21 @@ public class Squad
         Unit highValueTarget = GetHighValueTarget(aiUnit, true);
         if (highValueTarget != null)
         {
-            aiUnit.AddOrder(new Move(aiUnit, highValueTarget));
-            aiUnit.AddOrder(new Attack(aiUnit, highValueTarget));
+            Attack(aiUnit, highValueTarget);
         }
         else
         {
+            if (aiUnit.Unit.IsInRadius(target, ai.enemyHQRadius))            
+            {
+                target = aiUnit.GetRandomFreeTileInRadius(target, ai.enemyHQRadius);
+            }
             aiUnit.AddOrder(new Move(aiUnit, target));
         }
+    }
+    void Attack(AI_Unit aiUnit, Unit target)
+    {
+        aiUnit.AddOrder(new Move(aiUnit, target));
+        aiUnit.AddOrder(new Attack(aiUnit, target));
     }
     Tile GetAttackTile(AI_Unit aiUnit, Unit target)
     {
@@ -181,7 +197,7 @@ public class Squad
             int attackerDamage = Core.Model.BattleCalculations.CalcDamage(attacker, defender, defender.CurrentTile);
             //Debug.Log("attacker damage: " + attackerDamage);
             int defenderDamage = 0;
-            if (defender.data.directAttack) defenderDamage = Core.Model.BattleCalculations.CalcDamage(defender, defender.Health - attackerDamage, attacker, defender.CurrentTile);
+            if (defender.data.directAttack && attacker.data.directAttack) defenderDamage = Core.Model.BattleCalculations.CalcDamage(defender, defender.Health - attackerDamage, attacker, defender.CurrentTile);
             //Debug.Log("defender damage: " + defenderDamage);
             float attackerValue = GetDamageValue(attackerDamage, defender);
 
@@ -243,13 +259,17 @@ public class Squad
     #region Occupy Properties    
     void OccupyProperties(AI_Unit aiUnit, List<Tile> properties)
     {
+
+        Debug.Log("Looking for properties");
         if (aiUnit.Unit.IsInfantry())
         {
             //Found a neutral property no one is already occupying...
             List<Tile> sortedProperties = ai.SortTilesByDistance(aiUnit.Unit.CurrentTile, properties);
+
+            Debug.Log("sorted properties>  " + sortedProperties.Count);
             foreach (Tile tile in sortedProperties)
             {
-                if (GetCapturingUnit(tile) == null)
+                if (!tile.IsEnemyHere(aiUnit.Unit) && GetCapturingUnit(tile) == null)
                 {
                     aiUnit.AddOrder(new Move(aiUnit, tile));
                     aiUnit.AddOrder(new Occupy(aiUnit, tile));
@@ -257,21 +277,20 @@ public class Squad
                 }
             }
             //...if not, find a unit that may need help...
-            foreach (Tile tile in sortedProperties)
-            {
-                AI_Unit capturingUnit = GetCapturingUnit(tile);
-                if (capturingUnit.Unit.data.type == aiUnit.Unit.data.type && capturingUnit.Unit.Health < 67)
-                {
-                    Debug.Log(aiUnit.Unit + " wants to unite with " + capturingUnit.Unit + " to increase capture speed!");
-                    aiUnit.AddOrder(new Wait(aiUnit));
-                    return;
-                }
-            }
+            //foreach (Tile tile in sortedProperties)
+            //{
+            //    AI_Unit capturingUnit = GetCapturingUnit(tile);
+            //    if (capturingUnit.Unit.data.type == aiUnit.Unit.data.type && capturingUnit.Unit.Health < 67)
+            //    {
+            //        Debug.Log(aiUnit.Unit + " wants to unite with " + capturingUnit.Unit + " to increase capture speed!");
+            //        aiUnit.AddOrder(new Wait(aiUnit));
+            //        return;
+            //    }
+            //}
             //...if no one needs help, move on to hq
             aiUnit.AddOrder(new Move(aiUnit, ai.enemyHQ));
         }
         else throw new System.Exception("Unit is not an infantry unit!");
-
     }
     AI_Unit GetCapturingUnit(Tile tile)
     {
@@ -295,6 +314,7 @@ public class Squad
     #region Heal & Flee Methods
     void Heal(AI_Unit aiUnit)
     {
+        Debug.Log(aiUnit.Unit + " wants to heal!");
         if(aiUnit.IsHealing)
         {
             aiUnit.AddOrder(new HoldPosition(aiUnit));

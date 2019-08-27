@@ -7,7 +7,6 @@ public class Occupy : Order
     public override AI_Unit aiUnit { get ; set ; }
     public override Tile TargetTile { get ; set ; }
     public override bool OrderFinished { get ; set ; }
-
     public Occupy(AI_Unit aiUnit, Tile tile)
     {
         this.aiUnit = aiUnit;
@@ -21,7 +20,7 @@ public class Occupy : Order
         if (aiUnit.Unit.IsAt(TargetTile))
         {
             Continue();
-
+            aiUnit.IsOccupying = true;
             Debug.Log(aiUnit.Unit + " captures property.");
         }
         else
@@ -39,6 +38,7 @@ public class Occupy : Order
         if(TargetTile.Property.OwningTeam == aiUnit.Unit.team)
         {
             OrderFinished = true;
+            aiUnit.IsOccupying = false;
         }
         aiUnit.ExecuteNextOrder();
     }

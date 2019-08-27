@@ -73,6 +73,16 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 11400000, guid: 62d43a8bb8573ea4d8fc938bc92acfc5,
         type: 2}
+    - target: {fileID: 3042659503044578250, guid: 4d00d44148b0d2e4b96588fac8377719,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4934729781289638575, guid: 4d00d44148b0d2e4b96588fac8377719,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6309674208592074239, guid: 4d00d44148b0d2e4b96588fac8377719,
         type: 3}
       propertyPath: m_Mesh

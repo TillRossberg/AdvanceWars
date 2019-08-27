@@ -13,7 +13,7 @@ public class AI : MonoBehaviour
     public List<POI> POIs = new List<POI>();
     public List<Squad> Squads = new List<Squad>();
     public List<UnitPreset> UnitPresets;
-    public int enemyHQRadius = 4;//In this radius we consider units as near the HQ.
+    public int enemyHQRadius = 2;//In this radius we consider units as near the HQ.
     public enum Strategy { FrontalAttack, HoldPOIs, Siege, Guerilla, AttackFromBehind}
     public Strategy CurrentStrategy;
     bool decisionPhase = true;
@@ -112,18 +112,16 @@ public class AI : MonoBehaviour
                 case UnitPresetType.InfantryAndMechSquad:
                     break;
                 case UnitPresetType.TankSquad:
+
                     break;
                 case UnitPresetType.HeavyTankSquad:
                     break;
                 case UnitPresetType.ArtillerySquad:
                     break;
                 case UnitPresetType.HeavyArtillerySquad:
-                    squad.CurrentTactic = Squad.Tactic.HoldPOI;
-                    Debug.Log("Poi center" + Core.Model.POIs[0].Center);
-                    squad.POI = Core.Model.POIs[0];
-                    if (squad.IsSlightlyInjured()) squad.CurrentTactic = Squad.Tactic.Heal;
-                    else if (squad.IsBadlyInjured()) squad.CurrentTactic = Squad.Tactic.Flee;
-
+                        squad.CurrentTactic = Squad.Tactic.HoldPOI;
+                        squad.POI = Core.Model.POIs[0];
+                        //if (Squads.IndexOf(squad) == 2) squad.POI = Core.Model.POIs[1];                
                     break;
                 default:
                     break;

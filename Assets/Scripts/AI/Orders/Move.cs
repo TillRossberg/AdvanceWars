@@ -33,6 +33,7 @@ public class Move: Order
         Debug.Log("--> Move");
         Core.Controller.Cursor.SetPosition(aiUnit.Unit.Position);
         Core.Controller.SelectedUnit = aiUnit.Unit;
+        
         //Reached target unit?
         if (TargetUnit != null)
         {
@@ -51,6 +52,13 @@ public class Move: Order
             Exit();
             return;
         }
+        else if(TargetTile == null)
+        {
+
+            Debug.Log("Move target is null!");
+            Exit();
+            return;
+        }
         //Find a way
         currentTarget = aiUnit.GetClosestTileOnPathToTarget(aiUnit.Unit, TargetTile);
         //Avoid moving to a tile on wich a friendly unit stands
@@ -58,7 +66,13 @@ public class Move: Order
         {
             Debug.Log(aiUnit.Unit + " :ally detected at : " +  currentTarget);
             Tile newTarget = aiUnit.GetClosestFreeTileAround(currentTarget, aiUnit.Unit.CurrentTile);
-            if (newTarget != null) currentTarget = aiUnit.GetClosestTileOnPathToTarget(aiUnit.Unit, newTarget);
+
+            if (newTarget != null)
+            {
+                Debug.Log("new target: " + newTarget);
+                currentTarget = aiUnit.GetClosestTileOnPathToTarget(aiUnit.Unit, newTarget);
+                Debug.Log("current target: " + currentTarget);
+            }
             else currentTarget = aiUnit.Unit.CurrentTile;
         }
         Core.Controller.SelectedTile = Core.Model.GetTile(currentTarget.Position);

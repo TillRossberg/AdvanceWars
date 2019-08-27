@@ -13,6 +13,7 @@ public class AI_Unit
     public List<Order> Orders = new List<Order>();
     int orderIndex = 0;
     public bool IsHealing = false;
+    public bool IsOccupying = false;
     #endregion   
     #region Basic Methods
     public AI_Unit(Unit unit, Squad squad)
@@ -21,7 +22,7 @@ public class AI_Unit
         this.Squad = squad;
     }
     public void Reset()
-    {        
+    {
         orderIndex = 0;
     }
     #endregion   
@@ -35,7 +36,7 @@ public class AI_Unit
             Order nextOrder = GetNextOrder();
             nextOrder.Start();
         }
-        else Squad.Continue();      
+        else Squad.Continue();
     }
     Order GetNextOrder()
     {
@@ -49,7 +50,7 @@ public class AI_Unit
     }
     public void ClearOrders()
     {
-        foreach (Order item in Orders)item.Terminate();      
+        foreach (Order item in Orders) item.Terminate();
         Orders.Clear();
     }
     public bool IsLastOrder(Order order)
@@ -57,19 +58,15 @@ public class AI_Unit
         int index = Orders.IndexOf(order);
         if (index == Orders.Count - 1) return true;
         else return false;
-    }   
+    }
     #endregion
     #region Pathfinding
     public Tile GetClosestTileOnPathToTarget(Unit unit, Tile targetTile)
     {
-        Debug.Log(unit + " wants to move to " + targetTile);
+        //Debug.Log(unit + " wants to move to " + targetTile);
         List<Tile> path = Core.Model.AStar.GetPath(unit, unit.CurrentTile, targetTile, true);
         //If all paths to the target are blocked by enemies, ignore the enemies. (The enemies on the path will be taken into account later.)
-
-        if (path.Count == 0)
-        {
-            path = Core.Model.AStar.GetPath(unit, unit.CurrentTile, targetTile, false);
-        }
+        if (path.Count == 0) path = Core.Model.AStar.GetPath(unit, unit.CurrentTile, targetTile, false);
         return FindReachableTile(path, unit);
     }
     //Find a tile on the path that can be reached with the remaining movement points AND that is not blocked by an enemy.
@@ -79,10 +76,11 @@ public class AI_Unit
         int movementPoints = unit.data.moveDist;
         for (int i = 1; i < path.Count; i++)
         {
+            //Debug.Log(i + " : " + path[i]  + " movempentpoints:" + movementPoints);
             movementPoints -= path[i].data.GetMovementCost(unit.data.moveType);
             if (unit.IsMyEnemy(path[i].UnitHere)) return path[i - 1];
             if (movementPoints <= 0 || i == path.Count - 1) return path[i];
-        }       
+        }
         throw new System.Exception("Error in finding reachable tile on path!");
     }
     //Since an ally stands on the original target, we need to find a position around that target, where we can move to.
@@ -92,7 +90,7 @@ public class AI_Unit
         bool finished = false;
         int radius = 1;
         int counter = 0;
-        float maxDistance = Vector3.Distance(ownPosition.transform.position, target.transform.position);
+        float maxDistance = Vector3.Distance(ownPosition.transform.position, target.transform.position) - 1;//TODO: find a better solution
         Tile freeTile = null;
         //repeat until a free tile was found, if none is found and you have searched the whole map return null
         while (!finished)
@@ -128,6 +126,7 @@ public class AI_Unit
         }
         return tempList;
     }
+
     Tile GetFreeTile(List<Tile> tiles)
     {
         foreach (Tile item in tiles) if (item.UnitHere == null && item.data.GetMovementCost(Unit.data.moveType) > 0) return item;
@@ -136,11 +135,14 @@ public class AI_Unit
     public Tile GetRandomFreeReachableTile(List<Tile> tiles, Unit unit)
     {
         List<Tile> tempList = new List<Tile>();
-        foreach (Tile tile in tiles)if (tile.UnitHere == null && tile.data.GetMovementCost(unit.data.moveType) > 0) tempList.Add(tile);
-        if (tempList.Count == 0) return null;       
+        foreach (Tile tile in tiles) if (tile.UnitHere == null && tile.data.GetMovementCost(unit.data.moveType) > 0) tempList.Add(tile);
+        if (tempList.Count == 0) return null;
         else return tempList[UnityEngine.Random.Range(0, tempList.Count)];
-    }  
-   
+    }
+    public Tile GetRandomFreeTileInRadius(Tile tile, int radius)
+    {
+        return GetRandomFreeReachableTile(Core.Model.GetTilesInRadius(tile, radius), this.Unit);
+    }   
     float GetDistance(Tile tile1, Tile tile2)
     {
         return Vector3.Distance(tile1.transform.position, tile2.transform.position);
@@ -168,8 +170,11 @@ public class AI_Unit
         else if (Unit.data.rangeAttack)
         {
             attackableEnemies = Unit.GetAttackableEnemies(Unit.Position);
+
+            Debug.Log("attackable enemies> " + attackableEnemies.Count);
         }
         return attackableEnemies;
     }
     #endregion
+    
 }

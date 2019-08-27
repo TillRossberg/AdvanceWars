@@ -15,19 +15,24 @@ public class HoldPosition : Order
     }
     public override void Start()
     {
+
+        Debug.Log(aiUnit.Unit + " holds its position.");
         //can we attack someone?
         Unit highValueTarget = aiUnit.Squad.GetHighValueTarget(aiUnit, false);
+
+        Debug.Log("high value target " + highValueTarget);
         if (highValueTarget != null)
         {
             aiUnit.AddOrder(new Attack(aiUnit, highValueTarget));
             Exit();
         }
+        //just stay
         else
         {
+            Debug.Log("No high value target found.");
             aiUnit.AddOrder(new Wait(aiUnit));
             Exit();
         }
-        //just stay
     }
     public override void Continue()
     {
@@ -36,12 +41,13 @@ public class HoldPosition : Order
 
     public override void Exit()
     {
+        if (aiUnit.IsLastOrder(this)) aiUnit.Unit.Wait();
         aiUnit.ExecuteNextOrder();
     }
 
 
     public override void Terminate()
     {
-        throw new System.NotImplementedException();
+
     }
 }

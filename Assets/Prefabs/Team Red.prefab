@@ -14,10 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyHQ: {fileID: 0}
   UnitPresets:
-  - {fileID: 11400000, guid: 521b486b735adac489853b2e319a29dc, type: 2}
+  - {fileID: 11400000, guid: b6b0876e903186e42a2b6e65a9c8c17a, type: 2}
   - {fileID: 11400000, guid: 651052a4facb19a4db2179cf442ff9a2, type: 2}
-  - {fileID: 11400000, guid: 3e4fd91401b5dce4985727c89a3fd130, type: 2}
-  enemyHQRadius: 4
+  enemyHQRadius: 3
   CurrentStrategy: 0
 --- !u!1001 &4834872357952993039
 PrefabInstance:
@@ -46,7 +45,7 @@ PrefabInstance:
     - target: {fileID: 2525944439473362184, guid: 1af4522836d6cc141bd6c1e9832da9aa,
         type: 3}
       propertyPath: IsAI
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6683122760643651934, guid: 1af4522836d6cc141bd6c1e9832da9aa,
         type: 3}

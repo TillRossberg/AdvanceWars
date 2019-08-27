@@ -137,7 +137,8 @@ public class Unit : MonoBehaviour
         {
             Health = 0;
             AnimationController.PlayDestroyEffect();
-            StartCoroutine(KillDelayed(this, AnimationController.DestroyEffect.main.duration / 2));
+            StartCoroutine(ShowMeshAndHealthDelayed(AnimationController.DestroyEffect.main.duration /2, false));
+            StartCoroutine(KillDelayed(this, AnimationController.DestroyEffect.main.duration));
         }
     }
     IEnumerator KillDelayed(Unit unit, float delay)
@@ -418,7 +419,7 @@ public class Unit : MonoBehaviour
     void CalcAttackableArea(Vector2Int position)
     {
         ClearAttackableTiles();
-        if (data.directAttack) attackableTiles = new List<Tile>(CurrentTile.Neighbors);
+        if (data.directAttack)attackableTiles = new List<Tile>(Core.Controller.SelectedTile.Neighbors);       
         else if (data.rangeAttack) attackableTiles = GetAttackableTilesRangedAttack();
     }       
     public void ClearAttackableTiles()
@@ -446,6 +447,7 @@ public class Unit : MonoBehaviour
         }      
         return tempList;
     }
+   
     public List<Tile> GetAttackableTilesRangedAttack()
     {
         List<Tile> tempList = new List<Tile>();
@@ -736,6 +738,24 @@ public class Unit : MonoBehaviour
         //TODO: Play interruption sound
     }
 
+
+    #endregion
+    #region  Graphics
+    IEnumerator ShowMeshAndHealthDelayed(float delay, bool value)
+    {
+        yield return new WaitForSeconds(delay);
+        ShowHealth(value);
+        ShowMesh(value);
+    }
+
+    void ShowMesh(bool value)
+    {
+        gfx.GetComponent<MeshRenderer>().enabled = value;
+    }
+    void ShowHealth(bool value)
+    {
+        healthText.gameObject.SetActive(value);
+    }
 
     #endregion
     #region Conditions

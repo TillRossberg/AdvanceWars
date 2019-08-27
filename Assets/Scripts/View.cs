@@ -16,13 +16,14 @@ public class View : MonoBehaviour
     public Panel_Commander CommanderPanel;
     public Screen_Victory VictoryScreen;
     #endregion
+    #region Fields
+    List<string> commanderNames { get; set; }
+    List<string> weatherNames { get; set; }//List to hold the available weather types for creating the dropdown menu to chose from them.
+    #endregion
     #region Parent Object Fields
     public Transform ReachableTilesParent;
     public Transform AttackablTilesParent;
     #endregion
-    List<string> commanderNames { get; set; }
-    List<string> weatherNames { get; set; }//List to hold the available weather types for creating the dropdown menu to chose from them.
-
     #region Tile Fields
     List<GameObject> reachableTilesGfx = new List<GameObject>();
     List<GameObject> attackableTilesGfx = new List<GameObject>();
@@ -39,7 +40,8 @@ public class View : MonoBehaviour
         CommanderPanel.gameObject.SetActive(true);
     }
 
-    #endregion  
+    #endregion
+    #region Show and Hide Methods
     public void ShowStandardPanels()
     {
         CommanderPanel.Show();
@@ -49,9 +51,8 @@ public class View : MonoBehaviour
     {
         for (int i = 0; i < Canvas.transform.childCount; i++) Canvas.transform.GetChild(i).gameObject.SetActive(false);            
     }     
-    
-    #region Fog of War
-    
+    #endregion    
+    #region Fog of War Methods    
     //Resets the visiblity value of each tile to invisible and calculates the visibility for the given team.
     public void UpdateFogOfWar(Team team)
     {        
@@ -71,7 +72,7 @@ public class View : MonoBehaviour
         }
     }
     #endregion
-    #region Select first menu item
+    #region Utility Methods
     public void HighlightFirstMenuItem(Transform menutItemsParent)
     {
         EventSystem.SetSelectedGameObject(null);

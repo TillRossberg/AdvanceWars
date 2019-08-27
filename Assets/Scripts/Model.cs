@@ -373,12 +373,12 @@ public class Model : MonoBehaviour
 
         //Properties
         //Neutral
-        //ChangeTile(TileType.City, new Vector2Int(8, 1), 0);
-        ChangeTile(TileType.City, new Vector2Int(8, 4), 0);
-        //ChangeTile(TileType.City, new Vector2Int(8, 7), 0);
-        //ChangeTile(TileType.City, new Vector2Int(10, 1), 0);
-        ChangeTile(TileType.City, new Vector2Int(10, 4), 0);
-        //ChangeTile(TileType.City, new Vector2Int(10, 7), 0);
+        ChangeTile(TileType.City, new Vector2Int(8, 2), 0);
+        //ChangeTile(TileType.City, new Vector2Int(8, 4), 0);
+        ChangeTile(TileType.City, new Vector2Int(8, 6), 0);
+        ChangeTile(TileType.City, new Vector2Int(10, 2), 0);
+        //ChangeTile(TileType.City, new Vector2Int(10, 4), 0);
+        ChangeTile(TileType.City, new Vector2Int(10, 6), 0);
         //Red
         ChangeTile(TileType.HQ, new Vector2Int(2, 4), 0);
         ChangeTile(TileType.Airport, new Vector2Int(2, 2), 0);
@@ -412,33 +412,13 @@ public class Model : MonoBehaviour
         //POIs
         CreatePOI(POI.Type.Hotspot, GetTile(9, 3), 1);
         //CreatePOI(POI.Type.Hotspot, GetTile(9, 5), 1);
+        //CreatePOI(POI.Type.Hotspot, GetTile(9, 5), 1);
         SetNeighbors(MapMatrix);
     }
-    public void LoadLevel03(int width, int height)
-    {
-        CreateEmptyMatrix(width, height, TileType.Plain);
-        DrawY(TileType.River, 3, 0, 2);
-        DrawY(TileType.River, 3, 3, 2);
-        DrawY(TileType.Mountain, 1, 1, 3);
-        DrawY(TileType.Mountain, 5, 1, 3);
-
-        ChangeTile(TileType.HQ, new Vector2Int(0, 2), 0);
-        ChangeTile(TileType.HQ, new Vector2Int(6, 2), 0);
-
-        Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(0, 2)));
-        Core.Controller.Occupy(teams[1], GetTile(new Vector2Int(6, 2)));
-
-        CreateUnit(UnitType.Tank,  new Vector2Int(2, 2), Direction.East);
-        CreateUnit(UnitType.Tank,  new Vector2Int(4, 1), Direction.West);
-
-        //ChangeTile(TileType.Mountain, new Vector2Int(5,0), 0);
-        SetNeighbors(MapMatrix);
-    }
-
     public void LoadLevel02Units()
     {
         //Red
-        teams[0].Add(CreateUnit(UnitType.Tank, new Vector2Int(2, 5), Direction.South));
+        teams[0].Add(CreateUnit(UnitType.Tank, new Vector2Int(6, 2), Direction.South));
         //SetUnitTypeHealth(Core.Model.teams[0], UnitType.Tank, 40);
         //teams[0].Add(CreateUnit(UnitType.Artillery, new Vector2Int(8, 3), Direction.South));
         //teams[0].Add(CreateUnit(UnitType.Infantry, new Vector2Int(5, 3), Direction.South));
@@ -469,6 +449,27 @@ public class Model : MonoBehaviour
         //teams[1].AddUnit(CreateUnit(UnitType.Infantry, new Vector2Int(6, 4), Direction.North));
         //teams[1].Add(CreateUnit(UnitType.Infantry, new Vector2Int(14, 4), Direction.North));
     }
+    public void LoadLevel03(int width, int height)
+    {
+        CreateEmptyMatrix(width, height, TileType.Plain);
+        DrawY(TileType.River, 3, 0, 2);
+        DrawY(TileType.River, 3, 3, 2);
+        DrawY(TileType.Mountain, 1, 1, 3);
+        DrawY(TileType.Mountain, 5, 1, 3);
+
+        ChangeTile(TileType.HQ, new Vector2Int(0, 2), 0);
+        ChangeTile(TileType.HQ, new Vector2Int(6, 2), 0);
+
+        Core.Controller.Occupy(teams[0], GetTile(new Vector2Int(0, 2)));
+        Core.Controller.Occupy(teams[1], GetTile(new Vector2Int(6, 2)));
+
+        CreateUnit(UnitType.Tank,  new Vector2Int(2, 2), Direction.East);
+        CreateUnit(UnitType.Tank,  new Vector2Int(4, 1), Direction.West);
+
+        //ChangeTile(TileType.Mountain, new Vector2Int(5,0), 0);
+        SetNeighbors(MapMatrix);
+    }
+
     void DrawX(TileType type, int startX, int startY, int length)
     {
         for (int i = 0; i < length; i++)
