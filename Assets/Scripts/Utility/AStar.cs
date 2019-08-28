@@ -47,24 +47,23 @@ public class AStar
                 //check all neighbors of current
                 foreach (Tile neighbor in currentTile.Neighbors)
                 {
-                    if (neighbor.data.GetMovementCost(unit.data.moveType) > 0 && (!considerEnemyUnits || !unit.IsMyEnemy(neighbor.UnitHere)))//Make sure impassable terrain is ignored and you cannot go through enemy units.
+                    if (!closedList.Contains(neighbor))
                     {
-                        if (!closedList.Contains(neighbor))
+                        if (neighbor.data.GetMovementCost(unit.data.moveType) > 0 && (!considerEnemyUnits || !unit.IsMyEnemy(neighbor.UnitHere)))//Make sure impassable terrain is ignored and you cannot go through enemy units.
                         {
                             float tempG = currentTile.G + neighbor.data.GetMovementCost(unit.data.moveType);
-                            if (openList.Contains(neighbor))
+                            if (!openList.Contains(neighbor))
                             {
-                                if (tempG < neighbor.G) neighbor.G = tempG;
+                                openList.Add(neighbor);
+                                neighbor.G = 9999999;
+                                neighbor.H = Vector3.Distance(neighbor.transform.position, endTile.transform.position);
                             }
-                            else
+                            if (tempG < neighbor.G) neighbor.G = tempG;                           
                             {
                                 neighbor.G = tempG;
-                                openList.Add(neighbor);
+                                neighbor.F = neighbor.H + neighbor.G;
+                                neighbor.PreviousTile = currentTile;
                             }
-                            //vielleicht fehler, sollte es nicht von neighbor zu end sein?
-                            neighbor.H = Vector3.Distance(neighbor.transform.position, endTile.transform.position);
-                            neighbor.F = neighbor.H + neighbor.G;
-                            neighbor.PreviousTile = currentTile;
                         }
                     }
                 }
