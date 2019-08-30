@@ -19,8 +19,8 @@ public class Squad
     public Tactic CurrentTactic;
     public Tactic lastTactic;
 
-    public float SlightlyInjured = 67f;
-    public float BadlyInjured = 35f;
+    public float SlightlyInjured = .67f;
+    public float BadlyInjured = .35f;
 
     #endregion
     #region Constructors
@@ -115,6 +115,7 @@ public class Squad
                 AdvancePosition(aiUnit, TargetTile);
                 break;
             case Tactic.Rally:
+                Rally(aiUnit, TargetTile);
                 break;
             case Tactic.HoldPOI:
                 HoldPOI(aiUnit, POI);
@@ -193,25 +194,17 @@ public class Squad
         List<ValueTarget> valueTargets = new List<ValueTarget>();
         foreach (Unit defender in units)
         {
-            //Debug.Log("defender: " + defender);
             int attackerDamage = Core.Model.BattleCalculations.CalcDamage(attacker, defender, defender.CurrentTile);
-            //Debug.Log("attacker damage: " + attackerDamage);
             int defenderDamage = 0;
-            if (defender.data.directAttack && attacker.data.directAttack) defenderDamage = Core.Model.BattleCalculations.CalcDamage(defender, defender.Health - attackerDamage, attacker, defender.CurrentTile);
-            //Debug.Log("defender damage: " + defenderDamage);
+            if (defender.data.directAttack && attacker.data.directAttack)
+                defenderDamage = Core.Model.BattleCalculations.CalcDamage(defender, defender.Health - attackerDamage, attacker, defender.CurrentTile);
             float attackerValue = GetDamageValue(attackerDamage, defender);
-
-            //Debug.Log("attacker value = " + attackerValue);
             float defenderValue = GetDamageValue(defenderDamage, attacker);
-
-            //Debug.Log("defender value = " + defenderValue);
             if (attackerValue > defenderValue)
             {
                 valueTargets.Add(new ValueTarget(defender, attackerValue));
             }
-            //TODO: if (attackerDamage > defender.health) valueTargets.Add(new ValueTarget(defender, attackerValue));// Also consider if you would kill a unit, it should be a value target.
         }
-        //valueTargets = valueTargets.OrderBy(h>=h.Value).ToList();???????
         valueTargets.Sort((x, y) => y.Value.CompareTo(x.Value));
         return valueTargets;
     }
@@ -259,7 +252,6 @@ public class Squad
     #region Occupy Properties    
     void OccupyProperties(AI_Unit aiUnit, List<Tile> properties)
     {
-
         Debug.Log("Looking for properties");
         if (aiUnit.Unit.IsInfantry())
         {
@@ -275,18 +267,7 @@ public class Squad
                     aiUnit.AddOrder(new Occupy(aiUnit, tile));
                     return;
                 }
-            }
-            //...if not, find a unit that may need help...
-            //foreach (Tile tile in sortedProperties)
-            //{
-            //    AI_Unit capturingUnit = GetCapturingUnit(tile);
-            //    if (capturingUnit.Unit.data.type == aiUnit.Unit.data.type && capturingUnit.Unit.Health < 67)
-            //    {
-            //        Debug.Log(aiUnit.Unit + " wants to unite with " + capturingUnit.Unit + " to increase capture speed!");
-            //        aiUnit.AddOrder(new Wait(aiUnit));
-            //        return;
-            //    }
-            //}
+            }          
             //...if no one needs help, move on to hq
             aiUnit.AddOrder(new Move(aiUnit, ai.enemyHQ));
         }
@@ -371,6 +352,13 @@ public class Squad
         }
         return currentHealth / maxHealth;
     }
+    #endregion
+    #region Rally
+    void Rally(AI_Unit aiUnit, Tile target)
+    {        
+        aiUnit.AddOrder(new Move(aiUnit, target));
+    }
+
     #endregion
     #region Unit Methods   
     public void Add(Unit unit)

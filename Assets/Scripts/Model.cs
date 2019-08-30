@@ -203,7 +203,6 @@ public class Model : MonoBehaviour
                         Tile belowLeft = Core.Model.GetTile(left.Position.x, left.Position.y - j);
                         TryToAdd(aboveLeft, tempList);
                         TryToAdd(belowLeft, tempList);
-
                     }
                     if (right != null)
                     {

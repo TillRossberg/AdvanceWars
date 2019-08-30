@@ -28,12 +28,12 @@ public class Unit : MonoBehaviour
     public bool CanMove = false;//States if the unit has already moved this turn.
     public bool CanFire = false;//Some units can't fire after they have moved.
     public bool IsInterrupted { get; private set; }//If we move through terrain that is covered by fog of war, we can be interrupted by an invisible enemy unit that is on our arrowpath.   
-    Tile _interruptionTile;
+    Tile interruptionTile;
     #endregion
     #region Tiles
-    List<Unit> _attackableUnits = new List<Unit>();
+    List<Unit> attackableUnits = new List<Unit>();
     List<Tile> attackableTiles = new List<Tile>();
-    List<GameObject> _attackableTilesGfx = new List<GameObject>();
+    List<GameObject> attackableTilesGfx = new List<GameObject>();
     List<Tile> reachableTiles = new List<Tile>();
     List<GameObject> reachableTilesGfx = new List<GameObject>();
     #endregion
@@ -183,7 +183,7 @@ public class Unit : MonoBehaviour
         DisplayHealth(false);//While moving we dont want to see the health.
         //Delete the reachable tiles and the movement arrow.
         ClearReachableTiles();
-        _interruptionTile = Core.Controller.ArrowBuilder.GetInterruptionTile();
+        interruptionTile = Core.Controller.ArrowBuilder.GetInterruptionTile();
         Core.Controller.ArrowBuilder.ResetAll();
         if (data.rangeAttack) CanFire = false;
         CanMove = false;
@@ -354,16 +354,16 @@ public class Unit : MonoBehaviour
                 if (data.GetDamageAgainst(enemy.data.type) > 0) tempList.Add(enemy);
             }
         }
-        _attackableUnits = tempList;
+        attackableUnits = tempList;
         return tempList;
     }
     public List<Unit> GetAttackableUnits()
     {
-        return _attackableUnits;
+        return attackableUnits;
     }
     public void ClearAttackableEnemies()
     {
-        _attackableUnits.Clear();
+        attackableUnits.Clear();
     }
 
     public bool IsMyEnemy(Unit unit)
@@ -385,7 +385,7 @@ public class Unit : MonoBehaviour
     public List<Tile> GetAttackableEnemyTiles()
     {
         List<Tile> tempList = new List<Tile>();
-        foreach (Unit enemy in _attackableUnits)
+        foreach (Unit enemy in attackableUnits)
         {
             tempList.Add(enemy.CurrentTile);
         }
@@ -393,7 +393,7 @@ public class Unit : MonoBehaviour
     }
     public bool CanAttack()
     {
-        if (CanFire && _attackableUnits.Count > 0) return true;
+        if (CanFire && attackableUnits.Count > 0) return true;
         else return false;
     }
     #endregion
@@ -424,8 +424,8 @@ public class Unit : MonoBehaviour
     }       
     public void ClearAttackableTiles()
     {
-        foreach (GameObject gfx in _attackableTilesGfx) Destroy(gfx.gameObject);
-        _attackableTilesGfx.Clear();
+        foreach (GameObject gfx in attackableTilesGfx) Destroy(gfx.gameObject);
+        attackableTilesGfx.Clear();
         attackableTiles.Clear();
     }  
     public List<Tile> GetAttackableTilesDirectAttack(Vector2Int pos)
@@ -551,7 +551,7 @@ public class Unit : MonoBehaviour
     //Creates the graphics for the tiles, that can be attacked by the unit.
     void CreateAttackableTilesGfx(List< Tile> tiles)
     {
-        foreach (Tile tile in tiles) _attackableTilesGfx.Add(Instantiate(Core.Model.Database.attackableTilePrefab, new Vector3(tile.Position.x, 0.1f, tile.Position.y), Quaternion.identity, this.transform));        
+        foreach (Tile tile in tiles) attackableTilesGfx.Add(Instantiate(Core.Model.Database.attackableTilePrefab, new Vector3(tile.Position.x, 0.1f, tile.Position.y), Quaternion.identity, this.transform));        
     }
     public List<Unit> GetReachableEnemies(Vector2Int pos)
     {
@@ -729,8 +729,8 @@ public class Unit : MonoBehaviour
     #region Interuption
     public void BeInterrupted()
     {
-        ConfirmPosition(_interruptionTile.Position);
-        _interruptionTile = null;
+        ConfirmPosition(interruptionTile.Position);
+        interruptionTile = null;
         CalcVisibleArea();
         Deactivate();
         //TODO: Show exclamation mark.
@@ -741,12 +741,6 @@ public class Unit : MonoBehaviour
 
     #endregion
     #region  Graphics
-    IEnumerator ShowMeshAndHealthDelayed(float delay, bool value)
-    {
-        yield return new WaitForSeconds(delay);
-        ShowHealth(value);
-        ShowMesh(value);
-    }
 
     void ShowMesh(bool value)
     {

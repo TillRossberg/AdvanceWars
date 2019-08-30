@@ -135,7 +135,12 @@ public class AI_Unit
     public Tile GetRandomFreeReachableTile(List<Tile> tiles, Unit unit)
     {
         List<Tile> tempList = new List<Tile>();
-        foreach (Tile tile in tiles) if (tile.UnitHere == null && tile.data.GetMovementCost(unit.data.moveType) > 0) tempList.Add(tile);
+        foreach (Tile tile in tiles)
+        { 
+         if (tile.UnitHere == null 
+                && tile.data.GetMovementCost(unit.data.moveType) > 0)
+                    tempList.Add(tile);
+        }
         if (tempList.Count == 0) return null;
         else return tempList[UnityEngine.Random.Range(0, tempList.Count)];
     }
