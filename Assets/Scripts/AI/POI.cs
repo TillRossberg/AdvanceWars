@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class POI 
 {
-    public enum Type { HQ, Hotspot}
+    public enum Type { HQ, Hotspot, SupplySpot}
     public Type MyType;
     public Tile Center;
     public int Radius;

@@ -194,10 +194,12 @@ public class Squad
         List<ValueTarget> valueTargets = new List<ValueTarget>();
         foreach (Unit defender in units)
         {
-            int attackerDamage = Core.Model.BattleCalculations.CalcDamage(attacker, defender, defender.CurrentTile);
+            int attackerDamage = Core.Model.BattleCalculations.CalcDamage
+                (attacker, defender, defender.CurrentTile);
             int defenderDamage = 0;
             if (defender.data.directAttack && attacker.data.directAttack)
-                defenderDamage = Core.Model.BattleCalculations.CalcDamage(defender, defender.Health - attackerDamage, attacker, defender.CurrentTile);
+                defenderDamage = Core.Model.BattleCalculations.CalcDamage
+                    (defender, defender.Health - attackerDamage, attacker, defender.CurrentTile);
             float attackerValue = GetDamageValue(attackerDamage, defender);
             float defenderValue = GetDamageValue(defenderDamage, attacker);
             if (attackerValue > defenderValue)

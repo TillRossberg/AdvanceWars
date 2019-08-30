@@ -90,7 +90,7 @@ public class AI_Unit
         bool finished = false;
         int radius = 1;
         int counter = 0;
-        float maxDistance = Vector3.Distance(ownPosition.transform.position, target.transform.position) - 1;//TODO: find a better solution
+        float maxDistance = Vector3.Distance(ownPosition.transform.position, target.transform.position) - 1;
         Tile freeTile = null;
         //repeat until a free tile was found, if none is found and you have searched the whole map return null
         while (!finished)
@@ -98,9 +98,7 @@ public class AI_Unit
             //get all tiles in the radius around the original
             List<Tile> tilesInRadius = Core.Model.GetTilesInRadius(target, radius);
             //reduce this list to tiles hat are not farther away than our original target
-            List<Tile> closerTiles = GetTilesThatAreCloser(ownPosition, maxDistance, tilesInRadius);
-            //Sort the tiles by distance to the own position
-            //List<Tile> sortedClosestTiles = SortTilesByDistance(ownPosition, closerTiles);
+            List<Tile> closerTiles = GetTilesThatAreCloser(ownPosition, maxDistance, tilesInRadius);          
             //finally try to find a free tile 
             freeTile = GetFreeTile(closerTiles);
             radius++;

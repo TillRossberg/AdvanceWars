@@ -141,6 +141,9 @@ public class Unit : MonoBehaviour
             StartCoroutine(KillDelayed(this, AnimationController.DestroyEffect.main.duration));
         }
     }
+
+ 
+
     IEnumerator KillDelayed(Unit unit, float delay)
     {
         yield return new WaitForSeconds(delay);
@@ -587,7 +590,8 @@ public class Unit : MonoBehaviour
             movementPoints = movementPoints - tile.data.GetMovementCost(moveType);
             //TODO: also implement fuel
         }
-        //If enough movement points are left and the tile is passable (we can move through our own units, but are blocked by enemies), do the recursion.
+        //If enough movement points are left and the tile is passable 
+        //(we can move through our own units, but are blocked by enemies), do the recursion.
         if ((movementPoints >= 0) && (tile.data.GetMovementCost(moveType) > 0) && !IsVisibleEnemyHere(tile))
         {
             if (!reachableTiles.Contains(tile)) reachableTiles.Add(tile);
@@ -741,7 +745,12 @@ public class Unit : MonoBehaviour
 
     #endregion
     #region  Graphics
-
+    private IEnumerator ShowMeshAndHealthDelayed(float delay, bool value)
+    {
+        yield return new WaitForSeconds(delay);
+        ShowMesh(value);
+        ShowHealth(value);
+    }
     void ShowMesh(bool value)
     {
         gfx.GetComponent<MeshRenderer>().enabled = value;
